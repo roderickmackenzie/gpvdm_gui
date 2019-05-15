@@ -1,0 +1,229 @@
+# 
+#   General-purpose Photovoltaic Device Model - a drift diffusion base/Shockley-Read-Hall
+#   model for 1st, 2nd and 3rd generation solar cells.
+#   Copyright (C) 2012-2017 Roderick C. I. MacKenzie r.c.i.mackenzie at googlemail.com
+#
+#   https://www.gpvdm.com
+#   Room B86 Coates, University Park, Nottingham, NG7 2RD, UK
+#
+#   This program is free software; you can redistribute it and/or modify
+#   it under the terms of the GNU General Public License v2.0, as published by
+#   the Free Software Foundation.
+#
+#   This program is distributed in the hope that it will be useful,
+#   but WITHOUT ANY WARRANTY; without even the implied warranty of
+#   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#   GNU General Public License for more details.
+#
+#   You should have received a copy of the GNU General Public License along
+#   with this program; if not, write to the Free Software Foundation, Inc.,
+#   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+#
+# 
+
+## @package gl_view_point
+#  The gl_view_point class for the OpenGL display.
+#
+
+import sys
+from math import fabs
+
+try:
+	from OpenGL.GL import *
+	from OpenGL.GLU import *
+	from PyQt5 import QtOpenGL
+	from PyQt5.QtOpenGL import QGLWidget
+	from gl_color import set_color
+	from gl_lib import val_to_rgb
+
+except:
+	pass
+
+from PyQt5.QtCore import QTimer
+
+
+#mesh
+from mesh import mesh_get_xlen
+from mesh import mesh_get_zlen
+from epitaxy import get_epi
+
+class view_point():
+	def __init__(self):
+		self.xRot =25.0
+		self.yRot =-20.0
+		self.zRot =0.0
+		self.x_pos=-0.5
+		self.y_pos=-0.5
+		self.zoom=-12.0
+		self.render_grid=True
+		self.render_photons=True
+		self.render_text=True
+		self.bg_color=[0.0,0.0,0.0]
+		self.stars_distance=-60
+
+	def shift(self,target):
+		stop=False
+		move=0.0
+		max_angle_shift=4.0
+		max_xy_shift=0.2
+		delta=(target.xRot-self.xRot)
+		if fabs(delta)>max_angle_shift:
+			delta=max_angle_shift*delta/fabs(delta)
+
+		self.xRot=self.xRot+delta
+		move=move+fabs(delta)
+
+		delta=(target.yRot-self.yRot)
+		if fabs(delta)>max_angle_shift:
+			delta=max_angle_shift*delta/fabs(delta)
+
+		self.yRot=self.yRot+delta
+		move=move+fabs(delta)
+
+		delta=(target.zRot-self.zRot)
+		if fabs(delta)>max_angle_shift:
+			delta=max_angle_shift*delta/fabs(delta)
+
+		self.zRot=self.zRot+delta
+		move=move+fabs(delta)
+		
+		delta=(target.x_pos-self.x_pos)
+		if fabs(delta)>max_xy_shift:
+			delta=max_xy_shift*delta/fabs(delta)
+
+		self.x_pos=self.x_pos+delta
+		move=move+fabs(delta)
+		
+		delta=(target.y_pos-self.y_pos)
+		if fabs(delta)>max_xy_shift:
+			delta=max_xy_shift*delta/fabs(delta)
+
+		self.y_pos=self.y_pos+delta
+		move=move+fabs(delta)
+
+		delta=(target.zoom-self.zoom)
+		if fabs(delta)>1.0:
+			delta=1.0*delta/fabs(delta)
+
+		self.zoom=self.zoom+delta
+		move=move+fabs(delta)
+		
+		if move==0.0:
+			stop=True
+
+		return stop
+
+	def set_value(self,data):
+		self.xRot=data.xRot
+		self.yRot=data.yRot
+		#self.zRot=data.zRot
+		self.x_pos=data.x_pos
+		self.y_pos=data.y_pos
+		self.zoom=data.zoom
+
+
+class gl_move_view():
+	def hello(self):
+		print("hello")
+
+	def xy(self):
+		self.viewtarget.xRot=0.0
+		self.viewtarget.yRot=0.0
+		self.viewtarget.zRot=0.0
+		self.viewtarget.x_pos=-2.0
+		self.viewtarget.y_pos=-1.7
+		self.viewtarget.zoom=-8.0
+		self.timer=QTimer()
+		self.timer.timeout.connect(self.ftimer_target)
+		self.timer.start(25)
+
+	def yz(self):
+		self.viewtarget.xRot=0.0
+		self.viewtarget.yRot=-90
+		self.viewtarget.zRot=0.0
+		self.viewtarget.x_pos=2.0
+		self.viewtarget.y_pos=-1.7
+		self.viewtarget.zoom=-8.0
+		self.timer=QTimer()
+		self.timer.timeout.connect(self.ftimer_target)
+		self.timer.start(25)
+
+	def xz(self):
+		self.viewtarget.xRot=90.0
+		self.viewtarget.yRot=0.0
+		self.viewtarget.zRot=0.0
+		self.viewtarget.x_pos=-2.0
+		self.viewtarget.y_pos=1.2
+		self.viewtarget.zoom=-9.0
+		self.timer=QTimer()
+		self.timer.timeout.connect(self.ftimer_target)
+		self.timer.start(25)
+
+	def view_push(self):
+		self.stored_view=copy.copy(self.view)
+
+	def view_pop(self):
+		self.view=copy.copy(self.stored_view)
+		
+	def my_timer(self):
+		#self.xRot =self.xRot + 2
+		self.view.yRot =self.view.yRot + 2
+		#self.zRot =self.zRot + 5
+		
+		self.update()
+
+
+	def ftimer_target(self):
+		stop=self.view.shift(self.viewtarget)
+		
+		self.update()
+		if stop==True:
+			self.timer.stop()
+
+	def fzoom_timer(self):
+		self.view.zoom =self.view.zoom+4.0
+		if self.view.zoom>-12.0:
+			self.timer.stop()
+		self.update()
+
+	def start_rotate(self):
+		self.timer=QTimer()
+		self.timer.timeout.connect(self.my_timer)
+		self.timer.start(50)
+
+	def __init__(self):
+		self.view=view_point()
+		self.view.xRot =25.0
+		self.view.yRot =-20.0
+		self.view.zRot =0.0
+		self.view.x_pos=-0.5
+		self.view.y_pos=-0.5
+		self.view.zoom=-12.0
+
+		self.viewtarget=view_point()
+		#self.viewtarget.set_value(self.view)
+		self.viewtarget.xRot=0.0
+		self.viewtarget.yRot=0.0
+		self.viewtarget.zRot=0.0
+		self.viewtarget.x_pos=-2.0
+		self.viewtarget.y_pos=-1.7
+		self.viewtarget.zoom=-8.0
+
+	def update_real_to_gl_mul(self):
+		epi=get_epi()
+		epi_y_len=epi.ylen()
+		
+		x_len=mesh_get_xlen()
+
+
+		if epi_y_len<=0:
+			return
+
+		self.max_gui_device_y=2.0
+
+		self.x_mul=1e3
+		self.y_mul=self.max_gui_device_y/epi_y_len
+		self.z_mul=1e3
+
+		self.max_gui_device_x=x_len*self.x_mul
+		self.max_gui_device_z=mesh_get_zlen()*self.z_mul

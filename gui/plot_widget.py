@@ -231,7 +231,7 @@ class plot_widget(QWidget):
 		my_max=1.0
 
 		if dim=="linegraph":		#This is for the 1D graph case
-			self.ax[0].set_xlabel(self.data[0].x_label+" ("+str(self.data[0].x_units)+")")
+			self.ax[0].set_xlabel(self.data[0].y_label+" ("+str(self.data[0].y_units)+")")
 			self.ax[0].set_ylabel(self.data[0].data_label+" ("+self.data[0].data_units+")")
 
 			for i in range(0,len(self.input_files)):

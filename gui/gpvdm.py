@@ -131,8 +131,6 @@ def do_import():
 	global device_lib_class
 	global cool_menu
 
-	global equation
-
 	global webbrowser
 	global ver_check_compatibility
 	global update_now
@@ -175,8 +173,6 @@ def do_import():
 	from dlg_export import dlg_export
 	from device_lib import device_lib_class
 	from cool_menu import cool_menu
-
-	from equation import equation
 
 	#python modules
 	import webbrowser

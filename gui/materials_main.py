@@ -39,7 +39,6 @@ import webbrowser
 
 from help import help_window
 
-from equation import equation
 from win_lin import desktop_open
 
 from ref import ref_window

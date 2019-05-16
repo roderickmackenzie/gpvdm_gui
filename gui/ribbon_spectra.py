@@ -55,6 +55,23 @@ class ribbon_spectra(ribbon_base):
 		self.main_toolbar.setToolButtonStyle( Qt.ToolButtonTextUnderIcon)
 		self.main_toolbar.setIconSize(QSize(42, 42))
 
+		self.tb_ref= QAction(icon_get("ref"), wrap_text(_("Insert reference information"),8), self)
+		self.main_toolbar.addAction(self.tb_ref)
+
+		#self.tb_save = QAction(icon_get("document-save-as"), _("Save image"), self)
+		#self.main_toolbar.addAction(self.tb_save)
+
+		self.import_data= QAction(icon_get("import"), _("Import data"), self)
+		self.main_toolbar.addAction(self.import_data)
+
+
+		spacer = QWidget()
+		spacer.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+		self.main_toolbar.addWidget(spacer)
+
+		self.help = QAction(icon_get("internet-web-browser"), _("Help"), self)
+		self.main_toolbar.addAction(self.help)
+
 
 		return self.main_toolbar
 

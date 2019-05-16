@@ -32,7 +32,7 @@ from icon_lib import icon_get
 
 #qt
 from PyQt5.QtCore import QSize, Qt 
-from PyQt5.QtWidgets import QWidget,QVBoxLayout,QHBoxLayout,QSpinBox,QToolBar,QSizePolicy,QAction,QTabWidget,QTextEdit,QComboBox,QLabel,QLineEdit,QDialog
+from PyQt5.QtWidgets import QWidget,QVBoxLayout,QHBoxLayout,QSpinBox,QToolBar,QSizePolicy,QAction,QTabWidget,QTextEdit,QComboBox,QLabel,QLineEdit,QDialog,QCheckBox
 from PyQt5.QtGui import QPainter,QIcon
 
 #python modules
@@ -72,6 +72,8 @@ from inp import inp_get_token_value_from_list
 
 from ribbon_import import ribbon_import
 
+from util import str2bool
+
 articles = []
 mesh_articles = []
 
@@ -86,16 +88,16 @@ class import_data(QDialog):
 		self.x_mul_to_si=self.items[self.x_combo.currentIndex()][4]
 		self.x_disp_mul=self.items[self.x_combo.currentIndex()][5]
 
-		self.y_label=self.items[self.y_combo.currentIndex()][2]
-		self.y_units=self.items[self.y_combo.currentIndex()][3]
-		self.y_mul_to_si=self.items[self.y_combo.currentIndex()][4]
-		self.y_disp_mul=self.items[self.y_combo.currentIndex()][5]
+		self.data_label=self.items[self.data_combo.currentIndex()][2]
+		self.data_units=self.items[self.data_combo.currentIndex()][3]
+		self.data_mul_to_si=self.items[self.data_combo.currentIndex()][4]
+		self.data_disp_mul=self.items[self.data_combo.currentIndex()][5]
 
 		self.set_xlabel(self.items[self.x_combo.currentIndex()][2])
-		self.set_ylabel(self.items[self.y_combo.currentIndex()][2])
-		self.set_title(self.items[self.x_combo.currentIndex()][2]+" - "+self.items[self.y_combo.currentIndex()][2])
+		self.set_data_label(self.items[self.data_combo.currentIndex()][2])
+		self.set_title(self.items[self.x_combo.currentIndex()][2]+" - "+self.items[self.data_combo.currentIndex()][2])
 
-		if self.items[self.y_combo.currentIndex()][6]==True or self.items[self.x_combo.currentIndex()][6]==True:
+		if self.items[self.data_combo.currentIndex()][6]==True or self.items[self.x_combo.currentIndex()][6]==True:
 			self.area_widget.show()
 		else:
 			self.area_widget.hide()
@@ -124,20 +126,25 @@ class import_data(QDialog):
 		lines.append(self.file_name)
 		lines.append("#import_x_combo_pos")
 		lines.append(str(self.x_combo.currentIndex()))
-		lines.append("#import_y_combo_pos")
-		lines.append(str(self.y_combo.currentIndex()))
+		lines.append("#import_data_combo_pos")
+		lines.append(str(self.data_combo.currentIndex()))
 		lines.append("#import_x_spin")
 		lines.append(str(self.x_spin.value()))
-		lines.append("#import_y_spin")
-		lines.append(str(self.y_spin.value()))
+		lines.append("#import_data_spin")
+		lines.append(str(self.data_spin.value()))
 		lines.append("#import_title")
 		lines.append(self.title_entry.text())
 		lines.append("#import_xlabel")
 		lines.append(self.xlabel_entry.text())
-		lines.append("#import_ylabel")
-		lines.append(self.ylabel_entry.text())
+		lines.append("#import_data_label")
+		lines.append(self.data_label_entry.text())
 		lines.append("#import_area")
 		lines.append(self.area_entry.text())
+		lines.append("#import_data_invert")
+		lines.append(str(self.data_invert.isChecked()))
+		lines.append("#import_x_invert")
+		lines.append(str(self.x_invert.isChecked()))
+
 		lines.append("#ver")
 		lines.append("#1.0")
 		lines.append("#end")
@@ -151,15 +158,18 @@ class import_data(QDialog):
 			if os.path.isfile(self.file_name)==False:
 				return False
 			self.x_combo.setCurrentIndex(int(inp_get_token_value_from_list(lines,"#import_x_combo_pos")))
-			self.y_combo.setCurrentIndex(int(inp_get_token_value_from_list(lines,"#import_y_combo_pos")))
+			self.data_combo.setCurrentIndex(int(inp_get_token_value_from_list(lines,"#import_data_combo_pos")))
 			
 			self.title_entry.setText(inp_get_token_value_from_list(lines,"#import_title"))
 			self.xlabel_entry.setText(inp_get_token_value_from_list(lines,"#import_xlabel"))
-			self.ylabel_entry.setText(inp_get_token_value_from_list(lines,"#import_ylabel"))
+			self.data_label_entry.setText(inp_get_token_value_from_list(lines,"#import_data_label"))
 			self.area_entry.setText(inp_get_token_value_from_list(lines,"#import_area"))
 
 			self.x_spin.setValue(int(inp_get_token_value_from_list(lines,"#import_x_spin")))
-			self.y_spin.setValue(int(inp_get_token_value_from_list(lines,"#import_y_spin")))
+			self.data_spin.setValue(int(inp_get_token_value_from_list(lines,"#import_data_spin")))
+
+			self.x_invert.setChecked(str2bool(inp_get_token_value_from_list(lines,"#import_x_invert")))
+			self.data_invert.setChecked(str2bool(inp_get_token_value_from_list(lines,"#import_data_invert")))
 
 			return True
 		else:
@@ -170,10 +180,10 @@ class import_data(QDialog):
 		self.xlabel_entry.setText(text)
 		self.xlabel_entry.blockSignals(False)
 
-	def set_ylabel(self,text):
-		self.ylabel_entry.blockSignals(True)
-		self.ylabel_entry.setText(text)
-		self.ylabel_entry.blockSignals(False)
+	def set_data_label(self,text):
+		self.data_label_entry.blockSignals(True)
+		self.data_label_entry.setText(text)
+		self.data_label_entry.blockSignals(False)
 
 	def set_title(self,text):
 		self.title_entry.blockSignals(True)
@@ -182,7 +192,7 @@ class import_data(QDialog):
 
 	def enable_units(self,val):
 		self.x_combo.setEnabled(val)
-		self.y_combo.setEnabled(val)
+		self.data_combo.setEnabled(val)
 
 	def get_title(self):
 		return self.title_entry.text()
@@ -190,8 +200,8 @@ class import_data(QDialog):
 	def get_xlabel(self):
 		return self.xlabel_entry.text()
 
-	def get_ylabel(self):
-		return self.ylabel_entry.text()
+	def get_data_label(self):
+		return self.data_label_entry.text()
 	
 	def callback_tab_changed(self):
 		self.update()
@@ -292,7 +302,6 @@ class import_data(QDialog):
 		self.items.append([_("J"),"mA/cm2",_("J"),"A/m2","10000.0/1000.0",1.0,False])
 		self.items.append([_("J"),"A/m2",_("J"),"A/m2","1.0",1.0,False])
 		self.items.append([_("Amps"),"A",_("J"),"A/m2","1.0/(self.get_area())",1.0,True])
-		self.items.append([_("-Amps"),"A",_("J"),"A/m2","-1.0/(self.get_area())",1.0,True])
 		self.items.append([_("Voltage"),"V",_("Voltage"),"V","1.0",1.0,False])
 		self.items.append([_("-Voltage"),"V",_("Voltage"),"V","-1.0",1.0,False])
 		self.items.append([_("Voltage"),"mV",_("Voltage"),"V","1e-3",1.0,False])
@@ -306,7 +315,7 @@ class import_data(QDialog):
 		self.items.append([_("Time"),"s",_("Time"),"s","1.0",1.0,False])
 		self.items.append([_("Suns"),"Suns",_("Suns"),"Suns","1.0",1.0,False])
 
-		self.items.append([_("Intensity"),"um x W/m^2",_("Intensity"),"m.W/m^2","1e-6",1.0,False])
+		self.items.append([_("Intensity"),"um^{-1}.Wm^{-2}",_("Intensity"),"m^{-1}.Wm^{-2}","1e6",1.0,False])
 
 		
 		i=0
@@ -315,24 +324,24 @@ class import_data(QDialog):
 		self.x_mul_to_si=self.items[i][4]
 		self.x_disp_mul=self.items[i][5]
 
-		self.y_label=self.items[i][2]
-		self.y_units=self.items[i][3]
-		self.y_mul_to_si=self.items[i][4]
-		self.y_disp_mul=self.items[i][5]
+		self.data_label=self.items[i][2]
+		self.data_units=self.items[i][3]
+		self.data_mul_to_si=self.items[i][4]
+		self.data_disp_mul=self.items[i][5]
 
 		self.top_widget=QWidget()
 		self.top_vbox=QVBoxLayout()
 		self.x_combo=QComboBox()
 		self.add_units(self.x_combo)
-		self.y_combo=QComboBox()
-		self.add_units(self.y_combo)
+		self.data_combo=QComboBox()
+		self.add_units(self.data_combo)
 		
 		self.units_x_label=QLabel(_("x units:"))
 		self.units_data_label=QLabel(_("y units:"))
 		
 
 		self.x_combo.currentIndexChanged.connect(self.callback_edited)
-		self.y_combo.currentIndexChanged.connect(self.callback_edited)
+		self.data_combo.currentIndexChanged.connect(self.callback_edited)
 
 		self.title_widget=QWidget()
 		self.title_hbox=QHBoxLayout()
@@ -354,6 +363,7 @@ class import_data(QDialog):
 		self.x_spin.setValue(0)
 		self.x_spin.valueChanged.connect(self.callback_edited)
 
+		self.x_invert=QCheckBox("invert")
 		
 		self.xlabel_hbox.addWidget(self.xlabel_label)
 		self.xlabel_hbox.addWidget(self.xlabel_entry)
@@ -361,26 +371,30 @@ class import_data(QDialog):
 		self.xlabel_hbox.addWidget(self.x_spin)
 		self.xlabel_hbox.addWidget(self.units_x_label)
 		self.xlabel_hbox.addWidget(self.x_combo)
+		self.xlabel_hbox.addWidget(self.x_invert)
 		self.xlabel_widget.setLayout(self.xlabel_hbox)
 		self.top_vbox.addWidget(self.xlabel_widget)
 
-		self.ylabel_widget=QWidget()
-		self.ylabel_hbox=QHBoxLayout()
-		self.ylabel_label=QLabel(_("y-label:"))
-		self.ylabel_entry=QLineEdit()
-		self.y_column_label=QLabel(_("y-column:"))
-		self.y_spin=QSpinBox()
-		self.y_spin.setValue(1)
-		self.y_spin.valueChanged.connect(self.callback_edited)
+		self.data_label_widget=QWidget()
+		self.data_label_hbox=QHBoxLayout()
+		self.data_label_label=QLabel(_("y-label:"))
+		self.data_label_entry=QLineEdit()
+		self.data_column_label=QLabel(_("y-column:"))
+		self.data_spin=QSpinBox()
+		self.data_spin.setValue(1)
+		self.data_spin.valueChanged.connect(self.callback_edited)
 
-		self.ylabel_hbox.addWidget(self.ylabel_label)
-		self.ylabel_hbox.addWidget(self.ylabel_entry)
-		self.ylabel_hbox.addWidget(self.y_column_label)
-		self.ylabel_hbox.addWidget(self.y_spin)
-		self.ylabel_hbox.addWidget(self.units_data_label)
-		self.ylabel_hbox.addWidget(self.y_combo)
-		self.ylabel_widget.setLayout(self.ylabel_hbox)
-		self.top_vbox.addWidget(self.ylabel_widget)
+		self.data_invert=QCheckBox("invert")
+
+		self.data_label_hbox.addWidget(self.data_label_label)
+		self.data_label_hbox.addWidget(self.data_label_entry)
+		self.data_label_hbox.addWidget(self.data_column_label)
+		self.data_label_hbox.addWidget(self.data_spin)
+		self.data_label_hbox.addWidget(self.units_data_label)
+		self.data_label_hbox.addWidget(self.data_combo)
+		self.data_label_hbox.addWidget(self.data_invert)
+		self.data_label_widget.setLayout(self.data_label_hbox)
+		self.top_vbox.addWidget(self.data_label_widget)
 
 		self.area_widget=QWidget()
 		self.area_hbox=QHBoxLayout()
@@ -397,9 +411,11 @@ class import_data(QDialog):
 		self.area_widget.hide()
 		
 		self.xlabel_entry.textEdited.connect(self.callback_edited)
-		self.ylabel_entry.textEdited.connect(self.callback_edited)
+		self.data_label_entry.textEdited.connect(self.callback_edited)
 		self.title_entry.textEdited.connect(self.callback_edited)
 		self.area_entry.textEdited.connect(self.callback_edited)
+		self.x_invert.stateChanged.connect(self.callback_edited)
+		self.data_invert.stateChanged.connect(self.callback_edited)
 		self.top_widget.setLayout(self.top_vbox)
 
 	def gen_output(self):
@@ -407,21 +423,37 @@ class import_data(QDialog):
 		text=text+"\n".join(gen_header_from_token(self.info_token))
 		text=text+"\n"
 
+		y_all=[]
+		data_all=[]
 		for i in range(0,self.data.y_len):
-			x=0
-			x_command="self.data.y_scale[i]*"+self.x_mul_to_si
-			x=eval(x_command)
-			y_command="self.data.data[0][0][i]*"+self.y_mul_to_si
+			y=0
+			y_command="self.data.y_scale[i]*"+self.x_mul_to_si
 			y=eval(y_command)
-			x_text=str('{:.8e}'.format(float(x)))
-			y_text=str('{:.8e}'.format(float(y)))
-			text=text+x_text+" "+y_text+"\n"
+
+			data_command="self.data.data[0][0][i]*"+self.data_mul_to_si
+			data=eval(data_command)
+
+			if self.x_invert.isChecked() == True:
+				y=y*-1
+
+			if self.data_invert.isChecked() == True:
+				data=data*-1
+
+			y_all.append(y)
+			data_all.append(data)
+
+		y_all, data_all = zip(*sorted(zip(y_all, data_all)))
+
+		for i in range(0,self.data.y_len):
+			y_text=str('{:.8e}'.format(float(y_all[i])))
+			data_text=str('{:.8e}'.format(float(data_all[i])))
+			text=text+y_text+" "+data_text+"\n"
 
 		text=text+"#end\n"
 		self.out_data.setText(text)
 
 	def update(self):
-		ret=dat_file_import_filter(self.data,self.file_name,x_col=self.x_spin.value(),y_col=self.y_spin.value())
+		ret=dat_file_import_filter(self.data,self.file_name,x_col=self.x_spin.value(),y_col=self.data_spin.value())
 		if ret==True:
 			self.populate_boxes()
 		else:
@@ -429,14 +461,14 @@ class import_data(QDialog):
 
 		self.info_token.title=self.get_title()
 
-		self.info_token.x_label=self.get_xlabel()
-		self.info_token.data_label=self.get_ylabel()
+		self.info_token.data_label=self.get_xlabel()
+		self.info_token.data_label=self.get_data_label()
 
-		self.info_token.x_units=self.x_units
-		self.info_token.data_units=self.y_units
+		self.info_token.data_units=self.data_units
+		self.info_token.data_units=self.data_units
 		
-		self.info_token.x_mul=self.x_disp_mul
-		self.info_token.y_mul=self.y_disp_mul
+		self.info_token.data_mul=self.data_disp_mul
+		self.info_token.data_mul=self.data_disp_mul
 
 		self.info_token.x_len=self.data.x_len
 		self.info_token.y_len=self.data.y_len

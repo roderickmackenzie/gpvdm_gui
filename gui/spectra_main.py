@@ -39,13 +39,19 @@ import webbrowser
 
 from help import help_window
 
-from equation import equation
+from plot_widget import plot_widget
 from win_lin import desktop_open
 
 from ref import get_ref_text
 from QWidgetSavePos import QWidgetSavePos
 
 from ribbon_spectra import ribbon_spectra
+
+from import_data import import_data
+
+from ref import ref_window
+from ref import get_ref_text
+from ref_io import ref
 
 articles = []
 mesh_articles = []
@@ -61,7 +67,21 @@ class spectra_main(QWidgetSavePos):
 			help_window().help_set_help(["n.png",_("<big><b>Refractive index</b></big><br>"+text)])
 
 	def callback_help(self):
-		webbrowser.open("https://www.gpvdm.com/man/index.html")
+		webbrowser.open("https://www.gpvdm.com/docs.html")
+
+	def update(self):
+		self.alpha.update()
+
+	def callback_ref(self):
+		self.ref_window=ref_window(os.path.join(self.path,"spectra.inp"))
+		self.ref_window.show()
+
+	def callback_import(self):
+		output_file=os.path.join(self.path,"spectra.inp")
+		config_file=os.path.join(self.path,"spectra_import.inp")
+		self.im=import_data(output_file,config_file)
+		self.im.run()
+		self.update()
 
 	def __init__(self,path):
 		QWidgetSavePos.__init__(self,"spectra_main")
@@ -76,12 +96,11 @@ class spectra_main(QWidgetSavePos):
 
 		self.ribbon=ribbon_spectra()
 		
-		#self.ribbon.cost.triggered.connect(self.callback_cost)
-		#self.ribbon.folder_open.triggered.connect(self.callback_dir_open)
-		#self.ribbon.import_data.triggered.connect(self.import_data)
-		#self.ribbon.tb_ref.triggered.connect(self.callback_ref)
 
-		#self.ribbon.help.triggered.connect(self.callback_help)
+		self.ribbon.import_data.triggered.connect(self.callback_import)
+		self.ribbon.tb_ref.triggered.connect(self.callback_ref)
+
+		self.ribbon.help.triggered.connect(self.callback_help)
 
 
 		self.main_vbox.addWidget(self.ribbon)
@@ -96,12 +115,15 @@ class spectra_main(QWidgetSavePos):
 		files=["mat.inp"]
 		description=[_("Parameters")]
 
-		eq=equation(self.path,"spectra_eq.inp","spectra_gen.inp","spectra.inp","#spectra_equation_or_data",toolbar=self.ribbon.main_toolbar)
-		eq.show_solar_spectra=True
-		eq.set_default_value("3")
-		eq.set_ylabel(_("Intensity")+" (au)")
-		eq.init()
-		self.notebook.addTab(eq,_("Intensity"))
+
+		fname=os.path.join(self.path,"spectra.inp")
+		self.alpha=plot_widget()
+		self.alpha.init(enable_toolbar=False)
+		self.alpha.set_labels([_("Spectra")])
+		self.alpha.load_data([fname],os.path.splitext(fname)[0]+".oplot")
+
+		self.alpha.do_plot()
+		self.notebook.addTab(self.alpha,_("Absorption"))
 
 		for i in range(0,len(files)):
 			tab=tab_class()

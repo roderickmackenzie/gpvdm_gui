@@ -32,7 +32,7 @@ class my_data():
 	token=""
 	units=""
 	info=""
-	def __init__(self,file_name,a,b,c,e,f,widget,defaults=None):
+	def __init__(self,file_name,a,b,c,e,f,widget,defaults=None,units_widget="QLabel"):
 		self.file_name=file_name
 		self.token=a
 		self.units=b
@@ -41,6 +41,7 @@ class my_data():
 		self.number_type=e
 		self.number_mul=f
 		self.widget=widget
+		self.units_widget=units_widget
 
 
 lib=[]
@@ -68,7 +69,7 @@ def build_token_lib():
 
 
 	#dos.inp
-	lib.append(my_data("","#dostype","au",_("DoS distribution"),"s",1.0,"QComboBoxLang",defaults=[[("exponential"),_("exponential")],["complex",_("complex")]]))
+	lib.append(my_data("","#dostype","Edit",_("DoS distribution"),"s",1.0,"dos_complex_switch",units_widget="QPushButton"))
 	lib.append(my_data("","#Nc","m^{-3}",_("Effective density of free electron states"),"e",1.0,"QLineEdit"))
 	lib.append(my_data("","#Nv","m^{-3}",_("Effective density of free hole states"),"e",1.0,"QLineEdit"))
 	lib.append(my_data("","#mueffe","m^{2}V^{-1}s^{-1}",_("Electron mobility"),"e",1.0,"QLineEdit"))

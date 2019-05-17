@@ -57,8 +57,7 @@ from gui_util import tab_add
 from gui_util import tab_remove
 from gui_util import tab_get_value
 
-articles = []
-HOMO_articles = []
+from ribbon_complex_dos import ribbon_complex_dos 
 
 class equation_editor(QGroupBox):
 
@@ -187,11 +186,7 @@ class equation_editor(QGroupBox):
 
 		
 ############
-class tab_bands(QWidget,tab_base):
-
-	edit_list=[]
-
-
+class dos_editor(QWidget,tab_base):
 
 	def update_graph(self):
 		self.LUMO_fig.clf()
@@ -199,8 +194,6 @@ class tab_bands(QWidget,tab_base):
 		self.LUMO_fig.canvas.draw()
 
 	def draw_graph_lumo(self):
-
-#		n=0
 
 		ax1 = self.LUMO_fig.add_subplot(111)
 
@@ -266,6 +259,11 @@ class tab_bands(QWidget,tab_base):
 
 	def __init__(self):
 		QWidget.__init__(self)
+
+		self.setWindowTitle(_("Complex Density of states editor - gpvdm"))
+		self.setWindowIcon(icon_get("electrical"))
+		self.setMinimumSize(1000,500)
+
 		edit_boxes=QWidget()
 		vbox=QVBoxLayout()
 
@@ -280,14 +278,6 @@ class tab_bands(QWidget,tab_base):
 
 		hbox=QHBoxLayout()
 
-		toolbar=QToolBar()
-		toolbar.setIconSize(QSize(48, 48))
-		toolbar.setOrientation(Qt.Vertical)
-		add = QAction(icon_get("document-save-as"),  _("Save"), self)
-		add.triggered.connect(self.callback_save)
-		toolbar.addAction(add)
-
-		hbox.addWidget(toolbar)
 
 		self.LUMO_fig = Figure(figsize=(5,4), dpi=100)
 
@@ -303,7 +293,19 @@ class tab_bands(QWidget,tab_base):
 
 		hbox.addWidget(edit_boxes)
 		
-		self.setLayout(hbox)
+		self.ribbon=ribbon_complex_dos()
+		self.ribbon.tb_save.triggered.connect(self.callback_save)
+
+
+		self.main_layout_widget=QWidget()
+		self.main_layout_widget.setLayout(hbox)
+
+		self.big_vbox=QVBoxLayout()
+
+		self.big_vbox.addWidget(self.ribbon)
+		self.big_vbox.addWidget(self.main_layout_widget)
+
+		self.setLayout(self.big_vbox)
 		
 		self.lumo.changed.connect(self.update_graph)
 		self.homo.changed.connect(self.update_graph)

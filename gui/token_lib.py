@@ -302,9 +302,9 @@ def build_token_lib():
 	lib.append(my_data("","#led_extract_eff","0.0-1.0",_("LED extraction efficiency"),"e",1.0,"QLineEdit"))
 
 	#device.inp
-	lib.append(my_data("","#invert_applied_bias","au",_("Invert applied bias"),"e",1.0,"gtkswitch"))
-	lib.append(my_data("","#lcharge","m^{-3}",_("Charge on left contact"),"e",1.0,"QLineEdit"))
-	lib.append(my_data("","#rcharge","m^{-3}",_("Charge on right contact"),"e",1.0,"QLineEdit"))
+	#lib.append(my_data("","#invert_applied_bias","au",_("Invert applied bias"),"e",1.0,"gtkswitch"))
+	#lib.append(my_data("","#lcharge","m^{-3}",_("Charge on left contact"),"e",1.0,"QLineEdit"))
+	#lib.append(my_data("","#rcharge","m^{-3}",_("Charge on right contact"),"e",1.0,"QLineEdit"))
 
 	#parasitic.inp
 	lib.append(my_data("parasitic.inp","#Rshunt","Ohms",_("Shunt resistance"),"e",1.0,"QLineEdit"))
@@ -355,7 +355,6 @@ def build_token_lib():
 	lib.append(my_data("","#meshpoints","au",_("Mesh points (x)"),"e",1.0,"QLineEdit"))
 
 	lib.append(my_data("","#function","au",_("#function"),"e",1.0,"QLineEdit"))
-	lib.append(my_data("","#lr_pcontact",_("left/right"),_("Hole majority contact on left/right of device."),"s",1.0,"leftright"))
 	lib.append(my_data("","#Vexternal","V",_("start voltage"),"e",1.0,"QLineEdit"))
 	lib.append(my_data("","#Vmax","V",_("Max voltage"),"e",1.0,"QLineEdit"))
 	lib.append(my_data("","#Eg","eV",_("Eg"),"e",1.0,"QLineEdit"))

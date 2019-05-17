@@ -42,6 +42,8 @@ class segment():
 		self.depth=0.0
 		self.voltage=0.0
 		self.width=0.0
+		self.np=1e20
+		self.charge_type="electron"
 
 store=[]
 
@@ -62,7 +64,7 @@ def contacts_clear():
 	global store
 	store=[]
 
-def contacts_append(name,position,active,start,width,depth,voltage):
+def contacts_append(name,position,active,start,width,depth,voltage,np,charge_type):
 	global store
 	s=segment()
 	s.name=name
@@ -72,31 +74,11 @@ def contacts_append(name,position,active,start,width,depth,voltage):
 	s.depth=depth
 	s.voltage=voltage
 	s.width=width
+	s.np=np
+	s.charge_type=charge_type
 	store.append(s)
 
-def contacts_dump():
-	global store
-	print("dump of contacts:")
-	print(str(len(store)))
-	i=0
-	for s in store:
-		print("#contact_name"+str(i))
-		print(str(s.name))
-		print("#contact_position"+str(i))
-		print(str(s.position))
-		print("#contact_active"+str(i))
-		print(str(s.active))
-		print("#contact_start"+str(i))
-		print(str(s.start))
-		print("#contact_width"+str(i))
-		print(str(s.width))
-		print("#contact_depth"+str(i))
-		print(str(s.depth))
-		print("#contact_voltage"+str(i))
-		print(str(s.voltage))
-
-
-def contacts_save():
+def gen_file():
 	global store
 	lines=[]
 	lines.append("#contacts")
@@ -117,11 +99,27 @@ def contacts_save():
 		lines.append(str(s.depth))
 		lines.append("#contact_voltage"+str(i))
 		lines.append(str(s.voltage))
+		lines.append("#contact_charge_density"+str(i))
+		lines.append(str(s.np))
+		lines.append("#contact_charge_type"+str(i))
+		lines.append(str(s.charge_type))
 		i=i+1
+
 	lines.append("#ver")
-	lines.append("1.1")
+	lines.append("1.2")
 	lines.append("#end")
-	
+
+	return lines
+
+
+def contacts_dump():
+	lines=gen_file()
+	for s in lines:
+		print(s)
+
+
+def contacts_save():
+	lines=gen_file()	
 	inp_save(os.path.join(get_sim_path(),"contacts.inp"),lines)
 
 
@@ -185,8 +183,21 @@ def contacts_load():
 			pos=pos+1
 			voltage=lines[pos]			#read value
 
+			#contact_charge_density
+			pos=pos+1					#token
+			token=lines[pos]
 
-			contacts_append(name,position,str2bool(active),float(start),float(width),float(depth),float(voltage))
+			pos=pos+1
+			charge_density=lines[pos]			#read value
+
+			#contact_charge_type
+			pos=pos+1					#token
+			token=lines[pos]
+
+			pos=pos+1
+			charge_type=lines[pos]			#read value
+
+			contacts_append(name,position,str2bool(active),float(start),float(width),float(depth),float(voltage),float(charge_density),charge_type)
 
 		#contacts_dump()
 

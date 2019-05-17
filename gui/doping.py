@@ -231,7 +231,7 @@ class doping_window(QWidgetSavePos):
 
 	def __init__(self):
 		QWidgetSavePos.__init__(self,"doping")
-		self.setFixedSize(900, 600)
+		self.setMinimumSize(900, 600)
 		self.setWindowIcon(icon_get("doping"))
 		self.setWindowTitle(_("Doping/Mobilie ion profile editor")+" (https://www.gpvdm.com)") 
 

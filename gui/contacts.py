@@ -95,10 +95,10 @@ class contacts_window(QWidgetSavePos):
 
 		contacts_clear()
 		for i in range(0,self.tab.rowCount()):
-			contacts_append(tab_get_value(self.tab,i, 0),tab_get_value(self.tab,i, 1),str2bool(tab_get_value(self.tab,i, 2)),float(tab_get_value(self.tab,i, 3)),float(tab_get_value(self.tab,i, 4)),float(tab_get_value(self.tab,i, 5)),float(tab_get_value(self.tab,i, 6)))
+			contacts_append(tab_get_value(self.tab,i, 0),tab_get_value(self.tab,i, 1),str2bool(tab_get_value(self.tab,i, 2)),float(tab_get_value(self.tab,i, 3)),float(tab_get_value(self.tab,i, 4)),float(tab_get_value(self.tab,i, 5)),float(tab_get_value(self.tab,i, 6)),float(tab_get_value(self.tab,i, 7)),tab_get_value(self.tab,i, 8))
 		return True
 	
-	def add_row(self,pos,name,top_btm,active,start,width,depth,voltage):
+	def add_row(self,pos,name,top_btm,active,start,width,depth,voltage,np,charge_type):
 
 		pos= tab_insert_row(self.tab)
 
@@ -126,6 +126,18 @@ class contacts_window(QWidgetSavePos):
 		self.tab.setItem(pos,4,QTableWidgetItem(width))
 		self.tab.setItem(pos,5,QTableWidgetItem(depth))
 		self.tab.setItem(pos,6,QTableWidgetItem(voltage))
+		self.tab.setItem(pos,7,QTableWidgetItem(np))
+
+
+		combobox = QComboBoxLang()
+		combobox.addItemLang("electron",_("Electron"))
+		combobox.addItemLang("hole",_("Hole"))
+
+		self.tab.setCellWidget(pos,8, combobox)
+		combobox.setValue_using_english(charge_type.lower())
+		combobox.currentIndexChanged.connect(self.save)
+
+
 
 
 		self.tab.blockSignals(False)
@@ -138,7 +150,7 @@ class contacts_window(QWidgetSavePos):
 		else:
 			pos = self.tab.rowCount()
 
-		self.add_row(pos,"","top","false","0.0","0.0","0.0","0.0")
+		self.add_row(pos,"","top","false","0.0","0.0","0.0","0.0","0.0","electron")
  
 		self.save()
 
@@ -163,20 +175,20 @@ class contacts_window(QWidgetSavePos):
 
 	def load(self):
 		self.tab.clear()
-		self.tab.setHorizontalHeaderLabels([_("Name"),_("Top/Bottom"),_("Active contact"),_("Start")+" (m)", _("Width")+" (m)",_("Depth")+" (m)",_("Voltage")])
+		self.tab.setHorizontalHeaderLabels([_("Name"),_("Top/Bottom"),_("Active contact"),_("Start")+" (m)", _("Width")+" (m)",_("Depth")+" (m)",_("Voltage"),_("Charge density"),_("Charge type")])
 		contacts_load()
 		#contacts_print()
 		contacts=contacts_get_array()
 		i=0
 		for c in contacts_get_array():
-			self.add_row(i,str(c.name),str(c.position),str(c.active),str(c.start),str(c.width),str(c.depth),str(c.voltage))
+			self.add_row(i,str(c.name),str(c.position),str(c.active),str(c.start),str(c.width),str(c.depth),str(c.voltage),str(c.np),str(c.charge_type))
 
 			i=i+1
 
 
 	def __init__(self):
 		QWidgetSavePos.__init__(self,"contacts")
-		self.setFixedSize(750, 400)
+		self.setMinimumSize(1000, 400)
 
 		self.setWindowIcon(icon_get("contact"))
 
@@ -216,7 +228,7 @@ class contacts_window(QWidgetSavePos):
 		self.tab.verticalHeader().setVisible(False)
 
 		self.tab.clear()
-		self.tab.setColumnCount(7)
+		self.tab.setColumnCount(9)
 		self.tab.setSelectionBehavior(QAbstractItemView.SelectRows)
 
 		self.load()

@@ -25,6 +25,7 @@
 #  A library of all tokens used in the model.
 #
 
+
 import i18n
 _ = i18n.language.gettext
 
@@ -69,7 +70,7 @@ def build_token_lib():
 
 
 	#dos.inp
-	lib.append(my_data("","#dostype","Edit",_("DoS distribution"),"s",1.0,"dos_complex_switch",units_widget="QPushButton"))
+
 	lib.append(my_data("","#Nc","m^{-3}",_("Effective density of free electron states"),"e",1.0,"QLineEdit"))
 	lib.append(my_data("","#Nv","m^{-3}",_("Effective density of free hole states"),"e",1.0,"QLineEdit"))
 	lib.append(my_data("","#mueffe","m^{2}V^{-1}s^{-1}",_("Electron mobility"),"e",1.0,"QLineEdit"))

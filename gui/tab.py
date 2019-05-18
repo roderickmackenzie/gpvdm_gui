@@ -105,7 +105,7 @@ class tab_class(QWidget,tab_base):
 	def callback_edit(self,token,widget,unit):
 		if type(widget)==QLineEdit:
 			a=undo_list_class()
-			a.add([file_name, token, inp_get_token_value(self.file_name, token),widget])
+			a.add([self.file_name, token, inp_get_token_value(self.file_name, token),widget])
 			inp_update_token_value(self.file_name, token, widget.text())
 		elif type(widget)==gtkswitch:
 			inp_update_token_value(self.file_name, token, widget.get_value())
@@ -183,7 +183,7 @@ class tab_class(QWidget,tab_base):
 			elif w.widget=="QComboBoxNewtonSelect":
 				w.edit_box.setText(values[0])
 			elif w.widget=="dos_complex_switch":
-				w.widget.set_value(values[0])
+				w.edit_box.set_value(values[0])
 		
 			w.edit_box.blockSignals(False)
 

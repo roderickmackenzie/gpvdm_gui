@@ -31,9 +31,6 @@ import webbrowser
 from inp import inp_search_token_value
 from icon_lib import icon_get
 
-from epitaxy import epitaxy_get_layers
-from epitaxy import epitaxy_get_dos_file
-from epitaxy import epitaxy_get_width
 from scan_item import scan_item_add
 
 import i18n

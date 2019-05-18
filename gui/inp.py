@@ -225,6 +225,79 @@ def inp_update_token_array(file_path, token, replace):
 
 	write_lines_to_archive(zip_file_name,base_name,lines)
 
+def inp_delete_token(file_path, token, archive="sim.gpvdm",id=""):
+	lines=[]
+	lines_out=[]
+
+	lines=inp_load_file(file_path,archive=archive)
+	if lines==False:
+		return False
+
+	count=2
+	for l in lines:
+		if l==token:
+			count=0
+
+		if count>1:
+			lines_out.append(l)
+
+		count=count+1
+		
+	inp_save(file_path,lines_out,archive=archive,id=id)
+
+	return True
+
+def inp_insert_token(file_path, token_to_insert_after, token, value, archive="sim.gpvdm",id=""):
+	lines=[]
+	lines_out=[]
+
+	lines=inp_load_file(file_path,archive=archive)
+	if lines==False:
+		return False
+
+	count=3
+	for l in lines:
+		if l==token_to_insert_after:
+			count=0
+
+		if count==2:
+			lines_out.append(token)
+			lines_out.append(value)
+		else:
+			lines_out.append(l)
+
+		count=count+1
+	
+	#print(lines_out)	
+	inp_save(file_path,lines_out,archive=archive,id=id)
+
+	return True
+
+def inp_insert_duplicate(dest_file_path, dest_token, src_file_path, src_token, archive="sim.gpvdm",id=""):
+	lines=[]
+	lines_dest=[]
+
+	lines_src=inp_load_file(src_file_path,archive=archive)
+	if lines==False:
+		return False
+
+	lines_dest=inp_load_file(dest_file_path,archive=archive)
+	if lines==False:
+		return False
+
+	val=inp_get_token_value_from_list(lines_src, src_token)
+	if val==None:
+		return False
+	
+	ret=inp_replace_token_value(lines_dest,dest_token,val)
+	if ret==False:
+		return False
+
+	#print(lines_dest)	
+	inp_save(dest_file_path,lines_dest,archive=archive,id=id)
+
+	return True
+
 def inp_update_token_value(file_path, token, replace,archive="sim.gpvdm",id=""):
 	lines=[]
 

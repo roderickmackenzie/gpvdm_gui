@@ -69,6 +69,10 @@ from scan_tree import tree_load_flat_list
 from scan_item import scan_items_clear
 from scan_item import scan_items_populate_from_known_tokens
 from scan_item import scan_items_populate_from_files
+from device_lib_io import device_lib_token_change
+from device_lib_io import device_lib_token_delete
+from device_lib_io import device_lib_token_insert
+from device_lib_io import device_lib_token_duplicate
 
 from scan_ml import scan_ml_build_vector
 
@@ -87,6 +91,11 @@ parser = argparse.ArgumentParser(epilog=_("Additional information about gpvdm is
 parser.add_argument("--version", help=_("displays the current version"), action='store_true')
 parser.add_argument("--ver", help=_("displays the current version"), action='store_true')
 parser.add_argument("--replace", help=_("replaces file in device lib --replace file.inp path_to_device_lib"), nargs=2)
+parser.add_argument("--token_append", help=_("Appends a token to files in the device lib after a given token --token_append file.inp #token #token_befor #value path_to_device_lib"), nargs=5)
+parser.add_argument("--token_change", help=_("Changes the value of a token device lib --token_change file.inp \\#token value"), nargs=3)
+parser.add_argument("--token_delete", help=_("Delete a token from the device lib --token_delete file.inp \\#token"), nargs=2)
+parser.add_argument("--token_insert", help=_("Insert a token into the device lib files --token_insert file.inp \\where \\#token \\value"), nargs=4)
+parser.add_argument("--token_duplicate", help=_("Copy the value of a token the device lib files --token_insert dest_file.inp \\token \\#src_file.inp \\token"), nargs=4)
 parser.add_argument("--delete", help=_("deletes file in device lib --delete file.inp path_to_device_lib"), nargs=2)
 parser.add_argument("--clean", help=_("cleans the current simulation directory deleting .dat files but not  scan dirs"), action='store_true')
 parser.add_argument("--export", help=_("export a simulation to a gz file"), nargs=1)
@@ -136,6 +145,24 @@ def command_args(argc,argv):
 			exit(0)
 		elif args.replace:
 			device_lib_replace(args.replace[0],dir_name=args.replace[1])
+			exit(0)
+		elif args.token_append:
+			device_lib_token_append_after(args.token_append[0],dir_name=args.token_append[1])
+			exit(0)
+		elif args.token_change:
+			print(args.token_change)
+			device_lib_token_change(args.token_change[0],args.token_change[1],args.token_change[2])
+			exit(0)
+		elif args.token_delete:
+			print(args.token_delete)
+			device_lib_token_delete(args.token_delete[0],args.token_delete[1])
+			exit(0)
+		elif args.token_insert:
+			print(args.token_insert)
+			device_lib_token_insert(args.token_insert[0],args.token_insert[1],args.token_insert[2],args.token_insert[3])
+			exit(0)
+		elif args.token_duplicate:
+			device_lib_token_duplicate(args.token_duplicate[0], args.token_duplicate[1], args.token_duplicate[2], args.token_duplicate[3])
 			exit(0)
 		elif args.delete:
 			device_lib_delete(args.delete[0],dir_name=args.delete[1])

@@ -197,7 +197,8 @@ def contacts_load():
 			pos=pos+1
 			charge_type=lines[pos]			#read value
 
-			contacts_append(name,position,str2bool(active),float(start),float(width),float(depth),float(voltage),float(charge_density),charge_type)
+			#print(depth,voltage,charge_density)
+			contacts_append(name,position,str2bool(active), float(start),float(width), float(depth),float(voltage),float(charge_density), charge_type)
 
 		#contacts_dump()
 

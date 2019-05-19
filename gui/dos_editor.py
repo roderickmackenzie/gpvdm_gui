@@ -69,7 +69,6 @@ class equation_editor(QGroupBox):
 		self.tab.setHorizontalHeaderLabels([_("Function"), _("Enabled"), _("a"), _("b"), _("c")])
 
 		lines=inp_load_file(self.file_name)
-		#print(self.file_name,lines)
 		pos=0
 
 		while True:
@@ -79,35 +78,30 @@ class equation_editor(QGroupBox):
 				break
 
 			tag=lines[pos]
-			scan_item_add(self.file_name,tag,tag,1)
 			pos=pos+1	#skip hash tag
 
 			function=lines[pos]	#read label
 			pos=pos+1
 
 			tag=lines[pos]
-			scan_item_add(self.file_name,tag,tag,1)
 			pos=pos+1	#skip hash tag
 
 			enabled=lines[pos] 	#read value
 			pos=pos+1
 
 			tag=lines[pos]
-			scan_item_add(self.file_name,tag,tag,1)
 			pos=pos+1	#skip hash tag
 
 			a=lines[pos] 	#read value
 			pos=pos+1
 
 			tag=lines[pos]
-			scan_item_add(self.file_name,tag,tag,1)
 			pos=pos+1	#skip hash tag
 
 			b=lines[pos] 	#read value
 			pos=pos+1
 
 			tag=lines[pos]
-			scan_item_add(self.file_name,tag,tag,1)
 			pos=pos+1	#skip hash tag
 			c=lines[pos] 	#read value
 			pos=pos+1
@@ -262,7 +256,7 @@ class dos_editor(QWidget,tab_base):
 
 		self.setWindowTitle(_("Complex Density of states editor - gpvdm"))
 		self.setWindowIcon(icon_get("electrical"))
-		self.setMinimumSize(1000,500)
+		self.setMinimumSize(1200,500)
 
 		edit_boxes=QWidget()
 		vbox=QVBoxLayout()
@@ -295,7 +289,6 @@ class dos_editor(QWidget,tab_base):
 		
 		self.ribbon=ribbon_complex_dos()
 		self.ribbon.tb_save.triggered.connect(self.callback_save)
-
 
 		self.main_layout_widget=QWidget()
 		self.main_layout_widget.setLayout(hbox)

@@ -97,7 +97,8 @@ from window_list import resize_window_to_be_sane
 
 
 from gpvdm_notebook import gpvdm_notebook
-from epitaxy import epitaxy_load
+from epitaxy import get_epi
+
 from contacts_io import contacts_load
 
 #server
@@ -368,7 +369,7 @@ class gpvdm_main_window(QMainWindow):
 		calculate_paths()
 		self.splash.inc_value()
 
-		epitaxy_load(get_sim_path())
+		get_epi().load(get_sim_path())
 		self.splash.inc_value()
 
 		contacts_load()

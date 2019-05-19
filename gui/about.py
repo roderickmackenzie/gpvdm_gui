@@ -147,7 +147,6 @@ class about_dlg(QDialog):
 		self.right.addTab(self.paths,_("Paths"))
 
 
-
 		#self.materials=QListWidget()
 		#self.right.addTab(self.materials,_("Materials"))
 

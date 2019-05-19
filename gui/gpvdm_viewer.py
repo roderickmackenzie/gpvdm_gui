@@ -693,10 +693,10 @@ class gpvdm_viewer(QListWidget):
 			self.config_window.show()
 			return
 		elif decode=="gpvdm_key":
-			from trial import trial
+			from lock_key_manager import lock_key_manager
 			from msg_dlg import msg_dlg
-			self.trial=trial(show_text=False,override_text=_("Please enter your license key:"))
-			ret=self.trial.run()
+			self.lock_key_manager=lock_key_manager(show_text=False,override_text=_("Please enter your license key:"))
+			ret=self.lock_key_manager.run()
 			if ret==QDialog.Accepted:
 				msgBox = msg_dlg()
 				msgBox.setText("License updated")

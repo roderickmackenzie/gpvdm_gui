@@ -60,6 +60,9 @@ class epi_layer():
 		self.b=0
 		self.electrical_layer="other"
 		self.alpha=1.0
+		self.lumo_file="none"
+		self.homo_file="none"
+
 
 	def set_width(self,data):
 		if type(data)==float or type(data)==int:
@@ -153,6 +156,25 @@ class epitaxy():
 				if disk_file not in tab:
 					inp_remove_file(disk_file)
 
+		for l in self.layers:
+			tab.append(l.lumo_file+".inp")
+
+		for i in range(0,len(files)):
+			if files[i].startswith("lumo") and files[i].endswith(".inp"):
+				disk_file=files[i]
+				if disk_file not in tab:
+					inp_remove_file(disk_file)
+
+		for l in self.layers:
+			tab.append(l.homo_file+".inp")
+
+		for i in range(0,len(files)):
+			if files[i].startswith("homo") and files[i].endswith(".inp"):
+				disk_file=files[i]
+				if disk_file not in tab:
+					inp_remove_file(disk_file)
+
+
 	def layer_to_index(self,index):
 		if type(index)==int:
 			return index
@@ -172,6 +194,8 @@ class epitaxy():
 		a.name=self.get_new_material_name()
 		a.pl_file="none"
 		a.shape_file="none"
+		a.lumo_file="none"
+		a.homo_file="none"
 		self.electrical_layer="other"
 		a.r=1.0
 		a.g=0
@@ -228,10 +252,14 @@ class epitaxy():
 			lines.append(epi.layers[i].pl_file)
 			lines.append("#layer_shape"+str(layer))
 			lines.append(epi.layers[i].shape_file)
+			lines.append("#layer_lumo"+str(layer))
+			lines.append(epi.layers[i].lumo_file)
+			lines.append("#layer_homo"+str(layer))
+			lines.append(epi.layers[i].homo_file)
 			layer=layer+1
 
 		lines.append("#ver")
-		lines.append("1.4")
+		lines.append("1.41")
 		lines.append("#end")
 		return lines
 
@@ -267,7 +295,7 @@ class epitaxy():
 
 			l.pl_file=self.new_pl_file()
 
-			mat_dir=os.path.join(get_materials_path(),l.mat_file)
+			mat_dir=os.path.join(get_materials_path(),l.pl_file)
 
 			new_pl_file=l.pl_file+".inp"
 			if inp_isfile(new_pl_file)==False:
@@ -277,10 +305,40 @@ class epitaxy():
 
 				inp_copy_file(new_pl_file,pl_path)
 
+		if data=="active layer" and l.lumo_file.startswith("lumo")==False:
+
+			l.lumo_file=self.new_lumo_file()
+
+			mat_dir=os.path.join(get_materials_path(),l.lumo_file)
+
+			new_lumo_file=l.lumo_file+".inp"
+			if inp_isfile(new_lumo_file)==False:
+				lumo_path=os.path.join(mat_dir,"lumo.inp")
+				if os.path.isfile(lumo_path)==False:
+					lumo_path=os.path.join(get_default_material_path(),"lumo.inp")
+
+				inp_copy_file(new_lumo_file,lumo_path)
+
+		if data=="active layer" and l.homo_file.startswith("homo")==False:
+
+			l.homo_file=self.new_homo_file()
+
+			mat_dir=os.path.join(get_materials_path(),l.homo_file)
+
+			new_homo_file=l.homo_file+".inp"
+			if inp_isfile(new_homo_file)==False:
+				homo_path=os.path.join(mat_dir,"homo.inp")
+				if os.path.isfile(homo_path)==False:
+					homo_path=os.path.join(get_default_material_path(),"homo.inp")
+
+				inp_copy_file(new_homo_file,homo_path)
 
 		if data!="active layer":
 			l.electrical_layer=data
 			l.pl_file="none"
+			l.lumo_file="none"
+			l.homo_file="none"
+
 
 		self.clean_unused_files()
 
@@ -305,6 +363,30 @@ class epitaxy():
 			found=False
 			for a in epi.layers:
 				if a.pl_file==name:
+					found=True
+
+			if found==False:
+				return name
+
+	def new_lumo_file(self):
+		global epi
+		for i in range(0,20):
+			name="lumo"+str(i)
+			found=False
+			for a in epi.layers:
+				if a.lumo_file==name:
+					found=True
+
+			if found==False:
+				return name
+
+	def new_homo_file(self):
+		global epi
+		for i in range(0,20):
+			name="homo"+str(i)
+			found=False
+			for a in epi.layers:
+				if a.homo_file==name:
 					found=True
 
 			if found==False:
@@ -340,68 +422,65 @@ class epitaxy():
 
 		return tot
 
-epi=epitaxy()
+	def load(self,path):
+		self.layers=[]
+
+		lines=[]
+
+		lines=inp_load_file(os.path.join(path,"epitaxy.inp"))
 
 
-def epitaxy_load(path):
-	lines=[]
-	global epi
-	update=False
-	epi.layers=[]
+		if lines!=False:
+			#compat layer for 
+			ver=float(inp_search_token_value(lines,"#ver"))
+			shape=True
 
-	lines=inp_load_file(os.path.join(path,"epitaxy.inp"))
-
-
-	if lines!=False:
-		#compat layer for 
-		ver=float(inp_search_token_value(lines,"#ver"))
-		shape=True
-		
-		if ver<1.4:
-			shape=False
-			update=True
-
-		#shape=True
-
-		pos=0
-		pos=pos+1
-
-		for i in range(0, int(lines[pos])):
-			a=epi_layer()
-			pos=pos+1		#token
+			pos=0
 			pos=pos+1
-			a.name=lines[pos]
 
-			pos=pos+1		#token
-			pos=pos+1
-			a.width=float(lines[pos])
+			for i in range(0, int(lines[pos])):
+				a=epi_layer()
+				pos=pos+1		#token
+				pos=pos+1
+				a.name=lines[pos]
 
-			pos=pos+1		#token
-			pos=pos+1
-			lines[pos]=lines[pos].replace("\\", "/")
-			a.set_mat_file(lines[pos])
+				pos=pos+1		#token
+				pos=pos+1
+				a.width=float(lines[pos])
 
-			pos=pos+1		#token
-			pos=pos+1
-			a.electrical_layer=lines[pos]		#value
+				pos=pos+1		#token
+				pos=pos+1
+				lines[pos]=lines[pos].replace("\\", "/")
+				a.set_mat_file(lines[pos])
 
-			pos=pos+1		#token
-			pos=pos+1
-			a.pl_file=lines[pos]		#value
+				pos=pos+1		#token
+				pos=pos+1
+				a.electrical_layer=lines[pos]		#value
 
-			if shape==True:
+				pos=pos+1		#token
+				pos=pos+1
+				a.pl_file=lines[pos]		#value
+
+
 				pos=pos+1		#token
 				pos=pos+1
 				a.shape_file=lines[pos]		#value
 				a.shape.load(a.shape_file)
-			else:
-				a.shape_file="none"		#value
-				a.shape.load(a.shape_file)
-				
-			epi.layers.append(a)
 
-	if update==True:
-		self.save()
+				pos=pos+1		#token
+				pos=pos+1
+				a.lumo_file=lines[pos]		#value
+
+				pos=pos+1		#token
+				pos=pos+1
+				a.homo_file=lines[pos]		#value
+
+				epi.layers.append(a)
+
+
+epi=epitaxy()
+
+
 
 def epitay_get_next_dos_layer(layer):
 	global epi

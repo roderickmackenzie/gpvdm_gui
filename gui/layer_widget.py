@@ -112,6 +112,8 @@ class layer_widget(QWidgetSavePos):
 			epi.update_layer_type(i,tab_get_value(self.tab,i,3).lower())
 			tab_set_value(self.tab,i,4,epi.layers[i].electrical_layer)
 			tab_set_value(self.tab,i,5,epi.layers[i].pl_file)
+			tab_set_value(self.tab,i,6,epi.layers[i].homo_file)
+			tab_set_value(self.tab,i,7,epi.layers[i].lumo_file)
 
 		self.tab.blockSignals(False)
 
@@ -190,25 +192,25 @@ class layer_widget(QWidgetSavePos):
 	def create_model(self):
 		self.tab.blockSignals(True)
 		self.tab.clear()
-		self.tab.setColumnCount(6)
+		self.tab.setColumnCount(8)
 		#if enable_betafeatures()==False:
 		#	self.tab.setColumnHidden(4, True)
 		#	self.tab.setColumnHidden(5, True)
 
 		self.tab.setSelectionBehavior(QAbstractItemView.SelectRows)
-		self.tab.setHorizontalHeaderLabels([_("Layer name"), _("Thicknes"), _("Optical material"), _("Layer type"), _("DoS file"), _("PL file")])
+		self.tab.setHorizontalHeaderLabels([_("Layer name"), _("Thicknes"), _("Optical material"), _("Layer type"), _("DoS file"), _("PL file"), _("LUMO file"), _("HOMO file")])
 		self.tab.setColumnWidth(2, 250)
 		self.tab.setRowCount(epitaxy_get_layers())
 
 		epi=get_epi()
 		i=0
 		for l in epi.layers:
-			self.add_row(i,l.width,l.mat_file,l.electrical_layer,l.pl_file,l.name)
+			self.add_row(i,l.width,l.mat_file,l.electrical_layer,l.pl_file,l.name,l.lumo_file,l.homo_file)
 			i=i+1
 
 		self.tab.blockSignals(False)
 
-	def add_row(self,i,thick,material,dos_layer,pl_file,name):
+	def add_row(self,i,thick,material,dos_layer,pl_file,name,lumo_file,homo_file):
 
 		self.tab.blockSignals(True)
 
@@ -247,6 +249,12 @@ class layer_widget(QWidgetSavePos):
 		item3 = QTableWidgetItem(str(pl_file))
 		self.tab.setItem(i,5,item3)
 
+		item6 = QTableWidgetItem(str(lumo_file))
+		self.tab.setItem(i,6,item6)
+
+		item7 = QTableWidgetItem(str(homo_file))
+		self.tab.setItem(i,7,item7)
+
 		combobox_layer_type.currentIndexChanged.connect(self.layer_type_edit)
 
 		self.tab.blockSignals(False)
@@ -274,7 +282,7 @@ class layer_widget(QWidgetSavePos):
 		print(row)
 		epi=get_epi()
 		a=epi.add_layer(pos=row)
-		self.add_row(row,str(a.width),a.mat_file,a.electrical_layer,a.pl_file,a.name)
+		self.add_row(row,str(a.width),a.mat_file,a.electrical_layer,a.pl_file,a.name,a.lumo_file,a.homo_file)
 		epi.save()
 		#self.emit_change()
 		return

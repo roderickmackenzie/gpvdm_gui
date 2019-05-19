@@ -42,9 +42,6 @@ from PyQt5.QtCore import pyqtSignal
 
 from QWidgetSavePos import QWidgetSavePos
 
-from pl_main import pl_main
-from tab_homo import tab_bands
-
 from help import help_window
 
 from code_ctrl import enable_betafeatures

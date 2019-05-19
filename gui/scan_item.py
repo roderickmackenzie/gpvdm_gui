@@ -127,7 +127,7 @@ def scan_items_populate_from_files():
 	for i in range(0,len(contacts)):
 		scan_item_add("contacts.inp","#contact_charge_density"+str(i),os.path.join("contacts",str(contacts[i].name),_("Charge density")),1)
 
-	scan_item_save("out.dat")
+	#scan_item_save("out.dat")
 
 def scan_item_save(file_name):
 	global check_list

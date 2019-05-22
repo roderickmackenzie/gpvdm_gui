@@ -30,9 +30,10 @@ class update_file_info():
 	def __init__(self):
 		self.file_name=""
 		self.size=-1
-		self.md5="none"
+		self.md5_web="none"
+		self.md5_disk="none"
 		self.status="none"
-		self.description="none"
+		self.text="none"
 		self.downloaded=0
 		self.target="none"
 		self.progress=0.0
@@ -55,9 +56,8 @@ class update_file_info():
 
 	def __str__(self):
 		a=""
-		a=a+"#"+self.file_name+"\n"
-		a=a+self.description+"\n"
-		a=a+self.md5+"\n"
+		a=a+self.file_name+"\n"
+		a=a+self.text+"\n"
 		a=a+self.ver+"\n"
 		a=a+str(self.size)+"\n"
 		a=a+str(self.target)+"\n"
@@ -68,13 +68,35 @@ class update_file_info():
 	def __eq__(self,f):
 		return self.file_name==f.file_name
 
-	def decode_list(self,i):
-		self.file_name=i[0][1:]
-		self.description=i[1]
-		self.md5=i[2]
-		self.ver=i[3]
-		self.size=int(i[4])
-		self.target=i[5]
-		self.status=i[6]
-		self.cache_dir=i[7]
+	def get_status_line(self):
+		return self.file_name+","+self.text+","+self.target+","+self.md5_web+","+self.md5_disk+","+self.status+","+str(self.size)
+
+	def decode_from_disk(self,data):
+		s=data.split(",")
+		self.file_name=s[0]
+		self.text=s[1]
+		self.target=s[2]
+		self.md5_web=s[3]
+		self.md5_disk=s[4]
+		self.status=s[5]
+		self.size=int(s[6])
+
+
+	def decode_from_web(self,data):
+		s=data.split(",")
+		self.file_name=s[0]
+		self.text=s[1]
+		self.target=s[2]
+		self.md5_web=s[3]
+		self.size=int(s[4])
+
+
+		#self.file_name=i[0][1:]
+		#self.description=i[1]
+		#self.md5=i[2]
+		#self.ver=i[3]
+		#self.size=int(i[4])
+		#self.target=i[5]
+		#self.status=i[6]
+		#self.cache_dir=i[7]
 

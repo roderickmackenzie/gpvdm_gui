@@ -69,7 +69,7 @@ class play(QAction):
 
 	def do_emit(self):
 		value=False
-		if value==False:
+		if value==True:
 			if self.running==False:
 				self.start_sim.emit()
 			else:

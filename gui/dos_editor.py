@@ -70,7 +70,7 @@ class equation_editor(QGroupBox):
 
 		lines=inp_load_file(self.file_name)
 		pos=0
-
+		print(lines)
 		while True:
 			if lines[pos]=="#end":
 				break
@@ -251,8 +251,11 @@ class dos_editor(QWidget,tab_base):
 		if file_name!=False:
 			self.canvas_lumo.figure.savefig(file_name)
 
-	def __init__(self):
+	def __init__(self,file_name):
+		ext=file_name[3:]
 		QWidget.__init__(self)
+
+		print(">>>>>>>>>>>lumo"+ext)
 
 		self.setWindowTitle(_("Complex Density of states editor - gpvdm"))
 		self.setWindowIcon(icon_get("electrical"))
@@ -261,10 +264,10 @@ class dos_editor(QWidget,tab_base):
 		edit_boxes=QWidget()
 		vbox=QVBoxLayout()
 
-		self.lumo=equation_editor("lumo0.inp","LUMO")
+		self.lumo=equation_editor("lumo"+ext,"LUMO")
 		vbox.addWidget(self.lumo)
 		
-		self.homo=equation_editor("homo0.inp","HOMO")
+		self.homo=equation_editor("homo"+ext,"HOMO")
 		vbox.addWidget(self.homo)
 		
 		

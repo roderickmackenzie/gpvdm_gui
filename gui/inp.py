@@ -257,18 +257,19 @@ def inp_insert_token(file_path, token_to_insert_after, token, value, archive="si
 
 	count=3
 	for l in lines:
+
+		lines_out.append(l)
+
 		if l==token_to_insert_after:
 			count=0
 
-		if count==2:
+		if count==1:
 			lines_out.append(token)
 			lines_out.append(value)
-		else:
-			lines_out.append(l)
 
 		count=count+1
 	
-	#print(lines_out)	
+	print(lines_out)	
 	inp_save(file_path,lines_out,archive=archive,id=id)
 
 	return True

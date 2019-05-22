@@ -99,7 +99,7 @@ class tab_class(QWidget,tab_base):
 
 	def callback_unit_click(self,token,widget,unit):
 		from dos_editor import dos_editor
-		self.dos_editor=dos_editor()
+		self.dos_editor=dos_editor(self.file_name)
 		self.dos_editor.show()
 
 	def callback_edit(self,token,widget,unit):

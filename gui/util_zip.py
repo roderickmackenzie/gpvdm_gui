@@ -313,6 +313,21 @@ def archive_add_dir(archive_path,dir_name,base_dir, remove_src_dir=False,zf=None
 
 		shutil.rmtree(dir_name)
 
+def read_lines_from_file(file_name):
+	if os.path.isfile(file_name)==True:
+		f = open(file_name, mode='rb')
+		lines = f.read()
+		f.close()
+
+	try:
+		lines=lines.decode('utf-8')
+		lines=lines.split("\n")
+	except:
+		lines=[]
+		
+	return lines
+
+
 ## Read liens from an archive.
 def read_lines_from_archive(zip_file_path,file_name,mode="l"):
 	file_path=os.path.join(os.path.dirname(zip_file_path),file_name)

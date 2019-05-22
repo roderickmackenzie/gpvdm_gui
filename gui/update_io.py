@@ -41,7 +41,6 @@ import hashlib
 
 from ver import ver_core
 from ver import ver_subver
-from disk_speed import get_disk_speed
 from display import is_open_gl_working
 import platform
 from i18n import get_full_language
@@ -58,6 +57,7 @@ from ver import ver_core
 from http_get import http_get
 from threading import Thread
 from code_ctrl import am_i_rod
+import random
 
 
 class http_get_u(http_get):
@@ -67,7 +67,7 @@ class http_get_u(http_get):
 		self.address=address
 
 		if am_i_rod()==False:
-			self.web_site="http://www.gpvdm.com:8080/updates/"
+			self.web_site="http://www.gpvdm.com/api/updates/"
 		else:
 			self.web_site="http://127.0.0.1:8080/updates/"
 
@@ -84,15 +84,15 @@ class http_get_u(http_get):
 
 
 class update_cache(QObject):
-	#got_data = pyqtSignal()
+	update_progress = pyqtSignal(int,float)
 
 	def print_cache_status(self):
 		print("files:"+str(len(self.file_list)))
 		for f in self.file_list:
-			print(f.file_name,f.status,f.progress)
-		print()
+			print(f.get_status_line())
 
-
+		print(self.to_download)
+		print(self.on_disk)
 
 	def callback_got_data(self,file_name,number):
 		for i in range(0,len(self.file_list)):
@@ -101,26 +101,39 @@ class update_cache(QObject):
 				self.file_list[i].progress=number
 				self.file_list[i].status="downloading"
 
-	def __init__(self):
+	def __init__(self,sub_dir="materials"):
 		QObject.__init__(self)
+		self.sub_dir=sub_dir
 		self.file_list=[]
+		self.to_download=0
+		self.to_install=0
+		self.on_disk=0
 		#self.web_cache_dir=get_web_cache_path()
 		self.load_cache_status()
 		self.first_contact=True
 
+	def progress(self):
+		return float(self.on_disk)/float(self.to_download+self.on_disk)
+
+	def get_progress_text(self):
+		return str(self.on_disk)+"/"+str(self.to_download+self.on_disk)+" extra materials downloaded"
+
 	def write_cache_status(self):
-		a = open(os.path.join(get_web_cache_path(),"info.dat"), "w")
+		file_name=os.path.join(get_web_cache_path(),self.sub_dir,"info2.dat")
+		if os.path.isdir(os.path.dirname(file_name))==False:
+			os.makedirs(os.path.dirname(file_name))
+
+		a = open(file_name, "w")
 		for f in self.file_list:
-			a.write(str(f)+"\n")
-		a.write("#ver\n")
-		a.write("1.0\n")
-		a.write("#end\n")
+			a.write(f.get_status_line()+"\n")
 		a.close()
 
 
-	def load_cache_status(self):
 
-		file_path=os.path.join(get_web_cache_path(),"info.dat")
+	def load_cache_status(self):
+		self.file_list=[]
+
+		file_path=os.path.join(get_web_cache_path(),self.sub_dir,"info2.dat")
 		if os.path.isfile(file_path)==False:
 			return False
 
@@ -133,91 +146,75 @@ class update_cache(QObject):
 		for i in range(0, len(lines)):
 			lines[i]=lines[i].rstrip()
 
-		items=inp_file_to_list(lines)
-		for i in items:
-			#print(i)
+
+		for l in lines:
 			a=update_file_info()
-			a.decode_list(i)
-			self.file_list.append(a)
+			a.decode_from_disk(l)
+			self.add_to_cache_from_disk(a)
 
+	def add_to_cache_from_disk(self,f_in):
+		if f_in.status=="on-disk":
+			self.on_disk=self.on_disk+1
 
-	def add_to_cache(self,f_in):
-		for f in self.file_list:
-			if f_in==f:
-				if f_in.ver!=ver_core():
-					f.status="gpvdm-too-old"
-					f.ver=f_in.ver
-					return
-				if os.path.isfile(os.path.join(get_web_cache_path(),f_in.cache_dir,f_in.file_name))==False:
-					f.status="update-avaliable"
-					f.size=f_in.size
-					return
-				if f.md5 != f_in.md5:
-					f.status="update-avaliable"
-					f.size=f_in.size
-					return
-				
-				return
-
-		f_in.status="update-avaliable"
 		self.file_list.append(f_in)
 
 
-	def get_cache_dirs(self):
-		self.web_dirs=[]
-		data=http_get_u("info.dat")
+	def add_to_cache_from_web(self,f_in):
+		for i in range(0,len(self.file_list)):
+			if f_in==self.file_list[i]:
+				if os.path.isfile(os.path.join(get_web_cache_path(),self.sub_dir,f_in.file_name))==False:
+					self.file_list[i].status="update-avaliable"
+					self.file_list[i].md5_web=f_in.md5_web
+					self.file_list[i].md5_disk="none"
+					self.to_download=self.to_download+1
+					return
+
+				if self.file_list[i].md5_disk != f_in.md5_web:
+					self.file_list[i].status="update-avaliable"
+					self.file_list[i].md5_web=f_in.md5_web
+					self.to_download=self.to_download+1
+					return
+
+				return
+
+		f_in.status="update-avaliable"
+		self.to_download=self.to_download+1
+		self.file_list.append(f_in)
+
+
+	def updates_get(self):
+
+		data=http_get_u(self.sub_dir+"/info2.dat")
 		ret=data.go()
-		print(">>read",ret)
+
 		if ret==False:
 			return False
 
 		lines=ret.decode("utf-8").split("\n")
-
-		self.web_dirs=inp_get_all_tokens(lines)
-		#print("web dirs",self.web_dirs)
-		for i in range(0,len(self.web_dirs)):
-			if self.web_dirs[i].startswith("#")==True:
-				self.web_dirs[i]=self.web_dirs[i][1:]
-		#print("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx")
-		return True
-
-	def updates_get(self):
-		#print("updates_get:>>>><<")
-		self.get_cache_dirs()
-	
-		for sub_dir in self.web_dirs:
-			#print("here")
-			data=http_get_u(sub_dir+"/info.dat")
-			ret=data.go()
-			if ret==False:
-				return False
-
-			lines=ret.decode("utf-8").split("\n")
-
-			pos=0
-			items=inp_file_to_list(lines)
-			#print(items)
-			for i in items:
+		lines.reverse()
+		for l in lines:
+			if len(l)>2:
 				a=update_file_info()
-				a.decode_list(i)
-				a.cache_dir=sub_dir
-				self.add_to_cache(a)
+				a.decode_from_web(l)
+				#print(a)
+				#a.cache_dir=sub_dir
+				self.add_to_cache_from_web(a)
 
 		self.write_cache_status()
-
-
-
+		self.update_progress.emit(-1,self.progress())
+		#self.print_cache_status()
 
 	def updates_download(self):
 
-		for f in self.file_list:
-			if f.status=="update-avaliable" and f.ver==ver_core():
-				data=http_get_u(f.cache_dir+"/"+f.file_name)
+		for i in range(0,len(self.file_list)):
+			f=self.file_list[i]
+			if f.status=="update-avaliable":
+				data=http_get_u(self.sub_dir+"/"+f.file_name)
 				data.got_data.connect(self.callback_got_data)
 				ret=data.go()
 				if ret!=False:
 					#print(len(ret),f.size)
-					cache_sub_dir=os.path.join(get_web_cache_path(),f.cache_dir)
+					cache_sub_dir=os.path.join(get_web_cache_path(),self.sub_dir)
 
 					if os.path.isdir(cache_sub_dir)==False:
 						os.makedirs(cache_sub_dir)
@@ -225,10 +222,16 @@ class update_cache(QObject):
 					file_han=open(os.path.join(cache_sub_dir,f.file_name), mode='wb')
 					lines = file_han.write(ret)
 					file_han.close()
-					f.md5=hashlib.md5(ret).hexdigest()
+					f.md5_disk=hashlib.md5(ret).hexdigest()[:5]
 					f.status="on-disk"
+					self.to_download=self.to_download-1
+					self.on_disk=self.on_disk+1
+
+
 
 					self.write_cache_status()
+					self.update_progress.emit(i,self.progress())
+
 
 	def emit_decompress(self,file_name,percent):
 		#self.decompress.emit(file_name,percent)
@@ -239,7 +242,7 @@ class update_cache(QObject):
 				f.status="installing"
 
 	def updates_install(self):
-
+		return
 		for f in self.file_list:
 			if f.status=="on-disk":
 				out_sub_dir=f.file_name

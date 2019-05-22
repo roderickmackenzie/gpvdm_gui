@@ -40,7 +40,7 @@ from ver import ver
 #qt
 from PyQt5.QtCore import QSize, Qt
 from PyQt5.QtGui import QIcon
-from PyQt5.QtWidgets import QWidget,QVBoxLayout,QToolBar,QAction,QTableWidget,QAbstractItemView,QTableWidgetItem,QStatusBar
+from PyQt5.QtWidgets import QWidget,QVBoxLayout,QSizePolicy,QToolBar,QAction,QTableWidget,QAbstractItemView,QTableWidgetItem,QStatusBar
 from PyQt5.QtGui import QPixmap
 from PyQt5.QtCore import pyqtSignal
 from PyQt5.QtWidgets import QWidget
@@ -54,6 +54,7 @@ from icon_lib import icon_get
 
 from update_io import update_cache
 
+from progress import progress_class
 
 #Under windows, this class will connect to gpvdm.com and look for updates, a user prompt will be displayed if any are found.  It can also download updates if the user asks it to.  It's not called under linux because linux has it's own package management system.
 
@@ -87,6 +88,18 @@ class update_window(QWidget):
 		self.tb_update = QAction(icon_get("update"), _("Download updates"), self)
 		self.tb_update.triggered.connect(self.download_updates)
 		toolbar.addAction(self.tb_update)
+
+		spacer = QWidget()
+		spacer.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+		toolbar.addWidget(spacer)
+
+		self.progress=progress_class()
+		self.progress.spinner.stop()
+		self.progress.spinner.hide()
+		self.progress.set_text(_("Connecting to server"))
+		self.progress.hide_time()
+		toolbar.addWidget(self.progress)
+
 	
 		self.vbox.addWidget(toolbar)
 
@@ -118,7 +131,7 @@ class update_window(QWidget):
 		self.setLayout(self.vbox)
 		self.update=update_cache()
 		self.show_updates()
-
+		self.update.update_progress.connect(self.update_progress)
 		self.got_updates.connect(self.show_updates)
 		self.update_check()
 		self.setWindowIcon(icon_get("update"))
@@ -128,11 +141,16 @@ class update_window(QWidget):
 		self.timer.timeout.connect(self.update_ui)
 		self.timer.start(500)
 
+	def update_progress(self,line,percent):
+		if self.isVisible()==True:
+			if line!=-1:
+				self.tab.setItem(line,5,QTableWidgetItem(str(self.update.file_list[line].get_status())))
+				self.tab.setItem(line,4,QTableWidgetItem(str(self.update.file_list[line].md5_disk)))
+		self.progress.set_fraction(percent)
+		self.progress.set_text(self.update.get_progress_text())
+
 	def update_ui(self):
 		if self.isVisible()==True:
-			#self.update.print_cache_status()
-			for i in range(0,len(self.update.file_list)):
-				self.tab.setItem(i,4,QTableWidgetItem(str(self.update.file_list[i].get_status())))
 			if self.update.updates_avaliable()==True:
 				self.tb_update.setEnabled(True)
 			else:
@@ -144,20 +162,24 @@ class update_window(QWidget):
 		self.tab.blockSignals(True)
 		self.tab.clear()
 		self.tab.setRowCount(0)
-		self.tab.setColumnWidth(0, 200)
+		self.tab.setColumnWidth(0, 50)
 		self.tab.setColumnWidth(1, 200)
-		self.tab.setColumnWidth(4, 300)
-		self.tab.setHorizontalHeaderLabels([_("File"),_("Description"), _("Size"), _("md5"), _("status"), _("Version")])
+		self.tab.setColumnWidth(2, 200)
+		self.tab.setColumnWidth(5, 300)
+		self.tab.setHorizontalHeaderLabels([_("ID"),_("File"),_("Description"), _("Size"), _("md5"), _("status")])
 
 		for i in range(0,len(self.update.file_list)):
 			pos = self.tab.rowCount()
 			self.tab.insertRow(pos)
-			self.tab.setItem(pos,0,QTableWidgetItem(self.update.file_list[i].file_name))
-			self.tab.setItem(pos,1,QTableWidgetItem(str(self.update.file_list[i].description)))
-			self.tab.setItem(pos,2,QTableWidgetItem(sizeof_fmt(self.update.file_list[i].size)))
-			self.tab.setItem(pos,3,QTableWidgetItem(str(self.update.file_list[i].md5)))
-			self.tab.setItem(pos,4,QTableWidgetItem(str(self.update.file_list[i].get_status())))
-			self.tab.setItem(pos,5,QTableWidgetItem(str(self.update.file_list[i].ver)))
+			self.tab.setItem(pos,0,QTableWidgetItem(str(i)))
+			self.tab.setItem(pos,1,QTableWidgetItem(self.update.file_list[i].file_name))
+			self.tab.setItem(pos,2,QTableWidgetItem(str(self.update.file_list[i].text)))
+			self.tab.setItem(pos,3,QTableWidgetItem(sizeof_fmt(self.update.file_list[i].size)))
+			self.tab.setItem(pos,4,QTableWidgetItem(str(self.update.file_list[i].md5_disk)))
+			self.tab.setItem(pos,5,QTableWidgetItem(str(self.update.file_list[i].get_status())))
+			self.tab.setItem(pos,6,QTableWidgetItem(str(self.update.file_list[i].md5_disk)))
+			#self.tab.setItem(pos,4,QTableWidgetItem(str(self.update.file_list[i].get_status())))
+			#self.tab.setItem(pos,5,QTableWidgetItem(str(self.update.file_list[i].ver)))
 
 
 		self.tab.blockSignals(False)

@@ -44,6 +44,7 @@ from util_zip import archive_copy_file
 from cal_path import get_inp_file_path
 from util_zip import archive_isfile
 from util_zip import archive_merge_file
+from util_zip import read_lines_from_file
 from inp import inp_get_file_ver
 
 from cal_path import get_materials_path
@@ -105,13 +106,13 @@ file_list.append(file_type(name="mesh_y.inp",dest="archive",copy_opp=file_type()
 file_list.append(file_type(name="mesh_z.inp",dest="archive",copy_opp=file_type().CHECK_VER_THEN_COPY,base_file="mesh_z.inp"))
 file_list.append(file_type(name="dump_file.inp",dest="archive",copy_opp=file_type().CHECK_VER_THEN_COPY,base_file="dump_file.inp"))
 file_list.append(file_type(name="time_mesh_config",dest="archive",copy_opp=file_type().CHECK_VER_THEN_COPY,base_file="time_mesh_config0.inp"))
-file_list.append(file_type(name="homo",dest="archive",copy_opp=file_type().CHECK_VER_THEN_COPY,base_file="homo0.inp"))
-file_list.append(file_type(name="lumo",dest="archive",copy_opp=file_type().CHECK_VER_THEN_COPY,base_file="lumo0.inp"))
 
 
 file_list.append(file_type(name="dos",dest="archive",copy_opp=file_type().MERGE,base_file=os.path.join(get_default_material_path(),"dos.inp")))
 file_list.append(file_type(name="shape",dest="archive",copy_opp=file_type().JUST_COPY))
 file_list.append(file_type(name="pl",dest="archive",copy_opp=file_type().MERGE,base_file=os.path.join(get_default_material_path(),"pl.inp")))
+file_list.append(file_type(name="homo",dest="archive",copy_opp=file_type().JUST_COPY,base_file=os.path.join(get_default_material_path(),"homo.inp")))
+file_list.append(file_type(name="lumo",dest="archive",copy_opp=file_type().JUST_COPY,base_file=os.path.join(get_default_material_path(),"lumo.inp")))
 file_list.append(file_type(name="pulse",dest="archive",copy_opp=file_type().MERGE,base_file="pulse0.inp"))
 file_list.append(file_type(name="laser",dest="archive",copy_opp=file_type().MERGE,base_file="laser0.inp"))
 file_list.append(file_type(name="jv",dest="archive",copy_opp=file_type().MERGE,base_file="jv0.inp"))
@@ -317,20 +318,6 @@ def clean_scan_dirs(path):
 			if os.path.isdir(file_name):
 				print("remove dir",file_name)
 				shutil.rmtree(file_name)
-
-def read_lines_from_file(file_name):
-	if os.path.isfile(file_name)==True:
-		f = open(file_name, mode='rb')
-		lines = f.read()
-		f.close()
-
-	try:
-		lines=lines.decode('utf-8')
-		lines=lines.split("\n")
-	except:
-		lines=[]
-		
-	return lines
 
 def patch_file(dest_file,base_file,input_file):
 	

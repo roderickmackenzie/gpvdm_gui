@@ -73,6 +73,7 @@ from device_lib_io import device_lib_token_change
 from device_lib_io import device_lib_token_delete
 from device_lib_io import device_lib_token_insert
 from device_lib_io import device_lib_token_duplicate
+from device_lib_io import device_lib_fix_ver
 
 from scan_ml import scan_ml_build_vector
 
@@ -81,7 +82,10 @@ from scan_io import scan_archive
 from gui_enable import set_gui
 from gui_enable import gui_get
 
+from device_lib_io import device_lib_token_repair
+
 from materials_io import archive_materials
+from refractiveindex_info import refractiveindex_info_sync
 
 import i18n
 _ = i18n.language.gettext
@@ -96,6 +100,9 @@ parser.add_argument("--token_change", help=_("Changes the value of a token devic
 parser.add_argument("--token_delete", help=_("Delete a token from the device lib --token_delete file.inp \\#token"), nargs=2)
 parser.add_argument("--token_insert", help=_("Insert a token into the device lib files --token_insert file.inp \\where \\#token \\value"), nargs=4)
 parser.add_argument("--token_duplicate", help=_("Copy the value of a token the device lib files --token_insert dest_file.inp \\token \\#src_file.inp \\token"), nargs=4)
+parser.add_argument("--token_repair", help=_("Repair --token_repair dest_file.inp \\#token \\#src_file.inp \\token"), nargs=4)
+parser.add_argument("--token_fix_ver", help=_("Fix ver --token_fix_ver file.inp version"), nargs=2)
+
 parser.add_argument("--delete", help=_("deletes file in device lib --delete file.inp path_to_device_lib"), nargs=2)
 parser.add_argument("--clean", help=_("cleans the current simulation directory deleting .dat files but not  scan dirs"), action='store_true')
 parser.add_argument("--export", help=_("export a simulation to a gz file"), nargs=1)
@@ -122,6 +129,7 @@ parser.add_argument("--scanarchive", help=_("Compress a scandir --scanarchive pa
 parser.add_argument("--scanbuildvectors", help=_("Build vectors from scan dir --scanbuildvectors path_to_scan_dir"), nargs=1)
 parser.add_argument("--matcompress", help=_("Compresses the materials dir"), action='store_true')
 parser.add_argument("--list", help=_("List the content of a gpvdm archive"), action='store_true')
+parser.add_argument("--ri_sync", help=_("Sync to ri"), action='store_true')
 
 if test_arg_for_sim_file()==False:
 	args = parser.parse_args()
@@ -163,6 +171,12 @@ def command_args(argc,argv):
 			exit(0)
 		elif args.token_duplicate:
 			device_lib_token_duplicate(args.token_duplicate[0], args.token_duplicate[1], args.token_duplicate[2], args.token_duplicate[3])
+			exit(0)
+		elif args.token_repair:
+			device_lib_token_repair(args.token_repair[0], args.token_repair[1], args.token_repair[2], args.token_repair[3])
+			exit(0)
+		elif args.token_fix_ver:
+			device_lib_fix_ver(args.token_fix_ver[0], args.token_fix_ver[1])
 			exit(0)
 		elif args.delete:
 			device_lib_delete(args.delete[0],dir_name=args.delete[1])
@@ -218,6 +232,8 @@ def command_args(argc,argv):
 		elif args.list:
 			inp_dir_listing(os.path.join(os.getcwd(),"sim.gpvdm"))
 			sys.exit(0)
+		elif args.ri_sync:
+			refractiveindex_info_sync()
 		elif args.scanplot:
 			plot_token=dat_file()
 			oplot_file=args.scan-plot[0]

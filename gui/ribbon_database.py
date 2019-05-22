@@ -82,14 +82,14 @@ class ribbon_database(QToolBar):
 		self.spectra_file.triggered.connect(self.callback_view_optical)
 		self.addAction(self.spectra_file)
 
-		if enable_betafeatures()==True:
-			self.tb_import_pvlighthouse = QAction(icon_get("sync"), _("Update materials\nfrom PVLighthouse"), self)
-			self.tb_import_pvlighthouse.triggered.connect(self.callback_pvlighthouse)
-			self.addAction(self.tb_import_pvlighthouse)
+		#if enable_betafeatures()==True:
+		self.tb_import_pvlighthouse = QAction(icon_get("sync"), _("Update materials\nfrom PVLighthouse"), self)
+		self.tb_import_pvlighthouse.triggered.connect(self.callback_pvlighthouse)
+		self.addAction(self.tb_import_pvlighthouse)
 
-			self.tb_import_refractiveindex = QAction(icon_get("sync"), _("Update materials\nfrom refractiveindex.info"), self)
-			self.tb_import_refractiveindex.triggered.connect(self.callback_refractiveindex)
-			self.addAction(self.tb_import_refractiveindex)
+		self.tb_import_refractiveindex = QAction(icon_get("sync"), _("Update materials\nfrom refractiveindex.info"), self)
+		self.tb_import_refractiveindex.triggered.connect(self.callback_refractiveindex)
+		self.addAction(self.tb_import_refractiveindex)
 
 		self.tb_update = QAction(icon_get("update"), _("Download extra\nmaterials"), self)
 		self.tb_update.triggered.connect(self.callback_update_window)

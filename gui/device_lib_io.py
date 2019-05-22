@@ -34,6 +34,9 @@ from inp import inp_update_token_value
 from inp import inp_delete_token
 from inp import inp_insert_token
 from inp import inp_insert_duplicate
+from inp import inp_get_token_value
+from inp import inp_load_file
+from inp import inp_save
 
 def find_device_libs():
 	out=[]
@@ -98,4 +101,53 @@ def device_lib_token_duplicate(dest_file, dest_token, src_file, src_token):
 		print(path_to_src_file,path_to_dest_file)
 		inp_insert_duplicate(path_to_dest_file, dest_token, path_to_src_file, src_token,archive=archives[i])
 		#inp_update_token_value(sim_file_name, token, value,archive=archives[i])
+
+def device_lib_token_repair(dest_file, dest_token_after, src_file, src_token):
+	archives=find_device_libs()
+
+	src_archives=[]
+	for root, dirs, files in os.walk("/home/rod/t/gpvdm5.3/device_lib/"):
+		for name in files:
+			if name.endswith(".gpvdm")==True:
+				src_archives.append(os.path.join(root, name))
+
+
+	print(src_archives)
+
+	for i in range(0,len(archives)):
+		path_to_src_file=os.path.join(os.path.dirname(src_archives[i]),src_file)
+		path_to_dest_file=os.path.join(os.path.dirname(archives[i]),dest_file)
+
+		print(src_archives[i],archives[i])
+
+		archive_src=os.path.basename(src_archives[i])
+		archive=os.path.basename(archives[i])
+		#inp_update_token_value(file_path, token, replace,archive="sim.gpvdm",id="")
+		value=inp_get_token_value(src_file, src_token,archive=src_archives[i])
+		if value!=None:
+			inp_insert_token(dest_file, dest_token_after, src_token, value, archive=archives[i])
+
+
+def device_lib_fix_ver(file_name, ver ):
+	archives=find_device_libs()
+
+	for i in range(0,len(archives)):
+		src_file=os.path.join(os.path.dirname(archives[i]),file_name)
+		archive=os.path.basename(archives[i])
+		value=inp_get_token_value(src_file, "#ver",archive=archives[i])
+		if value!=None and value != ver:
+			inp_update_token_value(src_file, "#ver", ver,archive=archives[i])
+		print(value)
+		if value==None:
+			lines=inp_load_file(src_file,archive=archives[i])
+
+			for ii in range(0,len(lines)):
+				if lines[ii]=="#end":
+					lines[ii]="#ver"
+					lines[ii+1]=ver
+
+					lines.append("#end")
+			print(lines)
+			inp_save(src_file,lines,archive=archives[i])
+
 

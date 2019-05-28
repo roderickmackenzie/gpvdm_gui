@@ -43,21 +43,20 @@ from PyQt5.QtWidgets import QWidget,QVBoxLayout,QHBoxLayout,QToolBar, QToolButto
 from help import help_window
 
 #experiments
-from lasers import lasers
 from experiment import experiment
 from fxexperiment import fxexperiment
 from sunsvoc import sunsvoc
+from sunsjsc import sunsjsc
+
 from ideal_diode_editor import ideal_diode_editor
 from qe import qe_window
-from optics import class_optical
-from global_objects import global_object_register
 from measure import measure
 from cost import cost
 
 from jvexperiment import jvexperiment
 from util import wrap_text
 from fdtd import fdtd
-
+from global_objects import global_object_run
 
 class ribbon_simulations(QToolBar):
 	def __init__(self):
@@ -67,9 +66,9 @@ class ribbon_simulations(QToolBar):
 		self.fxexperiment_window=None
 		self.jvexperiment_window=None
 		self.sunsvocexperiment_window=None
-		self.optics_window=False
+		self.sunsjsc_experiment_window=None
+
 		self.qe_window=None
-		self.lasers_window=None
 		self.measure_window=None
 		self.solar_spectrum_window=None
 		self.cost_window=None
@@ -97,6 +96,10 @@ class ribbon_simulations(QToolBar):
 		self.sunsvoc.triggered.connect(self.callback_sunsvoc_window)
 		self.addAction(self.sunsvoc)
 
+		self.sunsjsc = QAction(icon_get("sunsjsc"), _("Suns Jsc\neditor"), self)
+		self.sunsjsc.triggered.connect(self.callback_sunsjsc_window)
+		self.addAction(self.sunsjsc)
+
 		self.diode = QAction(icon_get("diode"), wrap_text(_("Simple diode model"),8), self)
 		self.diode.triggered.connect(self.callback_diode_window)
 		self.addAction(self.diode)
@@ -107,17 +110,9 @@ class ribbon_simulations(QToolBar):
 		self.qe.setVisible(False)
 
 		self.addSeparator()
-		self.mode=tb_item_sim_mode()
-		self.addWidget(self.mode)
-		self.addSeparator()
-
-		self.optics = QAction(icon_get("optics"), _("Optical\nSimulation"), self)
-		self.optics.triggered.connect(self.callback_optics_sim)
-		self.addAction(self.optics)
-
-		self.lasers = QAction(icon_get("lasers"), _("Laser\neditor"), self)
-		self.lasers.triggered.connect(self.callback_configure_lasers)
-		self.addAction(self.lasers)
+		#self.mode=tb_item_sim_mode()
+		#self.addWidget(self.mode)
+		#self.addSeparator()
 
 		self.fdtd = QAction(icon_get("fdtd"), _("FDTD\nSimulation"), self)
 		self.fdtd.triggered.connect(self.callback_fdtd)
@@ -135,10 +130,6 @@ class ribbon_simulations(QToolBar):
 		if self.qe_window!=None:
 			del self.qe_window
 			self.qe_window=None
-
-		if self.lasers_window!=None:
-			del self.lasers_window
-			self.lasers_window=None
 
 		if self.experiment_window!=None:
 			del self.experiment_window
@@ -160,18 +151,17 @@ class ribbon_simulations(QToolBar):
 			del self.cost_window
 			self.cost_window=None
 
-		self.mode.update()
+		#self.mode.update()
 
 	def setEnabled(self,val):
 		self.time.setEnabled(val)
 		#self.fx.setEnabled(val)
 		self.jv.setEnabled(val)
 		self.qe.setEnabled(val)
-		self.mode.setEnabled(val)
-		self.optics.setEnabled(val)
-		self.lasers.setEnabled(val)
+		#self.mode.setEnabled(val)
 		self.tb_cost.setEnabled(val)
 		self.sunsvoc.setEnabled(val)
+		self.sunsjsc.setEnabled(val)
 		self.measure.setEnabled(val)
 		self.diode.setEnabled(val)
 		self.fdtd.setEnabled(val)
@@ -192,7 +182,6 @@ class ribbon_simulations(QToolBar):
 
 		if self.fxexperiment_window==None:
 			self.fxexperiment_window=fxexperiment()
-			self.fxexperiment_window.changed.connect(self.mode.update)
 			
 		help_window().help_set_help(["spectrum.png",_("<big><b>Frequency domain mesh editor</b></big><br> Some times it is useful to do frequency domain simulations such as when simulating impedance spectroscopy.  This window will allow you to choose which frequencies will be simulated.")])
 		if self.fxexperiment_window.isVisible()==True:
@@ -200,16 +189,6 @@ class ribbon_simulations(QToolBar):
 		else:
 			self.fxexperiment_window.show()
 		
-	def callback_configure_lasers(self):
-
-		if self.lasers_window==None:
-			self.lasers_window=lasers()
-
-		help_window().help_set_help(["lasers.png",_("<big><b>Laser setup</b></big><br> Use this window to set up your lasers.")])
-		if self.lasers_window.isVisible()==True:
-			self.lasers_window.hide()
-		else:
-			self.lasers_window.show()
 
 	def callback_configure_measure(self):
 
@@ -245,6 +224,18 @@ class ribbon_simulations(QToolBar):
 		else:
 			self.sunsvocexperiment_window.show()
 
+	def callback_sunsjsc_window(self):
+
+		if self.sunsjsc_experiment_window==None:
+			self.sunsjsc_experiment_window=sunsjsc()
+
+		help_window().help_set_help(["jv.png",_("<big><b>Suns Jsc simulation editor</b></big><br> Use this window to select the step size and parameters of the JV simulations.")])
+		if self.sunsjsc_experiment_window.isVisible()==True:
+			self.sunsjsc_experiment_window.hide()
+		else:
+			self.sunsjsc_experiment_window.show()
+
+
 	def callback_diode_window(self):
 
 		if self.diode_window==None:
@@ -266,19 +257,7 @@ class ribbon_simulations(QToolBar):
 			self.fdtd_window.hide()
 		else:
 			self.fdtd_window.show()
-			
-	def callback_optics_sim(self, widget, data=None):
-		help_window().help_set_help(["optics.png",_("<big><b>The optical simulation window</b></big><br>Use this window to perform optical simulations.  Click on the play button to run a simulation."),"media-playback-start",_("Click on the play button to run an optical simulation.  The results will be displayed in the tabs to the right.")])
 
-		if self.optics_window==False:
-			self.optics_window=class_optical()
-			#self.notebook.changed.connect(self.optics_window.update)
-
-		if self.optics_window.isVisible()==True:
-			self.optics_window.hide()
-		else:
-			global_object_register("optics_force_redraw",self.optics_window.force_redraw)
-			self.optics_window.show()
 
 			
 	def callback_qe_window(self, widget):

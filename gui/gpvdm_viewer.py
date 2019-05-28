@@ -52,7 +52,7 @@ from gui_util import dlg_get_text
 from gui_util import yes_no_dlg
 
 
-from clone import clone_material
+from clone_materials import clone_material
 from clone import clone_spectra
 from cal_path import get_base_material_path
 from cal_path import get_base_spectra_path

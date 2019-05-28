@@ -87,16 +87,28 @@ def inp_callback_add_write_hook(file_name,call_back_fn,id):
 		if c==a:
 			if c.call_back_fn!=call_back_fn:
 				callbacks[i].call_back_fn=call_back_fn
+				inp_dump_hooks()
 				return
 
 	callbacks.append(a)
+	inp_dump_hooks()
 
 def inp_callback_check_hook(file_name,id):
+	print("inp_callback_check_hook",id)
+	global callbacks
+	inp_dump_hooks()
+	for c in callbacks:
+		print("check>>",c.file_name,file_name)
+		if c.file_name==file_name and c.id!=id:
+			print("call")
+			inp_dump_hooks()
+			c.call_back()
+
+def inp_dump_hooks():
+	print("inp_dump_hooks")
 	global callbacks
 	for c in callbacks:
-		print(c.file_name,file_name)
-		if c.file_name==file_name and c.id!=id:
-			c.call_back()
+		print("inp_dump_hooks>>",c.file_name,c.id)
 
 def inp_issequential_file(file_name,root):
 	if file_name.startswith(root) and file_name.endswith(".inp"):

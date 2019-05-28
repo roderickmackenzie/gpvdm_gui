@@ -42,7 +42,7 @@ from materials_io import find_materials
 from ref import get_ref_text
 from icon_lib import icon_get
 
-from cal_path import get_materials_path, get_base_material_path, get_default_material_path, get_base_spectra_path,get_device_lib_path, get_bin_path, get_plugins_path, get_exe_path, get_exe_command, get_exe_name
+from cal_path import get_materials_path, get_default_material_path, get_base_spectra_path,get_device_lib_path, get_bin_path, get_plugins_path, get_exe_path, get_exe_command, get_exe_name
 
 
 class about_dlg(QDialog):

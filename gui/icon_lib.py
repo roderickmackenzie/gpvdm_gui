@@ -125,7 +125,7 @@ def icons_load():
 			print("Icon not found:"+icon_name)
 			sys.exit(0)
 
-def icon_get(token,size=-1):
+def icon_get(token,size=-1,sub_icon=None):
 
 	if token!=".png" and token.endswith(".png")==True:
 		token=token[:-4]
@@ -133,9 +133,28 @@ def icon_get(token,size=-1):
 	if size!=-1:
 		return QIcon_load(token,size=size)
 
-	icon=icon_find(token)
-	
-	if icon!=False:
-		return icon
+	icon_ret=icon_find(token)
+
+
+	#self.undo = QAction(QIcon(icon1_pixmap), _("Undo"), self)
+	#self.addAction(self.undo)
+
+	if icon_ret!=False:
+		if sub_icon!=None:
+			icon1=icon_ret
+			icon2=icon_find(sub_icon)
+
+			icon1_pixmap=icon1.pixmap(QSize(48,48))
+			icon2_small = icon2.pixmap(QSize(48,48)).scaled(QSize(24,24), Qt.KeepAspectRatio, Qt.SmoothTransformation);
+			from PyQt5.QtGui import QPainter,QIcon
+
+			p=QPainter(icon1_pixmap)
+			p.drawPixmap(24,24,icon2_small); 
+			p.end()
+
+
+			icon_ret=QIcon(icon1_pixmap)
+
+		return icon_ret
 	else:
 		return False

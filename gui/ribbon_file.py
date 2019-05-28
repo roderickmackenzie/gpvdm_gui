@@ -62,6 +62,12 @@ class ribbon_file(QToolBar):
 		self.home_export = QAction(icon_get("document-export"), _("Export\ndata"), self)
 		self.addAction(self.home_export)
 
+		self.home_export_xls = QAction_lock("export_xls", _("Export\nto Excel"), self,locked=True)
+		#self.home_export_xls = QAction(icon_get("export_xls"), _("Export\nto Excel"), self)
+		self.addAction(self.home_export_xls)
+
+		self.home_export_xls.secure_click.connect(self.callback_export_xls)
+
 
 		spacer = QWidget()
 		spacer.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
@@ -77,10 +83,16 @@ class ribbon_file(QToolBar):
 	def update(self):
 		return
 
+	def callback_export_xls(self):
+		from dlg_export import dlg_export_xls
+		dlg_export_xls(self)
+
 	def setEnabled(self,val,do_all=False):
 		self.home_new.setEnabled(val)
 		self.home_open.setEnabled(val)
 		self.home_export.setEnabled(val)
+		self.home_export_xls.setEnabled(val)
+
 
 	def setEnabled_other(self,val):
 		self.home_export.setEnabled(val)

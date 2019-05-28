@@ -30,31 +30,58 @@ from inp import inp_load_file
 from inp import inp_search_token_value
 from inp import inp_callback_add_write_hook
 from cal_path import get_sim_path
+from util import str2bool
 
 class shape():
 	def __init__(self):
 		self.type="none"
-		self.width=1e-9
+		self.dx=1e-9
+		self.dy=1e-9
+		self.dz=1e-9
+
+		self.shape_nx=1
+		self.shape_nz=1
 		self.file_name=None
+		self.shape_dos="none"
+
+		self.shape_x0=0.0
+		self.shape_z0=0.0
+		self.shape_remove_layer=False
+
 
 	def do_load(self):
 		print(">>>>>>>>>>> do load",os.path.join(get_sim_path(),self.file_name))
-		lines=inp_load_file(self.file_name)
+		print(">>>>>> Doing shape load")
+		lines=inp_load_file(self.file_name+".inp")
 
 		if lines==False:
 			return
 
-		inp_callback_add_write_hook(self.file_name,self.do_load,"shape_a")
-
 		self.type=inp_search_token_value(lines, "#shape_type")
-		self.width=float(inp_search_token_value(lines, "#shape_width"))
+		self.dx=float(inp_search_token_value(lines, "#shape_dx"))
+		self.dy=float(inp_search_token_value(lines, "#shape_dy"))
+		self.dz=float(inp_search_token_value(lines, "#shape_dz"))
 
-	
+		try:
+			self.shape_nx=int(inp_search_token_value(lines, "#shape_nx"))
+			self.shape_nz=int(inp_search_token_value(lines, "#shape_nz"))
+			self.shape_name=inp_search_token_value(lines, "#shape_name")
+			self.shape_dos=inp_search_token_value(lines, "#shape_dos")
+			self.shape_x0=float(inp_search_token_value(lines, "#shape_x0"))
+
+			self.shape_z0=float(inp_search_token_value(lines, "#shape_z0"))
+			self.shape_remove_layer=str2bool(inp_search_token_value(lines, "#shape_remove_layer"))
+		except:
+			pass
+
 	def load(self,file_name):
 		if file_name=="none":
 			return
 
-		self.file_name=file_name+".inp"
+		if file_name.endswith(".inp")==True:
+			file_name=file_name[:-4]
+
+		self.file_name=file_name
 		self.do_load()
 
 	def dump(self):

@@ -94,10 +94,11 @@ class update_cache(QObject):
 		print(self.to_download)
 		print(self.on_disk)
 
-	def callback_got_data(self,file_name,number):
+	def callback_update_line(self,file_name,number):
 		for i in range(0,len(self.file_list)):
+			#print(self.file_list[i].file_name,file_name)
 			#print(self.file_list[i].file_name,"-",file_name,file_name.count(self.file_list[i].file_name))
-			if file_name.count(self.file_list[i].file_name)>0:
+			if self.file_list[i].file_name==file_name:
 				self.file_list[i].progress=number
 				self.file_list[i].status="downloading"
 
@@ -107,16 +108,27 @@ class update_cache(QObject):
 		self.file_list=[]
 		self.to_download=0
 		self.to_install=0
+		self.installed=0
 		self.on_disk=0
 		#self.web_cache_dir=get_web_cache_path()
 		self.load_cache_status()
 		self.first_contact=True
+		self.state="downloading"
 
 	def progress(self):
-		return float(self.on_disk)/float(self.to_download+self.on_disk)
+		total=len(self.file_list)
+		if total==0:
+			return 0.0
+		if self.state=="downloading":
+			return float(self.on_disk)/float(total)
+		else:
+			return float(self.installed)/float(total)
 
 	def get_progress_text(self):
-		return str(self.on_disk)+"/"+str(self.to_download+self.on_disk)+" extra materials downloaded"
+		if self.state=="downloading" and self.installed!=len(self.file_list):
+			return str(self.on_disk)+"/"+str(len(self.file_list))+" extra materials downloaded"
+		else:
+			return str(self.installed)+"/"+str(len(self.file_list))+" extra materials installed"
 
 	def write_cache_status(self):
 		file_name=os.path.join(get_web_cache_path(),self.sub_dir,"info2.dat")
@@ -153,8 +165,15 @@ class update_cache(QObject):
 			self.add_to_cache_from_disk(a)
 
 	def add_to_cache_from_disk(self,f_in):
-		if f_in.status=="on-disk":
+		if f_in.status=="on-disk" or f_in.status=="up-to-date":
 			self.on_disk=self.on_disk+1
+
+		if f_in.status=="downloading":
+			f_in.status="update-avaliable"
+			self.to_download=self.to_download+1
+
+		if f_in.status=="up-to-date":
+			self.installed=self.installed+1
 
 		self.file_list.append(f_in)
 
@@ -205,12 +224,13 @@ class update_cache(QObject):
 		#self.print_cache_status()
 
 	def updates_download(self):
-
+		self.state="downloading"
 		for i in range(0,len(self.file_list)):
 			f=self.file_list[i]
 			if f.status=="update-avaliable":
+				self.callback_update_line(f.file_name,0)
 				data=http_get_u(self.sub_dir+"/"+f.file_name)
-				data.got_data.connect(self.callback_got_data)
+				#data.got_data.connect(self.callback_got_data)
 				ret=data.go()
 				if ret!=False:
 					#print(len(ret),f.size)
@@ -223,15 +243,18 @@ class update_cache(QObject):
 					lines = file_han.write(ret)
 					file_han.close()
 					f.md5_disk=hashlib.md5(ret).hexdigest()[:5]
+
+					self.callback_update_line(f.file_name,len(ret))
+
 					f.status="on-disk"
 					self.to_download=self.to_download-1
 					self.on_disk=self.on_disk+1
 
-
-
 					self.write_cache_status()
 					self.update_progress.emit(i,self.progress())
 
+				else:
+					print("failed "+self.sub_dir+"/"+f.file_name)
 
 	def emit_decompress(self,file_name,percent):
 		#self.decompress.emit(file_name,percent)
@@ -242,28 +265,28 @@ class update_cache(QObject):
 				f.status="installing"
 
 	def updates_install(self):
-		return
-		for f in self.file_list:
+		self.state="installing"
+		for i in range(0,len(self.file_list)):
+			f=self.file_list[i]
 			if f.status=="on-disk":
 				out_sub_dir=f.file_name
-				if out_sub_dir.endswith(".zip"):
-					out_sub_dir=out_sub_dir[:-4]
-				install_path=""
-				if f.target=="materials":
-					install_path=get_materials_path()
-
-				#print(f.target,f.cache_dir)
-
+				zip_file=os.path.join(get_web_cache_path(),self.sub_dir,f.file_name)
+				install_path=os.path.join(os.path.dirname(get_materials_path()),f.target)
+				#print(install_path,zip_file)
 				if install_path!="":
-					archive_extract(os.path.join(install_path,out_sub_dir), os.path.join(get_web_cache_path(), f.cache_dir, f.file_name),call_back=self.emit_decompress)
+					archive_extract(install_path, zip_file)
+					#self.emit_decompress()
+					self.update_progress.emit(i,1.0)
 					f.status="up-to-date"
+					self.installed=self.installed+1
+					#addasdas
 
 		self.write_cache_status()
 
 	def updates_avaliable(self):
 		for f in self.file_list:
 			#print(f.status)
-			if f.status=="update-avaliable":
+			if f.status=="update-avaliable" or f.status=="on-disk":
 				return True
 		#print("no")
 		return False

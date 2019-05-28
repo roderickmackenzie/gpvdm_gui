@@ -65,6 +65,7 @@ from QParasitic import QParasitic
 from inp import  inp_search_token_array
 from inp import inp_getmtime
 from dos_complex_switch import dos_complex_switch
+from shape_dos_switch import shape_dos_switch
 
 class QChangeLog(QTextEdit):
 	def __init__(self):
@@ -133,6 +134,13 @@ class tab_class(QWidget,tab_base):
 				unit.setEnabled(True)
 			else:
 				unit.setEnabled(False)
+		elif type(widget)==shape_dos_switch:
+			inp_update_token_value(self.file_name, token, widget.get_value())
+			if widget.get_value()=="active":
+				unit.setEnabled(True)
+			else:
+				unit.setEnabled(False)
+
 		help_window().help_set_help(["document-save-as","<big><b>Saved to disk</b></big>\n"])
 		self.last_edit_time=inp_getmtime(self.file_name)
 		self.changed.emit()
@@ -184,6 +192,9 @@ class tab_class(QWidget,tab_base):
 				w.edit_box.setText(values[0])
 			elif w.widget=="dos_complex_switch":
 				w.edit_box.set_value(values[0])
+			elif w.widget=="shape_dos_switch":
+				w.edit_box.set_value(values[0])
+
 		
 			w.edit_box.blockSignals(False)
 
@@ -323,6 +334,15 @@ class tab_class(QWidget,tab_base):
 							unit.setEnabled(False)
 						edit_box.changed.connect(functools.partial(self.callback_edit,token,edit_box,unit))
 						unit.clicked.connect(functools.partial(self.callback_unit_click,token,edit_box,unit))
+					elif result.widget=="shape_dos_switch":
+						edit_box=shape_dos_switch()
+						edit_box.setFixedSize(300, 25)
+						edit_box.set_value(value)
+						if value=="passive":
+							unit.setEnabled(False)
+						edit_box.changed.connect(functools.partial(self.callback_edit,token,edit_box,unit))
+						unit.clicked.connect(functools.partial(self.callback_unit_click,token,edit_box,unit))
+
 
 					else:
 						edit_box=QComboBox()

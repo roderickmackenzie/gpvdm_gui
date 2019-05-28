@@ -58,21 +58,22 @@ def archive_materials(path):
 				print(mat_dir)
 
 
-def find_materials():
+def find_materials(mat_path=get_materials_path()):
 	ret=[]
-	mat_path=get_materials_path()
-	for root, dirs, files in os.walk(mat_path):
-		for file in files:
-			path=os.path.join(root, file)
-			if get_dir_type(path)=="material":
-				if os.path.isdir(path)==True:
-					path=os.path.dirname(path)
-				else:
-					path=path[:-4]
-				s=os.path.relpath(path, mat_path)
-				s=s.replace("\\","/")
 
-				ret.append(s)
-	
+	for root, dirs, files in os.walk(mat_path):
+		#for file in files:
+		#path=os.path.join(root, file)
+		#print(root)
+		if get_dir_type(root)=="material":
+			
+			#if os.path.isdir(root)==True:
+			#	path=os.path.dirname(root)
+			#else:
+			#	path=path[:-4]
+			s=os.path.relpath(root, mat_path)
+			s=s.replace("\\","/")
+			ret.append(s)
+
 	return ret
 

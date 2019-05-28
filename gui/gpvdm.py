@@ -124,6 +124,9 @@ from PyQt5.QtWidgets import QWidget,QSizePolicy,QVBoxLayout,QHBoxLayout,QPushBut
 from update import update_init
 from inp import inp_callbacks_clear
 
+from cal_path import get_materials_path
+from clone_materials import clone_materials
+
 
 
 def do_import():
@@ -153,7 +156,6 @@ def do_import():
 
 	global to_native_path
 	global get_sim_path
-	global clone_materials	
 	global wpos_load
 	global global_object_run
 	global check_sim_exists
@@ -205,7 +207,6 @@ def do_import():
 
 	from cal_path import to_native_path
 	from cal_path import get_sim_path
-	from clone import clone_materials	
 	from window_list import wpos_load
 	from global_objects import global_object_run
 	from check_sim_exists import check_sim_exists
@@ -335,7 +336,6 @@ class gpvdm_main_window(QMainWindow):
 			#self.save_sim.setEnabled(True)
 			#self.ribbon.device.setEnabled(True)
 
-#			self.ribbon.file.home_export.setEnabled(True)
 			#self.menu_import_lib.setEnabled(True)
 			self.ribbon.configure.setEnabled(True)
 			self.ribbon.goto_page(_("Home"))
@@ -349,7 +349,6 @@ class gpvdm_main_window(QMainWindow):
 			#self.ribbon.device.setEnabled(False)
 			self.ribbon.goto_page(_("File"))
 
-#			self.ribbon.home_export.setEnabled(False)
 			self.ribbon.configure.setEnabled(False)
 
 
@@ -422,10 +421,6 @@ class gpvdm_main_window(QMainWindow):
 				update_simulaton_to_new_ver(filename)
 				self.change_dir_and_refresh_interface(new_path)
 
-			if os.path.isdir(os.path.join(new_path,"materials"))==False:
-				copy = yes_no_dlg(self,_("It looks like there is no materials database in the simulation directory should I import one?"))
-				if copy==True:
-					clone_materials(new_path)
 
 	def callback_open(self, widget, data=None):
 		dialog = QFileDialog(self)
@@ -610,6 +605,9 @@ class gpvdm_main_window(QMainWindow):
 
 
 		self.enable_disable_buttons()
+
+		if os.path.isdir(get_materials_path())==False:
+			clone_materials(get_materials_path())
 
 	def dragEnterEvent(self, event):
 		if event.mimeData().hasUrls:

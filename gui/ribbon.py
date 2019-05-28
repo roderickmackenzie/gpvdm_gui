@@ -49,6 +49,7 @@ from ribbon_simulations import ribbon_simulations
 from ribbon_configure import ribbon_configure
 from ribbon_information import ribbon_information
 from ribbon_home import ribbon_home
+from ribbon_sim_mode import ribbon_sim_mode
 from icon_lib import icon_get
 
 from about import about_dlg
@@ -85,6 +86,7 @@ class ribbon(ribbon_base):
 		self.configure.update()
 		self.information.update()
 		self.home.update()
+		self.ribbon_sim_mode.update()
 
 	def callback_about_dialog(self):
 		dlg=about_dlg()
@@ -129,9 +131,13 @@ class ribbon(ribbon_base):
 		
 		self.home=ribbon_home()
 		self.addTab(self.home,_("Home"))
+
+		self.ribbon_sim_mode=ribbon_sim_mode()
+		self.addTab(self.ribbon_sim_mode,_("Simulation type"))
+		
 		
 		self.simulations=ribbon_simulations()
-		self.addTab(self.simulations,_("Simulations"))
+		self.addTab(self.simulations,_("Simulation Editors"))
 		
 		self.configure=ribbon_configure()
 		self.addTab(self.configure,_("Configure"))

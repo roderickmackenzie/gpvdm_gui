@@ -59,13 +59,16 @@ from cal_path import get_spectra_path
 
 from util import wrap_text
 from gui_util import dlg_get_text
-from clone import clone_material
+from clone_materials import clone_material
 
 from cal_path import get_base_material_path
 from error_dlg import error_dlg
 from cal_path import get_base_spectra_path
 from clone import clone_spectra
 
+from lasers import lasers
+
+from QAction_lock import QAction_lock
 
 class ribbon_database(QToolBar):
 	def __init__(self):
@@ -82,26 +85,36 @@ class ribbon_database(QToolBar):
 		self.spectra_file.triggered.connect(self.callback_view_optical)
 		self.addAction(self.spectra_file)
 
-		#if enable_betafeatures()==True:
-		self.tb_import_pvlighthouse = QAction(icon_get("sync"), _("Update materials\nfrom PVLighthouse"), self)
-		self.tb_import_pvlighthouse.triggered.connect(self.callback_pvlighthouse)
-		self.addAction(self.tb_import_pvlighthouse)
+		if enable_betafeatures()==True:
+			self.tb_import_pvlighthouse = QAction(icon_get("sync"), _("Update materials\nfrom PVLighthouse"), self)
+			self.tb_import_pvlighthouse.triggered.connect(self.callback_pvlighthouse)
+			self.addAction(self.tb_import_pvlighthouse)
 
-		self.tb_import_refractiveindex = QAction(icon_get("sync"), _("Update materials\nfrom refractiveindex.info"), self)
-		self.tb_import_refractiveindex.triggered.connect(self.callback_refractiveindex)
-		self.addAction(self.tb_import_refractiveindex)
+			self.tb_import_refractiveindex = QAction(icon_get("sync"), _("Update materials\nfrom refractiveindex.info"), self)
+			self.tb_import_refractiveindex.triggered.connect(self.callback_refractiveindex)
+			self.addAction(self.tb_import_refractiveindex)
 
 		self.tb_update = QAction(icon_get("update"), _("Download extra\nmaterials"), self)
 		self.tb_update.triggered.connect(self.callback_update_window)
 		self.addAction(self.tb_update)
 
+		self.lasers = QAction(icon_get("lasers"), _("Laser\ndatabase"), self)
+		self.lasers.triggered.connect(self.callback_configure_lasers)
+		self.addAction(self.lasers)
+
+		self.lasers_window=None
+
 	def update(self):
-		return
+		if self.lasers_window!=None:
+			del self.lasers_window
+			self.lasers_window=None
+
 
 	def setEnabled(self,val):
 		self.materials.setEnabled(val)
 		self.spectra_file.setEnabled(val)
 		self.tb_update.setEnabled(val)
+		self.lasers.setEnabled(val)
 
 		if enable_betafeatures()==True:
 			self.tb_import_pvlighthouse.setEnabled(val)
@@ -130,8 +143,8 @@ class ribbon_database(QToolBar):
 
 	def callback_view_materials(self):
 		self.dialog=gpvdm_open(get_materials_path(),big_toolbar=True)
-		self.new_materials = QAction(icon_get("add_material"), wrap_text(_("Add Material"),8), self)
-		self.new_materials.triggered.connect(self.on_new_materials_clicked)
+		self.new_materials = QAction_lock("add_material", wrap_text(_("Add Material"),8), self,locked=True)
+		self.new_materials.secure_click.connect(self.on_new_materials_clicked)
 		self.dialog.toolbar.addAction(self.new_materials)
 
 		self.dialog.show_inp_files=False
@@ -140,8 +153,8 @@ class ribbon_database(QToolBar):
 
 	def callback_view_optical(self):
 		self.dialog=gpvdm_open(get_spectra_path(),big_toolbar=True)
-		self.new_materials = QAction(icon_get("add_spectra"), wrap_text(_("Add Spectra"),8), self)
-		self.new_materials.triggered.connect(self.on_new_spectra_clicked)
+		self.new_materials = QAction_lock("add_spectra", wrap_text(_("Add Spectra"),8), self,locked=True)
+		self.new_materials.secure_click.connect(self.on_new_spectra_clicked)
 		self.dialog.toolbar.addAction(self.new_materials)
 		self.dialog.show_inp_files=False
 		ret=self.dialog.exec_()
@@ -159,3 +172,13 @@ class ribbon_database(QToolBar):
 		update_window_show()
 
 
+	def callback_configure_lasers(self):
+
+		if self.lasers_window==None:
+			self.lasers_window=lasers()
+
+		help_window().help_set_help(["lasers.png",_("<big><b>Laser setup</b></big><br> Use this window to set up your lasers.")])
+		if self.lasers_window.isVisible()==True:
+			self.lasers_window.hide()
+		else:
+			self.lasers_window.show()

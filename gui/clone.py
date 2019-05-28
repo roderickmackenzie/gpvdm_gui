@@ -35,13 +35,15 @@ from util_zip import write_lines_to_archive
 from util_zip import archive_make_empty
 from shutil import copyfile
 from inp import inp_search_token_value
-from cal_path import get_materials_path
+from cal_path import get_base_material_path
 from cp_gasses import copy_gasses
 from materials_io import find_materials
 from cal_path import find_light_source
 from cal_path import get_spectra_path
 
 def gpvdm_clone(path,src_archive="",copy_dirs=False,dest="archive"):
+	print("Cloning from",get_inp_file_path())
+
 	if src_archive=="":
 		src_dir=get_inp_file_path()
 		src_archive=os.path.join(src_dir,"base.gpvdm")
@@ -71,20 +73,6 @@ def gpvdm_clone(path,src_archive="",copy_dirs=False,dest="archive"):
 		#clone_materials(path)
 		clone_spectras(path)
 
-def clone_material(dest_material_dir,src_material_dir):
-	if os.path.isdir(dest_material_dir)==False:
-		try:
-			os.makedirs(dest_material_dir)
-		except:
-			return False
-
-	files=os.listdir(src_material_dir)
-	for i in range(0,len(files)):
-		src_mat_file=os.path.join(src_material_dir,files[i])
-		if os.path.isfile(src_mat_file)==True:
-			copyfile(src_mat_file,os.path.join(dest_material_dir,files[i]))
-	return True
-
 def clone_spectra(dest_spectra_dir,src_spectra_dir):
 	if os.path.isdir(dest_spectra_dir)==False:
 		os.mkdir(dest_spectra_dir)
@@ -94,20 +82,6 @@ def clone_spectra(dest_spectra_dir,src_spectra_dir):
 		if os.path.isfile(src_spectra_file)==True:
 			copyfile(src_spectra_file,os.path.join(dest_spectra_dir,copy_file))
 			
-def clone_materials(dest):
-	src_dir=os.path.join(get_materials_path())
-	dest_dir=os.path.join(dest,"materials")
-	if os.path.isdir(dest_dir)==False:
-		os.makedirs(dest_dir)
-
-	copy_gasses(dest_dir,src_dir)
-
-	files=find_materials()
-	for i in range(0,len(files)):
-		src_file=os.path.join(src_dir,files[i])
-		dest_file=os.path.join(dest_dir,files[i])
-
-		clone_material(dest_file,src_file)
 
 def clone_spectras(dest):
 	src_dir=os.path.join(get_spectra_path())

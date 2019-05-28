@@ -29,8 +29,8 @@ import sys
 import random
 import fnmatch
 import numpy
-from cal_path import get_materials_path
-from clone import clone_material
+from cal_path import get_base_material_path
+from clone_materials import clone_material
 from util_zip import write_lines_to_archive
 from util_zip import zip_remove_file
 from inp import inp_update_token_value
@@ -212,7 +212,7 @@ def process_yml_file(dest,yml_src_file):
 					understood_alpha=True
 
 			if understood_n==True and understood_alpha==True:
-				src_dir=get_materials_path()
+				src_dir=get_base_material_path()
 				src_file=os.path.join(src_dir,"generic","default")
 				path=dest
 
@@ -285,7 +285,7 @@ def decode_path(path):
 	print(path)
 
 	types=[]
-	type_file=os.path.join(get_materials_path(),"src","type_list.inp")
+	type_file=os.path.join(get_base_material_path(),"src","type_list.inp")
 	lines=read_lines_from_file(type_file)
 	for l in lines:
 		if l.count(",")>0:
@@ -306,7 +306,7 @@ def decode_path(path):
 	return os.path.join(path,"extra","extra")
 	
 def refractiveindex_info_sync():
-	search_path=os.path.join(get_materials_path(),"src","refractiveindex.info","data")
+	search_path=os.path.join(get_base_material_path(),"src","refractiveindex.info","data")
 	if os.path.isdir(search_path)==False:
 		print("Put the refractiveindex.info database in if you want it imported"+ search_path)
 		return
@@ -316,8 +316,11 @@ def refractiveindex_info_sync():
 			yml_file=os.path.join(root, file_name)
 
 			rel_path=os.path.relpath(yml_file, search_path)[:-4]
+			rel_path=rel_path.replace(" ","_")
+			rel_path=rel_path.replace("(","_")
+			rel_path=rel_path.replace(")","_")
 			decoded_path=decode_path(rel_path)
-			dest=os.path.join(get_materials_path(),decoded_path)
+			dest=os.path.join(get_base_material_path(),decoded_path)
 			#print(yml_file,rel_path,divert(rel_path))
 			process_yml_file(dest,yml_file)
 

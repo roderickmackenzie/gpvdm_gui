@@ -33,7 +33,7 @@ from win_lin import running_on_linux
 from gui_enable import gui_get
 from os.path import expanduser
 
-materials_path=None
+root_materials_path=None
 plugins_path=None
 exe_command=None
 share_path=None
@@ -221,7 +221,7 @@ def calculate_paths():
 	global lib_path
 	global exe_command
 	global device_lib_path
-	global materials_path
+	global root_materials_path
 	global image_path
 	global css_path
 	global flag_path	
@@ -236,9 +236,9 @@ def calculate_paths():
 	global cluster_path
 	global cluster_libs_path
 
-	materials_path=os.path.join(get_sim_path(),"materials")
-	if os.path.isdir(materials_path)==False:
-		materials_path=search_known_paths("materials",[""],None,False)
+	root_materials_path=os.path.join(get_sim_path(),"materials")
+	if os.path.isdir(root_materials_path)==False:
+		root_materials_path=search_known_paths("materials",[""],None,False)
 	materials_base_path=search_known_paths("materials",[""],None,False)
 	device_lib_path=search_known_paths("device_lib",[""],None,False)
 	plugins_path=search_known_paths("plugins",[""],None,False)
@@ -302,8 +302,7 @@ def get_html_path():
 	return html_path
 
 def get_materials_path():
-	global materials_path
-	return materials_path
+	return os.path.join(get_user_settings_dir(),"materials")
 
 def get_base_material_path():
 	global materials_base_path

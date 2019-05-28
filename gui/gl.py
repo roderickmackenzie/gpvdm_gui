@@ -148,7 +148,7 @@ from gl_layer_editor import gl_layer_editor
 
 from gl_cords import gl_cords
 
-from gl_lib import lens_layer
+from gl_lib import shape_layer
 from gl_base_widget import gl_base_widget
  
 if open_gl_ok==True:		
@@ -339,11 +339,10 @@ if open_gl_ok==True:
 
 		def mouseReleaseEvent(self,event):
 			self.obj=self.event_to_3d_obj(event)
-			print(self.obj)
+
 			if event.button()==Qt.RightButton:
 				delta=time.time() - self.mouse_click_time
-				if (delta)<0.2:
-					
+				if (delta)<0.5:
 					if self.obj!="none":
 						if self.obj.startswith("layer")==True:
 							self.selected_layer=self.obj
@@ -504,12 +503,11 @@ if open_gl_ok==True:
 								if (c.start+c.width)>self.x_len:
 									xwidth=self.max_gui_device_x-xstart
 							#lens_layer(xstart,y+dy_shrink/2,z,xwidth,self.max_gui_device_z,y_len-dy_shrink,self.max_gui_device_x/10)
-
-							if obj.shape.type=="none":
-								box(xstart,y+dy_shrink/2,z,xwidth, y_len-dy_shrink,self.max_gui_device_z, obj.r, obj.g, obj.b, obj.alpha, name=layer_name)
+							if len(obj.shapes)>0:
+								for s in obj.shapes:
+									shape_layer(obj,s,xstart,y+dy_shrink/2, z, name=layer_name)
 							else:
-								lens_layer(xstart,y+dy_shrink/2,z,xwidth,self.max_gui_device_z,y_len-dy_shrink,self.max_gui_device_x/10, name=layer_name)
-
+								box(x,y+dy_shrink/2,z,self.max_gui_device_x,y_len-dy_shrink,self.max_gui_device_z,obj.r,obj.g,obj.b,obj.alpha,name=layer_name)
 				else:
 					box(x,y+dy_shrink/2,z,self.max_gui_device_x,y_len-dy_shrink,self.max_gui_device_z,obj.r,obj.g,obj.b,obj.alpha,name=layer_name)
 

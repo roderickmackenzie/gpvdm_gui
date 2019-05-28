@@ -91,8 +91,18 @@ def build_token_lib():
 	lib.append(my_data("","#free_to_free_recombination","m^{3}s^{-1}",_("n_{free} to p_{free} Recombination rate constant"),"e",1.0,"QLineEdit"))
 
 	#shape?.inp
-	lib.append(my_data("","#shape_type","au",_("Shape type"),"s",1.0,"QComboBoxLang",defaults=[[("none"),_("None")],[("dome"),_("Dome")],["tube",_("Tube")],["cone",_("Cone")]]))
-	lib.append(my_data("","#shape_width","m",_("Width of the object"),"e",1.0,"QLineEdit"))
+	lib.append(my_data("","#shape_type","au",_("Shape type"),"s",1.0,"QComboBoxLang",defaults=[[("none"),_("None")],[("dome"),_("Dome")],["tube",_("Tube")],["cone",_("Cone")],["pyrmid",_("Pyrmid")],["box",_("Box")]]))
+	lib.append(my_data("","#shape_dx","m",_("dx of the object"),"e",1.0,"QLineEdit"))
+	lib.append(my_data("","#shape_dy","m",_("dy of the object"),"e",1.0,"QLineEdit"))
+	lib.append(my_data("","#shape_dz","m",_("dz of the object"),"e",1.0,"QLineEdit"))
+
+
+	lib.append(my_data("","#shape_nx","au",_("Number of objects x"),"e",1.0,"QLineEdit"))
+	lib.append(my_data("","#shape_nz","au",_("Number of objects z"),"e",1.0,"QLineEdit"))
+	lib.append(my_data("","#shape_x0","m",_("x offset"),"e",1.0,"QLineEdit"))
+	lib.append(my_data("","#shape_z0","m",_("z offset"),"e",1.0,"QLineEdit"))
+	lib.append(my_data("","#shape_remove_layer",_("True/False"),_("Remove layer"),"e",1.0,"gtkswitch"))
+	lib.append(my_data("","#shape_dos",_("Edit"),_("Electricaly active"),"e",1.0,"shape_dos_switch",units_widget="QPushButton"))
 
 	#stark.inp
 	lib.append(my_data("","#stark_startime","s",_("startime"),"e",1.0,"QLineEdit"))
@@ -191,6 +201,9 @@ def build_token_lib():
 	lib.append(my_data("","#Vbi","m^{-3}",_("Built in potential"),"e",1.0,"QLineEdit"))
 	lib.append(my_data("","#electron_affinity_left","eV",_("Electron affinity left"),"e",1.0,"QLineEdit"))
 	lib.append(my_data("","#electron_affinity_right","eV",_("Electron affinity right"),"e",1.0,"QLineEdit"))
+
+	#tab
+	lib.append(my_data("","#english_name","name",_("English name"),"e",1.0,"QLineEdit"))
 
 	#server.inp
 	lib.append(my_data("","#server_cpus","au",_("Number of CPUs"),"e",1.0,"QLineEdit"))
@@ -395,11 +408,17 @@ def build_token_lib():
 	lib.append(my_data("","#Rscope","Ohms",_("Resistance of scope"),"e",1.0,"QLineEdit"))
 	lib.append(my_data("","#srh_bands","bands",_("Number of traps"),"s",1.0,"QLineEdit"))
 
+	#suns_voc
 	lib.append(my_data("","#sun_voc_single_point","True/False",_("Single point"),"e",1.0,"gtkswitch"))
 	lib.append(my_data("","#sun_voc_Psun_start","Suns",_("Start intensity"),"e",1.0,"QLineEdit"))
 	lib.append(my_data("","#sun_voc_Psun_stop","Suns",_("Stop intensity"),"e",1.0,"QLineEdit"))
 	lib.append(my_data("","#sun_voc_Psun_mul","au",_("step multiplier"),"e",1.0,"QLineEdit"))
 
+	#suns_jsc
+	lib.append(my_data("suns_voc.inp","#sunstart","Suns",_("Start intensity"), "e",1.0,"QLineEdit"))
+	lib.append(my_data("suns_voc.inp","#sunstop","Suns",_("Stop intensity"), "e",1.0,"QLineEdit"))
+	lib.append(my_data("suns_voc.inp","#sundp","au",_("Step"), "e",1.0,"QLineEdit"))
+	lib.append(my_data("suns_voc.inp","#sundpmul","au",_("step multiplier"), "e",1.0,"QLineEdit"))
 
 	lib.append(my_data("","#simplephotondensity","m^{-2}s^{-1}",_("Photon Flux"),"e",1.0,"QLineEdit"))
 	lib.append(my_data("","#simple_alpha","m^{-1}",_("Absorption"),"e",1.0,"QLineEdit"))

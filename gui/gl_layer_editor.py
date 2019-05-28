@@ -28,17 +28,15 @@
 import sys
 from math import fabs
 
-try:
-	from OpenGL.GL import *
-	from OpenGL.GLU import *
-	from PyQt5 import QtOpenGL
-	from PyQt5.QtOpenGL import QGLWidget
-	from PyQt5.QtWidgets import QMenu
-	from gl_color import set_color
-	from gl_lib import val_to_rgb
-	from shape_editor import shape_editor
-except:
-	pass
+from OpenGL.GL import *
+from OpenGL.GLU import *
+from PyQt5 import QtOpenGL
+from PyQt5.QtOpenGL import QGLWidget
+from PyQt5.QtWidgets import QMenu
+from gl_color import set_color
+from gl_lib import val_to_rgb
+from shape_editor import shape_editor
+
 
 from PyQt5.QtCore import QTimer
 
@@ -130,11 +128,10 @@ class gl_layer_editor():
 		name=self.selected_layer[len("layer:"):]
 		epi=get_epi()
 		index=epi.layer_to_index(name)
-		shape_file=epi.get_shape_file_name(index)
 		
-		print(">>>>>>>loading>>>>",shape_file)
+		print(">>>>>>>loading shapes for >>>>",index)
 		self.shape_edit=shape_editor()
-		self.shape_edit.load(shape_file+".inp")
+		self.shape_edit.load(index)
 		self.shape_edit.show()
 		#epi.save()
 

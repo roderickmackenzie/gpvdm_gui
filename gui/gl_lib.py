@@ -46,6 +46,11 @@ import random
 import numpy as np
 from math import pi,acos,sin,cos
 
+from gl_m2screen import get_m2screen_x_mul
+from gl_m2screen import get_m2screen_y_mul
+from gl_m2screen import get_m2screen_z_mul
+
+
 stars=[]
 
 def gl_save_draw():
@@ -246,26 +251,36 @@ def box_lines(x,y,z,w,h,d):
 
 	glEnd()
 
-def lens_layer(x0,y0,z0,width,length,height,dx, name="name"):
-	x=x0
-	x_stop=x0+width
-	y=y0
+def shape_layer(obj,s,x0,y0,z0, name="name"):
+	x_pos=x0+s.shape_x0
+	y_pos=y0
+	z_pos=z0+s.shape_z0*get_m2screen_z_mul()
 
-	z=z0
-	dz=dx
-	z_stop=z0+length
-	while (x<x_stop):
-		z=0
-		while (z<z_stop):
-			#cone(x0,x,y,z,height,dx/2, name=name)
-			#pyrmid(x,y,z,height,dx, name=name)
-			dome(x,y,z,height,dx,name=name)
-			#half_cyl(x0,x,y,z,length,height,dx/2, name=name)
-			z=z+dz
+	height=1.0
+	dx=s.dx*get_m2screen_x_mul()
+	dz=s.dz*get_m2screen_z_mul()
+	dy=s.dy*get_m2screen_y_mul()
+
+	for x in range(0,s.shape_nx):
+		z_pos=z0+s.shape_z0*get_m2screen_z_mul()
+		for z in range(0,s.shape_nz):
+			if s.type=="dome":
+				dome(x_pos,y_pos,z_pos,height,dx,name=name)
+			elif s.type=="cone":
+				#cone(x0,x,y,z,height,dx/2, name=name)
+				pyrmid(x_pos,y_pos,z_pos,height,dx, name=name)
+			elif s.type=="pyrmid":
+				pyrmid(x_pos,y_pos,z_pos,height,dx, name=name)
+			elif s.type=="box":
+				#pyrmid(x_pos,y_pos,z_pos,height,dx, name=name)
+				box(x_pos,y_pos,z_pos,dx, dy,dx, obj.r, obj.g, obj.b, obj.alpha, name=name)
+			else:
+				half_cyl(x0,x_pos,y_pos,z_pos,length,height,dx/2, name=name)
+			z_pos=z_pos+dz
 			#print(x,z,dx)
 			#break
 		#break
-		x=x+dx
+		x_pos=x_pos+dx
 
 
 

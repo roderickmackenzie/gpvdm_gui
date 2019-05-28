@@ -85,7 +85,6 @@ from gui_enable import gui_get
 from device_lib_io import device_lib_token_repair
 
 from materials_io import archive_materials
-from refractiveindex_info import refractiveindex_info_sync
 
 import i18n
 _ = i18n.language.gettext
@@ -233,6 +232,7 @@ def command_args(argc,argv):
 			inp_dir_listing(os.path.join(os.getcwd(),"sim.gpvdm"))
 			sys.exit(0)
 		elif args.ri_sync:
+			from refractiveindex_info import refractiveindex_info_sync
 			refractiveindex_info_sync()
 		elif args.scanplot:
 			plot_token=dat_file()

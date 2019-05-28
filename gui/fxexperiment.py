@@ -65,6 +65,7 @@ from fx_ribbon import fx_ribbon
 
 from progress import progress_class
 from process_events import process_events
+from global_objects import global_object_run
 
 class fxexperiment(QWidgetSavePos):
 
@@ -75,6 +76,7 @@ class fxexperiment(QWidgetSavePos):
 
 	def callback_add_page(self,file_name):
 		self.add_page(file_name)
+		global_object_run("ribbon_sim_mode_update")
 		self.changed.emit()
 
 
@@ -171,5 +173,6 @@ class fxexperiment(QWidgetSavePos):
 		self.setLayout(self.main_vbox)
 
 	def callback_changed(self):
+		global_object_run("ribbon_sim_mode_update")
 		self.changed.emit()
 

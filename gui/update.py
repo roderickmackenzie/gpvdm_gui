@@ -40,7 +40,7 @@ from ver import ver
 #qt
 from PyQt5.QtCore import QSize, Qt
 from PyQt5.QtGui import QIcon
-from PyQt5.QtWidgets import QWidget,QVBoxLayout,QSizePolicy,QToolBar,QAction,QTableWidget,QAbstractItemView,QTableWidgetItem,QStatusBar
+from PyQt5.QtWidgets import QWidget,QVBoxLayout,QSizePolicy,QToolBar,QAction,QTableWidget,QAbstractItemView,QTableWidgetItem,QStatusBar,QDialog
 from PyQt5.QtGui import QPixmap
 from PyQt5.QtCore import pyqtSignal
 from PyQt5.QtWidgets import QWidget
@@ -55,8 +55,9 @@ from icon_lib import icon_get
 from update_io import update_cache
 
 from progress import progress_class
+from process_events import process_events
+from msg_dlg import msg_dlg
 
-#Under windows, this class will connect to gpvdm.com and look for updates, a user prompt will be displayed if any are found.  It can also download updates if the user asks it to.  It's not called under linux because linux has it's own package management system.
 
 checked_web=False
 
@@ -76,17 +77,19 @@ class update_window(QWidget):
 	def __init__(self):
 		QWidget.__init__(self)
 		self.setMinimumWidth(1000)
+		self.setMinimumHeight(800)
+
 		self.vbox=QVBoxLayout()
 
-		self.setWindowTitle(_("Download updates")+" (https://www.gpvdm.com)")
+		self.setWindowTitle(_("Download extra materials")+" (https://www.gpvdm.com)")
 
 		toolbar=QToolBar()
 
 		toolbar.setToolButtonStyle( Qt.ToolButtonTextUnderIcon)
 		toolbar.setIconSize(QSize(42, 42))
 
-		self.tb_update = QAction(icon_get("update"), _("Download updates"), self)
-		self.tb_update.triggered.connect(self.download_updates)
+		self.tb_update = QAction_lock("update", _("Download extra\nmaterials"), self,locked=True)
+		self.tb_update.secure_click.connect(self.download_updates)
 		toolbar.addAction(self.tb_update)
 
 		spacer = QWidget()
@@ -140,14 +143,17 @@ class update_window(QWidget):
 		self.timer.setSingleShot(False)
 		self.timer.timeout.connect(self.update_ui)
 		self.timer.start(500)
-
+		
 	def update_progress(self,line,percent):
 		if self.isVisible()==True:
 			if line!=-1:
 				self.tab.setItem(line,5,QTableWidgetItem(str(self.update.file_list[line].get_status())))
 				self.tab.setItem(line,4,QTableWidgetItem(str(self.update.file_list[line].md5_disk)))
+				self.tab.selectRow( line );
+
 		self.progress.set_fraction(percent)
 		self.progress.set_text(self.update.get_progress_text())
+		process_events()
 
 	def update_ui(self):
 		if self.isVisible()==True:
@@ -183,7 +189,7 @@ class update_window(QWidget):
 
 
 		self.tab.blockSignals(False)
-		self.status_bar.showMessage("Done..")
+		self.status_bar.showMessage("")
 
 	def thread_get_updates(self):
 		self.update.updates_get()
@@ -203,6 +209,7 @@ class update_window(QWidget):
 		self.update_check_thread.start()
 
 	def download_updates(self):
+
 		self.status_bar.showMessage("Downloading updates.....")
 		p = Thread(target=self.thread_download_updates)
 		p.daemon = True

@@ -46,6 +46,7 @@ from cal_path import get_sim_path
 from util_zip import archive_merge_file
 from mesh import mesh_get_ymesh
 from shape import shape
+from inp import inp_update_token_value
 
 class epi_layer():
 	def __init__(self):
@@ -53,8 +54,7 @@ class epi_layer():
 		self.mat_file=""
 		self.name=""
 		self.pl_file=""
-		self.shape_file=""
-		self.shape=shape()
+		self.shapes=[]
 		self.r=0
 		self.g=0
 		self.b=0
@@ -123,17 +123,29 @@ class epitaxy():
 
 		return name
 
+	def get_all_dos_files(self):
+		tab=[]
+		for l in self.layers:
+			if l.electrical_layer.startswith("dos"):
+				tab.append(l.electrical_layer)
+
+		for l in self.layers:
+			if len(l.shapes)!=0:
+				for s in l.shapes:
+					if s.shape_dos!="none":
+						tab.append(s.shape_dos)
+		return tab
+
 	def clean_unused_files(self):
 		files=inp_lsdir("sim.gpvdm")
-		tab=[]
+		tab=self.get_all_dos_files()
 
 		#dos files
-		for l in self.layers:
-			tab.append(l.electrical_layer+".inp")
+
 
 		for i in range(0,len(files)):
 			if files[i].startswith("dos") and files[i].endswith(".inp"):
-				disk_file=files[i]
+				disk_file=files[i][:-4]
 				if disk_file not in tab:
 					inp_remove_file(disk_file)
 
@@ -147,8 +159,10 @@ class epitaxy():
 				if disk_file not in tab:
 					inp_remove_file(disk_file)
 
+		#shape files
 		for l in self.layers:
-			tab.append(l.shape_file+".inp")
+			for s in l.shapes:
+				tab.append(s+".inp")
 
 		for i in range(0,len(files)):
 			if files[i].startswith("shape") and files[i].endswith(".inp"):
@@ -156,6 +170,7 @@ class epitaxy():
 				if disk_file not in tab:
 					inp_remove_file(disk_file)
 
+		#lumo files
 		for l in self.layers:
 			tab.append(l.lumo_file+".inp")
 
@@ -165,6 +180,7 @@ class epitaxy():
 				if disk_file not in tab:
 					inp_remove_file(disk_file)
 
+		#homo files
 		for l in self.layers:
 			tab.append(l.homo_file+".inp")
 
@@ -193,7 +209,7 @@ class epitaxy():
 		a.mat_file="blends/p3htpcbm"
 		a.name=self.get_new_material_name()
 		a.pl_file="none"
-		a.shape_file="none"
+		a.shapes=[]
 		a.lumo_file="none"
 		a.homo_file="none"
 		self.electrical_layer="other"
@@ -251,7 +267,15 @@ class epitaxy():
 			lines.append("#layer_pl_file"+str(layer))
 			lines.append(epi.layers[i].pl_file)
 			lines.append("#layer_shape"+str(layer))
-			lines.append(epi.layers[i].shape_file)
+			if len(epi.layers[i].shapes)==0:
+				lines.append("none")
+			else:
+				build=""
+				for s in epi.layers[i].shapes:
+					build=build+s.file_name+","
+				build=build[:-1]
+				lines.append(build)
+
 			lines.append("#layer_lumo"+str(layer))
 			lines.append(epi.layers[i].lumo_file)
 			lines.append("#layer_homo"+str(layer))
@@ -259,7 +283,7 @@ class epitaxy():
 			layer=layer+1
 
 		lines.append("#ver")
-		lines.append("1.41")
+		lines.append("1.42")
 		lines.append("#end")
 		return lines
 
@@ -344,17 +368,31 @@ class epitaxy():
 
 		#self.dump()
 
-	def new_dos_file(self):
-		global epi
-		for i in range(0,20):
-			name="dos"+str(i)
-			found=False
-			for a in epi.layers:
-				if a.electrical_layer==name:
-					found=True
+	def add_new_dos_to_shape(self,s):
+		if s.shape_dos!="none":
+			return s.shape_dos
 
-			if found==False:
-				return name
+		new_file=self.new_dos_file()
+		s.shape_dos=new_file
+
+		inp_update_token_value(s.file_name,"#shape_dos",new_file)
+
+		new_dos_file=new_file+".inp"
+			
+		if inp_isfile(new_dos_file)==False:
+			dos_path_generic=os.path.join(get_default_material_path(),"dos.inp")
+			inp_copy_file(new_dos_file,dos_path_generic)
+
+		return new_file
+
+	def new_dos_file(self):
+		files=self.get_all_dos_files()
+
+		for i in range(0,20):
+			name="dos"+str(i)+".inp"
+
+			if name not in files:
+				return "dos"+str(i)
 
 	def new_pl_file(self):
 		global epi
@@ -392,20 +430,19 @@ class epitaxy():
 			if found==False:
 				return name
 
-	def get_shape_file_name(self,layer):
-		global epi
-		if epi.layers[layer].shape_file!="none":
-			return epi.layers[layer].shape_file
-
+	def new_shape_file(self):
+		all_shape_files=[]
+		for l in self.layers:
+			for s in l.shapes:
+				all_shape_files.append(s.file_name)
 		for i in range(0,20):
 			name="shape"+str(i)
 			found=False
-			for i in range(0,len(epi.layers)):
-				if epi.layers[i].shape_file==name:
-					found=True
-
-			if found==False:
+			if name not in all_shape_files:
 				return name
+				
+	def get_shapes(self,layer):
+		return epi.layers[layer].shapes
 
 	def ylen(self):
 		tot=0
@@ -422,6 +459,12 @@ class epitaxy():
 
 		return tot
 
+	def reload_shapes(self):
+		for a in epi.layers:
+			for s in a.shapes:
+				print(s.file_name)
+				s.load(s.file_name)
+
 	def load(self,path):
 		self.layers=[]
 
@@ -433,7 +476,6 @@ class epitaxy():
 		if lines!=False:
 			#compat layer for 
 			ver=float(inp_search_token_value(lines,"#ver"))
-			shape=True
 
 			pos=0
 			pos=pos+1
@@ -464,8 +506,15 @@ class epitaxy():
 
 				pos=pos+1		#token
 				pos=pos+1
-				a.shape_file=lines[pos]		#value
-				a.shape.load(a.shape_file)
+				temp=lines[pos]		#value
+				if temp=="none":
+					a.shapes=[]
+				else:
+					files=temp.split(",")
+					for s in files:
+						my_shape=shape()
+						my_shape.load(s)
+						a.shapes.append(my_shape)
 
 				pos=pos+1		#token
 				pos=pos+1

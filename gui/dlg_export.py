@@ -57,7 +57,6 @@ def dlg_export(parent):
 	types.append(_("pdf file")+" (*.pdf)")
 	types.append(_("jpg image")+" (*.jpg)")
 	types.append(_("tex file")+" (*.tex)")
-	types.append(_("Excel file")+" (*.xlsx)")
 
 	dialog.setNameFilters(types)
 	dialog.setFileMode(QFileDialog.ExistingFile)
@@ -74,6 +73,21 @@ def dlg_export(parent):
 			export_materials(file_name)
 		elif dialog.selectedNameFilter()==_("pdf file")+" (*.pdf)" or dialog.selectedNameFilter()==_("jpg image")+" (*.jpg)" or dialog.selectedNameFilter()==_("tex file")+" (*.tex)":
 			export_as(file_name)
-		elif dialog.selectedNameFilter()==_("Excel file")+" (*.xlsx)":
-			gen_workbook(get_sim_path(),set_file_ext(file_name,".xlsx"))
 
+def dlg_export_xls(parent):
+
+	dialog = QFileDialog(parent)
+	dialog.setWindowTitle(_("Export to xls file"))
+	dialog.setAcceptMode(QFileDialog.AcceptSave)
+	types=[]
+	types.append(_("Excel file")+" (*.xlsx)")
+
+	dialog.setNameFilters(types)
+	dialog.setFileMode(QFileDialog.ExistingFile)
+	dialog.setAcceptMode(QFileDialog.AcceptSave)
+
+	if dialog.exec_() == QDialog.Accepted:
+		file_name = dialog.selectedFiles()[0]
+		#print(dialog.selectedNameFilter())
+		if dialog.selectedNameFilter()==_("Excel file")+" (*.xlsx)":
+			gen_workbook(get_sim_path(),set_file_ext(file_name,".xlsx"))

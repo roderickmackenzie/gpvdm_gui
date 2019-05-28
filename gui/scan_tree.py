@@ -37,7 +37,6 @@ from inp import inp_get_token_array
 from util import str2bool
 from util import get_cache_path
 from cal_path import get_materials_path
-from clone import clone_materials
 from scan_item import scan_items_get_file
 from scan_item import scan_items_get_token
 from clone import gpvdm_clone
@@ -51,7 +50,6 @@ from cal_path import subtract_paths
 from progress import progress_class
 from process_events import process_events
 
-copy_materials=False
 
 def tree_load_flat_list(sim_dir):
 	config=[]
@@ -127,12 +125,7 @@ def tree_load_program(sim_dir):
 	return program_list
 
 def tree_load_config(sim_dir):
-	global copy_materials
-
-	copy_materials=inp_get_token_value(os.path.join(sim_dir,"scan_config.inp"),"#copy_materials")
-	if copy_materials==None:
-		copy_materials="False"
-	copy_materials=str2bool(copy_materials)
+	return
 
 
 def build_scan_tree(program_list):
@@ -225,12 +218,9 @@ def tree_apply_python_script(directory,program_list):
 	return True
 
 def copy_simulation(base_dir,cur_dir):
-	global copy_materials
 	gpvdm_clone(cur_dir,src_archive=os.path.join(base_dir, "sim.gpvdm"),dest="file")
 	
-	#print(">>>>>>>>>>>>>>>>>>>>>>>materials>>>>>>>>",copy_materials)
-	if copy_materials==True:
-		clone_materials(cur_dir)
+
 
 def tree_gen_random_files(sim_path,flat_simulation_list,program_list,base_dir):
 	length=0

@@ -60,8 +60,11 @@ from cal_path import get_sim_path
 from inp import inp_isfile
 from play import play
 from util import wrap_text
+from optics import class_optical
 
 import webbrowser
+from global_objects import global_object_register
+
 
 class ribbon_home(QToolBar):
 
@@ -77,6 +80,7 @@ class ribbon_home(QToolBar):
 		
 		self.scan_window=None
 		self.fit_window=None
+		self.optics_window=False
 
 		self.undo = QAction(icon_get("edit-undo"), _("Undo"), self)
 		self.addAction(self.undo)
@@ -113,6 +117,10 @@ class ribbon_home(QToolBar):
 		self.addAction(self.plot)
 
 		self.addSeparator()
+
+		self.optics = QAction(icon_get("optics"), _("Optical\nSimulation"), self)
+		self.optics.triggered.connect(self.callback_optics_sim)
+		self.addAction(self.optics)
 
 		self.sun=tb_item_sun()
 		#self.sun.changed.connect(self.callback_sun)
@@ -156,6 +164,7 @@ class ribbon_home(QToolBar):
 		self.help.setEnabled(val)
 		if inp_isfile(os.path.join(get_sim_path(),"fit.inp"))==True:
 			self.fit.setEnabled(val)
+		self.optics.setEnabled(val)
 
 	def callback_plot_select(self):
 		help_window().help_set_help(["dat_file.png",_("<big>Select a file to plot</big><br>Single clicking shows you the content of the file")])
@@ -202,3 +211,16 @@ class ribbon_home(QToolBar):
 			self.fit_window.hide()
 		else:
 			self.fit_window.show()
+
+	def callback_optics_sim(self, widget, data=None):
+		help_window().help_set_help(["optics.png",_("<big><b>The optical simulation window</b></big><br>Use this window to perform optical simulations.  Click on the play button to run a simulation."),"media-playback-start",_("Click on the play button to run an optical simulation.  The results will be displayed in the tabs to the right.")])
+
+		if self.optics_window==False:
+			self.optics_window=class_optical()
+			#self.notebook.changed.connect(self.optics_window.update)
+
+		if self.optics_window.isVisible()==True:
+			self.optics_window.hide()
+		else:
+			global_object_register("optics_force_redraw",self.optics_window.force_redraw)
+			self.optics_window.show()

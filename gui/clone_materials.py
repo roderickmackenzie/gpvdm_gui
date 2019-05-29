@@ -43,7 +43,7 @@ def clone_material(dest_material_dir,src_material_dir):
 			return False
 
 	files=os.listdir(src_material_dir)
-	all_files=["alpha.gmat","dos.inp","fit.inp","homo.inp","lumo.inp","mat.inp","n.gmat","pl.inp","n_gen.gmat","alpha_gen.gmat"]
+	all_files=["alpha.gmat","dos.inp","shape.inp","fit.inp","homo.inp","lumo.inp","mat.inp","n.gmat","pl.inp","n_gen.gmat","alpha_gen.gmat"]
 	for i in range(0,len(files)):
 		if files[i] in all_files:
 			src_mat_file=os.path.join(src_material_dir,files[i])

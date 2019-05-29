@@ -28,26 +28,81 @@
 import sys
 from math import fabs
 
+from mesh import mesh_get_xlen
+from mesh import mesh_get_zlen
+from epitaxy import get_epi
+import math
+
 x_mul=1.0
 y_mul=1.0
 z_mul=1.0
-def set_m2screen(x,y,z):
+device_x=2.0
+device_y=2.0
+device_z=2.0
+
+
+def set_m2screen():
 	global x_mul
 	global y_mul
 	global z_mul
+	global device_x
+	global device_y
+	global device_z
 
-	x_mul=x
-	y_mul=y
-	z_mul=z
+	epi=get_epi()
+	x_log= mesh_get_xlen()
 
-def get_m2screen_x_mul():
+	if x_log<1e-3:
+		x_mul=1e5
+
+	if x_log<1e-4:
+		x_mul=1e6
+
+	if x_log<1e-5:
+		x_mul=1e7
+
+	if x_log<1e-6:
+		x_mul=1e8
+
+	z_log= mesh_get_zlen() 
+	if z_log<1e-3:
+		z_mul=1e5
+
+	if z_log<1e-4:
+		z_mul=1e6
+
+	if z_log<1e-5:
+		z_mul=1e7
+
+	if z_log<1e-6:
+		z_mul=1e8
+
+	y_mul=device_y/epi.ylen()
+
+	device_x=mesh_get_xlen()*scale_get_xmul()
+	device_z=mesh_get_zlen()*scale_get_zmul()
+
+def scale_get_xmul():
 	global x_mul
 	return x_mul
 
-def get_m2screen_y_mul():
+def scale_get_ymul():
 	global y_mul
 	return y_mul
 
-def get_m2screen_z_mul():
+def scale_get_zmul():
 	global z_mul
 	return z_mul
+
+def scale_get_device_x():
+	global device_x
+	return device_x
+
+def scale_get_device_z():
+	global device_z
+	return device_z
+
+def scale_get_device_y():
+	global device_y
+	return device_y
+

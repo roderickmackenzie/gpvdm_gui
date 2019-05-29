@@ -45,15 +45,18 @@ class gpvdm_select_material(QWidget):
 
 	changed = pyqtSignal()
 
-	def __init__(self):
+	def __init__(self,file_box=True):
 		QWidget.__init__(self)
 		self.hbox=QHBoxLayout()
 		self.edit=QLineEdit()
 		self.button=QPushButton()
 		self.button.setFixedSize(25, 25)
 		self.button.setText("...")
+
+		if file_box==True:
+			self.hbox.addWidget(self.button)
+
 		self.hbox.addWidget(self.edit)
-		self.hbox.addWidget(self.button)
 
 		self.hbox.setContentsMargins(0, 0, 0, 0)
 		self.edit.setStyleSheet("QLineEdit { border: none }");

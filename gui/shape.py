@@ -29,6 +29,7 @@ import os
 from inp import inp_load_file
 from inp import inp_search_token_value
 from inp import inp_callback_add_write_hook
+from inp import inp_search_token_array
 from cal_path import get_sim_path
 from util import str2bool
 
@@ -48,6 +49,11 @@ class shape():
 		self.shape_z0=0.0
 		self.shape_remove_layer=False
 
+		self.r=0.8
+		self.g=0.8
+		self.b=0.8
+
+
 
 	def do_load(self):
 		print(">>>>>>>>>>> do load",os.path.join(get_sim_path(),self.file_name))
@@ -61,6 +67,11 @@ class shape():
 		self.dx=float(inp_search_token_value(lines, "#shape_dx"))
 		self.dy=float(inp_search_token_value(lines, "#shape_dy"))
 		self.dz=float(inp_search_token_value(lines, "#shape_dz"))
+
+		rgb=inp_search_token_array(lines, "#red_green_blue")
+		self.r=float(rgb[0])
+		self.g=float(rgb[1])
+		self.b=float(rgb[2])
 
 		try:
 			self.shape_nx=int(inp_search_token_value(lines, "#shape_nx"))

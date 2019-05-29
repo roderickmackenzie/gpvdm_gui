@@ -368,14 +368,32 @@ class epitaxy():
 
 		#self.dump()
 
-	def add_new_dos_to_shape(self,s):
+	def find_shape_by_file_name(self,shape_file):
+		if shape_file.endswith(".inp"):
+			shape_file=shape_file[:-4]
+
+		for l in self.layers:
+			for s in l.shapes:
+				if s.file_name==shape_file:
+					return s
+		return None
+
+	def del_dos_shape(self,shape_file):
+		s=self.find_shape_by_file_name(shape_file)
+		s.shape_dos="none"
+		inp_update_token_value(s.file_name,"#shape_dos",s.shape_dos)
+
+	def add_new_dos_to_shape(self,shape_file):
+		s=self.find_shape_by_file_name(shape_file)
+
 		if s.shape_dos!="none":
 			return s.shape_dos
 
 		new_file=self.new_dos_file()
+
 		s.shape_dos=new_file
 
-		inp_update_token_value(s.file_name,"#shape_dos",new_file)
+		inp_update_token_value(s.file_name,"#shape_dos",s.shape_dos)
 
 		new_dos_file=new_file+".inp"
 			
@@ -389,7 +407,7 @@ class epitaxy():
 		files=self.get_all_dos_files()
 
 		for i in range(0,20):
-			name="dos"+str(i)+".inp"
+			name="dos"+str(i)
 
 			if name not in files:
 				return "dos"+str(i)

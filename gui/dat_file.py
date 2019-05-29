@@ -177,6 +177,7 @@ def dat_file_import_filter(out,file_name,x_col=0,y_col=1):
 
 	for i in range(0, len(lines)):
 		s,label=decode_line(lines[i])
+		#print(s)
 		l=len(s)
 		if l>0:
 
@@ -189,8 +190,15 @@ def dat_file_import_filter(out,file_name,x_col=0,y_col=1):
 
 			if data_started==True:
 				if max(x_col,y_col)<l:
-					out.y_scale.append(float(s[x_col]))
-					out.data[0][0].append(float(s[y_col]))
+					duplicate=False
+					for c in range(0,len(out.y_scale)):
+						if out.y_scale[c]==float(s[x_col]):
+							duplicate=True
+							break
+
+					if duplicate==False:
+						out.y_scale.append(float(s[x_col]))
+						out.data[0][0].append(float(s[y_col]))
 
 	out.x_len=1
 	out.y_len=len(out.data[0][0])

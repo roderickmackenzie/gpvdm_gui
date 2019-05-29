@@ -40,6 +40,8 @@ from gtkswitch import gtkswitch
 from leftright import leftright
 from help import help_window
 from gpvdm_select import gpvdm_select
+from gpvdm_select_material import gpvdm_select_material
+
 
 from PyQt5.QtCore import pyqtSignal
 
@@ -99,9 +101,17 @@ class tab_class(QWidget,tab_base):
 		self.last_edit_time=0
 
 	def callback_unit_click(self,token,widget,unit):
-		from dos_editor import dos_editor
-		self.dos_editor=dos_editor(self.file_name)
-		self.dos_editor.show()
+		if type(widget)==shape_dos_switch:
+			self.window=tab_class()
+			dos_file=inp_get_token_value(self.file_name, "#shape_dos")+".inp"
+			self.window.init(dos_file,"DoS editor")
+			self.window.show()
+		elif type(widget)==gpvdm_select_material:
+			widget.callback_button_click()
+		else:
+			from dos_editor import dos_editor
+			self.dos_editor=dos_editor(self.file_name)
+			self.dos_editor.show()
 
 	def callback_edit(self,token,widget,unit):
 		if type(widget)==QLineEdit:
@@ -113,6 +123,8 @@ class tab_class(QWidget,tab_base):
 		elif type(widget)==leftright:
 			inp_update_token_value(self.file_name, token, widget.get_value())
 		elif type(widget)==gpvdm_select:
+			inp_update_token_value(self.file_name, token, widget.text())
+		elif type(widget)==gpvdm_select_material:
 			inp_update_token_value(self.file_name, token, widget.text())
 		elif type(widget)==QComboBox:
 			inp_update_token_value(self.file_name, token, widget.itemText(widget.currentIndex()))
@@ -135,11 +147,10 @@ class tab_class(QWidget,tab_base):
 			else:
 				unit.setEnabled(False)
 		elif type(widget)==shape_dos_switch:
-			inp_update_token_value(self.file_name, token, widget.get_value())
-			if widget.get_value()=="active":
-				unit.setEnabled(True)
-			else:
+			if widget.get_value()=="none":
 				unit.setEnabled(False)
+			else:
+				unit.setEnabled(True)
 
 		help_window().help_set_help(["document-save-as","<big><b>Saved to disk</b></big>\n"])
 		self.last_edit_time=inp_getmtime(self.file_name)
@@ -177,6 +188,8 @@ class tab_class(QWidget,tab_base):
 			elif w.widget=="leftright":
 				w.edit_box.set_value(str2bool(values[0]))
 			elif w.widget=="gpvdm_select":
+				w.edit_box.setText(values[0])
+			elif w.widget=="gpvdm_select_material":
 				w.edit_box.setText(values[0])
 			elif w.widget=="QLineEdit":
 				w.edit_box.setText(values[0])
@@ -279,6 +292,13 @@ class tab_class(QWidget,tab_base):
 						edit_box.setFixedSize(300, 25)
 						edit_box.setText(value)
 						edit_box.edit.textChanged.connect(functools.partial(self.callback_edit,token,edit_box,unit))
+					elif result.widget=="gpvdm_select_material":
+						edit_box=gpvdm_select_material(file_box=False)
+						edit_box.setFixedSize(300, 25)
+						edit_box.setText(value)
+						edit_box.edit.textChanged.connect(functools.partial(self.callback_edit,token,edit_box,unit))
+						unit.clicked.connect(functools.partial(self.callback_unit_click,token,edit_box,unit))
+
 					elif result.widget=="QLineEdit":
 						edit_box=QLineEdit()
 						edit_box.setFixedSize(300, 25)
@@ -336,9 +356,10 @@ class tab_class(QWidget,tab_base):
 						unit.clicked.connect(functools.partial(self.callback_unit_click,token,edit_box,unit))
 					elif result.widget=="shape_dos_switch":
 						edit_box=shape_dos_switch()
+						edit_box.shape_file=self.file_name
 						edit_box.setFixedSize(300, 25)
 						edit_box.set_value(value)
-						if value=="passive":
+						if value=="none":
 							unit.setEnabled(False)
 						edit_box.changed.connect(functools.partial(self.callback_edit,token,edit_box,unit))
 						unit.clicked.connect(functools.partial(self.callback_unit_click,token,edit_box,unit))

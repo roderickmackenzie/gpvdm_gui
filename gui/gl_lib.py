@@ -46,9 +46,9 @@ import random
 import numpy as np
 from math import pi,acos,sin,cos
 
-from gl_m2screen import get_m2screen_x_mul
-from gl_m2screen import get_m2screen_y_mul
-from gl_m2screen import get_m2screen_z_mul
+from gl_scale import scale_get_xmul
+from gl_scale import scale_get_ymul
+from gl_scale import scale_get_zmul
 
 
 stars=[]
@@ -252,17 +252,17 @@ def box_lines(x,y,z,w,h,d):
 	glEnd()
 
 def shape_layer(obj,s,x0,y0,z0, name="name"):
-	x_pos=x0+s.shape_x0
+	x_pos=x0+s.shape_x0*scale_get_xmul()
 	y_pos=y0
-	z_pos=z0+s.shape_z0*get_m2screen_z_mul()
+	z_pos=z0+s.shape_z0*scale_get_zmul()
 
 	height=1.0
-	dx=s.dx*get_m2screen_x_mul()
-	dz=s.dz*get_m2screen_z_mul()
-	dy=s.dy*get_m2screen_y_mul()
+	dx=s.dx*scale_get_xmul()
+	dz=s.dz*scale_get_zmul()
+	dy=s.dy*scale_get_ymul()
 
 	for x in range(0,s.shape_nx):
-		z_pos=z0+s.shape_z0*get_m2screen_z_mul()
+		z_pos=z0+s.shape_z0*scale_get_zmul()
 		for z in range(0,s.shape_nz):
 			if s.type=="dome":
 				dome(x_pos,y_pos,z_pos,height,dx,name=name)
@@ -273,9 +273,9 @@ def shape_layer(obj,s,x0,y0,z0, name="name"):
 				pyrmid(x_pos,y_pos,z_pos,height,dx, name=name)
 			elif s.type=="box":
 				#pyrmid(x_pos,y_pos,z_pos,height,dx, name=name)
-				box(x_pos,y_pos,z_pos,dx, dy,dx, obj.r, obj.g, obj.b, obj.alpha, name=name)
+				box(x_pos,y_pos,z_pos,dx, dy,dx, s.r, s.g, s.b, obj.alpha, name=name)
 			else:
-				half_cyl(x0,x_pos,y_pos,z_pos,length,height,dx/2, name=name)
+				half_cyl(x0,x_pos,y_pos,z_pos,dx,height,dx/2, name=name)
 			z_pos=z_pos+dz
 			#print(x,z,dx)
 			#break

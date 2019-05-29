@@ -126,6 +126,8 @@ from inp import inp_callbacks_clear
 
 from cal_path import get_materials_path
 from clone_materials import clone_materials
+from cal_path import get_spectra_path
+from clone import clone_spectras
 
 
 
@@ -608,6 +610,9 @@ class gpvdm_main_window(QMainWindow):
 
 		if os.path.isdir(get_materials_path())==False:
 			clone_materials(get_materials_path())
+
+		if os.path.isdir(get_spectra_path())==False:
+			clone_spectras(get_spectra_path())
 
 	def dragEnterEvent(self, event):
 		if event.mimeData().hasUrls:

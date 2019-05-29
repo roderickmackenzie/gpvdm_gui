@@ -54,8 +54,6 @@ from gui_util import yes_no_dlg
 
 from clone_materials import clone_material
 from clone import clone_spectra
-from cal_path import get_base_material_path
-from cal_path import get_base_spectra_path
 
 from inp import inp_get_token_value
 from inp import inp_load_file
@@ -254,18 +252,6 @@ class gpvdm_viewer(QListWidget):
 			if new_sim_name!=None:
 				name=os.path.join(self.path,new_sim_name)
 				os.mkdir(name)
-		elif action == newmaterialAction:
-			new_sim_name=dlg_get_text( _("New material name:"), _("New material name"),"organic_material")
-			new_sim_name=new_sim_name.ret
-			if new_sim_name!=None:
-				new_material=os.path.join(self.path,new_sim_name)
-				clone_material(new_material,os.path.join(get_base_material_path(),"generic","generic_organic"))
-		elif action == newspectraAction:
-			new_sim_name=dlg_get_text( _("New spectra name:"), _("New spectra name"),"spectra_file")
-			new_sim_name=new_sim_name.ret
-			if new_sim_name!=None:
-				new_material=os.path.join(self.path,new_sim_name)
-				clone_spectra(new_material,get_base_spectra_path())
 		elif action == deleteAction:
 			files=""
 			for i in self.selectedItems():

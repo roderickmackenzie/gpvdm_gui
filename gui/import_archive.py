@@ -108,7 +108,7 @@ file_list.append(file_type(name="time_mesh_config",dest="archive",copy_opp=file_
 
 
 file_list.append(file_type(name="dos",dest="archive",copy_opp=file_type().MERGE,base_file=os.path.join(get_default_material_path(),"dos.inp")))
-file_list.append(file_type(name="shape",dest="archive",copy_opp=file_type().JUST_COPY))
+file_list.append(file_type(name="shape",dest="archive",copy_opp=file_type().MERGE,base_file=os.path.join(get_default_material_path(),"shape.inp")))
 file_list.append(file_type(name="pl",dest="archive",copy_opp=file_type().MERGE,base_file=os.path.join(get_default_material_path(),"pl.inp")))
 file_list.append(file_type(name="homo",dest="archive",copy_opp=file_type().JUST_COPY,base_file=os.path.join(get_default_material_path(),"homo.inp")))
 file_list.append(file_type(name="lumo",dest="archive",copy_opp=file_type().JUST_COPY,base_file=os.path.join(get_default_material_path(),"lumo.inp")))

@@ -150,7 +150,16 @@ from gl_cords import gl_cords
 
 from gl_lib import shape_layer
 from gl_base_widget import gl_base_widget
- 
+
+from gl_scale import scale_get_xmul
+from gl_scale import scale_get_ymul
+from gl_scale import scale_get_zmul
+
+from gl_scale import scale_get_device_y
+from gl_scale import scale_get_device_x
+from gl_scale import scale_get_device_z
+
+
 if open_gl_ok==True:		
 	class glWidget(QGLWidget,gl_move_view,gl_mesh,gl_layer_editor,gl_cords,gl_base_widget):
 
@@ -474,56 +483,58 @@ if open_gl_ok==True:
 
 		def draw_device(self):
 			x=0
-			y=self.max_gui_device_y
+			y=scale_get_device_y()
 			z=0
 
 			l=0
 			btm_layer=len(epitaxy_get_epi())-1
 
 			for obj in epitaxy_get_epi():
-				y_len=obj.width*self.y_mul
+				y_len=obj.width*scale_get_ymul()
 				y=y-y_len
 				dy_shrink=y_len*0.1
 
 				name=obj.name
 				layer_name="layer:"+name
 				display_name=name
+				alpha=obj.alpha
+				if len(obj.shapes)>0:
+					for s in obj.shapes:
+						shape_layer(obj,s,x,y+dy_shrink/2, z, name=layer_name)
+					alpha=0.5
+
 				if obj.electrical_layer=="contact":
 
 					for c in contacts_get_array():
-
 						if (c.position=="top" and l==0) or (c.position=="bottom" and l==btm_layer):
 							if len(self.x_mesh.points)==1 and len(self.z_mesh.points)==1:
 								xstart=0.0
-								xwidth=self.max_gui_device_x
+								xwidth=scale_get_device_x()
 							else:
-								xstart=self.max_gui_device_x*(c.start/self.x_len)
-								xwidth=self.max_gui_device_x*(c.width/self.x_len)
-
+								xstart=scale_get_device_x()*(c.start/self.x_len)
+								xwidth=scale_get_device_x()*(c.width/self.x_len)
+								print(c.position,xstart,xwidth)
 								if (c.start+c.width)>self.x_len:
-									xwidth=self.max_gui_device_x-xstart
-							#lens_layer(xstart,y+dy_shrink/2,z,xwidth,self.max_gui_device_z,y_len-dy_shrink,self.max_gui_device_x/10)
-							if len(obj.shapes)>0:
-								for s in obj.shapes:
-									shape_layer(obj,s,xstart,y+dy_shrink/2, z, name=layer_name)
-							else:
-								box(x,y+dy_shrink/2,z,self.max_gui_device_x,y_len-dy_shrink,self.max_gui_device_z,obj.r,obj.g,obj.b,obj.alpha,name=layer_name)
+									xwidth=scale_get_device_x()-xstart
+							#lens_layer(xstart,y+dy_shrink/2,z,xwidth,scale_get_device_z(),y_len-dy_shrink,scale_get_device_x()/10)
+
+								box(xstart,y+dy_shrink/2,z,xwidth,y_len-dy_shrink, scale_get_device_z(), obj.r,obj.g, obj.b,alpha, name=layer_name)
 				else:
-					box(x,y+dy_shrink/2,z,self.max_gui_device_x,y_len-dy_shrink,self.max_gui_device_z,obj.r,obj.g,obj.b,obj.alpha,name=layer_name)
+					box(x,y+dy_shrink/2,z,scale_get_device_x(),y_len-dy_shrink,scale_get_device_z(),obj.r,obj.g,obj.b,alpha,name=layer_name)
 
 				if obj.electrical_layer.startswith("dos")==True:
-					tab(0.0,y,self.max_gui_device_z,self.max_gui_device_x,y_len-dy_shrink,self.max_gui_device_z)
+					tab(0.0,y,scale_get_device_z(),scale_get_device_x(),y_len-dy_shrink,scale_get_device_z())
 					display_name=display_name+" ("+_("active")+")"
 
 				if self.selected_layer==layer_name:
-					box_lines(0.0,y,0,self.max_gui_device_x,y_len,self.max_gui_device_z)
+					box_lines(0.0,y,0,scale_get_device_x(),y_len,scale_get_device_z())
 
 				if self.view.render_text==True:
 					if self.view.zoom>-20:
 						set_color(1.0,1.0,1.0,"text")
 						font = QFont("Arial")
 						font.setPointSize(18)
-						self.renderText (self.max_gui_device_x+0.1,y+y_len/2,self.max_gui_device_z, display_name,font)
+						self.renderText (scale_get_device_x()+0.1,y+y_len/2,scale_get_device_z(), display_name,font)
 
 				l=l+1
 
@@ -591,14 +602,14 @@ if open_gl_ok==True:
 			else:
 				if self.enable_draw_device==True:
 					self.draw_device()
-				draw_mode(self.max_gui_device_y-self.dy_layer_offset,self.max_gui_device_z)
-				draw_rays(self.ray_file,self.max_gui_device_y-self.dy_layer_offset,self.max_gui_device_x,self.y_mul,self.max_gui_device_z*1.05)
+				draw_mode(scale_get_device_y()-self.dy_layer_offset,scale_get_device_z())
+				draw_rays(self.ray_file,scale_get_device_y()-self.dy_layer_offset,scale_get_device_x(),scale_get_ymul(),scale_get_device_z()*1.05)
 
 				if self.view.render_photons==True:
-					self.draw_photons(self.max_gui_device_x,self.max_gui_device_y,self.max_gui_device_z)
+					self.draw_photons(scale_get_device_x(),scale_get_device_y(),scale_get_device_z())
 
 				full_data_range=self.graph_z_max-self.graph_z_min
-				graph(0.0,self.dos_start,self.max_gui_device_z+0.5,self.max_gui_device_x,self.dos_stop-self.dos_start,full_data_range,self.graph_data)
+				graph(0.0,self.dos_start,scale_get_device_z()+0.5,scale_get_device_x(),self.dos_stop-self.dos_start,full_data_range,self.graph_data)
 
 			if self.view.render_grid==True:
 				draw_grid()

@@ -96,4 +96,4 @@ class ribbon_file(QToolBar):
 
 	def setEnabled_other(self,val):
 		self.home_export.setEnabled(val)
-
+		self.home_export_xls.setEnabled(val)

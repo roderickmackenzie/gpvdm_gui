@@ -232,6 +232,7 @@ def process_yml_file(dest,yml_src_file):
 
 				zip_remove_file(path,"fit.inp")
 				zip_remove_file(path,"dos.inp")
+				zip_remove_file(path,"shape.inp")
 				zip_remove_file(path,"pl.inp")
 				zip_remove_file(path,"homo.inp")
 				zip_remove_file(path,"lumo.inp")

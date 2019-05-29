@@ -58,6 +58,7 @@ def build_token_lib():
 	lib.append(my_data("light.inp","#hole_eff","0-1",_("Hole generation efficiency"),"e",1.0,"QLineEdit"))
 	lib.append(my_data("light.inp","#sun",_("filename"),_("Sun's spectra"),"e",1.0,"QLineEdit"))
 	lib.append(my_data("light.inp","#light_file_generation","file_name",_("File containing generation rate"),"e",1.0,"gpvdm_select"))
+
 	lib.append(my_data("light.inp","#Dphotoneff","0-1",_("Photon efficiency"),"e",1.0,"QLineEdit"))
 
 	#laser?.inp
@@ -103,6 +104,7 @@ def build_token_lib():
 	lib.append(my_data("","#shape_z0","m",_("z offset"),"e",1.0,"QLineEdit"))
 	lib.append(my_data("","#shape_remove_layer",_("True/False"),_("Remove layer"),"e",1.0,"gtkswitch"))
 	lib.append(my_data("","#shape_dos",_("Edit"),_("Electricaly active"),"e",1.0,"shape_dos_switch",units_widget="QPushButton"))
+	lib.append(my_data("","#shape_optical_material",_("Edit"),_("Optical material"),"e",1.0,"gpvdm_select_material" ,units_widget="QPushButton"))
 
 	#stark.inp
 	lib.append(my_data("","#stark_startime","s",_("startime"),"e",1.0,"QLineEdit"))

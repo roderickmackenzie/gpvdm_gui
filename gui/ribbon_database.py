@@ -135,7 +135,7 @@ class ribbon_database(QToolBar):
 		new_sim_name=new_sim_name.ret
 		if new_sim_name!=None:
 			new_spectra=os.path.join(self.dialog.viewer.path,new_sim_name)
-			ret=clone_spectra(new_spectra,get_base_spectra_path())
+			ret=clone_spectra(new_spectra,os.path.join(get_base_spectra_path(),"sun"))
 			if ret==False:
 				error_dlg(self,_("I cant write to:")+new_material+" "+_("This means either the disk is full or your system administrator has not given you write permissions to that location."))
 			self.dialog.viewer.fill_store()

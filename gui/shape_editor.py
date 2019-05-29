@@ -56,6 +56,7 @@ from inp import inp_remove_file
 from gui_util import dlg_get_text
 from error_dlg import error_dlg
 from gui_util import yes_no_dlg
+from cal_path import get_default_material_path
 
 articles = []
 mesh_articles = []
@@ -136,7 +137,7 @@ class shape_editor(QWidgetSavePos):
 
 	def callback_add_shape(self):
 		new_filename=get_epi().new_shape_file()+".inp"
-		orig_filename="shape0.inp"
+		orig_filename=os.path.join(get_default_material_path(),"shape.inp")
 		inp_copy_file(os.path.join(get_sim_path(),new_filename),os.path.join(get_sim_path(),orig_filename))
 
 		my_shape=shape()
@@ -168,9 +169,6 @@ class shape_editor(QWidgetSavePos):
 
 	def callback_delete_shape(self):
 		files=inp_ls_seq_files(os.path.join(get_sim_path(),"sim.gpvdm"),"shape")
-		if (len(files)<2):
-			error_dlg(self,_("You should not delete the last tab."))
-			return
 
 		tab = self.notebook.currentWidget()
 		name=inp_get_token_value(tab.file_name, "#shape_name")

@@ -46,7 +46,7 @@ flag_path=None
 lang_path=None
 inp_file_path=None
 src_path=None
-spectra_path=None
+spectra_base_path=None
 sim_path=None
 materials_base_path=None
 html_path=None
@@ -230,7 +230,7 @@ def calculate_paths():
 	global inp_file_path
 	global src_path
 	global ui_path
-	global spectra_path
+	global spectra_base_path
 	global materials_base_path
 	global html_path
 	global cluster_path
@@ -251,7 +251,7 @@ def calculate_paths():
 
 	src_path=os.path.dirname(search_known_paths("Makefile",[".am"],None,True))
 	ui_path=search_known_paths("ui",[""],None,False)
-	spectra_path=search_known_paths("spectra",[""],None,False)
+	spectra_base_path=search_known_paths("spectra",[""],None,False)
 	cluster_path=search_known_paths("cluster",[""],None,False)
 	cluster_libs_path=search_known_paths("cluster_libs",[""],None,False)
 
@@ -277,9 +277,13 @@ def get_src_path():
 	global src_path
 	return src_path
 
+def get_base_spectra_path():
+	global spectra_base_path
+	return spectra_base_path
+
 def get_spectra_path():
-	global spectra_path
-	return spectra_path
+	return os.path.join(get_user_settings_dir(),"spectra")
+
 
 def get_user_settings_dir():
 	ret=os.path.join(get_home_path(),"gpvdm_local")
@@ -311,10 +315,6 @@ def get_base_material_path():
 def get_default_material_path():
 	global materials_base_path
 	return os.path.join(materials_base_path,"generic","default")
-
-def get_base_spectra_path():
-	global spectra_path
-	return os.path.join(spectra_path,"sun")
 
 def get_device_lib_path():
 	global device_lib_path
@@ -411,10 +411,13 @@ def get_downloads_path():
 		return path
 	return False
 
-def find_light_source():
+def find_light_source(path=None):
 	ret=[]
 
-	spectra_path=get_spectra_path()
+	if path==None:
+		spectra_path=get_spectra_path()
+	else:
+		spectra_path=path
 
 	for dirpath, dirnames, filenames in os.walk(spectra_path):
 		for filename in [f for f in filenames if f=="mat.inp"]:
@@ -424,7 +427,5 @@ def find_light_source():
 			s=s.replace("\\","/")
 			ret.append(s)
 
-#	for file in glob.glob(os.path.join(path,"*.spectra")):
-#		ret.append(os.path.splitext(os.path.basename(file))[0])
 
 	return ret

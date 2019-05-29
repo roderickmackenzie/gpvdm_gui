@@ -40,6 +40,7 @@ from cp_gasses import copy_gasses
 from materials_io import find_materials
 from cal_path import find_light_source
 from cal_path import get_spectra_path
+from cal_path import get_base_spectra_path
 
 def gpvdm_clone(path,src_archive="",copy_dirs=False,dest="archive"):
 	print("Cloning from",get_inp_file_path())
@@ -71,9 +72,10 @@ def gpvdm_clone(path,src_archive="",copy_dirs=False,dest="archive"):
 		#	shutil.copytree(os.path.join(src_dir,"materials"), os.path.join(path,"materials"))
 
 		#clone_materials(path)
-		clone_spectras(path)
+		#clone_spectras(path)
 
 def clone_spectra(dest_spectra_dir,src_spectra_dir):
+	#print(dest_spectra_dir,src_spectra_dir)
 	if os.path.isdir(dest_spectra_dir)==False:
 		os.mkdir(dest_spectra_dir)
 
@@ -84,12 +86,14 @@ def clone_spectra(dest_spectra_dir,src_spectra_dir):
 			
 
 def clone_spectras(dest):
-	src_dir=os.path.join(get_spectra_path())
-	dest_dir=os.path.join(dest,"spectra")
+	src_dir=os.path.join(get_base_spectra_path())
+	dest_dir=dest
+
 	if os.path.isdir(dest_dir)==False:
 		os.mkdir(dest_dir)
 
-	files=find_light_source()
+	files=find_light_source(get_base_spectra_path())
+
 	for i in range(0,len(files)):
 		src_file=os.path.join(src_dir,files[i])
 		dest_file=os.path.join(dest_dir,files[i])

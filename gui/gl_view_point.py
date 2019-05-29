@@ -47,7 +47,10 @@ from mesh import mesh_get_xlen
 from mesh import mesh_get_zlen
 from epitaxy import get_epi
 
-from gl_m2screen import set_m2screen
+from gl_scale import set_m2screen
+from gl_scale import scale_get_xmul
+from gl_scale import scale_get_zmul
+
 class view_point():
 	def __init__(self):
 		self.xRot =25.0
@@ -211,22 +214,5 @@ class gl_move_view():
 		self.viewtarget.zoom=-8.0
 
 	def update_real_to_gl_mul(self):
-		epi=get_epi()
-		epi_y_len=epi.ylen()
-		
-		x_len=mesh_get_xlen()
+		set_m2screen()
 
-
-		if epi_y_len<=0:
-			return
-
-		self.max_gui_device_y=2.0
-
-		self.x_mul=1e3
-		self.y_mul=self.max_gui_device_y/epi_y_len
-		self.z_mul=1e3
-
-		set_m2screen(self.x_mul,self.y_mul,self.z_mul)
-
-		self.max_gui_device_x=x_len*self.x_mul
-		self.max_gui_device_z=mesh_get_zlen()*self.z_mul

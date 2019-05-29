@@ -106,7 +106,7 @@ class ribbon_home(QToolBar):
 
 		self.addSeparator()
 
-		self.fit = QAction(icon_get("fit"), _("Fit\ndata"), self)
+		self.fit = QAction(icon_get("fit"), _("Fit to\nexperimental data"), self)
 		self.fit.triggered.connect(self.callback_run_fit)
 		self.addAction(self.fit)
 

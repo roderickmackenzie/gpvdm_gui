@@ -32,6 +32,7 @@ from PyQt5.QtWidgets import QWidget
 from PyQt5.QtGui import QPainter,QFont,QColor,QPen
 
 from PyQt5.QtCore import pyqtSignal
+from epitaxy import get_epi
 
 class shape_dos_switch(QWidget):
 
@@ -40,7 +41,7 @@ class shape_dos_switch(QWidget):
 	def __init__(self):      
 		super(shape_dos_switch, self).__init__()
 		self.setMaximumSize(200,20)
-		self.value = "passive"
+		self.value = "none"
 
 	def get_value(self):
 		return self.value
@@ -66,26 +67,29 @@ class shape_dos_switch(QWidget):
 		qp.setPen(pen)
 		qp.setBrush(Qt.NoBrush)
 
-		if self.value=="passive":
-			qp.setBrush(QColor(95,163,235))
-			qp.drawRoundedRect(0, 0.0, 140.0,22.0,5.0,5.0)			
-			qp.setBrush(QColor(230,230,230))
-			qp.drawRoundedRect(105, 2, 30,18.0,5.0,5.0)
-			qp.drawText(2, 17, _("Passive"))
-		else:
+		if self.value=="none":
 			qp.setBrush(QColor(180,180,180))
 			qp.drawRoundedRect(0, 0.0, 140.0,22.0,5.0,5.0)			
 			qp.setBrush(QColor(230,230,230))
 			qp.drawRoundedRect(2, 2, 30,18.0,5.0,5.0)
-			qp.drawText(40, 17, _("Active"))
+			qp.drawText(40, 17, _("Passive"))
+		else:
+			qp.setBrush(QColor(95,163,235))
+			qp.drawRoundedRect(0, 0.0, 140.0,22.0,5.0,5.0)			
+			qp.setBrush(QColor(230,230,230))
+			qp.drawRoundedRect(105, 2, 30,18.0,5.0,5.0)
+			qp.drawText(2, 17, _("Active"))
 
 	def mouseReleaseEvent(self, QMouseEvent):
 		if QMouseEvent.x()<160:
-			if self.value== "passive":
-				self.value="active"
+			if self.value== "none":
+				epi=get_epi()
+				self.value=epi.add_new_dos_to_shape(self.shape_file)
 				
 			else:
-				self.value="passive"
+				epi=get_epi()
+				self.value=epi.del_dos_shape(self.shape_file)
+				self.value="none"
 
 			self.repaint()
 			self.changed.emit()

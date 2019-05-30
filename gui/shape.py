@@ -56,8 +56,6 @@ class shape():
 
 
 	def do_load(self):
-		print(">>>>>>>>>>> do load",os.path.join(get_sim_path(),self.file_name))
-		print(">>>>>> Doing shape load")
 		lines=inp_load_file(self.file_name+".inp")
 
 		if lines==False:

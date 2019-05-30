@@ -513,12 +513,12 @@ if open_gl_ok==True:
 							else:
 								xstart=scale_get_device_x()*(c.start/self.x_len)
 								xwidth=scale_get_device_x()*(c.width/self.x_len)
-								print(c.position,xstart,xwidth)
+								#print(c.position,xstart,xwidth)
 								if (c.start+c.width)>self.x_len:
 									xwidth=scale_get_device_x()-xstart
 							#lens_layer(xstart,y+dy_shrink/2,z,xwidth,scale_get_device_z(),y_len-dy_shrink,scale_get_device_x()/10)
 
-								box(xstart,y+dy_shrink/2,z,xwidth,y_len-dy_shrink, scale_get_device_z(), obj.r,obj.g, obj.b,alpha, name=layer_name)
+							box(xstart,y+dy_shrink/2,z,xwidth,y_len-dy_shrink, scale_get_device_z(), obj.r,obj.g, obj.b,alpha, name=layer_name)
 				else:
 					box(x,y+dy_shrink/2,z,scale_get_device_x(),y_len-dy_shrink,scale_get_device_z(),obj.r,obj.g,obj.b,alpha,name=layer_name)
 

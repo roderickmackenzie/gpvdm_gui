@@ -57,8 +57,11 @@ from jvexperiment import jvexperiment
 from util import wrap_text
 from fdtd import fdtd
 from global_objects import global_object_run
+from PyQt5.QtCore import pyqtSignal
 
 class ribbon_simulations(QToolBar):
+	experiments_changed = pyqtSignal()
+
 	def __init__(self):
 		QToolBar.__init__(self)
 
@@ -126,6 +129,9 @@ class ribbon_simulations(QToolBar):
 		self.tb_cost.triggered.connect(self.callback_cost)
 		self.addAction(self.tb_cost)
 
+	def callback_experiments_changed(self):
+		self.experiments_changed.emit()
+
 	def update(self):
 		if self.qe_window!=None:
 			del self.qe_window
@@ -170,7 +176,7 @@ class ribbon_simulations(QToolBar):
 
 		if self.experiment_window==None:
 			self.experiment_window=experiment()
-			self.experiment_window.changed.connect(self.mode.update)
+			self.experiment_window.changed.connect(self.callback_experiments_changed)
 			
 		help_window().help_set_help(["time.png",_("<big><b>The time mesh editor</b></big><br> To do time domain simulations one must define how voltage the light vary as a function of time.  This can be done in this window.  Also use this window to define the simulation length and time step.")])
 		if self.experiment_window.isVisible()==True:
@@ -206,6 +212,7 @@ class ribbon_simulations(QToolBar):
 
 		if self.jvexperiment_window==None:
 			self.jvexperiment_window=jvexperiment()
+			#self.experiment_window.changed.connect(self.callback_experiments_changed)
 
 		help_window().help_set_help(["jv.png",_("<big><b>JV simulation editor</b></big><br> Use this window to configure the Suns Voc simulations.")])
 		if self.jvexperiment_window.isVisible()==True:

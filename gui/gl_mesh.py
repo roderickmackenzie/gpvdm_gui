@@ -36,6 +36,10 @@ try:
 	from gl_color import set_color
 	from gl_lib import val_to_rgb
 	from PyQt5.QtWidgets import QMenu
+	from gl_scale import scale_get_xmul
+	from gl_scale import scale_get_ymul
+	from gl_scale import scale_get_zmul
+
 except:
 	pass
 
@@ -54,13 +58,13 @@ class gl_mesh():
 		z=[]
 
 		for z0 in self.z_mesh.points:
-			z.append(z0*self.z_mul)
+			z.append(z0*scale_get_zmul())
 
 		for x0 in self.x_mesh.points:
-			x.append(x0*self.x_mul)
+			x.append(x0*scale_get_xmul())
 
 		for y0 in self.y_mesh.points:
-			y.append(y0*self.y_mul*3)
+			y.append(y0*scale_get_ymul()*3)
 
 		
 		glLineWidth(3)

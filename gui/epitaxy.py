@@ -283,7 +283,7 @@ class epitaxy():
 			layer=layer+1
 
 		lines.append("#ver")
-		lines.append("1.42")
+		lines.append("1.41")
 		lines.append("#end")
 		return lines
 
@@ -598,7 +598,7 @@ def epitaxy_get_device_start():
 			return pos
 
 		pos=pos+epi.layers[i].width
-			
+	
 def epitaxy_get_layers():
 	global epi
 	return len(epi.layers)

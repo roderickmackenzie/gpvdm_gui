@@ -147,6 +147,7 @@ class tab_class(QWidget,tab_base):
 			else:
 				unit.setEnabled(False)
 		elif type(widget)==shape_dos_switch:
+			inp_update_token_value(self.file_name, token, widget.get_value())
 			if widget.get_value()=="none":
 				unit.setEnabled(False)
 			else:

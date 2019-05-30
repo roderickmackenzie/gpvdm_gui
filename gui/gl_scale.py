@@ -40,17 +40,13 @@ device_x=2.0
 device_y=2.0
 device_z=2.0
 
+def scale(x_log):
+	x_mul=1e3
+	if x_log<1e-1:
+		x_mul=1e3
 
-def set_m2screen():
-	global x_mul
-	global y_mul
-	global z_mul
-	global device_x
-	global device_y
-	global device_z
-
-	epi=get_epi()
-	x_log= mesh_get_xlen()
+	if x_log<1e-2:
+		x_mul=1e4
 
 	if x_log<1e-3:
 		x_mul=1e5
@@ -64,18 +60,24 @@ def set_m2screen():
 	if x_log<1e-6:
 		x_mul=1e8
 
+	return x_mul
+
+def set_m2screen():
+	global x_mul
+	global y_mul
+	global z_mul
+	global device_x
+	global device_y
+	global device_z
+
+	epi=get_epi()
+	x_log= mesh_get_xlen()
+	x_mul=scale(x_log)
+
+
+
 	z_log= mesh_get_zlen() 
-	if z_log<1e-3:
-		z_mul=1e5
-
-	if z_log<1e-4:
-		z_mul=1e6
-
-	if z_log<1e-5:
-		z_mul=1e7
-
-	if z_log<1e-6:
-		z_mul=1e8
+	z_mul=scale(z_log)
 
 	y_mul=device_y/epi.ylen()
 

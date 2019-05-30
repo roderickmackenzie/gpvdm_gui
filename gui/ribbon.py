@@ -138,7 +138,7 @@ class ribbon(ribbon_base):
 		
 		self.simulations=ribbon_simulations()
 		self.addTab(self.simulations,_("Simulation Editors"))
-		
+		self.simulations.experiments_changed.connect(self.ribbon_sim_mode.update)
 		self.configure=ribbon_configure()
 		self.addTab(self.configure,_("Configure"))
 		

@@ -39,28 +39,16 @@ z_mul=1.0
 device_x=2.0
 device_y=2.0
 device_z=2.0
+x_start=0.0
+z_start=0.0
 
-def scale(x_log):
-	x_mul=1e3
-	if x_log<1e-1:
-		x_mul=1e3
+def scale(length):
+	mul=1
+	while((length*mul)<5):
+		mul=mul*5.0
 
-	if x_log<1e-2:
-		x_mul=1e4
-
-	if x_log<1e-3:
-		x_mul=1e5
-
-	if x_log<1e-4:
-		x_mul=1e6
-
-	if x_log<1e-5:
-		x_mul=1e7
-
-	if x_log<1e-6:
-		x_mul=1e8
-
-	return x_mul
+	#print(mul)
+	return mul
 
 def set_m2screen():
 	global x_mul
@@ -69,20 +57,67 @@ def set_m2screen():
 	global device_x
 	global device_y
 	global device_z
+	global x_start
+	global z_start
+
+	mesh_max=30
 
 	epi=get_epi()
-	x_log= mesh_get_xlen()
-	x_mul=scale(x_log)
+	x_len= mesh_get_xlen()
+	z_len= mesh_get_zlen() 
 
+	z_mul=scale(z_len)
+	x_mul=scale(x_len)
 
+	#print(x_mul,z_mul)
+	mul=x_mul
+	if z_len<x_len:
+		mul=z_mul
 
-	z_log= mesh_get_zlen() 
-	z_mul=scale(z_log)
+	x_mul=mul
+	z_mul=mul
+
+	#print("m",mul)
+	#z_mul=mul
+	#x_mul=mul
+
+	#print(x_len*x_mul,z_len*z_mul)
+	if z_len*z_mul>mesh_max:
+		z_mul=mesh_max/z_len
+
+	if x_len*x_mul>mesh_max:
+		x_mul=mesh_max/x_len
 
 	y_mul=device_y/epi.ylen()
 
-	device_x=mesh_get_xlen()*scale_get_xmul()
-	device_z=mesh_get_zlen()*scale_get_zmul()
+	device_x=mesh_get_xlen()*x_mul
+	device_z=mesh_get_zlen()*z_mul
+
+	x_start=-device_x/2.0
+	z_start=-device_z/2.0
+
+def scale_get_start_x():
+	return x_start
+
+def scale_get_start_z():
+	return z_start
+
+def scale_get_start_y():
+	return 0.0
+
+def scale_m2screen_x(x):
+	global x_mul
+	return x_start+x_mul*x
+
+def scale_m2screen_y(y):
+	global y_mul
+	return 0.0+y_mul*y
+
+
+def scale_m2screen_z(z):
+	global z_mul
+	return z_start+z_mul*z
+	
 
 def scale_get_xmul():
 	global x_mul

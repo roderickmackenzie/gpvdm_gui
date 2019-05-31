@@ -39,13 +39,13 @@ except:
 	pass
 
 
-def tab(x,y,z,w,h,d):
+def tab(x,y,z,h):
 	glBegin(GL_QUADS)
 	set_color(0.0,0.0,1.0,"tab")
-	glVertex3f(x+w+0.05,y,z)
-	glVertex3f(x+w+0.2,y ,z)
-	glVertex3f(x+w+0.2,y+h ,z)
-	glVertex3f(x+w+0.05,y+h ,z)
+	glVertex3f(x+0.05,y,z)
+	glVertex3f(x+0.2,y ,z)
+	glVertex3f(x+0.2,y+h ,z)
+	glVertex3f(x+0.05,y+h ,z)
 
 	glEnd()
 

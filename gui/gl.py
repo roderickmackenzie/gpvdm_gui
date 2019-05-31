@@ -159,6 +159,13 @@ from gl_scale import scale_get_device_y
 from gl_scale import scale_get_device_x
 from gl_scale import scale_get_device_z
 
+from gl_scale import scale_get_start_x
+from gl_scale import scale_get_start_z
+from gl_scale import scale_get_start_y
+
+from gl_scale import scale_m2screen_x
+from gl_scale import scale_m2screen_z
+from gl_scale import scale_m2screen_y
 
 if open_gl_ok==True:		
 	class glWidget(QGLWidget,gl_move_view,gl_mesh,gl_layer_editor,gl_cords,gl_base_widget):
@@ -304,8 +311,8 @@ if open_gl_ok==True:
 
 			if event.buttons()==Qt.LeftButton:
 				
-				self.view.xRot =self.view.xRot + 1 * dy
-				self.view.yRot =self.view.yRot + 1 * dx
+				self.view.xRot =self.view.xRot - 1 * dy
+				self.view.yRot =self.view.yRot - 1 * dx
 
 			if event.buttons()==Qt.RightButton:
 				self.view.x_pos =self.view.x_pos + 0.1 * dx
@@ -316,6 +323,7 @@ if open_gl_ok==True:
 			self.setFocusPolicy(Qt.StrongFocus)
 			self.setFocus()
 			self.update()
+			#self.view_dump()
 
 		def mousePressEvent(self,event):
 			self.lastPos=None
@@ -395,10 +403,10 @@ if open_gl_ok==True:
 			self.force_redraw()
 
 		def menu_stars(self):
-			if self.view.stars_distance==-60:
+			if self.view.stars_distance==60:
 				self.view.stars_distance=0.0
 			else:
-				self.view.stars_distance=-60
+				self.view.stars_distance=60
 
 			self.force_redraw()
 
@@ -445,10 +453,12 @@ if open_gl_ok==True:
 
 		def wheelEvent(self,event):
 			p=event.angleDelta()
-			self.view.zoom =self.view.zoom + p.y()/120
+			self.view.zoom =self.view.zoom - p.y()/120
 			self.update()
 
-		def draw_photons(self,max_gui_device_x,y,max_gui_device_z):
+		def draw_photons(self,x0,z0):
+			y=scale_get_device_y()
+
 			if self.suns!=0:
 				if self.suns<=0.01:
 					den=1.4
@@ -461,8 +471,8 @@ if open_gl_ok==True:
 				else:
 					den=0.2
 
-				x=np.arange(0, max_gui_device_x , den)
-				z=np.arange(0, max_gui_device_z , den)
+				x=np.arange(x0, x0+scale_get_device_x() , den)
+				z=np.arange(z0, z0+scale_get_device_z() , den)
 				for i in range(0,len(x)):
 					for ii in range(0,len(z)):
 						draw_photon(x[i],y+0.1,z[ii],False)
@@ -471,20 +481,31 @@ if open_gl_ok==True:
 				den=0.6
 				#x=np.arange(0, max_gui_device_x , den)
 				#y=np.arange(0, max_gui_device_z , den)
-				x=np.arange(0, max_gui_device_x , den)
-				z=np.arange(0, max_gui_device_z , den)
+				x=np.arange(x0, x0+scale_get_device_x() , den)
+				z=np.arange(z0, z0+scale_get_device_z() , den)
 				for i in range(0,len(x)):
 					for ii in range(0,len(z)):
 						draw_photon(x[i]+0.1,y+0.1,z[ii],True)
 						#draw_photon(x[i]+0.1,y[ii]+0.1,z[ii],True)
 
 
+		def bix_axis(self):
+			for xx in range(0,10):
+				box(0+xx,0,0,0.5,0.5,0.5,1.0,0,0,0.5)
+
+			for yy in range(0,10):
+				box(0,0+yy,0,0.5,0.5,0.5,1.0,0,0,0.5)
 
 
-		def draw_device(self):
-			x=0
+			for zz in range(0,10):
+				box(0,0,0+zz,0.5,0.5,0.5,0.0,0,1,0.5)
+
+
+		def draw_device(self,x,z):
+
+
 			y=scale_get_device_y()
-			z=0
+
 
 			l=0
 			btm_layer=len(epitaxy_get_epi())-1
@@ -508,14 +529,14 @@ if open_gl_ok==True:
 					for c in contacts_get_array():
 						if (c.position=="top" and l==0) or (c.position=="bottom" and l==btm_layer):
 							if len(self.x_mesh.points)==1 and len(self.z_mesh.points)==1:
-								xstart=0.0
+								xstart=x
 								xwidth=scale_get_device_x()
 							else:
-								xstart=scale_get_device_x()*(c.start/self.x_len)
-								xwidth=scale_get_device_x()*(c.width/self.x_len)
+								xstart=x+scale_get_xmul()*c.start
+								xwidth=scale_get_xmul()*c.width
 								#print(c.position,xstart,xwidth)
 								if (c.start+c.width)>self.x_len:
-									xwidth=scale_get_device_x()-xstart
+									xwidth=scale_get_device_x()
 							#lens_layer(xstart,y+dy_shrink/2,z,xwidth,scale_get_device_z(),y_len-dy_shrink,scale_get_device_x()/10)
 
 							box(xstart,y+dy_shrink/2,z,xwidth,y_len-dy_shrink, scale_get_device_z(), obj.r,obj.g, obj.b,alpha, name=layer_name)
@@ -523,18 +544,18 @@ if open_gl_ok==True:
 					box(x,y+dy_shrink/2,z,scale_get_device_x(),y_len-dy_shrink,scale_get_device_z(),obj.r,obj.g,obj.b,alpha,name=layer_name)
 
 				if obj.electrical_layer.startswith("dos")==True:
-					tab(0.0,y,scale_get_device_z(),scale_get_device_x(),y_len-dy_shrink,scale_get_device_z())
+					tab(x+scale_get_device_x(),y,z,y_len-dy_shrink)
 					display_name=display_name+" ("+_("active")+")"
 
 				if self.selected_layer==layer_name:
-					box_lines(0.0,y,0,scale_get_device_x(),y_len,scale_get_device_z())
+					box_lines(x,y,z,scale_get_device_x(),y_len,scale_get_device_z())
 
 				if self.view.render_text==True:
-					if self.view.zoom>-20:
+					if self.view.zoom<20:
 						set_color(1.0,1.0,1.0,"text")
 						font = QFont("Arial")
 						font.setPointSize(18)
-						self.renderText (scale_get_device_x()+0.1,y+y_len/2,scale_get_device_z(), display_name,font)
+						self.renderText (x+scale_get_device_x()+0.1,y+y_len/2,z, display_name,font)
 
 				l=l+1
 
@@ -542,6 +563,10 @@ if open_gl_ok==True:
 
 		def render(self):
 			#print("do draw")
+			x=scale_m2screen_x(0)
+			y=scale_m2screen_y(0)
+			z=scale_m2screen_z(0)
+
 			clear_color()
 			glClearColor(self.view.bg_color[0], self.view.bg_color[1], self.view.bg_color[2], 0.5)
 			gl_save_clear()
@@ -573,6 +598,7 @@ if open_gl_ok==True:
 					
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
 			glLoadIdentity()
+			glScalef(1.0, 1.0, -1.0) 
 
 			glTranslatef(self.view.x_pos, self.view.y_pos, self.view.zoom) # Move Into The Screen
 			
@@ -601,12 +627,12 @@ if open_gl_ok==True:
 				self.draw_mesh()
 			else:
 				if self.enable_draw_device==True:
-					self.draw_device()
-				draw_mode(scale_get_device_y()-self.dy_layer_offset,scale_get_device_z())
-				draw_rays(self.ray_file,scale_get_device_y()-self.dy_layer_offset,scale_get_device_x(),scale_get_ymul(),scale_get_device_z()*1.05)
+					self.draw_device(x,z)
+				draw_mode(x,y,z,scale_get_device_y())
+				draw_rays(x,y,z,self.ray_file,scale_get_device_y()-self.dy_layer_offset,scale_get_device_x(),scale_get_ymul(),scale_get_device_z()*1.05)
 
 				if self.view.render_photons==True:
-					self.draw_photons(scale_get_device_x(),scale_get_device_y(),scale_get_device_z())
+					self.draw_photons(x,z)
 
 				full_data_range=self.graph_z_max-self.graph_z_min
 				graph(0.0,self.dos_start,scale_get_device_z()+0.5,scale_get_device_x(),self.dos_stop-self.dos_start,full_data_range,self.graph_data)
@@ -614,7 +640,7 @@ if open_gl_ok==True:
 			if self.view.render_grid==True:
 				draw_grid()
 
-			if self.view.zoom<self.view.stars_distance:
+			if self.view.zoom>self.view.stars_distance:
 				draw_stars()
 
 
@@ -709,7 +735,8 @@ if open_gl_ok==True:
 				#glShadeModel(GL_SMOOTH)
 				glViewport(0, 0, self.width(), self.height()+100)
 				glMatrixMode(GL_PROJECTION)
-				glLoadIdentity()                    
+				glLoadIdentity()
+				#glScalef(1.0, 1.0, -1.0)              
 				gluPerspective(45.0,float(self.width()) / float(self.height()+100),0.1, 1000.0) 
 				glMatrixMode(GL_MODELVIEW)
 
@@ -756,7 +783,8 @@ if open_gl_ok==True:
 
 				glViewport(0, 0, self.width(), self.height()+100)
 				glMatrixMode(GL_PROJECTION)
-				glLoadIdentity()                    
+				glLoadIdentity()
+				#glScalef(1.0, 1.0, -1.0)                  
 				gluPerspective(45.0,float(self.width()) / float(self.height()+100),0.1, 1000.0) 
 				glMatrixMode(GL_MODELVIEW)
 				#self.resizeEvent.connect(self.resize)

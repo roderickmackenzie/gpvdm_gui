@@ -58,12 +58,12 @@ class view_point():
 		self.zRot =0.0
 		self.x_pos=-0.5
 		self.y_pos=-0.5
-		self.zoom=-12.0
+		self.zoom=16
 		self.render_grid=True
 		self.render_photons=True
 		self.render_text=True
 		self.bg_color=[0.0,0.0,0.0]
-		self.stars_distance=-60
+		self.stars_distance=60
 
 	def shift(self,target):
 		stop=False
@@ -131,34 +131,34 @@ class gl_move_view():
 		print("hello")
 
 	def xy(self):
-		self.viewtarget.xRot=0.0
+		self.viewtarget.xRot=-7
 		self.viewtarget.yRot=0.0
 		self.viewtarget.zRot=0.0
-		self.viewtarget.x_pos=-2.0
-		self.viewtarget.y_pos=-1.7
-		self.viewtarget.zoom=-8.0
+		self.viewtarget.x_pos=0.0
+		self.viewtarget.y_pos=0.0
+		self.viewtarget.zoom=16
 		self.timer=QTimer()
 		self.timer.timeout.connect(self.ftimer_target)
 		self.timer.start(25)
 
 	def yz(self):
-		self.viewtarget.xRot=0.0
-		self.viewtarget.yRot=-90
+		self.viewtarget.xRot=-7
+		self.viewtarget.yRot=90
 		self.viewtarget.zRot=0.0
-		self.viewtarget.x_pos=2.0
-		self.viewtarget.y_pos=-1.7
-		self.viewtarget.zoom=-8.0
+		self.viewtarget.x_pos=0.0
+		self.viewtarget.y_pos=0.0
+		self.viewtarget.zoom=16
 		self.timer=QTimer()
 		self.timer.timeout.connect(self.ftimer_target)
 		self.timer.start(25)
 
 	def xz(self):
-		self.viewtarget.xRot=90.0
-		self.viewtarget.yRot=0.0
+		self.viewtarget.xRot=-90.0
+		self.viewtarget.yRot=90.0
 		self.viewtarget.zRot=0.0
-		self.viewtarget.x_pos=-2.0
-		self.viewtarget.y_pos=1.2
-		self.viewtarget.zoom=-9.0
+		self.viewtarget.x_pos=0.0
+		self.viewtarget.y_pos=0.0
+		self.viewtarget.zoom=16
 		self.timer=QTimer()
 		self.timer.timeout.connect(self.ftimer_target)
 		self.timer.start(25)
@@ -186,7 +186,7 @@ class gl_move_view():
 
 	def fzoom_timer(self):
 		self.view.zoom =self.view.zoom+4.0
-		if self.view.zoom>-12.0:
+		if self.view.zoom>16.0:
 			self.timer.stop()
 		self.update()
 
@@ -197,12 +197,12 @@ class gl_move_view():
 
 	def __init__(self):
 		self.view=view_point()
-		self.view.xRot =25.0
-		self.view.yRot =-20.0
+		self.view.xRot =-25.0
+		self.view.yRot =1.0
 		self.view.zRot =0.0
-		self.view.x_pos=-0.5
-		self.view.y_pos=-0.5
-		self.view.zoom=-12.0
+		self.view.x_pos=0.0
+		self.view.y_pos=0.
+		self.view.zoom=16.0
 
 		self.viewtarget=view_point()
 		#self.viewtarget.set_value(self.view)
@@ -215,4 +215,12 @@ class gl_move_view():
 
 	def update_real_to_gl_mul(self):
 		set_m2screen()
+
+	def view_dump(self):
+		print("xRot=",self.view.xRot)
+		print("yRot=",self.view.yRot)
+		print("zRot=",self.view.zRot)
+		print("x_pos=",self.view.x_pos)
+		print("y_pos=",self.view.y_pos)
+		print("zoom=",self.view.zoom)
 

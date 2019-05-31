@@ -44,15 +44,13 @@ try:
 except:
 	pass
 
-def draw_mode(z_size,depth):
-
+def draw_mode(x,y,z,z_size):
 	glLineWidth(5)
 	set_color(1.0, 1.0, 1.0,"mode")
 	glBegin(GL_LINES)
 	t=[]
 	s=[]
-	z=[]
-	start=0.0
+
 	data=dat_file()
 			
 	path=os.path.join(get_sim_path(),"light_dump","light_1d_photons_tot_norm.dat")
@@ -63,8 +61,8 @@ def draw_mode(z_size,depth):
 		#print(path)
 		#print(data.data)
 		for i in range(1,array_len):
-			glVertex3f(0.0, start+(z_size*(i-1)/array_len), depth+s[i-1]*0.5)
-			glVertex3f(0.0, start+(z_size*i/array_len), depth+s[i]*0.5)
+			glVertex3f(x, y+(z_size*(i-1)/array_len), z-s[i-1]*0.5)
+			glVertex3f(x, y+(z_size*i/array_len), z-s[i]*0.5)
 
 	glEnd()
 

@@ -43,6 +43,8 @@ except:
 
 from PyQt5.QtCore import QTimer
 
+from gl_scale import scale_get_start_x
+from gl_scale import scale_get_start_z
 
 class gl_cords():
 	def draw_cords(self):
@@ -50,10 +52,10 @@ class gl_cords():
 		font = QFont("Arial")
 		font.setPointSize(18)
 
-		width=0.02
-		leng=0.5
-		start_x=-4
-		start_z=10
+		width=0.04
+		leng=1.0
+		start_x=scale_get_start_x()-2.0
+		start_z=scale_get_start_z()-2.0
 		quad=gluNewQuadric()
 
 
@@ -68,7 +70,7 @@ class gl_cords():
 		glTranslatef(0.0,0.0,leng)
 		gluCylinder(quad, 0.1, 0.00, 0.2, 10, 1)
 		set_color(1.0,1.0,1.0,"cordinates",alpha=1.0)
-		if self.view.zoom>-20:
+		if self.view.zoom<20:
 			self.renderText (0.2,0.0,0.0, "x",font)
 		glPopMatrix()
 
@@ -82,7 +84,7 @@ class gl_cords():
 		glTranslatef(0.0,0.0,leng)
 		gluCylinder(quad, 0.1, 0.00, 0.2, 10, 1)
 		set_color(1.0,1.0,1.0,"cordinates",alpha=1.0)
-		if self.view.zoom>-20:
+		if self.view.zoom<20:
 			self.renderText (0.2,0.0,0.0, "y",font)
 		glPopMatrix()
 
@@ -91,14 +93,14 @@ class gl_cords():
 		glTranslatef(start_x,0.0,start_z)
 
 		quad=gluNewQuadric()
-		glRotatef(180, 0.0, 1.0, 0.0)
+		glRotatef(0, 0.0, 1.0, 0.0)
 		gluCylinder(quad, width, width, leng, 10, 1)
 		glTranslatef(0.0,0.0,leng)
 		gluCylinder(quad, 0.1, 0.00, 0.2, 10, 1)
 
 		gluSphere(quad,0.08,32,32)
 		set_color(1.0,1.0,1.0,"cordinates",alpha=1.0)
-		if self.view.zoom>-20:
+		if self.view.zoom<20:
 			self.renderText (-0.2,0.0,0.0, "z",font)
 		glPopMatrix()
 

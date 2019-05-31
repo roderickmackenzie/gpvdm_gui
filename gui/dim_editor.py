@@ -163,8 +163,6 @@ class dim_editor(QWidgetSavePos):
 			val=float(self.widget0_edit.text())
 			if val<=0:
 				return
-			if val>0.1:
-				return
 		except:
 			return
 		mesh_set_xlen(val)
@@ -172,8 +170,6 @@ class dim_editor(QWidgetSavePos):
 		try:
 			val=float(self.widget1_edit.text())
 			if val<=0:
-				return
-			if val>0.1:
 				return
 
 		except:

@@ -87,7 +87,7 @@ def fast_load(d,file_name):
 		
 	return True
 
-def draw_rays(ray_file,top,width,y_mul,w):
+def draw_rays(x0,y0,z0,ray_file,top,width,y_mul,w):
 	global ray_fast
 	d=ray_fast
 	
@@ -135,11 +135,11 @@ def draw_rays(ray_file,top,width,y_mul,w):
 				if fabs(out[i].x-m)<std*std_mul:
 					if fabs(out[i+1].x-m)<std*std_mul:
 						#print(sub)
-						glVertex3f(width/2+(out[i].x-m)*x_mul, top-(out[i].y+sub)*y_mul, 0)
-						glVertex3f(width/2+(out[i+1].x-m)*x_mul, top-(out[i+1].y+sub)*y_mul, 0)
+						glVertex3f(x0+width/2+(out[i].x-m)*x_mul, y0+top-(out[i].y+sub)*y_mul, z0+0)
+						glVertex3f(x0+width/2+(out[i+1].x-m)*x_mul, y0+top-(out[i+1].y+sub)*y_mul, z0+0)
 
-						glVertex3f(width/2+(out[i+1].x-m)*x_mul, top-(out[i+1].y+sub)*y_mul, w)
-						glVertex3f(width/2+(out[i].x-m)*x_mul, top-(out[i].y+sub)*y_mul, w)
+						glVertex3f(x0+width/2+(out[i+1].x-m)*x_mul, y0+top-(out[i+1].y+sub)*y_mul, z0+w)
+						glVertex3f(x0+width/2+(out[i].x-m)*x_mul, y0+top-(out[i].y+sub)*y_mul, z0+w)
 
 
 

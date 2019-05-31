@@ -27,6 +27,7 @@
 
 
 import os
+import random
 
 #inp files
 from inp import inp_load_file
@@ -44,6 +45,7 @@ from win_lin import running_on_linux
 #paths
 from cal_path import get_bin_path
 from cal_path import get_exe_args
+from cal_path import get_html_path
 
 from code_ctrl import enable_webbrowser
 from cal_path import get_exe_command
@@ -117,8 +119,21 @@ class gpvdm_notebook(QTabWidget):
 		self.blockSignals(False)
 
 	def add_info_page(self):
-		browser=information()
+		files=os.listdir(get_html_path())
+		info_files=[]
+		for i in range(0,len(files)):
+			if files[i].startswith("info") and files[i].endswith("html"):
+				info_files.append(files[i])
+		file_name=random.choice(info_files)
+
+		browser=information(file_name)
+
 		self.addTab(browser,_("Information"))
+
+	def add_docs_page(self):
+		browser=information("docs.html")
+
+		self.addTab(browser,_("Tutorials/Documentation"))
 
 	def load(self):
 		self.clear()
@@ -142,7 +157,7 @@ class gpvdm_notebook(QTabWidget):
 
 			widget=tab_view()
 			self.addTab(widget,_("Output"))
-
+			self.add_docs_page()
 			self.state_loaded=True
 
 		else:

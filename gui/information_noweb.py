@@ -26,7 +26,6 @@
 #
 
 import os
-import random
 from tab_base import tab_base
 from help import my_help_class
 from cal_path import get_image_file_path
@@ -50,7 +49,7 @@ class information(QScrollArea,tab_base):
 	save_file_name=""
 	name="Welcome"
 
-	def __init__(self):
+	def __init__(self,file_name):
 		QScrollArea.__init__(self)
 		self.main_widget=QWidget()
 
@@ -64,13 +63,6 @@ class information(QScrollArea,tab_base):
 		#self.label.setSizePolicy( QSizePolicy.Ignored, QSizePolicy.Ignored );
 		#self.label.setMaximumSize( QSize(16777215, 16777215) )
 		self.label.setWordWrap(True)
-
-		files=os.listdir(get_html_path())
-		info_files=[]
-		for i in range(0,len(files)):
-			if files[i].startswith("info") and files[i].endswith("html"):
-				info_files.append(files[i])
-		file_name=random.choice(info_files)
 
 		f = open(os.path.join(get_html_path(),file_name), encoding='utf-8')
 		data = f.readlines()
@@ -101,7 +93,5 @@ class information(QScrollArea,tab_base):
 	def update(self):
 		print("")
 		
-	def help(self):
-		my_help_class.help_set_help(["icon.png",_("<big><b>Welcome to gpvdm</b></big>\n The window will provide you with information about new versions and bugs in gpvdm.")])
 
 

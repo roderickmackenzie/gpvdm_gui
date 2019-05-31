@@ -39,6 +39,8 @@ try:
 	from gl_scale import scale_get_xmul
 	from gl_scale import scale_get_ymul
 	from gl_scale import scale_get_zmul
+	from gl_scale import scale_get_start_x
+	from gl_scale import scale_get_start_z
 
 except:
 	pass
@@ -58,10 +60,10 @@ class gl_mesh():
 		z=[]
 
 		for z0 in self.z_mesh.points:
-			z.append(z0*scale_get_zmul())
+			z.append(scale_get_start_z()+z0*scale_get_zmul())
 
 		for x0 in self.x_mesh.points:
-			x.append(x0*scale_get_xmul())
+			x.append(scale_get_start_x()+x0*scale_get_xmul())
 
 		for y0 in self.y_mesh.points:
 			y.append(y0*scale_get_ymul()*3)

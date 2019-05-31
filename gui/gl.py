@@ -562,7 +562,8 @@ if open_gl_ok==True:
 				
 
 		def render(self):
-			#print("do draw")
+
+			self.update_real_to_gl_mul()
 			x=scale_m2screen_x(0)
 			y=scale_m2screen_y(0)
 			z=scale_m2screen_z(0)
@@ -574,8 +575,6 @@ if open_gl_ok==True:
 
 			self.dos_start=-1
 			self.dos_stop=-1
-
-			self.update_real_to_gl_mul()
 
 
 

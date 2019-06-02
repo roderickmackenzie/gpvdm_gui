@@ -161,7 +161,10 @@ def str2bool(v):
 	if type(v) is bool:
 		return v
 	else:
-		return v.lower() in ("ja","yes", "true", "t", "1","right")
+		if v.lower() in ("false","none"):
+			return False
+
+		return v.lower() in ("ja","yes", "true", "t", "1","right","complex")
 
 def pygtk_to_latex_subscript(in_string):
 	out_string=in_string.replace("<sub>","_{")

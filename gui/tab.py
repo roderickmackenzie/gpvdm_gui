@@ -106,14 +106,31 @@ class tab_class(QWidget,tab_base):
 			dos_file=inp_get_token_value(self.file_name, "#shape_dos")+".inp"
 			self.window.init(dos_file,"DoS editor")
 			self.window.show()
-		elif type(widget)==gpvdm_select_material:
+
+		if type(widget)==gpvdm_select_material:
 			widget.callback_button_click()
-		else:
+
+		if token=="#dostype":
 			from dos_editor import dos_editor
 			self.dos_editor=dos_editor(self.file_name)
 			self.dos_editor.show()
 
+		if token=="#dos_photon_generation":
+			from pl_main import pl_main
+			self.dos_editor=pl_main()
+			print(self.file_name)
+			self.dos_editor.show()
+
 	def callback_edit(self,token,widget,unit):
+		if token=="#dos_photon_generation":
+			inp_update_token_value(self.file_name, token, widget.get_value())
+
+			if str2bool(widget.get_value())==False:
+				unit.setEnabled(False)
+			else:
+				unit.setEnabled(True)
+			return
+
 		if type(widget)==QLineEdit:
 			a=undo_list_class()
 			a.add([self.file_name, token, inp_get_token_value(self.file_name, token),widget])
@@ -298,7 +315,6 @@ class tab_class(QWidget,tab_base):
 						edit_box.setFixedSize(300, 25)
 						edit_box.setText(value)
 						edit_box.edit.textChanged.connect(functools.partial(self.callback_edit,token,edit_box,unit))
-						unit.clicked.connect(functools.partial(self.callback_unit_click,token,edit_box,unit))
 
 					elif result.widget=="QLineEdit":
 						edit_box=QLineEdit()
@@ -354,16 +370,12 @@ class tab_class(QWidget,tab_base):
 						if value=="exponential":
 							unit.setEnabled(False)
 						edit_box.changed.connect(functools.partial(self.callback_edit,token,edit_box,unit))
-						unit.clicked.connect(functools.partial(self.callback_unit_click,token,edit_box,unit))
 					elif result.widget=="shape_dos_switch":
 						edit_box=shape_dos_switch()
 						edit_box.shape_file=self.file_name
 						edit_box.setFixedSize(300, 25)
 						edit_box.set_value(value)
-						if value=="none":
-							unit.setEnabled(False)
 						edit_box.changed.connect(functools.partial(self.callback_edit,token,edit_box,unit))
-						unit.clicked.connect(functools.partial(self.callback_unit_click,token,edit_box,unit))
 
 
 					else:
@@ -379,6 +391,11 @@ class tab_class(QWidget,tab_base):
 								break
 								
 						edit_box.currentIndexChanged.connect(functools.partial(self.callback_edit,token,edit_box,unit))
+
+					if type(unit)==QPushButton:
+						unit.clicked.connect(functools.partial(self.callback_unit_click,token,edit_box,unit))
+						if str2bool(value)==False:
+							unit.setEnabled(False)
 
 					a=tab_line()
 					a.token=token

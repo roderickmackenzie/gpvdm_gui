@@ -94,13 +94,6 @@ parser = argparse.ArgumentParser(epilog=_("Additional information about gpvdm is
 parser.add_argument("--version", help=_("displays the current version"), action='store_true')
 parser.add_argument("--ver", help=_("displays the current version"), action='store_true')
 parser.add_argument("--replace", help=_("replaces file in device lib --replace file.inp path_to_device_lib"), nargs=2)
-parser.add_argument("--token_append", help=_("Appends a token to files in the device lib after a given token --token_append file.inp #token #token_befor #value path_to_device_lib"), nargs=5)
-parser.add_argument("--token_change", help=_("Changes the value of a token device lib --token_change file.inp \\#token value"), nargs=3)
-parser.add_argument("--token_delete", help=_("Delete a token from the device lib --token_delete file.inp \\#token"), nargs=2)
-parser.add_argument("--token_insert", help=_("Insert a token into the device lib files --token_insert file.inp \\where \\#token \\value"), nargs=4)
-parser.add_argument("--token_duplicate", help=_("Copy the value of a token the device lib files --token_insert dest_file.inp \\token \\#src_file.inp \\token"), nargs=4)
-parser.add_argument("--token_repair", help=_("Repair --token_repair dest_file.inp \\#token \\#src_file.inp \\token"), nargs=4)
-parser.add_argument("--token_fix_ver", help=_("Fix ver --token_fix_ver file.inp version"), nargs=2)
 
 parser.add_argument("--delete", help=_("deletes file in device lib --delete file.inp path_to_device_lib"), nargs=2)
 parser.add_argument("--clean", help=_("cleans the current simulation directory deleting .dat files but not  scan dirs"), action='store_true')

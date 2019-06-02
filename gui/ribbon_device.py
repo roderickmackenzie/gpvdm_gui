@@ -60,7 +60,7 @@ from spectra_main import spectra_main
 from layer_widget import layer_widget
 from dim_editor import dim_editor
 
-from electrical import electrical
+from dos_main import dos_main
 from global_objects import global_object_register
 
 
@@ -204,7 +204,7 @@ class ribbon_device(QToolBar):
 		help_window().help_set_help(["electrical.png",_("<big><b>Electrical parameters</b></big>\nUse this window to change the electrical parameters of each layer.")])
 
 		if self.electrical_editor==None:
-			self.electrical_editor=electrical()
+			self.electrical_editor=dos_main()
 
 		if self.electrical_editor.isVisible()==True:
 			self.electrical_editor.hide()

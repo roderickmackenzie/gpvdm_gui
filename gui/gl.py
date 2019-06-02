@@ -60,7 +60,7 @@ from contacts_io import contacts_get_array
 #epitaxy
 from epitaxy import epitaxy_get_layers
 from epitaxy import epitaxy_get_width
-from epitaxy import epitaxy_get_pl_file
+from epitaxy import epitaxy_get_dos_file
 from epitaxy import epitaxy_get_layer
 from epitaxy import epitaxy_get_epi
 from epitaxy import get_epi
@@ -478,7 +478,7 @@ if open_gl_ok==True:
 						draw_photon(x[i],y+0.1,z[ii],False)
 
 			if self.emission==True and self.ray_model==False:
-				den=0.6
+				den=1.2
 				#x=np.arange(0, max_gui_device_x , den)
 				#y=np.arange(0, max_gui_device_z , den)
 				x=np.arange(x0, x0+scale_get_device_x() , den)
@@ -589,10 +589,10 @@ if open_gl_ok==True:
 			lines=[]
 
 			for i in range(0,epitaxy_get_layers()):
-				if epitaxy_get_pl_file(i)!="none":
-					lines=inp_load_file(os.path.join(get_sim_path(),epitaxy_get_pl_file(i)+".inp"))
+				if epitaxy_get_dos_file(i)!="none":
+					lines=inp_load_file(os.path.join(get_sim_path(),epitaxy_get_dos_file(i)+".inp"))
 					if lines!=False and len(lines)!=0:
-						if str2bool(lines[1])==True:
+						if str2bool(lines[3])==True:
 							self.emission=True
 					
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)

@@ -281,7 +281,7 @@ def inp_insert_token(file_path, token_to_insert_after, token, value, archive="si
 
 		count=count+1
 	
-	print(lines_out)	
+	#print(lines_out)	
 	inp_save(file_path,lines_out,archive=archive,id=id)
 
 	return True

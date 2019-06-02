@@ -43,13 +43,39 @@ from about import about_dlg
 
 #windows
 from QHTabBar import QHTabBar
+from icon_lib import icon_get
+
+from css import css_apply
 
 class pl_main(QWidget):
 
 	def __init__(self):
 		QWidget.__init__(self)
 		self.main_vbox = QVBoxLayout()
+
+		self.setWindowIcon(icon_get("preferences-system"))
+
+		self.setWindowTitle(_("Luminescence editor")+" (https://www.gpvdm.com)") 
+
+		toolbar=QToolBar()
+		toolbar.setIconSize(QSize(48, 48))
+
+		spacer = QWidget()
+		spacer.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+
+		toolbar.addWidget(spacer)
+
+
+		self.help = QAction(icon_get("help"), _("Help"), self)
+		self.help.setStatusTip(_("Help"))
+		self.help.triggered.connect(self.callback_help)
+		toolbar.addAction(self.help)
+
+		self.main_vbox.addWidget(toolbar)
+
 		self.notebook = QTabWidget()
+
+		css_apply(self,"tab_default.css")
 
 		self.main_vbox.addWidget(self.notebook)
 		self.setLayout(self.main_vbox)
@@ -63,6 +89,7 @@ class pl_main(QWidget):
 
 		global_object_register("pl_update",self.update)
 
+		self.update()
 
 	def update(self):
 		self.notebook.clear()
@@ -80,6 +107,8 @@ class pl_main(QWidget):
 
 				self.notebook.addTab(widget,name)
 
+	def callback_help(self,widget):
+		webbrowser.open('http://www.gpvdm.com/man/index.html')
 
 	def help(self):
 		help_window().help_set_help(["tab.png",_("<big><b>Luminescence</b></big>\nIf you set 'Turn on luminescence' to true, the simulation will assume recombination is a raditave process and intergrate it to produce Voltage-Light intensity curves (lv.dat).  Each number in the tab tells the model how efficient each recombination mechanism is at producing photons.")])

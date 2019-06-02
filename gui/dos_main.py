@@ -43,23 +43,54 @@ from about import about_dlg
 #windows
 from QHTabBar import QHTabBar
 from global_objects import global_object_register
+from icon_lib import icon_get
+
+from css import css_apply
+
 
 class dos_main(QWidget,tab_base):
 
 	def __init__(self):
 		QWidget.__init__(self)
+		self.setMinimumSize(1000, 600)
+
 		self.main_vbox = QVBoxLayout()
+
+		self.setWindowIcon(icon_get("preferences-system"))
+
+		self.setWindowTitle(_("Electrical parameter editor")+" (https://www.gpvdm.com)") 
+
+		toolbar=QToolBar()
+		toolbar.setIconSize(QSize(48, 48))
+
+		spacer = QWidget()
+		spacer.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+
+		toolbar.addWidget(spacer)
+
+
+		self.help = QAction(icon_get("help"), _("Help"), self)
+		self.help.setStatusTip(_("Help"))
+		self.help.triggered.connect(self.callback_help)
+		toolbar.addAction(self.help)
+
+		self.main_vbox.addWidget(toolbar)
+
 		self.notebook = QTabWidget()
+
+		css_apply(self,"tab_default.css")
+
 
 		self.main_vbox.addWidget(self.notebook)
 		self.setLayout(self.main_vbox)
 
-		self.notebook.setTabsClosable(True)
-		self.notebook.setMovable(True)
-		self.notebook.setTabBar(QHTabBar())
-		self.notebook.setTabPosition(QTabWidget.West)
+		#self.notebook.setTabsClosable(True)
+		#self.notebook.setMovable(True)
+		#self.notebook.setTabBar(QHTabBar())
+		#self.notebook.setTabPosition(QTabWidget.West)
 
 		global_object_register("dos_update",self.update)
+		self.update()
 
 	def update(self):
 		self.notebook.clear()
@@ -79,5 +110,8 @@ class dos_main(QWidget,tab_base):
 
 	def help(self):
 		help_window().help_set_help(["tab.png","<big><b>Density of States</b></big>\nThis tab contains the electrical model parameters, such as mobility, tail slope energy, and band gap."])
+
+	def callback_help(self,widget):
+		webbrowser.open('http://www.gpvdm.com/man/index.html')
 
 

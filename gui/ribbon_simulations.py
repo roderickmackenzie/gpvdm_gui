@@ -54,6 +54,7 @@ from measure import measure
 from cost import cost
 
 from jvexperiment import jvexperiment
+from plexperiment import plexperiment
 from util import wrap_text
 from fdtd import fdtd
 from global_objects import global_object_run
@@ -77,6 +78,8 @@ class ribbon_simulations(QToolBar):
 		self.cost_window=None
 		self.diode_window=None
 		self.fdtd_window=None
+
+		self.plexperiment_window=None
 
 		self.setToolButtonStyle( Qt.ToolButtonTextUnderIcon)
 		self.setIconSize(QSize(42, 42))
@@ -106,6 +109,10 @@ class ribbon_simulations(QToolBar):
 		self.diode = QAction(icon_get("diode"), wrap_text(_("Simple diode model"),8), self)
 		self.diode.triggered.connect(self.callback_diode_window)
 		self.addAction(self.diode)
+
+		self.pl = QAction(icon_get("pl"), _("PL\neditor"), self)
+		self.pl.triggered.connect(self.callback_pl_window)
+		self.addAction(self.pl)
 
 		self.qe = QAction(icon_get("qe"), _("Quantum\nefficiency"), self)
 		self.qe.triggered.connect(self.callback_qe_window)
@@ -219,6 +226,18 @@ class ribbon_simulations(QToolBar):
 			self.jvexperiment_window.hide()
 		else:
 			self.jvexperiment_window.show()
+
+	def callback_pl_window(self):
+
+		if self.plexperiment_window==None:
+			self.plexperiment_window=plexperiment()
+			#self.experiment_window.changed.connect(self.callback_experiments_changed)
+
+		help_window().help_set_help(["pl.png",_("<big><b>PL simulation editor</b></big><br> Use this window to configure the steady state photoluminescence simulation.")])
+		if self.plexperiment_window.isVisible()==True:
+			self.plexperiment_window.hide()
+		else:
+			self.plexperiment_window.show()
 
 	def callback_sunsvoc_window(self):
 

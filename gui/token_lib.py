@@ -295,7 +295,6 @@ def build_token_lib():
 	lib.append(my_data("dump.inp","#dump_print_converge",_("True/False"),_("Print solver convergence"),"e",1.0,"gtkswitch"))
 	lib.append(my_data("dump.inp","#dump_write_converge",_("True/False"),_("Write newton solver convergence to disk"),"e",1.0,"gtkswitch"))
 	lib.append(my_data("dump.inp","#dump_print_pos_error",_("True/False"),_("Print poisson solver convergence"),"e",1.0,"gtkswitch"))
-	lib.append(my_data("dump.inp","#dump_pl",_("True/False"),_("Dump PL spectra"),"e",1.0,"gtkswitch"))
 	lib.append(my_data("dump.inp","#dump_norm_time_to_one",_("True/False"),_("Normalize output x-time to one"),"e",1.0,"gtkswitch"))
 	lib.append(my_data("dump.inp","#dump_built_in_voltage",_("True/False"),_("Dump the built in voltage."),"e",1.0,"gtkswitch"))
 	lib.append(my_data("dump.inp","#dump_optical_probe_spectrum",_("True/False"),_("Dump optical probe spectrum"),"e",1.0,"gtkswitch"))
@@ -309,6 +308,12 @@ def build_token_lib():
 	lib.append(my_data("dump.inp","#dump_first_guess",_("True/False"),_("Write first guess to equations"),"e",1.0,"gtkswitch"))
 	lib.append(my_data("dump.inp","#dump_log_level","au",_("Log verbocity"),"s",1.0,"QComboBoxLang",defaults=[[("none"),_("None")],["screen",_("Screen")],["disk",_("Disk")],["screen_and_disk",_("Screen and disk")]]))
 	lib.append(my_data("dump.inp","#dump_log_level","au",_("Log verbocity"),"s",1.0,"QComboBoxLang",defaults=[[("none"),_("None")],["screen",_("Screen")],["disk",_("Disk")],["screen_and_disk",_("Screen and disk")]]))
+
+	#pl_experiment?.inp
+	lib.append(my_data("","#pl_mode","au",_("Device state"),"s",1.0,"QComboBoxLang",defaults=[[("voc"),_("Voc")],["Jsc",_("Jsc")]]))
+
+
+
 	lib.append(my_data("dump.inp","#dump_remove_dos_cache",_("True/False"),_("Clean up DoS cache files"),"e",1.0,"gtkswitch"))
 
 

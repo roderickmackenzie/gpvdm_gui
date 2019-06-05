@@ -37,6 +37,15 @@ from util_zip import zip_get_data_file
 
 from math import pow
 
+def is_numbered_file(file_name,filter):
+	if file_name.startswith(filter) and file_name.endswith(".inp"):
+		try:
+			mid=file_name[len(filter):-4]
+			n=int(mid)
+			return True
+		except:
+			False
+
 def set_file_ext(file_name,ext):
 	if ext[0]!=".":
 		ext="."+ext

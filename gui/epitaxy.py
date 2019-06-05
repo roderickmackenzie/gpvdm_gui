@@ -48,6 +48,8 @@ from mesh import mesh_get_ymesh
 from shape import shape
 from inp import inp_update_token_value
 
+from util import is_numbered_file
+
 class epi_layer():
 	def __init__(self):
 		self.width=0
@@ -144,7 +146,7 @@ class epitaxy():
 
 
 		for i in range(0,len(files)):
-			if files[i].startswith("dos") and files[i].endswith(".inp"):
+			if is_numbered_file(files[i],"dos")==True:
 				disk_file=files[i][:-4]
 				if disk_file not in tab:
 					inp_remove_file(disk_file)
@@ -154,7 +156,7 @@ class epitaxy():
 			tab.append(l.pl_file+".inp")
 
 		for i in range(0,len(files)):
-			if files[i].startswith("pl") and files[i].endswith(".inp"):
+			if is_numbered_file(files[i],"pl")==True:
 				disk_file=files[i]
 				if disk_file not in tab:
 					inp_remove_file(disk_file)
@@ -165,7 +167,7 @@ class epitaxy():
 				tab.append(s+".inp")
 
 		for i in range(0,len(files)):
-			if files[i].startswith("shape") and files[i].endswith(".inp"):
+			if is_numbered_file(files[i],"shape")==True:
 				disk_file=files[i]
 				if disk_file not in tab:
 					inp_remove_file(disk_file)
@@ -175,7 +177,7 @@ class epitaxy():
 			tab.append(l.lumo_file+".inp")
 
 		for i in range(0,len(files)):
-			if files[i].startswith("lumo") and files[i].endswith(".inp"):
+			if is_numbered_file(files[i],"lumo")==True:
 				disk_file=files[i]
 				if disk_file not in tab:
 					inp_remove_file(disk_file)
@@ -185,7 +187,7 @@ class epitaxy():
 			tab.append(l.homo_file+".inp")
 
 		for i in range(0,len(files)):
-			if files[i].startswith("homo") and files[i].endswith(".inp"):
+			if is_numbered_file(files[i],"homo")==True:
 				disk_file=files[i]
 				if disk_file not in tab:
 					inp_remove_file(disk_file)

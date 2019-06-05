@@ -115,6 +115,7 @@ file_list.append(file_type(name="lumo",dest="archive",copy_opp=file_type().JUST_
 file_list.append(file_type(name="pulse",dest="archive",copy_opp=file_type().MERGE,base_file="pulse0.inp"))
 file_list.append(file_type(name="laser",dest="archive",copy_opp=file_type().MERGE,base_file="laser0.inp"))
 file_list.append(file_type(name="jv",dest="archive",copy_opp=file_type().MERGE,base_file="jv0.inp"))
+file_list.append(file_type(name="pl_ss",dest="archive",copy_opp=file_type().MERGE,base_file="pl_ss0.inp"))
 
 file_list.append(file_type(name="ver.inp",copy_opp=file_type().MERGE))
 file_list.append(file_type(name="sim.ref",copy_opp=file_type().JUST_COPY))

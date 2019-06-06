@@ -180,6 +180,7 @@ class epitaxy():
 			if is_numbered_file(files[i],"lumo")==True:
 				disk_file=files[i]
 				if disk_file not in tab:
+					print("delete!!!!!!!!!!!!",files[i],tab,files)
 					inp_remove_file(disk_file)
 
 		#homo files
@@ -331,29 +332,27 @@ class epitaxy():
 
 				inp_copy_file(new_pl_file,pl_path)
 
+		print(">>>>>>>>>><<<<<<<<<<<")
+
 		if data=="active layer" and l.lumo_file.startswith("lumo")==False:
-
+			print("!!!!!!!!!>>>>>>>>add bew lumo layer")
 			l.lumo_file=self.new_lumo_file()
-
-			mat_dir=os.path.join(get_materials_path(),l.lumo_file)
 
 			new_lumo_file=l.lumo_file+".inp"
 			if inp_isfile(new_lumo_file)==False:
-				lumo_path=os.path.join(mat_dir,"lumo.inp")
+				lumo_path=os.path.join(get_materials_path(),"lumo.inp")
 				if os.path.isfile(lumo_path)==False:
 					lumo_path=os.path.join(get_default_material_path(),"lumo.inp")
-
+				print("copy>>>>>>>>>>>",new_lumo_file,lumo_path)
 				inp_copy_file(new_lumo_file,lumo_path)
 
 		if data=="active layer" and l.homo_file.startswith("homo")==False:
 
 			l.homo_file=self.new_homo_file()
 
-			mat_dir=os.path.join(get_materials_path(),l.homo_file)
-
 			new_homo_file=l.homo_file+".inp"
 			if inp_isfile(new_homo_file)==False:
-				homo_path=os.path.join(mat_dir,"homo.inp")
+				homo_path=os.path.join(get_materials_path(),"homo.inp")
 				if os.path.isfile(homo_path)==False:
 					homo_path=os.path.join(get_default_material_path(),"homo.inp")
 

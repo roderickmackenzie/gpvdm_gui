@@ -146,30 +146,6 @@ def command_args(argc,argv):
 		elif args.replace:
 			device_lib_replace(args.replace[0],dir_name=args.replace[1])
 			exit(0)
-		elif args.token_append:
-			device_lib_token_append_after(args.token_append[0],dir_name=args.token_append[1])
-			exit(0)
-		elif args.token_change:
-			print(args.token_change)
-			device_lib_token_change(args.token_change[0],args.token_change[1],args.token_change[2])
-			exit(0)
-		elif args.token_delete:
-			print(args.token_delete)
-			device_lib_token_delete(args.token_delete[0],args.token_delete[1])
-			exit(0)
-		elif args.token_insert:
-			print(args.token_insert)
-			device_lib_token_insert(args.token_insert[0],args.token_insert[1],args.token_insert[2],args.token_insert[3])
-			exit(0)
-		elif args.token_duplicate:
-			device_lib_token_duplicate(args.token_duplicate[0], args.token_duplicate[1], args.token_duplicate[2], args.token_duplicate[3])
-			exit(0)
-		elif args.token_repair:
-			device_lib_token_repair(args.token_repair[0], args.token_repair[1], args.token_repair[2], args.token_repair[3])
-			exit(0)
-		elif args.token_fix_ver:
-			device_lib_fix_ver(args.token_fix_ver[0], args.token_fix_ver[1])
-			exit(0)
 		elif args.delete:
 			device_lib_delete(args.delete[0],dir_name=args.delete[1])
 			exit(0)

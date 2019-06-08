@@ -134,7 +134,7 @@ class band_graph(QWidget):
 		ax2 = ax1.twinx()
 		x_pos=0.0
 		layer=0
-		color =['r','g','b','y','o','r','g','b','y','o']
+		color =['r','g','b','y','o','r','g','b','y','o','r','g','b','y','o','r','g','b','y','o']
 		start=0.0
 
 		for i in range(0,epitaxy_get_layers()):

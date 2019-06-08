@@ -574,7 +574,7 @@ def build_token_lib():
 	lib.append(my_data("","#Rload","Ohms",_("External load resistor"),"e",1.0,"QLineEdit"))
 	lib.append(my_data("","#pulse_shift","s","Shift of TPC signal","e",1.0,"QLineEdit"))
 
-	lib.append(my_data("","#flip_field","au",_("Filp the opticl field"),"e",1.0,"QComboBox",defaults=["1","0"]))
+	lib.append(my_data("","#light_illuminate_from","au",_("Illuminate from"),"e",1.0,"QComboBoxLang",defaults=[[("top"),_("Top")],[("bottom"),_("Bottom")]]))
 
 	#time_mesh_config*.inp
 	lib.append(my_data("","#fs_laser_time","s","Laser start time","e",1.0,"QLineEdit"))

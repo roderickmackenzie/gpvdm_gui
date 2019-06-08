@@ -39,8 +39,7 @@ from matplotlib.figure import Figure
 
 import zipfile
 from util import lines_to_xyz
-from dat_file import dat_file_read
-from dat_file_class import dat_file
+from dat_file import dat_file
 
 
 from matplotlib.figure import Figure
@@ -219,7 +218,7 @@ class band_graph(QWidget):
 			layer=layer+1
 
 		state=dat_file()
-		if dat_file_read(state,self.optical_mode_file)==True:
+		if state.load(self.optical_mode_file)==True:
 			ax1.set_ylabel(state.data_label+" ("+state.data_units+")")
 			ax1.set_xlabel(_("Position")+" (nm)")
 			ax2.set_ylabel(_("Energy")+" (eV)")

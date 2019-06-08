@@ -31,7 +31,6 @@ import re
 import hashlib
 import glob
 from util_zip import zip_get_data_file
-from dat_file_class import dat_file
 from inp import inp_load_file
 
 #search first 40 lines for dims
@@ -225,132 +224,6 @@ def decode_line(line):
 
 	return s,label
 
-def dat_file_read(out,file_name,guess=True):
-	out.valid_data=False
-	
-	if file_name==None:
-		return False
-	
-	found,lines=zip_get_data_file(file_name)
-	if found==False:
-		return False
-
-	out.x_scale=[]
-	out.y_scale=[]
-	out.z_scale=[]
-	out.data=[]
-
-	if dat_file_load_info(out,lines)==False:
-		if guess==True:
-			out.x_len, out.y_len, out.z_len = guess_dim(lines)
-		else:
-			return False
-		if out.x_len==False:
-			print("No idea what to do with this file!",file_name)
-			return False
-
-	out.data=[[[0.0 for k in range(out.y_len)] for j in range(out.x_len)] for i in range(out.z_len)]
-			
-	out.x_scale= [0.0]*out.x_len
-	out.y_scale= [0.0]*out.y_len
-	out.z_scale= [0.0]*out.z_len
-	out.labels=[]
-
-	data_started=False
-
-	x=0
-	y=0
-	z=0
-	dim=0
-	label=""
-	labels=False
-	#print(file_name)
-	#print(lines)
-	for line in lines:
-		s,label=decode_line(line)
-		l=len(s)
-		if l>0:
-							
-
-			if data_started==False:
-				if is_number(s[0])==True:
-					data_started=True
-
-			if s[0]=="#end":
-				break
-
-			if data_started==True:
-
-				if line.count("nan")>0:
-					#print("Warning nan found in data file",file_name)
-					return False
-
-				line_found=False
-				if l==4:
-					line_found=True
-					out.data[z][x][y]=float(s[3])
-					a0=s[0]
-					a1=s[1]
-					a2=s[2]
-
-				if l==3:
-					line_found=True
-					out.data[z][x][y]=float(s[2])
-					a0=s[0]
-					a1=s[1]
-					a2=0.0
-
-				elif l==2:
-					line_found=True
-					out.data[z][x][y]=float(s[1])
-					a0=s[0]
-					a1=0.0
-					a2=0.0
-
-#				else:
-#					print("skip")
-
-				if line_found==True:
-					if l==2:
-						if x==0 and z==0:
-							out.y_scale[y]=float(a0)
-
-					if l==3:
-						if x==0 and z==0:
-							out.y_scale[y]=float(a1)
-							
-						if z==0 and y==0:
-							out.x_scale[x]=float(a0)
-
-					if l==4:
-						if x==0 and z==0:
-							out.y_scale[y]=float(a1)
-							
-						if z==0 and y==0:
-							out.x_scale[x]=float(a0)
-
-						if x==0 and y==0:
-							out.z_scale[z]=float(a2)
-					#if z==y:
-					#	out.z_scale[y]=float(a0)
-					if label!=False:
-						out.labels.append(label)
-					y=y+1
-					if y==out.y_len:
-						y=0
-						x=x+1
-					if x==out.x_len:
-						x=0
-						z=z+1
-
-			if s[0]=="#data":
-				data_started=True
-
-	if data_started==False:
-		return False
-
-	out.valid_data=True
-	return True
 			
 
 def read_data_2d(x_scale,y_scale,z,file_name):
@@ -467,3 +340,263 @@ def dat_file_print(dat):
 	print("z_scale",dat.z_scale)
 	print("data",dat.data)
 	print("labels",dat.labels)
+
+
+
+class dat_file():
+	def __init__(self):
+		self.valid_data=False
+		self.grid=False
+		self.show_pointer=False
+		self.logy=False
+		self.logx=False
+		self.logz=False
+		self.logdata=False
+		self.label_data=False
+		self.invert_y=False
+		self.normalize=False
+		self.norm_to_peak_of_all_data=False
+		self.subtract_first_point=False
+		self.add_min=False
+		self.legend_pos="lower right"
+		self.ymax=-1
+		self.ymin=-1
+		self.x_label=""
+		self.y_label=""
+		self.z_label=""
+		self.data_label=""
+		self.x_units=""
+		self.y_units=""
+		self.z_units=""
+		self.data_units=""
+		self.x_mul=1.0
+		self.y_mul=1.0
+		self.z_mul=1.0
+		self.data_mul=1.0
+		self.key_units=""
+		self.file0=""
+		self.tag0=""
+		self.file1=""
+		self.tag1=""
+		self.file2=""
+		self.tag2=""
+		self.example_file0=""
+		self.example_file1=""
+		self.example_file2=""
+		self.time=0.0
+		self.Vexternal=0.0
+		self.file_name=""
+		self.other_file=""
+		self.title=""
+		self.type="xy"
+		self.section_one=""
+		self.section_two=""
+
+		self.x_start=0
+		self.x_stop=1
+		self.x_points=25
+		self.y_start=0
+		self.y_stop=1
+		self.y_points=25
+		self.x_len=0
+		self.y_len=0
+		self.z_len=0
+		
+		self.data_max=None
+		self.data_min=None
+
+		self.x_scale=[]
+		self.y_scale=[]
+		self.z_scale=[]
+		self.data=[]
+		self.labels=[]
+
+	def init_mem(self):
+		self.data=[[[0.0 for k in range(self.y_len)] for j in range(self.x_len)] for i in range(self.z_len)]
+				
+		self.x_scale= [0.0]*self.x_len
+		self.y_scale= [0.0]*self.y_len
+		self.z_scale= [0.0]*self.z_len
+
+	def load(self,file_name,guess=True):
+		self.valid_data=False
+		
+		if file_name==None:
+			return False
+		
+		found,lines=zip_get_data_file(file_name)
+		if found==False:
+			return False
+
+		self.x_scale=[]
+		self.y_scale=[]
+		self.z_scale=[]
+		self.data=[]
+
+		if dat_file_load_info(self,lines)==False:
+			if guess==True:
+				self.x_len, self.y_len, self.z_len = guess_dim(lines)
+			else:
+				return False
+			if self.x_len==False:
+				print("No idea what to do with this file!",file_name)
+				return False
+
+		self.init_mem()
+
+		self.labels=[]
+
+		data_started=False
+
+		x=0
+		y=0
+		z=0
+		dim=0
+		label=""
+		labels=False
+		#print(file_name)
+		#print(lines)
+		for line in lines:
+			s,label=decode_line(line)
+			l=len(s)
+			if l>0:
+								
+
+				if data_started==False:
+					if is_number(s[0])==True:
+						data_started=True
+
+				if s[0]=="#end":
+					break
+
+				if data_started==True:
+
+					if line.count("nan")>0:
+						#print("Warning nan found in data file",file_name)
+						return False
+
+					line_found=False
+					if l==4:
+						line_found=True
+						self.data[z][x][y]=float(s[3])
+						a0=s[0]
+						a1=s[1]
+						a2=s[2]
+
+					if l==3:
+						line_found=True
+						self.data[z][x][y]=float(s[2])
+						a0=s[0]
+						a1=s[1]
+						a2=0.0
+
+					elif l==2:
+						line_found=True
+						self.data[z][x][y]=float(s[1])
+						a0=s[0]
+						a1=0.0
+						a2=0.0
+
+	#				else:
+	#					print("skip")
+
+					if line_found==True:
+						if l==2:
+							if x==0 and z==0:
+								self.y_scale[y]=float(a0)
+
+						if l==3:
+							if x==0 and z==0:
+								self.y_scale[y]=float(a1)
+								
+							if z==0 and y==0:
+								self.x_scale[x]=float(a0)
+
+						if l==4:
+							if x==0 and z==0:
+								self.y_scale[y]=float(a1)
+								
+							if z==0 and y==0:
+								self.x_scale[x]=float(a0)
+
+							if x==0 and y==0:
+								self.z_scale[z]=float(a2)
+						#if z==y:
+						#	self.z_scale[y]=float(a0)
+						if label!=False:
+							self.labels.append(label)
+						y=y+1
+						if y==self.y_len:
+							y=0
+							x=x+1
+						if x==self.x_len:
+							x=0
+							z=z+1
+
+				if s[0]=="#data":
+					data_started=True
+
+		if data_started==False:
+			return False
+
+		self.valid_data=True
+		return True
+
+	def gen_output_data(self):
+		lines=[]
+		lines.append("#gpvdm")
+		lines.append("#title "+str(self.title))
+		lines.append("#type "+str(self.type))
+		lines.append("#x_mul "+str(self.x_mul))
+		lines.append("#y_mul "+str(self.y_mul))
+		lines.append("#z_mul "+str(self.z_mul))
+		lines.append("#data_mul "+str(self.data_mul))
+		if self.x_label!="":
+			lines.append("#x_label "+str(self.x_label))
+
+		if self.y_label!="":
+			lines.append("#y_label "+str(self.y_label))
+
+		if self.z_label!="":
+			lines.append("#z_label "+str(self.z_label))
+
+		if self.data_label!="":
+			lines.append("#data_label "+str(self.data_label))
+
+		if self.x_units!="":
+			lines.append("#x_units "+str(self.x_units))
+
+		if self.y_units!="":
+			lines.append("#y_units "+str(self.y_units))
+
+		if self.z_units!="":
+			lines.append("#y_units "+str(self.z_units))
+
+		if self.data_units!="":
+			lines.append("#data_units "+str(self.data_units))
+
+		if self.logy!=False:
+			lines.append("#logy "+str(self.logy))
+
+		if self.logx!=False:
+			lines.append("#logx "+str(self.logx))
+
+		if self.logz!=False:
+			lines.append("#logz "+str(self.logz))
+
+		lines.append("#time "+str(self.time))
+		lines.append("#Vexternal "+str(self.Vexternal))
+		lines.append("#x "+str(self.x_len))
+		lines.append("#y "+str(self.y_len))
+		lines.append("#z "+str(self.z_len))
+
+		lines.append("#begin")
+
+		for i in range(0,self.y_len):
+			y_text=str('{:.8e}'.format(float(self.y_scale[i])))
+			data_text=str('{:.8e}'.format(float(self.data[0][0][i])))
+			lines.append(y_text+" "+data_text)
+
+		lines.append("#end")
+
+		return lines

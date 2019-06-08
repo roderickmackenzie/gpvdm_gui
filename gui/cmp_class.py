@@ -32,7 +32,7 @@ from inp import inp_save
 from inp import inp_load_file
 from inp import inp_search_token_value
 from plot_widget import plot_widget
-from dat_file_class import dat_file
+from dat_file import dat_file
 from plot_io import plot_load_info
 from cal_path import get_exe_command
 from icon_lib import icon_get

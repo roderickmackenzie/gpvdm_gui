@@ -36,7 +36,6 @@ from PyQt5.QtCore import pyqtSignal
 from help import help_window
 
 from dat_file import dat_file
-from dat_file import dat_file_read
 from dat_file_math import dat_file_max_min
 from PyQt5.QtCore import QTimer
 from icon_lib import icon_get
@@ -77,7 +76,7 @@ class snapshot_slider(QWidget):
 			fname=os.path.join(self.dirs[i],self.files_combo.currentText())
 
 			my_data=dat_file()
-			if dat_file_read(my_data,fname) == True:
+			if my_data.load(fname) == True:
 				#print(z)
 				temp_max,temp_min=dat_file_max_min(my_data)
 

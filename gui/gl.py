@@ -80,7 +80,6 @@ from util import str2bool
 import random
 
 from dat_file import dat_file
-from dat_file import dat_file_read
 from dat_file_math import dat_file_max_min
 
 import glob
@@ -671,7 +670,7 @@ if open_gl_ok==True:
 		def load_data(self):
 			lines=[]
 
-			if dat_file_read(self.graph_data,self.graph_path)==True:
+			if self.graph_data.load(self.graph_path)==True:
 				#print(self.graph_path)
 				self.graph_z_max,self.graph_z_min=dat_file_max_min(self.graph_data)
 				#print(self.graph_z_max,self.graph_z_min)

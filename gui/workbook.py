@@ -26,8 +26,6 @@
 #
 
 
-from dat_file_class import dat_file
-
 work_book_enabled=False
 try:
 	from openpyxl import Workbook
@@ -40,7 +38,6 @@ except:
 import glob
 import os
 from plot_io import plot_load_info
-from dat_file import dat_file_read
 from dat_file import dat_file
 
 from inp import inp_load_file
@@ -135,11 +132,11 @@ def gen_workbook(input_file_or_dir,output_file):
 		#print("about to save1",my_file)
 		#print(my_file)
 		data=dat_file()
-		if dat_file_read(data,my_file,guess=False)==True:
+		if data.load(my_file,guess=False)==True:
 			x=[]
 			y=[]
 			z=[]
-			if dat_file_read(data,my_file)==True:
+			if data.load(my_file)==True:
 				#print("read",my_file)
 				ws = wb.create_sheet(title=title_truncate(os.path.basename(my_file)))
 				ws.cell(column=1, row=1, value=data.title)

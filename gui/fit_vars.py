@@ -30,7 +30,6 @@ from scan_select import select_param
 from token_lib import tokens
 from scan_item import scan_items_get_list
 
-from plot_io import plot_save_oplot_file
 from scan_io import scan_push_to_hpc
 from scan_io import scan_import_from_hpc
 from cal_path import get_exe_command

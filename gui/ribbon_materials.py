@@ -50,44 +50,57 @@ from ribbon_base import ribbon_base
 
 class ribbon_materials(ribbon_base):
 	def main_toolbar(self):
-		self.main_toolbar = QToolBar()
-		self.main_toolbar.setToolButtonStyle( Qt.ToolButtonTextUnderIcon)
-		self.main_toolbar.setIconSize(QSize(42, 42))
+		toolbar = QToolBar()
+		toolbar.setToolButtonStyle( Qt.ToolButtonTextUnderIcon)
+		toolbar.setIconSize(QSize(42, 42))
 
 		self.cost = QAction(icon_get("cost"), _("Cost"), self)
 		self.cost.setStatusTip(_("Cost of material"))
 		#self.cost.triggered.connect(self.callback_cost)
-		self.main_toolbar.addAction(self.cost)
+		toolbar.addAction(self.cost)
 
 		self.folder_open= QAction(icon_get("folder"), _("Material\ndirectory"), self)
-		#self.folder_open.triggered.connect(self.callback_dir_open)
-		self.main_toolbar.addAction(self.folder_open)
+		toolbar.addAction(self.folder_open)
 
 		self.tb_ref= QAction(icon_get("ref"), wrap_text(_("Insert reference information"),8), self)
-		self.main_toolbar.addAction(self.tb_ref)
+		toolbar.addAction(self.tb_ref)
 
 		self.tb_save = QAction(icon_get("document-save-as"), _("Save image"), self)
-		self.main_toolbar.addAction(self.tb_save)
-
-		self.import_data= QAction(icon_get("import"), _("Import data"), self)
-		self.main_toolbar.addAction(self.import_data)
-
+		toolbar.addAction(self.tb_save)
 
 		spacer = QWidget()
 		spacer.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
-		self.main_toolbar.addWidget(spacer)
+		toolbar.addWidget(spacer)
 
 		self.help = QAction(icon_get("internet-web-browser"), _("Help"), self)
-		self.main_toolbar.addAction(self.help)
+		toolbar.addAction(self.help)
 
-		return self.main_toolbar
+		return toolbar
 
+	def import_toolbar(self):
+		toolbar = QToolBar()
+		toolbar.setToolButtonStyle( Qt.ToolButtonTextUnderIcon)
+		toolbar.setIconSize(QSize(42, 42))
+
+		self.import_data= QAction(icon_get("import"), _("From file"), self)
+		toolbar.addAction(self.import_data)
+
+		self.equation= QAction(icon_get("vars"), _("From\nEquation"), self)
+		toolbar.addAction(self.equation)
+
+
+		return toolbar
 
 	def __init__(self):
 		ribbon_base.__init__(self)
 
 		w=self.main_toolbar()
 		self.addTab(w,_("File"))
+
+		w=self.import_toolbar()
+		self.addTab(w,_("Import"))
+
+		self.setCurrentIndex(1)
 
 		sheet=self.readStyleSheet(os.path.join(get_css_path(),"style.css"))
 		if sheet!=None:

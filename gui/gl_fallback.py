@@ -56,7 +56,6 @@ import numpy as np
 from math import pi,acos,sin,cos
 
 from dat_file import dat_file
-from dat_file import dat_file_read
 from global_objects import global_object_register
 from inp import inp_search_token_array
 from cal_path import get_sim_path
@@ -219,7 +218,7 @@ class gl_fallback(QWidget,gl_base_widget):
 
 		qp.setPen(pen)
 		data=dat_file()
-		if dat_file_read(data,os.path.join(get_sim_path(),"light_dump","light_1d_photons_tot_norm.dat"))==True:
+		if data.load(os.path.join(get_sim_path(),"light_dump","light_1d_photons_tot_norm.dat"))==True:
 			for i in range(1,data.y_len):
 				
 				x0=(start_x-data.data[0][0][i-1]*40-10)

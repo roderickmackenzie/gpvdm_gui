@@ -31,7 +31,7 @@ from inp import inp_get_token_value
 from plot import check_info_file
 from used_files_menu import used_files_menu
 from plot_gen import plot_gen
-from dat_file_class import dat_file
+from dat_file import dat_file
 from cmp_class import cmp_class
 from token_lib import tokens
 
@@ -39,7 +39,6 @@ from token_lib import tokens
 from scan_plot import scan_gen_plot_data
 from server import server_find_simulations_to_run
 
-from plot_io import plot_save_oplot_file
 from gpvdm_open import gpvdm_open
 from cal_path import get_exe_command
 from icon_lib import icon_get
@@ -192,7 +191,6 @@ class scan_vbox(QWidget):
 		#print("scanning",self.sim_dir)
 		plot_files, plot_labels, config_file = scan_gen_plot_data(plot_token,self.sim_dir)
 		#print(plot_files, plot_labels)
-		plot_save_oplot_file(config_file,plot_token)
 		plot_gen(plot_files,plot_labels,config_file)
 
 		self.last_plot_data=plot_token

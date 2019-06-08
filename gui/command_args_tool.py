@@ -44,7 +44,7 @@ from scan_tree import tree_gen
 
 from server import base_server
 from cal_path import get_exe_command
-from dat_file_class import dat_file
+from dat_file import dat_file
 from plot_io import plot_load_info
 from scan_plot import scan_gen_plot_data
 from server_io import server_find_simulations_to_run

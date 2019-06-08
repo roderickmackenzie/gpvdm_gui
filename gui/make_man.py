@@ -29,9 +29,8 @@
 
 import glob
 import operator
-from dat_file_class import dat_file
 from plot_io import plot_load_info
-from dat_file_class import dat_file
+from dat_file import dat_file
 
 def make_man():
 	file_paths = []  # List which will store all of the full filepaths.

@@ -46,13 +46,9 @@ from PyQt5.QtCore import pyqtSignal
 
 from open_save_dlg import open_as_filter
 
-from dat_file import dat_file_read
+from plot_io import plot_load_info
 from dat_file import dat_file
 
-from plot_io import plot_load_info
-from dat_file_class import dat_file
-
-from plot_io import gen_header_from_token
 
 from PyQt5.QtCore import pyqtSignal
 
@@ -214,7 +210,6 @@ class import_data(QDialog):
 		self.file_name=None
 		resize_window_to_be_sane(self,0.6,0.7)
 		self.data=dat_file()
-		self.info_token=dat_file()
 
 		#self.setFixedSize(900, 600)
 		self.setWindowIcon(icon_get("import"))
@@ -419,12 +414,33 @@ class import_data(QDialog):
 		self.top_widget.setLayout(self.top_vbox)
 
 	def gen_output(self):
-		text="#gpvdm\n"
-		text=text+"\n".join(gen_header_from_token(self.info_token))
-		text=text+"\n"
+		text="\n".join(self.data.gen_output_data())
+		self.out_data.setText(text)
 
-		y_all=[]
-		data_all=[]
+	def update(self):
+		ret=dat_file_import_filter(self.data,self.file_name,x_col=self.x_spin.value(),y_col=self.data_spin.value())
+		if ret==True:
+			self.populate_boxes()
+		else:
+			return False
+
+		self.data.title=self.get_title()
+
+		self.data.y_label=self.get_xlabel()
+		self.data.data_label=self.get_data_label()
+
+		self.data.y_units=self.x_units
+		self.data.data_units=self.data_units
+		
+		self.data.y_mul=self.x_disp_mul
+		self.data.data_mul=self.data_disp_mul
+
+		self.data.x_len=self.data.x_len
+		self.data.y_len=self.data.y_len
+		self.data.z_len=self.data.z_len
+
+
+		#rescale the data
 		for i in range(0,self.data.y_len):
 			y=0
 			y_command="self.data.y_scale[i]*"+self.x_mul_to_si
@@ -439,41 +455,14 @@ class import_data(QDialog):
 			if self.data_invert.isChecked() == True:
 				data=data*-1
 
-			y_all.append(y)
-			data_all.append(data)
+			self.data.data[0][0][i]=data
+			self.data.y_scale[i]=y
 
-		y_all, data_all = zip(*sorted(zip(y_all, data_all)))
+			#y_all.append(y)
+			#data_all.append(data)
 
-		for i in range(0,self.data.y_len):
-			y_text=str('{:.8e}'.format(float(y_all[i])))
-			data_text=str('{:.8e}'.format(float(data_all[i])))
-			text=text+y_text+" "+data_text+"\n"
+		self.data.y_scale, self.data.data[0][0] = zip(*sorted(zip(self.data.y_scale, self.data.data[0][0])))
 
-		text=text+"#end\n"
-		self.out_data.setText(text)
-
-	def update(self):
-		ret=dat_file_import_filter(self.data,self.file_name,x_col=self.x_spin.value(),y_col=self.data_spin.value())
-		if ret==True:
-			self.populate_boxes()
-		else:
-			return False
-
-		self.info_token.title=self.get_title()
-
-		self.info_token.data_label=self.get_xlabel()
-		self.info_token.data_label=self.get_data_label()
-
-		self.info_token.data_units=self.data_units
-		self.info_token.data_units=self.data_units
-		
-		self.info_token.data_mul=self.data_disp_mul
-		self.info_token.data_mul=self.data_disp_mul
-
-		self.info_token.x_len=self.data.x_len
-		self.info_token.y_len=self.data.y_len
-		self.info_token.z_len=self.data.z_len
-				
 		self.gen_output()
 
 	def callback_plot(self):
@@ -507,7 +496,7 @@ class import_data(QDialog):
 				self.raw_data_path.setText(self.file_name)
 				self.raw_data.setText(text)
 
-				got_info=plot_load_info(self.info_token,self.file_name)
+				#got_info=plot_load_info(self.info_token,self.file_name)
 				self.ribbon.import_data.setEnabled(True)
 				self.ribbon.plot.setEnabled(True)
 

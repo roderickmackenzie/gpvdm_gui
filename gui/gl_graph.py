@@ -31,7 +31,6 @@ from math import fabs
 from cal_path import get_sim_path
 
 from dat_file import dat_file
-from dat_file import dat_file_read
 
 try:
 	from OpenGL.GL import *
@@ -54,7 +53,7 @@ def draw_mode(x,y,z,z_size):
 	data=dat_file()
 			
 	path=os.path.join(get_sim_path(),"light_dump","light_1d_photons_tot_norm.dat")
-	if dat_file_read(data,path)==True:
+	if data.load(path)==True:
 		array_len=data.y_len
 		s=data.data[0][0]
 		s.reverse()

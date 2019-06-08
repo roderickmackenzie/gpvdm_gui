@@ -53,7 +53,7 @@ from plot_widget import plot_widget
 
 from ribbon_materials import ribbon_materials
 from import_data import import_data
-
+from equation_editor import equation_editor
 
 articles = []
 mesh_articles = []
@@ -110,6 +110,8 @@ class materials_main(QWidgetSavePos):
 		self.ribbon.cost.triggered.connect(self.callback_cost)
 		self.ribbon.folder_open.triggered.connect(self.callback_dir_open)
 		self.ribbon.import_data.triggered.connect(self.import_data)
+		self.ribbon.equation.triggered.connect(self.callback_equation_editor)
+
 		self.ribbon.tb_ref.triggered.connect(self.callback_ref)
 
 		self.ribbon.help.triggered.connect(self.callback_help)
@@ -155,6 +157,40 @@ class materials_main(QWidgetSavePos):
 		self.setLayout(self.main_vbox)
 		
 		self.notebook.currentChanged.connect(self.changed_click)
+
+	def callback_equation_editor(self):
+		equation_file=None
+		file_name=None
+		data_label=""
+		data_units=""
+		if self.notebook.tabText(self.notebook.currentIndex()).strip()==_("Absorption"):
+			file_name="alpha.gmat"
+			equation_file="alpha_eq.inp"
+			data_label="Absorption"
+			data_units="m^{-1}"
+
+
+		if self.notebook.tabText(self.notebook.currentIndex()).strip()==_("Refractive index"):
+			file_name="n.gmat"
+			equation_file="n_eq.inp"
+			data_label="n"
+			data_units="au"
+
+		if file_name!=None:
+			output_file=os.path.join(self.path,file_name)
+			config_file=os.path.join(self.path,file_name+"import.inp")
+
+			self.equation_editor=equation_editor(self.path,equation_file,file_name)
+			self.equation_editor.data_written.connect(self.update)
+
+			self.equation_editor.data.y_label="Wavelength"
+			self.equation_editor.data.data_label=data_label
+
+			self.equation_editor.data.y_units="nm"
+			self.equation_editor.data.data_units=data_units
+			self.equation_editor.load()
+
+			self.equation_editor.show()
 
 	def import_data(self):
 		file_name=None

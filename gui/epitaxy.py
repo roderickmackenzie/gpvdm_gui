@@ -332,10 +332,9 @@ class epitaxy():
 
 				inp_copy_file(new_pl_file,pl_path)
 
-		print(">>>>>>>>>><<<<<<<<<<<")
+
 
 		if data=="active layer" and l.lumo_file.startswith("lumo")==False:
-			print("!!!!!!!!!>>>>>>>>add bew lumo layer")
 			l.lumo_file=self.new_lumo_file()
 
 			new_lumo_file=l.lumo_file+".inp"
@@ -343,7 +342,7 @@ class epitaxy():
 				lumo_path=os.path.join(get_materials_path(),"lumo.inp")
 				if os.path.isfile(lumo_path)==False:
 					lumo_path=os.path.join(get_default_material_path(),"lumo.inp")
-				print("copy>>>>>>>>>>>",new_lumo_file,lumo_path)
+
 				inp_copy_file(new_lumo_file,lumo_path)
 
 		if data=="active layer" and l.homo_file.startswith("homo")==False:

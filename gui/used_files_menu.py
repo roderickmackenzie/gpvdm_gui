@@ -27,7 +27,7 @@
 
 
 import os
-from dat_file_class import dat_file
+from dat_file import dat_file
 import glob
 from plot_io import plot_load_info
 

@@ -28,7 +28,7 @@
 import os
 import shutil
 import re
-from dat_file_class import dat_file
+from dat_file import dat_file
 
 
 def dat_file_max_min(my_data):

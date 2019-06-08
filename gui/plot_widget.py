@@ -48,7 +48,6 @@ from matplotlib.colors import LogNorm
 from util import numbers_to_latex
 from util import pygtk_to_latex_subscript
 from util import fx_with_units
-from plot_io import plot_save_oplot_file
 from util import time_with_units
 
 #qt
@@ -60,7 +59,6 @@ from PyQt5.QtGui import QPainter,QIcon,QImage
 from icon_lib import icon_get
 from open_save_dlg import save_as_image
 
-from dat_file import dat_file_read
 from dat_file_math import dat_file_max_min
 from dat_file_math import dat_file_sub
 from dat_file_math import dat_file_mul
@@ -143,7 +141,6 @@ class plot_widget(QWidget):
 
 
 			self.fig.canvas.draw()
-			plot_save_oplot_file(self.config_file,self.data[0])
 
 	def do_clip(self):
 		buf = io.BytesIO()
@@ -348,7 +345,7 @@ class plot_widget(QWidget):
 		
 		for i in range(0,len(self.input_files)):
 			dat=dat_file()
-			ret=dat_file_read(dat,self.input_files[i])
+			ret=dat.load(self.input_files[i])
 			self.data.append(dat)
 
 
@@ -449,12 +446,10 @@ class plot_widget(QWidget):
 
 	def callback_black(self):
 		if len(self.data)>0:
-			plot_save_oplot_file(self.config_file,self.data[0])
 			self.do_plot()
 
 	def callback_rainbow(self):
 		if len(self.data)>0:
-			plot_save_oplot_file(self.config_file,self.data[0])
 			self.do_plot()
 
 	def callback_save(self):
@@ -465,7 +460,6 @@ class plot_widget(QWidget):
 		if len(self.data)>0:
 			self.data[0].legend_pos=widget.get_label()
 			#print(self.config_file,self.data[0])
-			plot_save_oplot_file(self.config_file,self.data[0])
 			self.do_plot()
 
 	def callback_units(self):
@@ -473,7 +467,6 @@ class plot_widget(QWidget):
 			units=dlg_get_text( "Units:", self.data[0].key_units)
 			if units!=None:
 				self.data[0].key_units=units
-			plot_save_oplot_file(self.config_file,self.data[0])
 			self.do_plot()
 
 
@@ -490,42 +483,35 @@ class plot_widget(QWidget):
 	def callback_normtoone_y(self):
 		if len(self.data)>0:
 			self.data[0].normalize= not self.data[0].normalize
-			plot_save_oplot_file(self.config_file,self.data[0])
 			self.norm_data()
 			self.do_plot()
 
 	def callback_norm_to_peak_of_all_data(self):
 		if len(self.data)>0:
 			self.data[0].norm_to_peak_of_all_data=not self.data[0].norm_to_peak_of_all_data
-			plot_save_oplot_file(self.config_file,self.data[0])
 			self.norm_data()
 			self.do_plot()
 
 	def callback_toggle_log_scale_y(self):
 		if len(self.data)>0:
 			self.data[0].logy=not self.data[0].logy
-			plot_save_oplot_file(self.config_file,self.data[0])
 			self.norm_data()
 			self.do_plot()
 
 	def callback_toggle_log_scale_x(self):
 		if len(self.data)>0:
 			self.data[0].logx=not self.data[0].logx
-			plot_save_oplot_file(self.config_file,self.data[0])
 			self.norm_data()
 			self.do_plot()
 
 	def callback_toggle_label_data(self):
 		if len(self.data)>0:
 			self.data[0].label_data=not self.data[0].label_data
-			plot_save_oplot_file(self.config_file,self.data[0])
 			self.do_plot()
 
 	def callback_set_heat_map(self):
 		if len(self.data)>0:
 			self.data[0].type="heat"
-			plot_save_oplot_file(self.config_file,self.data[0])
-			plot_save_oplot_file(self.config_file,self.data[0])
 			self.do_plot()
 
 	def callback_heat_map_edit(self):
@@ -543,28 +529,24 @@ class plot_widget(QWidget):
 			self.data[0].y_stop=float(e)
 			self.data[0].y_points=float(f)
 
-			plot_save_oplot_file(self.config_file,self.data[0])
 			self.do_plot()
 
 
 	def callback_toggle_invert_y(self):
 		if len(self.data)>0:
 			self.data[0].invert_y=not self.data[0].invert_y
-			plot_save_oplot_file(self.config_file,self.data[0])
 			self.norm_data()
 			self.do_plot()
 
 	def callback_toggle_subtract_first_point(self):
 		if len(self.data)>0:
 			self.data[0].subtract_first_point=not self.data[0].subtract_first_point
-			plot_save_oplot_file(self.config_file,self.data[0])
 			self.norm_data()
 			self.do_plot()
 
 	def callback_toggle_add_min(self):
 		if len(self.data)>0:
 			self.data[0].add_min=not self.data[0].add_min
-			plot_save_oplot_file(self.config_file,self.data[0])
 			self.norm_data()
 			self.do_plot()
 

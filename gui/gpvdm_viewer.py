@@ -29,7 +29,7 @@
 import os
 from util import gpvdm_delete_file
 from plot_io import get_plot_file_info
-from dat_file_class import dat_file
+from dat_file import dat_file
 
 #qt
 from PyQt5.QtGui import QIcon

@@ -215,7 +215,7 @@ class ribbon_sim_mode(QToolBar):
 		QToolBar.__init__(self)
 		self.actions=[]
 		self.order=["jv","jv_perovskite","|","sun_voc","suns_jsc","equilibrium","|","TPC","TPV","|","IS", "IMPS","|", "CELIV","Photo"]
-		self.dont_show=["opticalmodel","photon_extraction"]
+		self.dont_show=["photon_extraction"]
 		self.myserver=server_get()
 
 		self.setToolButtonStyle( Qt.ToolButtonTextUnderIcon)

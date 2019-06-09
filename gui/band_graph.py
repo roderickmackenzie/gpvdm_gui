@@ -162,10 +162,12 @@ class band_graph(QWidget):
 			archive=os.path.basename(os.path.dirname(mat_file))+".zip"
 
 			material_type=inp_get_token_value(mat_file, "#material_type",archive=archive)
+			unknown_lumo_eg=False
 
 			if epitaxy_get_electrical_layer(i).startswith("dos")==False:
 				dos_file=os.path.join(get_materials_path(),layer_material,'dos.inp')
 				if os.path.isfile(dos_file)==False:
+					unknown_lumo_eg=True
 					dos_file=os.path.join(get_default_material_path(),"dos.inp")
 
 				lines=inp_load_file(dos_file,archive=archive)
@@ -201,19 +203,24 @@ class band_graph(QWidget):
 			self.layer_end.append(x_pos)
 			self.layer_name.append(layer_material)
 
-			item=ax2.text(x_pos-delta/1.5, y_name_pos, epitaxy_get_name(i))
+			rot=0
+			if epitaxy_get_layers()>5:
+				rot=90
+			item=ax2.text(x_pos-delta/1.5, y_name_pos, epitaxy_get_name(i), rotation=rot)
 			item.set_fontsize(15)
 
 			lumo_shape = [lumo,lumo,lumo_delta,lumo_delta]
 			ax2.fill(x,lumo_shape, color[layer],alpha=0.4)
-			item=ax2.text(x_pos-delta/1.5, lumo+0.1, "%.2f eV" % lumo)
-			item.set_fontsize(15)
+			if unknown_lumo_eg==False:
+				item=ax2.text(x_pos-delta/1.5, lumo+0.1, "%.2f eV" % lumo)
+				item.set_fontsize(15)
 
 			if draw_homo==True:
 				homo_shape = [homo,homo,homo_delta,homo_delta]
 				ax2.fill(x,homo_shape, color[layer],alpha=0.4)
-				item=ax2.text(x_pos-delta/1.5, lumo-Eg-0.4, "%.2f eV" % homo)
-				item.set_fontsize(15)
+				if unknown_lumo_eg==False:
+					item=ax2.text(x_pos-delta/1.5, lumo-Eg-0.4, "%.2f eV" % homo)
+					item.set_fontsize(15)
 
 			layer=layer+1
 

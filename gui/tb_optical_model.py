@@ -44,7 +44,7 @@ class tb_optical_model(QWidget):
 
 	def __init__(self):
 		QWidget.__init__(self)
-		self.dump_dir=os.path.join(get_sim_path(),"light_dump")
+		self.dump_dir=os.path.join(get_sim_path(),"optical_output")
 
 		self.layout=QVBoxLayout()
 		label=QLabel(_("Optical model")+":")

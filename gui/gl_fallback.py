@@ -218,7 +218,7 @@ class gl_fallback(QWidget,gl_base_widget):
 
 		qp.setPen(pen)
 		data=dat_file()
-		if data.load(os.path.join(get_sim_path(),"light_dump","light_1d_photons_tot_norm.dat"))==True:
+		if data.load(os.path.join(get_sim_path(),"optical_output","light_1d_photons_tot_norm.dat"))==True:
 			for i in range(1,data.y_len):
 				
 				x0=(start_x-data.data[0][0][i-1]*40-10)

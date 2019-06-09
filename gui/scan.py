@@ -60,6 +60,7 @@ from QWidgetSavePos import QWidgetSavePos
 from scan_ribbon import scan_ribbon
 from css import css_apply
 from error_dlg import error_dlg
+from scan_item import scan_items_populate_from_files
 
 class scan_class(QWidgetSavePos):
 
@@ -345,6 +346,7 @@ class scan_class(QWidgetSavePos):
 
 		self.load_tabs()
 
+		scan_items_populate_from_files()
 		self.setLayout(self.main_vbox)
 
 	def callback_plot(self):

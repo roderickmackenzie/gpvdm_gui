@@ -43,7 +43,7 @@ class fx_selector(QWidget):
 
 	def __init__(self):
 		QWidget.__init__(self)
-		self.dump_dir=os.path.join(get_sim_path(),"light_dump")
+		self.dump_dir=os.path.join(get_sim_path(),"optical_output")
 
 		self.layout=QVBoxLayout()
 		label=QLabel(_("Wavelengths")+":")
@@ -71,7 +71,7 @@ class fx_selector(QWidget):
 	def find_modes(self,path):
 		result = []
 		lines=[]
-		dump_dir=os.path.join(get_sim_path(),"light_dump")
+		dump_dir=os.path.join(get_sim_path(),"optical_output")
 		path=os.path.join(dump_dir,"wavelengths.dat")
 
 		if os.path.isfile(path)==True:

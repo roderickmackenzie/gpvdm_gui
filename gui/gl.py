@@ -456,7 +456,10 @@ if open_gl_ok==True:
 			self.update()
 
 		def draw_photons(self,x0,z0):
-			y=scale_get_device_y()
+			if self.light_illuminate_from=="bottom":
+				y=-1.5
+			else:
+				y=scale_get_device_y()
 
 			if self.suns!=0:
 				if self.suns<=0.01:
@@ -474,7 +477,7 @@ if open_gl_ok==True:
 				z=np.arange(z0, z0+scale_get_device_z() , den)
 				for i in range(0,len(x)):
 					for ii in range(0,len(z)):
-						draw_photon(x[i],y+0.1,z[ii],False)
+						draw_photon(x[i],y+0.1,z[ii],False,color=[0.0, 1.0, 0.0])
 
 			if self.emission==True and self.ray_model==False:
 				den=1.2
@@ -484,8 +487,8 @@ if open_gl_ok==True:
 				z=np.arange(z0, z0+scale_get_device_z() , den)
 				for i in range(0,len(x)):
 					for ii in range(0,len(z)):
-						draw_photon(x[i]+0.1,y+0.1,z[ii],True)
-						#draw_photon(x[i]+0.1,y[ii]+0.1,z[ii],True)
+						draw_photon(x[i]+0.1,y+0.1,z[ii],True,color=[0.0, 0.0, 1.0])
+
 
 
 		def bix_axis(self):
@@ -678,7 +681,7 @@ if open_gl_ok==True:
 			self.dump_energy_slice_xpos=int(inp_get_token_value(os.path.join(get_sim_path(),"dump.inp"), "#dump_energy_slice_xpos"))
 			self.dump_energy_slice_ypos=int(inp_get_token_value(os.path.join(get_sim_path(),"dump.inp"), "#dump_energy_slice_ypos"))
 			self.dump_energy_slice_zpos=int(inp_get_token_value(os.path.join(get_sim_path(),"dump.inp"), "#dump_energy_slice_zpos"))
-
+			self.light_illuminate_from=inp_get_token_value(os.path.join(get_sim_path(),"light.inp"), "#light_illuminate_from")
 			self.dump_1d_slice_xpos=int(inp_get_token_value(os.path.join(get_sim_path(),"dump.inp"), "#dump_1d_slice_xpos"))
 			self.dump_1d_slice_zpos=int(inp_get_token_value(os.path.join(get_sim_path(),"dump.inp"), "#dump_1d_slice_zpos"))
 

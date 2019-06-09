@@ -56,6 +56,7 @@ from epitaxy import epitaxy_get_mat_file
 from epitaxy import epitaxy_get_electrical_layer
 from epitaxy import epitaxy_get_width
 from epitaxy import epitaxy_get_name
+from epitaxy import epitaxy_get_device_start
 
 #inp
 from inp import inp_load_file
@@ -127,7 +128,7 @@ class band_graph(QWidget):
 		self.my_figure.clf()
 		self.layer_end=[]
 		self.layer_name=[]
-		self.optical_mode_file=os.path.join(get_sim_path(),"light_dump",self.data_file)
+		self.optical_mode_file=os.path.join(get_sim_path(),"optical_output",self.data_file)
 
 		self.my_figure.clf()
 		ax1 = self.my_figure.add_subplot(111)
@@ -137,11 +138,9 @@ class band_graph(QWidget):
 		color =['r','g','b','y','o','r','g','b','y','o','r','g','b','y','o','r','g','b','y','o']
 		start=0.0
 
-		for i in range(0,epitaxy_get_layers()):
-			if epitaxy_get_electrical_layer(i).startswith("dos")==False:
-				start=start-epitaxy_get_width(i)
-			else:
-				break
+		device_start=epitaxy_get_device_start()
+		if device_start!=None:
+			start=start-device_start
 
 		start=start*1e9
 

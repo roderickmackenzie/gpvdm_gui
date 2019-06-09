@@ -438,6 +438,9 @@ class gpvdm_viewer(QListWidget):
 						elif dir_type=="snapshots":
 							itm.file_name=fl
 							itm.icon="cover_flow"
+						elif dir_type=="light":
+							itm.file_name=fl
+							itm.icon="optics2"
 						elif dir_type=="material":
 							itm.file_name=fl
 							itm.icon="organic_material"
@@ -701,6 +704,10 @@ class gpvdm_viewer(QListWidget):
 				self.mat_window=spectra_main(full_path)
 				self.mat_window.show()
 				return
+			if dir_type=="light":
+				from optics import class_optical 
+				self.optics_window=class_optical()
+				self.optics_window.show()
 
 			if dir_type=="material":
 				from materials_main import materials_main

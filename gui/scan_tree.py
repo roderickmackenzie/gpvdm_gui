@@ -181,18 +181,19 @@ def tree_gen(flat_simulation_list,program_list,base_dir,sim_dir):
 
 	return ret
 
-def tree_apply_mirror(directory,program_list):
+def tree_apply_duplicate(directory,program_list):
 	for i in range(0, len(program_list)):
 		#print(program_list[i])
-		if program_list[i][2]=="mirror":
+		if program_list[i][2]=="duplicate":
+			print(program_list[i])
 			f=scan_items_get_file(program_list[i][3])
 			t=scan_items_get_token(program_list[i][3])
 
-			#print(f,t,program_list[i][3])
+			print(os.path.join(directory,f), t)
 			src_value=inp_get_token_value(os.path.join(directory,f), t)
-			#print("mirror src",f,t,src_value)
+			print(os.path.join(directory,program_list[i][0]), program_list[i][1], src_value)
 			inp_update_token_value(os.path.join(directory,program_list[i][0]), program_list[i][1], src_value)
-			#print("mirror to",os.path.join(directory,program_list[i][0]), program_list[i][1])
+			#print("duplicate to",os.path.join(directory,program_list[i][0]), program_list[i][1])
 	return True
 
 def tree_apply_constant(directory,program_list):
@@ -251,7 +252,7 @@ def tree_gen_random_files(sim_path,flat_simulation_list,program_list,base_dir):
 			if tree_apply_python_script(cur_dir,program_list)==False:
 				return False
 
-			tree_apply_mirror(cur_dir,program_list)
+			tree_apply_duplicate(cur_dir,program_list)
 
 			archive_compress(os.path.join(cur_dir,"sim.gpvdm"))
 
@@ -309,7 +310,7 @@ def tree(flat_simulation_list,program_list,tree_items,base_dir,level,path,var_to
 					inp_update_token_value(file_path, tree_items[1][int(pos[i])], new_values[i])
 					#print("updating", file_path, tree_items[1][int(pos[i])], new_values[i])
 
-				tree_apply_mirror(cur_dir,program_list)
+				tree_apply_duplicate(cur_dir,program_list)
 
 				inp_update_token_value(os.path.join(cur_dir,"dump.inp"), "#plot", "0")
 

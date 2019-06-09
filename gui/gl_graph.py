@@ -52,7 +52,7 @@ def draw_mode(x,y,z,z_size):
 
 	data=dat_file()
 			
-	path=os.path.join(get_sim_path(),"light_dump","light_1d_photons_tot_norm.dat")
+	path=os.path.join(get_sim_path(),"optical_output","light_1d_photons_tot_norm.dat")
 	if data.load(path)==True:
 		array_len=data.y_len
 		s=data.data[0][0]

@@ -134,15 +134,12 @@ def draw_grid():
 
 
 
-def draw_photon(x,y,z,up):
+def draw_photon(x,y,z,up,color=[0.0, 1.0, 0.0]):
 	gl_save_add("photon",x,-1.0,z,[int(up)])
 	glLineWidth(3)
 	length=0.9
-	if up==True:
-		set_color(0.0, 0.0, 1.0,"photon",alpha=0.5)
-	else:
-		set_color(0.0, 1.0, 0.0,"photon",alpha=0.5)
 
+	set_color(color[0], color[1], color[2],"photon",alpha=0.5)
 
 	wx=np.arange(0, length , 0.025)
 	wy=np.sin(wx*3.14159*8)*0.2

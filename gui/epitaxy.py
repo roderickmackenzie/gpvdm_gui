@@ -598,6 +598,8 @@ def epitaxy_get_device_start():
 			return pos
 
 		pos=pos+epi.layers[i].width
+
+	return None
 	
 def epitaxy_get_layers():
 	global epi

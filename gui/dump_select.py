@@ -326,7 +326,7 @@ class dump_select(QWidget):
 		param_list.extend(files)
 		tf_list.extend(true_false)
 
-		files,true_false=self.scan_dir("light_dump")
+		files,true_false=self.scan_dir("optical_output")
 		param_list.extend(files)
 		tf_list.extend(true_false)
 

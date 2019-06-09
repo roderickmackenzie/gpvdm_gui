@@ -383,7 +383,7 @@ class scan_vbox(QWidget):
 		self.rebuild_op_type_widgets()
 		self.save_combo()
 
-	def combo_mirror_changed(self):
+	def combo_duplicate_changed(self):
 		#print("combo changed")
 		for i in range(0,self.tab.rowCount()):
 			found=False
@@ -391,17 +391,17 @@ class scan_vbox(QWidget):
 
 			if value == "constant":
 				found=True
-				if tab_get_value(self.tab,i,3)=="mirror":
+				if tab_get_value(self.tab,i,3)=="duplicate":
 					tab_set_value(self.tab,i,3,"0.0")
 	
 			if value == "scan":
 				found=True
-				if tab_get_value(self.tab,i,3)=="mirror":
+				if tab_get_value(self.tab,i,3)=="duplicate":
 					tab_set_value(self.tab,i,3,"0.0 0.0 0.0")
 
 			if value == "python_code":
 				found=True
-				if tab_get_value(self.tab,i,3)=="mirror":
+				if tab_get_value(self.tab,i,3)=="duplicate":
 					tab_set_value(self.tab,i,3,"0.0")
 
 			if value == "random_file_name":
@@ -409,11 +409,11 @@ class scan_vbox(QWidget):
 				tab_set_value(self.tab,i,0,"not needed")
 				tab_set_value(self.tab,i,1,"not needed")
 				tab_set_value(self.tab,i,2,"not needed")
-				if tab_get_value(self.tab,i,3)=="mirror":
+				if tab_get_value(self.tab,i,3)=="duplicate":
 					tab_set_value(self.tab,i,3,"10")
 
 			if found==False:
-				tab_set_value(self.tab,i,3,"mirror")
+				tab_set_value(self.tab,i,3,"duplicate")
 
 		self.save_combo()
 
@@ -506,7 +506,7 @@ class scan_vbox(QWidget):
 			self.tab.setCellWidget(i,4, combobox)
 			
 			tab_set_value(self.tab,i,4,save_value)
-			combobox.currentIndexChanged.connect(self.combo_mirror_changed)
+			combobox.currentIndexChanged.connect(self.combo_duplicate_changed)
 		self.tab.blockSignals(False)
 
 	def set_tab_caption(self,name):

@@ -78,14 +78,12 @@ class class_optical(QWidget):
 		self.line_number=[]
 		self.articles=[]
 		input_files=[]
-		input_files.append(os.path.join(get_sim_path(),"light_dump","light_2d_photons.dat"))
-		input_files.append(os.path.join(get_sim_path(),"light_dump","light_2d_photons_asb.dat"))
-		input_files.append(os.path.join(get_sim_path(),"light_dump","reflect.dat"))
+		input_files.append(os.path.join(get_sim_path(),"optical_output","light_2d_photons.dat"))
+		input_files.append(os.path.join(get_sim_path(),"optical_output","light_2d_photons_asb.dat"))
 
 		plot_labels=[]
 		plot_labels.append(_("Photon distribution"))
 		plot_labels.append(_("Photon distribution absorbed"))
-		plot_labels.append(_("Reflection"))
 
 
 		self.setGeometry(300, 300, 600, 600)
@@ -102,7 +100,9 @@ class class_optical(QWidget):
 		self.ribbon.help.triggered.connect(self.callback_help)
 
 		self.ribbon.tb_save.triggered.connect(self.callback_save)
-		
+
+		self.ribbon.configwindow.triggered.connect(self.callback_configwindow)
+
 		self.main_vbox.addWidget(self.ribbon)
 
 
@@ -124,10 +124,6 @@ class class_optical(QWidget):
 		self.fig_gen_rate = band_graph()
 		self.fig_gen_rate.set_data_file("light_1d_Gn.dat")
 		self.notebook.addTab(self.fig_gen_rate,_("Generation rate"))
-
-		widget=tab_class()
-		widget.init(os.path.join(get_sim_path(),"light.inp"),_("Optical setup"))
-		self.notebook.addTab(widget,_("Optical setup"))
 
 
 		self.plot_widgets=[]
@@ -154,6 +150,11 @@ class class_optical(QWidget):
 
 		self.setLayout(self.main_vbox)
 
+
+	def callback_configwindow(self):
+		widget=tab_class()
+		widget.init(os.path.join(get_sim_path(),"light.inp"),_("Optical setup"))
+		widget.show()
 
 	def callback_save(self):
 		tab = self.notebook.currentWidget()

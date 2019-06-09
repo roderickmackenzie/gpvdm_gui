@@ -80,7 +80,7 @@ class display_widget(QWidget):
 		self.hbox.addWidget(self.display)
 	
 	def update_ray_file(self):
-		self.display.ray_file=os.path.join(get_sim_path(),"light_dump","light_ray_"+self.fx_box.get_text()+".dat")
+		self.display.ray_file=os.path.join(get_sim_path(),"optical_output","light_ray_"+self.fx_box.get_text()+".dat")
 
 	def __init__(self):
 		QWidget.__init__(self)

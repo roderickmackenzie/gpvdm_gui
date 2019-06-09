@@ -74,9 +74,6 @@ class optics_ribbon(ribbon_base):
 		self.fx_box.update()
 		toolbar.addWidget(self.fx_box)
 		
-		self.optial_model=tb_optical_model()
-		toolbar.addWidget(self.optial_model)
-
 		self.spectrum=tb_spectrum()
 		toolbar.addWidget(self.spectrum)
 
@@ -87,6 +84,19 @@ class optics_ribbon(ribbon_base):
 
 		self.help = QAction(icon_get("help"), _("Help"), self)
 		toolbar.addAction(self.help)
+		return toolbar
+
+	def configure(self):
+		toolbar = QToolBar()
+		toolbar.setToolButtonStyle( Qt.ToolButtonTextUnderIcon)
+		toolbar.setIconSize(QSize(42, 42))
+		
+		self.configwindow = QAction(icon_get("preferences-system"), _("Configure"), self)
+		toolbar.addAction(self.configwindow)
+
+		self.optial_model=tb_optical_model()
+		toolbar.addWidget(self.optial_model)
+
 		return toolbar
 
 
@@ -111,6 +121,8 @@ class optics_ribbon(ribbon_base):
 		w=self.optics()
 		self.addTab(w,_("Optics"))
 
+		w=self.configure()
+		self.addTab(w,_("Configure"))
 
 		sheet=self.readStyleSheet(os.path.join(get_css_path(),"style.css"))
 		if sheet!=None:

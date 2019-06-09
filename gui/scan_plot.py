@@ -206,7 +206,7 @@ def scan_gen_plot_data(plot_token,base_path):
 				if text.endswith("dynamic"):
 					text=text[:-7]
 
-				if text.endswith("light_dump"):
+				if text.endswith("optical_output"):
 					text=text[:-10]
 
 				if text[0]=="/" or "\\":

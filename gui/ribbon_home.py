@@ -206,7 +206,7 @@ class ribbon_home(QToolBar):
 			self.fit_window=fit_window("fit")
 			server_get().set_fit_update_function(self.fit_window.update)
 
-		help_window().help_set_help(["fit.png",_("<big><b>Fit window</b></big><br> Use this window to fit the simulation to experimental data.")])
+		help_window().help_set_help(["fit.png",_("<big><b>Fit window</b></big><br> Use this window to fit the simulation to experimental data.  Gpvdm uses advanced and optimized fitting algorithms to fit the model to your experimental data, so that material parameters such as mobilities and recombination rates can be extracted."),"youtube",_("<big><b><a href=\"https://www.youtube.com/watch?v=61umU4hrsqk\">Watch the tutorial video 1</b></big><br>Fitting gpvdm to experimental data to extract mobility and recombination rate parameters."),"youtube",_("<big><b><a href=\"https://www.youtube.com/watch?v=_cm3Cb3kzUg\">Watch the tutorial video 2</b></big><br>Fitting gpvdm to large area solar cells")])
 		if self.fit_window.isVisible()==True:
 			self.fit_window.hide()
 		else:

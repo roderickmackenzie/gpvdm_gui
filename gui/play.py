@@ -47,12 +47,13 @@ from server import server_get
 from lock import get_lock
 from lock_gui import lock_gui
 
+from QAction_lock import QAction_lock
 
 dump_fast=0
 dump_slow=1
 dump_custom=2
 
-class play(QAction):
+class play(QAction_lock):
 
 	start_sim = pyqtSignal()
 	stop_sim = pyqtSignal()
@@ -75,12 +76,12 @@ class play(QAction):
 			else:
 				server_get().killall()
 
-	def __init__(self,parent,play_icon="media-playback-start",run_text=_("Run simulation")):
+	def __init__(self,parent,play_icon="media-playback-start",run_text=_("Run simulation"),locked=False):
 		self.play_icon=play_icon
 		self.run_text=run_text
 		self.running=False
-		QAction.__init__(self,icon_get(self.play_icon),self.run_text,parent)
-		self.triggered.connect(self.do_emit)
+		QAction_lock.__init__(self,self.play_icon,self.run_text,parent,locked=locked)
+		self.secure_click.connect(self.do_emit)
 		server_get().sim_started.connect(self.start)
 		server_get().sim_finished.connect(self.stop)
 

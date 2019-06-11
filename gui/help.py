@@ -31,7 +31,7 @@ from cal_path import get_icon_path
 import webbrowser
 
 from PyQt5.QtCore import QSize, Qt
-from PyQt5.QtGui import QIcon
+from PyQt5.QtGui import QIcon,QFont
 from PyQt5.QtWidgets import QWidget, QVBoxLayout,QProgressBar,QLabel,QDesktopWidget,QToolBar,QHBoxLayout,QAction,QSizePolicy,QStatusBar
 from PyQt5.QtGui import QPixmap
 
@@ -102,8 +102,12 @@ class help_class(QWidget):
 			label.setWordWrap(True)
 			label.setOpenExternalLinks(True)
 			image=QLabel()
-			image.setFixedWidth(48)
+			font = QFont()
+			font.setPointSize(18)
+			label.setFont(font)
 
+			image.setFixedWidth(64)
+			image.setAlignment(Qt.AlignLeft | Qt.AlignTop)
 			self.box.append( QWidget())
 			self.image.append(image)
 			label.setAlignment(Qt.AlignLeft | Qt.AlignTop)
@@ -180,16 +184,18 @@ class help_class(QWidget):
 		items=int(len(self.last[self.pos])/2)
 		for i in range(0,5):
 			self.box[i].hide()
-
+		tot_height=0
+		line_height=20
 		for i in range(0,items):
 			all_text=self.last[self.pos][i*2+1]
 			nbr=all_text.count("<br>")
 			end_text=len(all_text.split("<br>")[-1])
-			pixmap = QPixmap(get_icon_path(self.last[self.pos][i*2],size=32))
+			pixmap = QPixmap(get_icon_path(self.last[self.pos][i*2],size=64))
 			self.image[i].setPixmap(pixmap)
 			text=all_text+"<br>"
 			self.label[i].setText(text)
-			height=((end_text/80)+nbr)*20
+			height=len(all_text)
+			tot_height=tot_height+height+nbr*line_height
 			
 			#self.label[i].setFixedSize(380,300)
 			self.label[i].adjustSize()
@@ -197,7 +203,7 @@ class help_class(QWidget):
 			self.box[i].show()
 			#self.image[i].show()
 
-		self.resize(300, items*self.item_height)
+		#self.resize(300, tot_height+80)	#items*self.item_height
 
 		self.forward.setEnabled(True)
 		self.back.setEnabled(True)
@@ -209,6 +215,7 @@ class help_class(QWidget):
 			self.forward.setEnabled(False)
 
 		self.status_bar.showMessage(str(self.pos)+"/"+str(len(self.last)-1))
+		self.adjustSize()
 
 	def help_set_help(self,array):
 		add=True

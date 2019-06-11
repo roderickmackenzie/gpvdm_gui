@@ -83,8 +83,7 @@ class widget_error_han(QDialog):
 		h_box=QHBoxLayout()
 		h_widget.setLayout(h_box)
 		image=QLabel()
-		icon=icon_get("warning",48)
-		print(icon)
+		icon=icon_get("warning")
 		image.setPixmap(icon.pixmap(icon.actualSize(QSize(48, 48))))
 		h_box.addWidget(image)
 
@@ -92,7 +91,7 @@ class widget_error_han(QDialog):
 		
 		self.message = QTextEdit()
 		help_text="<big><b>An error has occurred please report this error by clicking ok:<b></big><br><br>"
-		help_text2="<br><br><big><b>It would also help if you e-mailed the error message to roderick.mackenzie@nottingham.ac.uk and described what you were doing with the model to make it crash.  Very often there is not enough information in bug reports alone to fix the problem.<br><br>All error reports are gratefully received.<br><br>Rod 5/9/16<b></big>"
+		help_text2="<br><br><big><b>It would also help if you e-mailed the error message to info@gpvdm.com and described what you were doing with the model to make it crash.  Very often there is not enough information in bug reports alone to fix the problem.<br><br>All error reports are gratefully received.<br><br>Rod 5/9/16<b></big>"
 		self.message.setText(help_text+long_error+help_text2)
 		h_box.addWidget(self.message)
 		
@@ -128,10 +127,10 @@ class widget_error_han(QDialog):
 		self.label_reporting.hide()
 		self.spin.hide()
 		if sucess==True:
-			error_dlg(self,"I have reported the error, for more information e-mail roderick.mackenzie@nottingham.ac.uk")
+			error_dlg(self,"I have reported the error, for more information e-mail info@gpvdm.com")
 			self.close()
 		else:
-			error_dlg(self,"I could not report the error please send the error message to roderick.mackenzie@nottingham.ac.uk")
+			error_dlg(self,"I could not report the error please send the error message to info@gpvdm.com")
 			self.close()
 
 	def close_clicked(self):

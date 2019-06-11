@@ -146,11 +146,10 @@ class fit_window(QWidgetSavePos):
 
 	def __init__(self,name):
 		QWidgetSavePos.__init__(self,name)
-
 		self.main_vbox = QVBoxLayout()
 
 		#self.setFixedSize(900, 700)
-		self.setWindowTitle(_("Fit window")+" https://www.gpvdm.com")   
+		self.setWindowTitle(_("Fit the simulation to experimental data")+" https://www.gpvdm.com")   
 		self.setWindowIcon(icon_get("fit"))
 
 		toolbar=QToolBar()

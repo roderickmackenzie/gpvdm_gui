@@ -50,7 +50,7 @@ from PyQt5.QtWidgets import QWidget
 
 from urllib.parse import quote
 from PyQt5.QtCore import QTimer
-
+from lock import get_lock
 
 class report_error(QWidget):
 	reported = pyqtSignal(bool)
@@ -60,13 +60,8 @@ class report_error(QWidget):
 		self.error=""
 
 	def tx_error(self,n):
-		page="http://www.gpvdm.com/bug.html?ver_core="+ver_core()+"."+ver_subver()+"error="+quote(self.error)
-		message=get_data_from_web(page)
-		print("from web:",message)
-		if message.startswith("ok")==True:
-			self.reported.emit(True)
-		else:
-			self.reported.emit(False)
+		get_lock().report_bug(self.error)
+		self.reported.emit(True)
 
 	def set_error(self,error):
 		self.error=error

@@ -97,13 +97,16 @@ class gpvdm_notebook(QTabWidget):
 			help_window().help_set_help(["device.png",_("<big><b>The device structure tab</b></big><br> Use this tab to change the structure of the device, the layer thicknesses and to perform optical simulations.  You can also browse the materials data base and  edit the electrical mesh.")])
 
 		if self.tabText(self.currentIndex()).strip()==_("Electrical parameters"):
-			help_window().help_set_help(["tab.png",_("<big><b>The electrical parameters</b></big>\nThis tab contains the electrical model parameters, such as mobility, tail slope energy, and band gap.")])
+			help_window().help_set_help(["tab.png",_("<big><b>The electrical parameters</b></big><br>This tab contains the electrical model parameters, such as mobility, tail slope energy, and band gap.")])
 
 		if self.tabText(self.currentIndex()).strip()==_("Terminal"):
-			help_window().help_set_help(["utilities-terminal.png",_("<big><b>The terminal window</b></big>\nThe output of the model will be displayed in this window, watch this screen for debugging and convergence information.")])
+			help_window().help_set_help(["utilities-terminal.png",_("<big><b>The terminal window</b></big><br>The output of the model will be displayed in this window, watch this screen for debugging and convergence information.")])
 
-		if self.tabText(self.currentIndex()).strip()==_("Information"):
-			help_window().help_set_help(["help.png",_("<big><b>On-line help</b></big>\nYou can view the on-line help and manual here.")])
+		if self.tabText(self.currentIndex()).strip()==_("Tutorials/Documentation"):
+			help_window().help_set_help(["help.png",_("<big><b>Tutorials/Documentation</b></big><br>Here you can find tutorials, videos, worksheets, and talks about gpvdm and simulating opto-electronic devices in general.  Although gpvdm is easy to use with it's friendly interface, under the hood gpvdm is a highly complex model and powerful model, it is worth taking time to read the documentation to understand it.  This will enable you to get the most out of gpvdm and your experimental data.")])
+
+		if self.tabText(self.currentIndex()).strip()==_("Output"):
+			help_window().help_set_help(["dat_file.png",_("<big><b>Output</b></big><br>This shows the root simulation directory, this is where the results are stored.  Double click on a file to see what is in it..")])
 		
 	def get_current_page(self):
 		i=self.currentIndex()

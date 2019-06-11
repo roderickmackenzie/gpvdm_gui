@@ -182,14 +182,16 @@ class plot_widget(QWidget):
 			print(_("I don't know how to process this type of file!"),self.data[0].x_len, self.data[0].y_len,self.data[0].z_len)
 			return
 
-		title=self.data[0].title
-		if self.data[0].time!=-1.0 and self.data[0].Vexternal!=-1.0:
-			mul,unit=time_with_units(self.data[0].time)
-			title=self.data[0].title+" V="+str(self.data[0].Vexternal)+" "+_("time")+"="+str(self.data[0].time*mul)+" "+unit
+		if self.hide_title==False:
+			print(">>>>>>>>>>>title")
+			title=self.data[0].title
+			if self.data[0].time!=-1.0 and self.data[0].Vexternal!=-1.0:
+				mul,unit=time_with_units(self.data[0].time)
+				title=self.data[0].title+" V="+str(self.data[0].Vexternal)+" "+_("time")+"="+str(self.data[0].time*mul)+" "+unit
 
-		self.fig.suptitle(title)
+			self.fig.suptitle(title)
 
-		self.setWindowTitle(title+" - www.gpvdm.com")
+			self.setWindowTitle(title+" - www.gpvdm.com")
 
 		self.ax=[]
 
@@ -327,7 +329,7 @@ class plot_widget(QWidget):
 			if len(files)<40:
 				self.fig.legend(all_plots, files, self.data[0].legend_pos)
 			
-		#self.fig.tight_layout(pad=0.0, w_pad=0.0, h_pad=0.0)
+		#self.fig.tight_layout(pad=0.0, w_pad=0.0, h_pad=0.0,axes_pad=0.0)
 		self.fig.canvas.draw()
 		#print("exit do plot")
 
@@ -561,6 +563,7 @@ class plot_widget(QWidget):
 		self.data=[]
 		self.input_files=[]
 		self.config_file=""
+		self.hide_title=False
 		QWidget.__init__(self)
 		self.setWindowIcon(icon_get("plot"))
 

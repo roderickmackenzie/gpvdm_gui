@@ -68,6 +68,8 @@ from ribbon_file import ribbon_file
 from PyQt5.QtCore import pyqtSignal
 import webbrowser
 
+from help import help_window
+
 class QLabel_click(QLabel):
 	clicked=pyqtSignal()
 	def __init(self, parent):
@@ -139,6 +141,7 @@ class ribbon(ribbon_base):
 		self.simulations=ribbon_simulations()
 		self.addTab(self.simulations,_("Simulation Editors"))
 		self.simulations.experiments_changed.connect(self.ribbon_sim_mode.update)
+
 		self.configure=ribbon_configure()
 		self.addTab(self.configure,_("Configure"))
 		
@@ -157,7 +160,8 @@ class ribbon(ribbon_base):
 
 		#self.setStyleSheet("QWidget {	background-color:cyan; }") 
 		css_apply(self,"style.css")
-			
+		
+		self.currentChanged.connect(self.changed_click)
 
 	def callback_cluster_connect(self):
 		dialog=connect_to_cluster()
@@ -180,4 +184,20 @@ class ribbon(ribbon_base):
 		else:
 			status_icon_stop(False)
 			self.cluster_button.setIcon(icon_get("not_connected"))
+
+	def changed_click(self):
+
+		if self.tabText(self.currentIndex()).strip()==_("Simulation Editors"):
+			help_window().help_set_help(["sunsvoc.png",_("<big><b>Simulation Editors</b></big><br> Use this tab to edit the simulation you wish to perform, you can choose from steady state measurments such as JV curve/Suns-Voc, time domain or frequency domain.  You can also choose to use advanced optical models to understand your data.")])
+
+		if self.tabText(self.currentIndex()).strip()==_("Configure"):
+			help_window().help_set_help(["preferences-system.png",_("<big><b>Configure</b></big><br> Use this tab to control advanced features of the simulation, such as finite difference mesh, amount of data written to disk, and the configuration of the back end numerical solvers.")])
+		if self.tabText(self.currentIndex()).strip()==_("Simulation type"):
+			help_window().help_set_help(["jv.png",_("<big><b>Simulation type</b></big><br> Use this tab to select which simulation mode the model runs in, select between steady state, time domain, frequency domain and optical simulations.")])
+
+		if self.tabText(self.currentIndex()).strip()==_("Databases"):
+			help_window().help_set_help(["spectra_file.png",_("<big><b>Databases</b></big><br> Use this tab to explore the materials and optical data bases, you can add and download more materials/optical models using the tools here.")])
+
+		if self.tabText(self.currentIndex()).strip()==_("Information"):
+			help_window().help_set_help(["youtube.png",_("<big><b>Information</b></big><br> Access extra information about the model in this tab, there are lots of tutorial videos on YouTube, follow on Twitter for the latest updates.")])
 

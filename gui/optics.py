@@ -58,19 +58,22 @@ from server import server_get
 from global_objects import global_object_run
 from global_objects import global_object_delete
 from cal_path import get_sim_path
+from QWidgetSavePos import QWidgetSavePos
 
 from optics_ribbon import optics_ribbon
 
 from css import css_apply
+from gui_util import yes_no_dlg
 
-class class_optical(QWidget):
+class class_optical(QWidgetSavePos):
 
 	def __init__(self):
-		QWidget.__init__(self)
+		QWidgetSavePos.__init__(self,"optics")
+
 		self.setWindowIcon(icon_get("optics"))
 
-		#return
 		self.setMinimumSize(1000, 600)
+		self.setWindowTitle(_("Optical simulation editor")+" (https://www.gpvdm.com)")    
 
 		self.ribbon=optics_ribbon()
 
@@ -85,9 +88,6 @@ class class_optical(QWidget):
 		plot_labels.append(_("Photon distribution"))
 		plot_labels.append(_("Photon distribution absorbed"))
 
-
-		self.setGeometry(300, 300, 600, 600)
-		self.setWindowTitle(_("Optical simulation editor")+" (https://www.gpvdm.com)")    
 
 		self.setWindowIcon(icon_get("optics"))
 
@@ -113,23 +113,11 @@ class class_optical(QWidget):
 		self.notebook.setMovable(True)
 
 
-		self.fig_photon_density = band_graph()
-		self.fig_photon_density.set_data_file("light_1d_photons_tot_norm.dat")
-		self.notebook.addTab(self.fig_photon_density,_("Photon density"))
-
-		self.fig_photon_abs = band_graph()
-		self.fig_photon_abs.set_data_file("light_1d_photons_tot_abs_norm.dat")
-		self.notebook.addTab(self.fig_photon_abs,_("Photon absorbed"))
-
-		self.fig_gen_rate = band_graph()
-		self.fig_gen_rate.set_data_file("light_1d_Gn.dat")
-		self.notebook.addTab(self.fig_gen_rate,_("Generation rate"))
-
-
 		self.plot_widgets=[]
 		self.progress_window.start()
 		for i in range(0,len(input_files)):
 			self.plot_widgets.append(plot_widget())
+			self.plot_widgets[i].hide_title=True
 			self.plot_widgets[i].init(enable_toolbar=False)
 			self.plot_widgets[i].set_labels([plot_labels[0]])
 			self.plot_widgets[i].load_data([input_files[i]],os.path.splitext(input_files[i])[0]+".oplot")
@@ -138,9 +126,22 @@ class class_optical(QWidget):
 			#self.plot_widgets[i].show()
 			self.notebook.addTab(self.plot_widgets[i],plot_labels[i])
 
+		self.fig_photon_density = band_graph()
+		self.fig_photon_density.set_data_file("light_1d_photons_tot_norm.dat")
+		self.notebook.addTab(self.fig_photon_density,_("Photon density"))
+
+		#self.fig_photon_abs = band_graph()
+		#self.fig_photon_abs.set_data_file("light_1d_photons_tot_abs_norm.dat")
+		#self.notebook.addTab(self.fig_photon_abs,_("Photon absorbed"))
+
+		self.fig_gen_rate = band_graph()
+		self.fig_gen_rate.set_data_file("light_1d_Gn.dat")
+		self.notebook.addTab(self.fig_gen_rate,_("Generation rate"))
+
+
 
 		self.fig_photon_density.draw_graph()
-		self.fig_photon_abs.draw_graph()
+		#self.fig_photon_abs.draw_graph()
 		self.fig_gen_rate.draw_graph()
 		self.progress_window.stop()
 
@@ -150,6 +151,12 @@ class class_optical(QWidget):
 
 		self.setLayout(self.main_vbox)
 
+		if os.path.isfile(os.path.join(get_sim_path(),"optical_output","light_2d_photons.dat"))==False:
+			response=yes_no_dlg(self,"You have not yet run a full optical simulation, to use this feature you need to.  Would you run one now?")
+			if response == True:
+				self.callback_run()
+			else:
+				self.close()
 
 	def callback_configwindow(self):
 		widget=tab_class()
@@ -185,7 +192,7 @@ class class_optical(QWidget):
 		#self.fig_photon_density.canvas.draw()
 
 		#self.fig_photon_abs.my_figure.clf()
-		self.fig_photon_abs.draw_graph()
+		#self.fig_photon_abs.draw_graph()
 		#self.fig_photon_abs.canvas.draw()
 
 		#self.fig_gen_rate.my_figure.clf()
@@ -226,14 +233,14 @@ class class_optical(QWidget):
 		if cb_text=="all":
 			self.fig_photon_density.set_data_file("light_1d_photons_tot_norm.dat")
 			self.fig_photon_density.draw_graph()
-			self.fig_photon_abs.set_data_file("light_1d_photons_tot_abs_norm.dat")
-			self.fig_photon_abs.draw_graph()
+			#self.fig_photon_abs.set_data_file("light_1d_photons_tot_abs_norm.dat")
+			#self.fig_photon_abs.draw_graph()
 		else:
 			self.fig_photon_density.set_data_file("light_1d_"+cb_text+"_photons_norm.dat")
 			self.fig_photon_density.draw_graph()
 
-			self.fig_photon_abs.set_data_file("light_1d_"+cb_text+"_photons_abs.dat")
-			self.fig_photon_abs.draw_graph()
+			#self.fig_photon_abs.set_data_file("light_1d_"+cb_text+"_photons_abs.dat")
+			#self.fig_photon_abs.draw_graph()
 
 		#self.force_redraw()
 		#self.update()

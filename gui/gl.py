@@ -456,10 +456,13 @@ if open_gl_ok==True:
 			self.update()
 
 		def draw_photons(self,x0,z0):
+			up_photons=False
+			device_top=scale_get_device_y()
 			if self.light_illuminate_from=="bottom":
 				y=-1.5
+				up_photons=True
 			else:
-				y=scale_get_device_y()
+				y=device_top
 
 			if self.suns!=0:
 				if self.suns<=0.01:
@@ -477,7 +480,7 @@ if open_gl_ok==True:
 				z=np.arange(z0, z0+scale_get_device_z() , den)
 				for i in range(0,len(x)):
 					for ii in range(0,len(z)):
-						draw_photon(x[i],y+0.1,z[ii],False,color=[0.0, 1.0, 0.0])
+						draw_photon(x[i],y+0.1,z[ii],up_photons,color=[0.0, 1.0, 0.0])
 
 			if self.emission==True and self.ray_model==False:
 				den=1.2
@@ -487,7 +490,7 @@ if open_gl_ok==True:
 				z=np.arange(z0, z0+scale_get_device_z() , den)
 				for i in range(0,len(x)):
 					for ii in range(0,len(z)):
-						draw_photon(x[i]+0.1,y+0.1,z[ii],True,color=[0.0, 0.0, 1.0])
+						draw_photon(x[i]+0.1,device_top+0.1,z[ii],True,color=[0.0, 0.0, 1.0])
 
 
 

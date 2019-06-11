@@ -52,6 +52,7 @@ from help import help_window
 from global_objects import global_object_register
 
 from gpvdm_open import gpvdm_open
+from QAction_lock import QAction_lock
 
 class ribbon_configure(QToolBar):
 	def __init__(self):
@@ -72,7 +73,11 @@ class ribbon_configure(QToolBar):
 		self.mesh = QAction(icon_get("mesh"), _("Electrical\nmesh"), self)
 		self.mesh.triggered.connect(self.callback_edit_mesh)		
 		self.addAction(self.mesh)
-		
+
+		self.pl = QAction_lock("thermal", _("Temperature"), self,locked=True)
+		#self.pl.triggered.connect(self.callback_pl_window)
+		self.addAction(self.pl)
+
 	def update(self):
 		if self.config_window!=None:
 			del self.config_window

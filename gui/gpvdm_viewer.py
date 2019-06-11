@@ -767,7 +767,7 @@ class gpvdm_viewer(QListWidget):
 			if (file_name.endswith(".dat")==True):
 				state=dat_file()
 				get_plot_file_info(state,full_path)
-				summary="<big><b>"+file_name+"</b></big><br><br>"+_("title")+": "+state.title+"<br>"+_("x axis")+": "+state.x_label+" ("+latex_to_html(state.x_units)+")<br>"+_("y axis")+": "+state.data_label+" ("+latex_to_html(state.data_units)+")<br><br><big><b>"+_("Double click to open")+"</b></big>"
+				summary="<big><b>"+file_name+"</b></big><br><br>"+_("title")+": "+state.title+"<br>"+_("x axis")+": "+state.y_label+" ("+latex_to_html(state.y_units)+")<br>"+_("y axis")+": "+state.data_label+" ("+latex_to_html(state.data_units)+")<br><br><big><b>"+_("Double click to open")+"</b></big>"
 				help_window().help_set_help(["dat_file.png",summary])
 
 			if file_name.endswith("equilibrium"):

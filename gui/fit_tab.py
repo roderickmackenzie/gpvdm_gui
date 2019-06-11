@@ -87,7 +87,7 @@ class fit_tab(QTabWidget):
 		self.addTab(self.tmesh_real,_("Experimental data"))
 
 		self.tmesh = fit_window_plot(self.index)
-		self.addTab(self.tmesh,_("Fit error"))
+		self.addTab(self.tmesh,_("Delta=Experiment - Simulation"))
 
 		config=tab_class()
 		config.init(os.path.join(get_sim_path(),"fit"+str(self.index)+".inp"),self.tab_name)

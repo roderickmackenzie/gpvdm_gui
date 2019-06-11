@@ -168,7 +168,7 @@ class ribbon_simulations(QToolBar):
 
 	def setEnabled(self,val):
 		self.time.setEnabled(val)
-		#self.fx.setEnabled(val)
+		self.fx.setEnabled(val)
 		self.jv.setEnabled(val)
 		self.qe.setEnabled(val)
 		#self.mode.setEnabled(val)
@@ -233,7 +233,7 @@ class ribbon_simulations(QToolBar):
 			self.plexperiment_window=plexperiment()
 			#self.experiment_window.changed.connect(self.callback_experiments_changed)
 
-		help_window().help_set_help(["pl.png",_("<big><b>PL simulation editor</b></big><br> Use this window to configure the steady state photoluminescence simulation.")])
+		help_window().help_set_help(["pl.png",_("<big><b>PL simulation editor</b></big><br> Use this window to configure the steady state photoluminescence simulation."),"youtube",_("<big><b><a href=\"https://www.youtube.com/watch?v=pgaJg6dErP4\">Watch the youtube video</a></b></big><br>Watch the video on simulating PL using gpvdm")])
 		if self.plexperiment_window.isVisible()==True:
 			self.plexperiment_window.hide()
 		else:

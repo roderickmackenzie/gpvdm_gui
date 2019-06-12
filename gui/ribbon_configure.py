@@ -53,6 +53,9 @@ from global_objects import global_object_register
 
 from gpvdm_open import gpvdm_open
 from QAction_lock import QAction_lock
+from gui_util import dlg_get_text
+from inp import inp_get_token_value
+from inp import inp_update_token_value
 
 class ribbon_configure(QToolBar):
 	def __init__(self):
@@ -75,8 +78,15 @@ class ribbon_configure(QToolBar):
 		self.addAction(self.mesh)
 
 		self.pl = QAction_lock("thermal", _("Temperature"), self,locked=True)
-		#self.pl.triggered.connect(self.callback_pl_window)
+		self.pl.triggered.connect(self.callback_thermal)
 		self.addAction(self.pl)
+
+	def callback_thermal(self):
+		temp=inp_get_token_value("thermal.inp", "#Tll")
+		new_temp=dlg_get_text( _("Enter the new temperature"), temp,"thermal.png")
+		if new_temp.ret!=None:
+			inp_update_token_value("thermal.inp", "#Tll", new_temp.ret)
+			print(new_temp.ret)
 
 	def update(self):
 		if self.config_window!=None:

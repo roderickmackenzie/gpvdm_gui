@@ -39,6 +39,11 @@ from epitaxy import epitaxy_get_epi
 
 from contacts_io import contacts_get_array
 
+from util import is_numbered_file
+from epitaxy import get_epi
+
+import re
+
 #import shutil
 
 check_list=[]
@@ -86,21 +91,35 @@ def scan_items_populate_from_files():
 	
 		for i in range(0,len(file_list)):
 			print(file_list[i])
-			if file_list[i].startswith("dos")==True and file_list[i].endswith(".inp")==True:
+			if is_numbered_file(file_list[i],"dos")==True:
 				name=epitaxy_dos_file_to_layer_name(file_list[i])
 				if name!=False:
 					scan_populate_from_file(file_list[i],human_name=os.path.join("epitaxy",name,"dos"))
 
-			if file_list[i].startswith("jv")==True and file_list[i].endswith(".inp")==True:
+			if is_numbered_file(file_list[i],"lumo")==True:
+				epi=get_epi()
+				index=epi.find_layer_index_from_file_name(file_list[i])
+				if index!=False:
+					name=epi.layers[index].name
+					scan_populate_from_file(file_list[i],human_name=os.path.join("epitaxy",name,"lumo"))
+
+			if is_numbered_file(file_list[i],"homo")==True:
+				epi=get_epi()
+				index=epi.find_layer_index_from_file_name(file_list[i])
+				if index!=False:
+					name=epi.layers[index].name
+					scan_populate_from_file(file_list[i],human_name=os.path.join("epitaxy",name,"homo"))
+
+			if is_numbered_file(file_list[i],"jv")==True:
 				name=inp_get_token_value(os.path.join(get_sim_path(),file_list[i]),"#sim_menu_name")
 				name=name.split("@")[0]
 				scan_populate_from_file(file_list[i],human_name=os.path.join("jv",name))
 
-			if file_list[i].startswith("laser")==True and file_list[i].endswith(".inp")==True:
+			if is_numbered_file(file_list[i],"laser")==True:
 				name=inp_get_token_value(os.path.join(get_sim_path(),file_list[i]),"#laser_name")
 				scan_populate_from_file(file_list[i],human_name=os.path.join("laser",name))
 
-			if file_list[i].startswith("time_mesh_config")==True and file_list[i].endswith(".inp")==True:
+			if is_numbered_file(file_list[i],"time_mesh_config")==True:
 				number=file_list[i][len("time_mesh_config"):-4]
 				name=inp_get_token_value(os.path.join(get_sim_path(),"pulse"+number+".inp"),"#sim_menu_name")
 				name=name.split("@")[0]
@@ -201,6 +220,8 @@ def scan_populate_from_file(filename,human_name=""):
 				result=my_token_lib.find(token)
 				if result!=False:
 					if scan_items_index_item(token)==-1:
-						
-						scan_item_add(filename,token,os.path.join(human_name,result.info),1)
+						numbered=""
+						if bool(re.match(".+_\d+$",token.strip()))==True:	#search for function_0
+							numbered=re.search("\d+$",token).group(0)
+						scan_item_add(filename,token,os.path.join(human_name,numbered,result.info),1)
 

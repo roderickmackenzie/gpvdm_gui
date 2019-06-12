@@ -544,6 +544,26 @@ class epitaxy():
 
 				epi.layers.append(a)
 
+	def find_layer_index_from_file_name(self,input_file):
+		if input_file.endswith(".inp")==True:
+			input_file=input_file[:-4]
+
+		for i in range(0,len(self.layers)):
+			l=self.layers[i]
+			for s in l.shapes:
+				if s.file_name==input_file:
+					return i
+
+			if l.electrical_layer==input_file:
+				return i
+
+			if l.homo_file==input_file:
+				return i
+
+			if l.lumo_file==input_file:
+				return i
+
+		return False
 
 epi=epitaxy()
 
@@ -571,12 +591,9 @@ def epitaxy_get_epi():
 
 def epitaxy_dos_file_to_layer_name(dos_file):
 	global epi
-	if dos_file.endswith(".inp")==True:
-		dos_file=dos_file[:-4]
-
-	for i in range(0,len(epi.layers)):
-		if epi.layers[i].electrical_layer==dos_file:
-			return epi.layers[i].name
+	i=epi.find_layer_index_from_file_name(dos_file)
+	if i!=False:
+		return epi.layers[i].name
 
 	return False
 

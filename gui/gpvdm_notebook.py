@@ -103,7 +103,7 @@ class gpvdm_notebook(QTabWidget):
 			help_window().help_set_help(["utilities-terminal.png",_("<big><b>The terminal window</b></big><br>The output of the model will be displayed in this window, watch this screen for debugging and convergence information.")])
 
 		if self.tabText(self.currentIndex()).strip()==_("Tutorials/Documentation"):
-			help_window().help_set_help(["help.png",_("<big><b>Tutorials/Documentation</b></big><br>Here you can find tutorials, videos, worksheets, and talks about gpvdm and simulating opto-electronic devices in general.  Although gpvdm is easy to use with it's friendly interface, under the hood gpvdm is a highly complex model and powerful model, it is worth taking time to read the documentation to understand it.  This will enable you to get the most out of gpvdm and your experimental data.")])
+			help_window().help_set_help(["help.png",_("<big><b>Tutorials/Documentation</b></big><br>Here you can find tutorials, videos, worksheets, and talks about gpvdm and simulating opto-electronic devices in general.  Although gpvdm is easy to use with it's friendly interface, under the hood gpvdm is a highly complex model and powerful model, it is worth taking time to read the documentation to understand it.  This will enable you to get the most out of gpvdm and your experimental data."),"youtube",_("<big><b><a href=\"https://youtu.be/XBbaogu61Ps\">Watch the video</a></b></big><br> Performing my first solar cell simulation")])
 
 		if self.tabText(self.currentIndex()).strip()==_("Output"):
 			help_window().help_set_help(["dat_file.png",_("<big><b>Output</b></big><br>This shows the root simulation directory, this is where the results are stored.  Double click on a file to see what is in it..")])

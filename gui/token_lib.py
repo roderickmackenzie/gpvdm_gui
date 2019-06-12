@@ -25,6 +25,7 @@
 #  A library of all tokens used in the model.
 #
 
+import re
 
 import i18n
 _ = i18n.language.gettext
@@ -267,8 +268,8 @@ def build_token_lib():
 
 
 	#thermal.inp
-	lib.append(my_data("","#Tll","Kelvin",_("Device temperature on left"),"e",1.0,"QLineEdit"))
-	lib.append(my_data("","#Tlr","Kelvin",_("Device temperature on right"),"e",1.0,"QLineEdit"))
+#	lib.append(my_data("","#Tll","Kelvin",_("Device temperature on left"),"e",1.0,"QLineEdit"))
+#	lib.append(my_data("","#Tlr","Kelvin",_("Device temperature on right"),"e",1.0,"QLineEdit"))
 	lib.append(my_data("","#thermal",_("True/False"),_("Enable thermal solver"),"e",1.0,"gtkswitch"))
 	lib.append(my_data("","#thermal_l",_("True/False"),_("Lattice heat model"),"e",1.0,"gtkswitch"))
 	lib.append(my_data("","#thermal_e",_("True/False"),_("Electron heat model"),"e",1.0,"gtkswitch"))
@@ -360,6 +361,13 @@ def build_token_lib():
 	#crypto.inp
 	lib.append(my_data("","#iv","au",_("Initialization vector"),"e",1.0,"QLineEdit"))
 	lib.append(my_data("","#key","au",_("Cryptographic key"),"e",1.0,"QLineEdit"))
+
+	#lumo?.inp
+	lib.append(my_data("","#function_\d+","au","Function","e",1.0,"QLineEdit"))
+	lib.append(my_data("","#function_enable_\d+","au","Enabled","e",1.0,"QLineEdit"))
+	lib.append(my_data("","#function_a_\d+","au","a","e",1.0,"QLineEdit"))
+	lib.append(my_data("","#function_b_\d+","au","b","e",1.0,"QLineEdit"))
+	lib.append(my_data("","#function_c_\d+","au","c","e",1.0,"QLineEdit"))
 
 	lib.append(my_data("","#I0","Apms",_("I0"),"e",1.0,"QLineEdit"))
 	lib.append(my_data("","#nid","(a.u.)",_("ideality factor"),"e",1.0,"QLineEdit"))
@@ -592,7 +600,7 @@ class tokens:
 	def find(self,token):
 		global lib
 		for i in range(0, len(lib)):
-			if lib[i].token==token.strip():
+			if bool(re.match(lib[i].token,token.strip()))==True:
 				if lib[i].units=="" and lib[i].info=="":
 					return False
 				else:

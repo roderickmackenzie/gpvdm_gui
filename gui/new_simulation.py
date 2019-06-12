@@ -77,7 +77,6 @@ class new_simulation(QDialog):
 
 	def callback_next(self):
 		help_window().help_set_help(["document-save-as.png",_("<big><b>Now save the simulation</b></big><br>Now select where you would like to save the simulation directory.")])
-
 		if len(self.viewer.selectedItems())>0:
 			
 			password=inp_get_token_value("info.inp", "#info_password",archive=self.viewer.file_path)

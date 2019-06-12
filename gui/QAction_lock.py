@@ -52,7 +52,7 @@ class QAction_lock(QAction):
 	def __init__(self,icon_name,text,s,locked=False):
 		sub_icon=None
 		self.locked=False
-
+		self.text=text
 		if get_lock().is_trial()==True:
 			self.locked=locked
 

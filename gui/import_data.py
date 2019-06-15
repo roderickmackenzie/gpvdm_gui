@@ -305,7 +305,7 @@ class import_data(QDialog):
 		self.items.append([_("Refractive index"),"au",_("Refractive index"),"au","1.0",1.0,False])
 		self.items.append([_("Absorption"),"m^{-1}",_("Absorption"),"m^{-1}","1.0",1.0,False])
 		self.items.append([_("Absorption"),"m^{-cm}",_("Absorption"),"m^{-1}","1.0",1e2,False])
-		self.items.append([_("Attenuation coefficient"),"au",_("Absorption"),"m^{-1}","4*3.14159/x",1.0,False])
+		self.items.append([_("Attenuation coefficient"),"au",_("Absorption"),"m^{-1}","4*3.14159/y",1.0,False])
 
 		self.items.append([_("Time"),"s",_("Time"),"s","1.0",1.0,False])
 		self.items.append([_("Suns"),"Suns",_("Suns"),"Suns","1.0",1.0,False])

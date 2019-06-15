@@ -109,7 +109,6 @@ class optics_ribbon(ribbon_base):
 
 	def __init__(self):
 		QTabWidget.__init__(self)
-		self.setMaximumHeight(120)
 		#self.setStyleSheet("QWidget {	background-color:cyan; }")
 
 		self.about = QToolButton(self)

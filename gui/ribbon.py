@@ -100,7 +100,7 @@ class ribbon(ribbon_base):
 	def __init__(self):
 		ribbon_base.__init__(self)
 		self.cluster_tab=None
-		self.setMaximumHeight(140)
+		#self.setMaximumHeight(140)
 
 		#self.setStyleSheet("QWidget {	background-color:cyan; }")
 

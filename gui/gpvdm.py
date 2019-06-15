@@ -552,6 +552,8 @@ class gpvdm_main_window(QMainWindow):
 		self.splash.inc_value()
 
 		vbox.addWidget(self.ribbon)
+		self.ribbon.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Minimum)
+		self.notebook.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
 		vbox.addWidget(self.notebook)
 		wvbox=QWidget()
 		self.splash.inc_value()

@@ -103,6 +103,8 @@ class class_optical(QWidgetSavePos):
 
 		self.ribbon.configwindow.triggered.connect(self.callback_configwindow)
 
+		self.ribbon.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Minimum)
+
 		self.main_vbox.addWidget(self.ribbon)
 
 
@@ -145,7 +147,7 @@ class class_optical(QWidgetSavePos):
 		self.fig_gen_rate.draw_graph()
 		self.progress_window.stop()
 
-
+		self.notebook.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
 		self.main_vbox.addWidget(self.notebook)
 
 

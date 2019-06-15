@@ -207,7 +207,6 @@ def dat_file_import_filter(out,file_name,x_col=0,y_col=1):
 
 def decode_line(line):
 	label=False
-
 	line=re.sub(' +',' ',line)
 	line=re.sub('\t',' ',line)
 
@@ -219,7 +218,8 @@ def decode_line(line):
 				line=line.split("#")[0]
 				labels=True
 
-	line=line.replace(',', '.')	#Remove European commas
+	line=line.replace(', ', ' ')	#remove comman in csv files
+	line=line.replace(',', '.')		#Remove European commas
 	s=line.split()
 
 	return s,label

@@ -198,13 +198,13 @@ class plot_widget(QWidget):
 
 		for i in range(0,len(self.input_files)):
 			if dim=="linegraph":
-				self.ax.append(self.fig.add_subplot(111,axisbg='white'))
+				self.ax.append(self.fig.add_subplot(111,facecolor='white'))
 			elif dim=="wireframe":
-				self.ax.append(self.fig.add_subplot(111,axisbg='white' ,projection='3d'))
+				self.ax.append(self.fig.add_subplot(111,facecolor='white' ,projection='3d'))
 			elif dim=="heat":
-				self.ax.append(self.fig.add_subplot(111,axisbg='white'))
+				self.ax.append(self.fig.add_subplot(111,facecolor='white'))
 			elif dim=="3d":
-				self.ax.append(self.fig.add_subplot(111,axisbg='white' ,projection='3d'))
+				self.ax.append(self.fig.add_subplot(111,facecolor='white' ,projection='3d'))
 			#Only place label on bottom plot
 			#	if self.data[i].type=="3d":
 			#else:

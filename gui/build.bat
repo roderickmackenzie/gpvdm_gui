@@ -1,13 +1,14 @@
 REM <stripall>
-rd /s /q __pycahce__
-rd /s /q dist
-rd /s /q C:\tmp
-mkdir c:\tmp
-xcopy *.* C:\tmp
-C:
-cd C:\tmp\
-pyinstaller --onefile gpvdm.py --icon=Z:\pub\images\icon.ico
-move .\dist\*.exe Z:\pub\
+REM rd /s /q __pycahce__
+REM rd /s /q dist
+REM rd /s /q C:\tmp
+REM mkdir c:\tmp
+REM xcopy *.* C:\tmp
+REM C:
+REM cd C:\tmp\
+pyinstaller --onefile gpvdm.py --icon=C:\Users\rod\Desktop\share\pub\images\icon.ico
+move .\dist\*.exe C:\Users\rod\Desktop\share\pub\
+REM move .\dist\*.exe Z:\pub\
 time /t
-z:
-cd z:\pub\gui
+REM z:
+REM cd z:\pub\gui

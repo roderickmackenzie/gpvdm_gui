@@ -173,6 +173,9 @@ class experiment(QWidgetSavePos):
 		self.notebook.setMovable(True)
 		self.ribbon.order_widget.notebook_pointer=self.notebook
 
+		self.ribbon.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Minimum)
+		self.notebook.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+
 		self.load_tabs()
 
 		self.main_vbox.addWidget(self.notebook)

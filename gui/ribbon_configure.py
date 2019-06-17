@@ -78,7 +78,7 @@ class ribbon_configure(QToolBar):
 		self.addAction(self.mesh)
 
 		self.pl = QAction_lock("thermal", _("Temperature"), self,locked=True)
-		self.pl.triggered.connect(self.callback_thermal)
+		self.pl.secure_click.connect(self.callback_thermal)
 		self.addAction(self.pl)
 
 	def callback_thermal(self):
@@ -108,7 +108,6 @@ class ribbon_configure(QToolBar):
 
 		if self.electrical_mesh==None:
 			self.electrical_mesh=tab_electrical_mesh()
-
 		if self.electrical_mesh.isVisible()==True:
 			self.electrical_mesh.hide()
 		else:

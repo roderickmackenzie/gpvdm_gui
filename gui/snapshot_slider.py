@@ -207,12 +207,17 @@ class snapshot_slider(QWidget):
 		self.files_combo.clear()
 		path=os.path.join(self.path,self.dirs[self.slider0.value()])
 
+		all_files=[]
 		if os.path.isdir(path)==True:
 			for name in os.listdir(path):
 				full_path=os.path.join(path, name)
 				if os.path.isfile(full_path):
 					if name!="snapshot_info.dat":
-						self.files_combo.addItem(name)
+						all_files.append(name)
+
+		all_files.sort()
+		for a in all_files:
+			self.files_combo.addItem(a)
 
 		all_items  = [self.files_combo.itemText(i) for i in range(self.files_combo.count())]
 

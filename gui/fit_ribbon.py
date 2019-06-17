@@ -123,7 +123,6 @@ class fit_ribbon(ribbon_base):
 
 	def __init__(self):
 		ribbon_base.__init__(self)
-		self.setMaximumHeight(130)
 		#self.setStyleSheet("QWidget {	background-color:cyan; }")
 
 

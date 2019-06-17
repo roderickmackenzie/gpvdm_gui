@@ -177,6 +177,9 @@ class fit_window(QWidgetSavePos):
 		self.notebook = QTabWidget()
 		self.ribbon.order_widget.notebook_pointer=self.notebook
 
+		self.ribbon.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Minimum)
+		self.notebook.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+
 		css_apply(self.notebook,"style_h.css")
 		self.notebook.setTabBar(QHTabBar())
 		self.notebook.setTabPosition(QTabWidget.West)

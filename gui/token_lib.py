@@ -309,13 +309,14 @@ def build_token_lib():
 	lib.append(my_data("dump.inp","#dump_first_guess",_("True/False"),_("Write first guess to equations"),"e",1.0,"gtkswitch"))
 	lib.append(my_data("dump.inp","#dump_log_level","au",_("Log verbocity"),"s",1.0,"QComboBoxLang",defaults=[[("none"),_("None")],["screen",_("Screen")],["disk",_("Disk")],["screen_and_disk",_("Screen and disk")]]))
 	lib.append(my_data("dump.inp","#dump_log_level","au",_("Log verbocity"),"s",1.0,"QComboBoxLang",defaults=[[("none"),_("None")],["screen",_("Screen")],["disk",_("Disk")],["screen_and_disk",_("Screen and disk")]]))
+	lib.append(my_data("dump.inp","#dump_dynamic_pl_energy","au",_("PL dump Energy"),"s",1.0,"QLineEdit"))
+	lib.append(my_data("dump.inp","#dump_remove_dos_cache",_("True/False"),_("Clean up DoS cache files"),"e",1.0,"gtkswitch"))
 
-	#pl_experiment?.inp
+	#pl_ss?.inp
 	lib.append(my_data("","#pl_mode","au",_("Device state"),"s",1.0,"QComboBoxLang",defaults=[[("voc"),_("Voc")],["Jsc",_("Jsc")]]))
 
 
 
-	lib.append(my_data("dump.inp","#dump_remove_dos_cache",_("True/False"),_("Clean up DoS cache files"),"e",1.0,"gtkswitch"))
 
 
 	#led.inp
@@ -599,8 +600,12 @@ class tokens:
 
 	def find(self,token):
 		global lib
+		search_token=token.strip()
+		if search_token.startswith("#"):
+			search_token=search_token[1:]
+
 		for i in range(0, len(lib)):
-			if bool(re.match(lib[i].token,token.strip()))==True:
+			if bool(re.match(lib[i].token[1:]+"$",search_token))==True:
 				if lib[i].units=="" and lib[i].info=="":
 					return False
 				else:

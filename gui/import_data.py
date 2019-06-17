@@ -311,7 +311,7 @@ class import_data(QDialog):
 		self.items.append([_("Suns"),"Suns",_("Suns"),"Suns","1.0",1.0,False])
 
 		self.items.append([_("Intensity"),"um^{-1}.Wm^{-2}",_("Intensity"),"m^{-1}.Wm^{-2}","1e6",1.0,False])
-
+		self.items.append([_("Charge density"),"m^{-3}",_("Charge density"),"m^{-3}","1.0",1.0,False])
 		
 		i=0
 		self.x_label=self.items[i][2]

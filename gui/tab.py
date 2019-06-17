@@ -118,7 +118,6 @@ class tab_class(QWidget,tab_base):
 		if token=="#dos_photon_generation":
 			from pl_main import pl_main
 			self.dos_editor=pl_main()
-			print(self.file_name)
 			self.dos_editor.show()
 
 	def callback_edit(self,token,widget,unit):
@@ -258,6 +257,7 @@ class tab_class(QWidget,tab_base):
 			ret,pos=inp_get_next_token_array(self.lines,pos)
 
 			token=ret[0]
+
 			if token=="#ver":
 				break
 
@@ -272,6 +272,7 @@ class tab_class(QWidget,tab_base):
 
 				result=my_token_lib.find(token)
 				if result!=False:
+					print(token,result.info)
 					units=result.units
 					text_info=result.info
 					show=True

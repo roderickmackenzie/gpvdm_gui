@@ -56,6 +56,12 @@ def dat_file_load_info(output,lines):
 							output.y_mul=float(command[1])
 						if (command[0]=="#z_mul"):
 							output.z_mul=float(command[1])
+						if (command[0]=="#x_offset"):
+							output.x_offset=float(command[1])
+						if (command[0]=="#y_offset"):
+							output.y_offset=float(command[1])
+						if (command[0]=="#z_offset"):
+							output.z_offset=float(command[1])
 						if (command[0]=="#data_mul"):
 							output.data_mul=float(command[1])
 						if (command[0]=="#x_label"):
@@ -369,9 +375,15 @@ class dat_file():
 		self.y_units=""
 		self.z_units=""
 		self.data_units=""
+
 		self.x_mul=1.0
 		self.y_mul=1.0
 		self.z_mul=1.0
+
+		self.x_offset=0.0
+		self.y_offset=0.0
+		self.z_offset=0.0
+
 		self.data_mul=1.0
 		self.key_units=""
 		self.file0=""
@@ -503,18 +515,18 @@ class dat_file():
 					if line_found==True:
 						if l==2:
 							if x==0 and z==0:
-								self.y_scale[y]=float(a0)
+								self.y_scale[y]=float(a0)+self.y_offset
 
 						if l==3:
 							if x==0 and z==0:
-								self.y_scale[y]=float(a1)
+								self.y_scale[y]=float(a1)+self.y_offset
 								
 							if z==0 and y==0:
 								self.x_scale[x]=float(a0)
 
 						if l==4:
 							if x==0 and z==0:
-								self.y_scale[y]=float(a1)
+								self.y_scale[y]=float(a1)+self.y_offset
 								
 							if z==0 and y==0:
 								self.x_scale[x]=float(a0)

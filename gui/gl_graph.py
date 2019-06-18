@@ -39,9 +39,14 @@ try:
 	from PyQt5.QtOpenGL import QGLWidget
 	from gl_color import set_color
 	from gl_lib import val_to_rgb
+	from gl_scale import scale_m2screen_x
+	from gl_scale import scale_m2screen_y
+	from gl_scale import scale_m2screen_z
 
 except:
 	pass
+
+
 
 def draw_mode(x,y,z,z_size):
 	glLineWidth(5)
@@ -66,9 +71,9 @@ def draw_mode(x,y,z,z_size):
 	glEnd()
 
 
-def graph(xstart,ystart,z,w,h,z_range,graph_data):
+def graph(x0,y0,z0,w,h,graph_data):
 	xpoints=graph_data.x_len
-	ypoints=graph_data.y_len
+	ypoints=graph_data.y_len-1
 	
 	if xpoints>0 and ypoints>0:
 		
@@ -78,17 +83,16 @@ def graph(xstart,ystart,z,w,h,z_range,graph_data):
 		glBegin(GL_QUADS)
 
 
-		if z_range==0.0:
-			z_range=1.0
-
 		for x in range(0,xpoints):
 			for y in range(0,ypoints):
-				r,g,b=val_to_rgb(graph_data.data[0][x][y]/z_range)
+				r,g,b=val_to_rgb(graph_data.data[0][x][y]/(graph_data.data_max-graph_data.data_min))
 				glColor4f(r,g,b, 0.7)
-				glVertex3f(xstart+dx*x,ystart+y*dy, z)
-				glVertex3f(xstart+dx*(x+1),ystart+y*dy, z)
-				glVertex3f(xstart+dx*(x+1),ystart+dy*(y+1), z)
-				glVertex3f(xstart+dx*x, ystart+dy*(y+1), z) 
+				y_pos0=scale_m2screen_y(graph_data.y_scale[y])
+				y_pos1=scale_m2screen_y(graph_data.y_scale[y+1])
+				glVertex3f(x0+dx*x,y_pos0, z0)
+				glVertex3f(x0+dx*(x+1),y_pos0, z0)
+				glVertex3f(x0+dx*(x+1),y_pos1, z0)
+				glVertex3f(x0+dx*x, y_pos1, z0) 
 
 
 		glEnd()

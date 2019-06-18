@@ -80,7 +80,6 @@ from util import str2bool
 import random
 
 from dat_file import dat_file
-from dat_file_math import dat_file_max_min
 
 import glob
 
@@ -166,8 +165,10 @@ from gl_scale import scale_m2screen_x
 from gl_scale import scale_m2screen_z
 from gl_scale import scale_m2screen_y
 
+from gl_main_menu import gl_main_menu
+
 if open_gl_ok==True:		
-	class glWidget(QGLWidget,gl_move_view,gl_mesh,gl_layer_editor,gl_cords,gl_base_widget):
+	class glWidget(QGLWidget,gl_move_view,gl_mesh,gl_layer_editor,gl_cords,gl_base_widget,gl_main_menu):
 
 
 		def __init__(self, parent):
@@ -177,9 +178,7 @@ if open_gl_ok==True:
 			self.setAutoBufferSwap(False)
 
 			self.failed=True
-			self.graph_path="./snapshots/159/Jn.dat"
-			self.graph_z_max=1.0
-			self.graph_z_min=1.0
+			self.graph_path=None
 			#view pos
 
 
@@ -374,79 +373,9 @@ if open_gl_ok==True:
 		#	self.lastPos=None
 
 
-		def save_image_as(self):
-			#self.random_device()
-			#return
-			ret=save_as_filter(self,"png (*.png)")
-			#print(ret)
-			if ret!=False:
-				self.grabFrameBuffer().save(ret)
-				#gl_save_save(ret)
-
-		def menu_background_color(self):
-			col = QColorDialog.getColor(Qt.white, self)
-			if col.isValid():
-				self.view.bg_color=[col.red()/255,col.green()/255,col.blue()/255]
-				self.force_redraw()
-
-		def menu_toggle_view(self):
-			self.draw_electrical_mesh=not self.draw_electrical_mesh
-			self.force_redraw()
-
-		def menu_toggle_grid(self):
-			self.view.render_grid=not self.view.render_grid
-			self.force_redraw()
-
-		def menu_draw_device(self):
-			self.enable_draw_device = not self.enable_draw_device
-			self.force_redraw()
-
-		def menu_stars(self):
-			if self.view.stars_distance==60:
-				self.view.stars_distance=0.0
-			else:
-				self.view.stars_distance=60
-
-			self.force_redraw()
-
 		def isChecked(self): 
 			""" Prints selected menu labels. """ 
 			[print(action.text()) for action in self.m.actions() if action.isChecked()]
-
-		def menu(self,event):
-			view_menu = QMenu(self)
-			
-
-			menu = QMenu(self)
-
-			action=menu.addAction(_("Save image"))
-			action.triggered.connect(self.save_image_as)
-			#menu.addSeparator()
-			view=menu.addMenu(_("View"))
-
-			action=view.addAction(_("Mesh view"))
-			action.triggered.connect(self.menu_toggle_view)
-
-			action=view.addAction(_("Device view"))
-			action.triggered.connect(self.menu_toggle_view)
-
-
-
-			show=menu.addMenu(_("Show"))
-			action=show.addAction(_("Grid"))
-			action.triggered.connect(self.menu_toggle_grid)
-
-			action=show.addAction(_("Backgroud color"))
-			action.triggered.connect(self.menu_background_color)
-
-			action=show.addAction(_("Stars"))
-			action.triggered.connect(self.menu_stars)
-
-			action=show.addAction(_("Device"))
-			action.triggered.connect(self.menu_draw_device)
-
-			#menu.exec_(self.emailbtn.mapToGlobal(QtCore.QPoint(0,0)))
-			menu.exec_(event.globalPos())
 
 
 
@@ -570,7 +499,7 @@ if open_gl_ok==True:
 
 			self.update_real_to_gl_mul()
 			x=scale_m2screen_x(0)
-			y=scale_m2screen_y(0)
+			y=0.0#scale_m2screen_y(0)
 			z=scale_m2screen_z(0)
 
 			clear_color()
@@ -638,8 +567,7 @@ if open_gl_ok==True:
 				if self.view.render_photons==True:
 					self.draw_photons(x,z)
 
-				full_data_range=self.graph_z_max-self.graph_z_min
-				graph(0.0,self.dos_start,scale_get_device_z()+0.5,scale_get_device_x(),self.dos_stop-self.dos_start,full_data_range,self.graph_data)
+				graph(scale_get_start_x(),0.0,scale_get_start_z()-0.2,scale_get_device_x(),scale_get_device_y(),self.graph_data)
 
 			if self.view.render_grid==True:
 				draw_grid()
@@ -676,10 +604,6 @@ if open_gl_ok==True:
 		def load_data(self):
 			lines=[]
 
-			if self.graph_data.load(self.graph_path)==True:
-				#print(self.graph_path)
-				self.graph_z_max,self.graph_z_min=dat_file_max_min(self.graph_data)
-				#print(self.graph_z_max,self.graph_z_min)
 			val=inp_get_token_value(os.path.join(get_sim_path(),"light.inp"), "#Psun")
 			self.dump_energy_slice_xpos=int(inp_get_token_value(os.path.join(get_sim_path(),"dump.inp"), "#dump_energy_slice_xpos"))
 			self.dump_energy_slice_ypos=int(inp_get_token_value(os.path.join(get_sim_path(),"dump.inp"), "#dump_energy_slice_ypos"))

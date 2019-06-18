@@ -40,7 +40,9 @@ device_x=2.0
 device_y=2.0
 device_z=2.0
 x_start=0.0
+y_start=0.0
 z_start=0.0
+
 
 def scale(length):
 	mul=1
@@ -58,7 +60,10 @@ def set_m2screen():
 	global device_y
 	global device_z
 	global x_start
+	global y_start
 	global z_start
+
+
 
 	mesh_max=30
 
@@ -95,6 +100,7 @@ def set_m2screen():
 
 	x_start=-device_x/2.0
 	z_start=-device_z/2.0
+	y_start=device_y
 
 def scale_get_start_x():
 	return x_start
@@ -111,7 +117,9 @@ def scale_m2screen_x(x):
 
 def scale_m2screen_y(y):
 	global y_mul
-	return 0.0+y_mul*y
+	global y_start
+
+	return y_start-y_mul*y
 
 
 def scale_m2screen_z(z):

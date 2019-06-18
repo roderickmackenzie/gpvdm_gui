@@ -183,7 +183,6 @@ class plot_widget(QWidget):
 			return
 
 		if self.hide_title==False:
-			print(">>>>>>>>>>>title")
 			title=self.data[0].title
 			if self.data[0].time!=-1.0 and self.data[0].Vexternal!=-1.0:
 				mul,unit=time_with_units(self.data[0].time)

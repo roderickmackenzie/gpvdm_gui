@@ -34,7 +34,7 @@ class my_data():
 	token=""
 	units=""
 	info=""
-	def __init__(self,file_name,a,b,c,e,f,widget,defaults=None,units_widget="QLabel"):
+	def __init__(self,file_name,a,b,c,e,f,widget,defaults=None,units_widget="QLabel",min=None,max=None):
 		self.file_name=file_name
 		self.token=a
 		self.units=b
@@ -44,6 +44,8 @@ class my_data():
 		self.number_mul=f
 		self.widget=widget
 		self.units_widget=units_widget
+		self.min=min
+		self.max=max
 
 
 lib=[]
@@ -54,13 +56,12 @@ def build_token_lib():
 	lib.append(my_data("light.inp","#lpoints","au",_("Mesh points (lambda)"),"e",1.0,"QLineEdit"))
 	lib.append(my_data("light.inp","#lstart","m",_("Lambda start"),"e",1.0,"QLineEdit"))
 	lib.append(my_data("light.inp","#lstop","m",_("Lambda stop"),"e",1.0,"QLineEdit"))
-	lib.append(my_data("light.inp","#gather","au",_("#gather"),"e",1.0,"QLineEdit"))
 	lib.append(my_data("light.inp","#electron_eff","0-1",_("Electron generation efficiency"),"e",1.0,"QLineEdit"))
 	lib.append(my_data("light.inp","#hole_eff","0-1",_("Hole generation efficiency"),"e",1.0,"QLineEdit"))
 	lib.append(my_data("light.inp","#sun",_("filename"),_("Sun's spectra"),"e",1.0,"QLineEdit"))
 	lib.append(my_data("light.inp","#light_file_generation","file_name",_("File containing generation rate"),"e",1.0,"gpvdm_select"))
 
-	lib.append(my_data("light.inp","#Dphotoneff","0-1",_("Photon efficiency"),"e",1.0,"QLineEdit"))
+	lib.append(my_data("light.inp","#Dphotoneff","0-1",_("Photon efficiency"),"e",1.0,"QLineEdit",min=0.001,max=1.2))
 
 	#laser?.inp
 	lib.append(my_data("","#laserwavelength","m",_("Laser wavelength"),"e",1.0,"QLineEdit"))
@@ -73,24 +74,24 @@ def build_token_lib():
 
 	#dos.inp
 
-	lib.append(my_data("","#Nc","m^{-3}",_("Effective density of free electron states"),"e",1.0,"QLineEdit"))
-	lib.append(my_data("","#Nv","m^{-3}",_("Effective density of free hole states"),"e",1.0,"QLineEdit"))
-	lib.append(my_data("","#mueffe","m^{2}V^{-1}s^{-1}",_("Electron mobility"),"e",1.0,"QLineEdit"))
-	lib.append(my_data("","#mueffh","m^{2}V^{-1}s^{-1}",_("Hole mobility"),"e",1.0,"QLineEdit"))
+	lib.append(my_data("","#Nc","m^{-3}",_("Effective density of free electron states"),"e",1.0,"QLineEdit",min=1e10,max=1e27))
+	lib.append(my_data("","#Nv","m^{-3}",_("Effective density of free hole states"),"e",1.0,"QLineEdit",min=1e10,max=1e27))
+	lib.append(my_data("","#mueffe","m^{2}V^{-1}s^{-1}",_("Electron mobility"),"e",1.0,"QLineEdit",min=1.0,max=1e-14))
+	lib.append(my_data("","#mueffh","m^{2}V^{-1}s^{-1}",_("Hole mobility"),"e",1.0,"QLineEdit",min=1.0,max=1e-14))
 
-	lib.append(my_data("","#ion_density","m^{-3}",_("Perovskite ion density"),"e",1.0,"QLineEdit"))
+	lib.append(my_data("","#ion_density","m^{-3}",_("Perovskite ion density"),"e",1.0,"QLineEdit",min=1e10,max=1e27))
 	#lib.append(my_data("","#ion_mobility","m^{2}V^{-1}s^{-1}",_("Perovskite ion mobility"),"e",1.0,"QLineEdit"))
 
-	lib.append(my_data("","#Ntrape","m^{-3} eV^{-1}",_("Electron trap density"),"e",1.0,"QLineEdit"))
-	lib.append(my_data("","#Ntraph","m^{-3} eV^{-1}",_("Hole trap density"),"e",1.0,"QLineEdit"))
-	lib.append(my_data("","#Etrape","eV",_("Electron tail slope"),"e",1.0,"QLineEdit"))
-	lib.append(my_data("","#Etraph","eV",_("Hole tail slope"),"e",1.0,"QLineEdit"))
-	lib.append(my_data("","#epsilonr","au",_("Relative permittivity"),"e",1.0,"QLineEdit"))
-	lib.append(my_data("","#srhsigman_e","m^{-2}",_("Free electron to Trapped electron"),"e",1.0,"QLineEdit"))
-	lib.append(my_data("","#srhsigmap_e","m^{-2}",_("Trapped electron to Free hole"),"e",1.0,"QLineEdit"))
-	lib.append(my_data("","#srhsigman_h","m^{-2}",_("Trapped hole to Free electron"),"e",1.0,"QLineEdit"))
-	lib.append(my_data("","#srhsigmap_h","m^{-2}",_("Free hole to Trapped hole"),"e",1.0,"QLineEdit"))
-	lib.append(my_data("","#free_to_free_recombination","m^{3}s^{-1}",_("n_{free} to p_{free} Recombination rate constant"),"e",1.0,"QLineEdit"))
+	lib.append(my_data("","#Ntrape","m^{-3} eV^{-1}",_("Electron trap density"),"e",1.0,"QLineEdit",min=1e10,max=1e27))
+	lib.append(my_data("","#Ntraph","m^{-3} eV^{-1}",_("Hole trap density"),"e",1.0,"QLineEdit",min=1e10,max=1e27))
+	lib.append(my_data("","#Etrape","eV",_("Electron tail slope"),"e",1.0,"QLineEdit",min=20e-3,max=150e-3))
+	lib.append(my_data("","#Etraph","eV",_("Hole tail slope"),"e",1.0,"QLineEdit",min=20e-3,max=150e-3))
+	lib.append(my_data("","#epsilonr","au",_("Relative permittivity"),"e",1.0,"QLineEdit",min=1.0,max=10.0))
+	lib.append(my_data("","#srhsigman_e","m^{-2}",_("Free electron to Trapped electron"),"e",1.0,"QLineEdit",min=1e-27,max=1e-15))
+	lib.append(my_data("","#srhsigmap_e","m^{-2}",_("Trapped electron to Free hole"),"e",1.0,"QLineEdit",min=1e-27,max=1e-15))
+	lib.append(my_data("","#srhsigman_h","m^{-2}",_("Trapped hole to Free electron"),"e",1.0,"QLineEdit",min=1e-27,max=1e-15))
+	lib.append(my_data("","#srhsigmap_h","m^{-2}",_("Free hole to Trapped hole"),"e",1.0,"QLineEdit",min=1e-27,max=1e-15))
+	lib.append(my_data("","#free_to_free_recombination","m^{3}s^{-1}",_("n_{free} to p_{free} Recombination rate constant"),"e",1.0,"QLineEdit",min=1e-27,max=1e-15))
 
 	#shape?.inp
 	lib.append(my_data("","#shape_type","au",_("Shape type"),"s",1.0,"QComboBoxLang",defaults=[[("none"),_("None")],[("dome"),_("Dome")],["tube",_("Tube")],["cone",_("Cone")],["pyrmid",_("Pyrmid")],["box",_("Box")]]))
@@ -330,8 +331,8 @@ def build_token_lib():
 	#lib.append(my_data("","#rcharge","m^{-3}",_("Charge on right contact"),"e",1.0,"QLineEdit"))
 
 	#parasitic.inp
-	lib.append(my_data("parasitic.inp","#Rshunt","Ohms",_("Shunt resistance"),"e",1.0,"QLineEdit"))
-	lib.append(my_data("parasitic.inp","#Rcontact","Ohms",_("Series resistance"),"e",1.0,"QLineEdit"))
+	lib.append(my_data("parasitic.inp","#Rshunt","Ohms",_("Shunt resistance"),"e",1.0,"QLineEdit",min=1e-3,max=1e6))
+	lib.append(my_data("parasitic.inp","#Rcontact","Ohms",_("Series resistance"),"e",1.0,"QLineEdit",min=1.0,max=200))
 	lib.append(my_data("parasitic.inp","#otherlayers","m",_("Other layers"),"e",1.0,"QLineEdit"))
 
 	#mesh?.inp

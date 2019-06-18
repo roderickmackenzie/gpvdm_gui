@@ -66,7 +66,7 @@ from gui_util import tab_move_down
 
 class fit_vars(QWidget):
 
-	def insert_row(self,i,enabled,f,t,p):
+	def insert_row(self,i,enabled,f,t,p,min,max,error_function):
 		self.tab.blockSignals(True)
 
 		self.item = gtkswitch()
@@ -87,11 +87,20 @@ class fit_vars(QWidget):
 
 		self.tab.setCellWidget(i,3,self.item)
 
+		item = QTableWidgetItem(min)
+		self.tab.setItem(i,4,item)
+
+		item = QTableWidgetItem(max)
+		self.tab.setItem(i,5,item)
+
+		item = QTableWidgetItem(error_function)
+		self.tab.setItem(i,6,item)
+
 		self.tab.blockSignals(False)
 		
 	def callback_add_item(self):
 		pos=tab_insert_row(self.tab)
-		self.insert_row(pos,"true",_("File"),_("token"),_("path"))
+		self.insert_row(pos,"true",_("File"),_("token"),_("path"),_("min"),_("max"),"100")
 		self.save_combo()
 		
 	def callback_open(self):
@@ -134,6 +143,10 @@ class fit_vars(QWidget):
 			lines.append(str(tab_get_value(self.tab,i, 1)))
 			lines.append(str(tab_get_value(self.tab,i, 3)))
 			lines.append(str(tab_get_value(self.tab,i, 0)))			
+			lines.append(str(tab_get_value(self.tab,i, 4)))
+			lines.append(str(tab_get_value(self.tab,i, 5)))
+			lines.append(str(tab_get_value(self.tab,i, 6)))
+
 
 		lines.append("#ver")
 		lines.append("1.1")
@@ -146,9 +159,9 @@ class fit_vars(QWidget):
 
 	def create_model(self):
 		self.tab.clear()
-		self.tab.setColumnCount(4)
+		self.tab.setColumnCount(7)
 		self.tab.setSelectionBehavior(QAbstractItemView.SelectRows)
-		self.tab.setHorizontalHeaderLabels([_("Enabled"),_("File"), _("Token"), _("Path")])
+		self.tab.setHorizontalHeaderLabels([_("Enabled"),_("File"), _("Token"), _("Path"), _("Min"), _("Max"), _("Error function")])
 		self.tab.setColumnWidth(2, 270)
 		self.tab.setColumnWidth(3, 400)
 		self.file_name=os.path.join(get_sim_path(),"fit_vars.inp")
@@ -179,9 +192,24 @@ class fit_vars(QWidget):
 				if enabled=="#end":
 					break
 				pos=pos+1
-				
+
+				min=lines[pos]
+				if enabled=="#end":
+					break
+				pos=pos+1
+
+				max=lines[pos]
+				if enabled=="#end":
+					break
+				pos=pos+1
+
+				error_function=lines[pos]
+				if enabled=="#end":
+					break
+				pos=pos+1
+
 				self.tab.insertRow(line)
-				self.insert_row(line,enabled,file,token,path)
+				self.insert_row(line,enabled,file,token,path,min,max,error_function)
 
 				if pos>mylen:
 					break

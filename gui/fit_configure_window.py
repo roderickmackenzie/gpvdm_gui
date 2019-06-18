@@ -42,7 +42,7 @@ from tab import tab_class
 from tab_lang import language_tab_class
 from duplicate import duplicate
 from fit_vars import fit_vars
-from constraints import constraints
+#from constraints import constraints
 from PyQt5.QtCore import pyqtSignal
 
 from cal_path import get_sim_path
@@ -105,8 +105,8 @@ class fit_configure_window(QWidgetSavePos):
 		self.fit_vars_window=fit_vars()
 		self.notebook.addTab(self.fit_vars_window,_("Fit variable window"))
 
-		self.constraints_window=constraints()
-		self.notebook.addTab(self.constraints_window,_("Fit constraints"))
+		#self.constraints_window=constraints()
+		#self.notebook.addTab(self.constraints_window,_("Fit constraints"))
 		
 		self.setLayout(self.main_vbox)
 

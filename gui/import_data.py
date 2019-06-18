@@ -297,6 +297,7 @@ class import_data(QDialog):
 		self.items.append([_("J"),"mA/cm2",_("J"),"A/m2","10000.0/1000.0",1.0,False])
 		self.items.append([_("J"),"A/m2",_("J"),"A/m2","1.0",1.0,False])
 		self.items.append([_("Amps"),"A",_("J"),"A/m2","1.0/(self.get_area())",1.0,True])
+		self.items.append([_("Amps - no convert"),"A",_("I"),"A","1.0",1.0,True])
 		self.items.append([_("Voltage"),"V",_("Voltage"),"V","1.0",1.0,False])
 		self.items.append([_("-Voltage"),"V",_("Voltage"),"V","-1.0",1.0,False])
 		self.items.append([_("Voltage"),"mV",_("Voltage"),"V","1e-3",1.0,False])

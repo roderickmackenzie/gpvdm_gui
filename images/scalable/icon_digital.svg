@@ -14,7 +14,7 @@
    id="svg2"
    version="1.1"
    inkscape:version="0.92.3 (2405546, 2018-03-11)"
-   sodipodi:docname="icon.svg">
+   sodipodi:docname="icon_digital.svg">
   <defs
      id="defs4">
     <filter
@@ -38,9 +38,9 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="5.0811988"
-     inkscape:cx="11.092269"
-     inkscape:cy="30.445625"
+     inkscape:zoom="2.5405994"
+     inkscape:cx="68.348794"
+     inkscape:cy="36.407277"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="false"
@@ -57,7 +57,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title />
+        <dc:title></dc:title>
         <dc:creator>
           <cc:Agent>
             <dc:title>Roderick C.I. MacKenzie</dc:title>
@@ -73,7 +73,7 @@
      transform="translate(0,-1020.3622)">
     <g
        id="g2996"
-       transform="matrix(0.16099491,0,0,0.16015595,-41.373086,949.39741)">
+       transform="matrix(0.16099491,0,0,0.16015595,-41.373086,947.42937)">
       <path
          inkscape:connector-curvature="0"
          id="path2996"
@@ -127,5 +127,65 @@
          d="m 373.49206,608.85878 81.50795,-85.04535 -0.1474,-2.50567 -81.95012,84.75057 z"
          style="fill:#cccccc;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1" />
     </g>
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-weight:normal;font-size:18.66666603px;line-height:3.99999991%;font-family:sans-serif;text-align:end;letter-spacing:0px;word-spacing:0px;text-anchor:end;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       x="31.515564"
+       y="1034.9491"
+       id="text830-1-4"><tspan
+         sodipodi:role="line"
+         x="34.723896"
+         y="1034.9491"
+         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:5.33333349px;line-height:3.99999991%;font-family:'Courier 10 Pitch';-inkscape-font-specification:'Courier 10 Pitch Bold';text-align:end;text-anchor:end;fill:#008000"
+         id="tspan904">      </tspan><tspan
+         sodipodi:role="line"
+         x="31.515564"
+         y="1039.0033"
+         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:5.33333349px;line-height:3.99999991%;font-family:'Courier 10 Pitch';-inkscape-font-specification:'Courier 10 Pitch Bold';text-align:end;text-anchor:end;fill:#000000"
+         id="tspan960" /><tspan
+         sodipodi:role="line"
+         x="31.515564"
+         y="1039.75"
+         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:5.33333349px;line-height:3.99999991%;font-family:'Courier 10 Pitch';-inkscape-font-specification:'Courier 10 Pitch Bold';text-align:end;text-anchor:end;fill:#000000"
+         id="tspan908"><tspan
+   style="fill:#0000ff"
+   id="tspan1012">1</tspan>0</tspan><tspan
+         sodipodi:role="line"
+         x="31.515564"
+         y="1043.8041"
+         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:5.33333349px;line-height:3.99999991%;font-family:'Courier 10 Pitch';-inkscape-font-specification:'Courier 10 Pitch Bold';text-align:end;text-anchor:end;fill:#008000"
+         id="tspan910"><tspan
+           style="fill:#0000ff"
+           id="tspan998">1</tspan><tspan
+           style="fill:#000080"
+           id="tspan996">1</tspan><tspan
+           style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-family:'Courier 10 Pitch';-inkscape-font-specification:'Courier 10 Pitch Bold';fill:#000000"
+           id="tspan930">0</tspan></tspan><tspan
+         sodipodi:role="line"
+         x="31.515564"
+         y="1047.8583"
+         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:5.33333349px;line-height:3.99999991%;font-family:'Courier 10 Pitch';-inkscape-font-specification:'Courier 10 Pitch Bold';text-align:end;text-anchor:end;fill:#008000"
+         id="tspan912"><tspan
+           style="fill:#0000ff"
+           id="tspan980">01</tspan><tspan
+           id="tspan994"
+           style="fill:#000080">01</tspan><tspan
+           style="fill:#000000"
+           id="tspan988">01</tspan></tspan><tspan
+         sodipodi:role="line"
+         x="31.515564"
+         y="1051.9125"
+         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:5.33333349px;line-height:3.99999991%;font-family:'Courier 10 Pitch';-inkscape-font-specification:'Courier 10 Pitch Bold';text-align:end;text-anchor:end;fill:#008000"
+         id="tspan914"><tspan
+           style="fill:#0000ff"
+           id="tspan962">010</tspan><tspan
+           style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-family:'Courier 10 Pitch';-inkscape-font-specification:'Courier 10 Pitch Bold';fill:#000080"
+           id="tspan922">01</tspan><tspan
+           style="fill:#000000"
+           id="tspan982">0</tspan><tspan
+           style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-family:'Courier 10 Pitch';-inkscape-font-specification:'Courier 10 Pitch Bold';fill:#000000"
+           id="tspan920">1</tspan><tspan
+           style="fill:#000000"
+           id="tspan984">0</tspan></tspan></text>
   </g>
 </svg>

@@ -115,8 +115,6 @@ from gl_save import gl_save_save
 from gl_lib import gl_save_draw
 from gl_save import gl_save_load
 
-from open_save_dlg import save_as_filter
-
 from OpenGL.GLU import *
 
 import time
@@ -417,9 +415,10 @@ if open_gl_ok==True:
 				#y=np.arange(0, max_gui_device_z , den)
 				x=np.arange(x0, x0+scale_get_device_x() , den)
 				z=np.arange(z0, z0+scale_get_device_z() , den)
+
 				for i in range(0,len(x)):
 					for ii in range(0,len(z)):
-						draw_photon(x[i]+0.1,device_top+0.1,z[ii],True,color=[0.0, 0.0, 1.0])
+						draw_photon(x[i]+0.1,y+0.1,z[ii],True,color=[0.0, 0.0, 1.0])
 
 
 
@@ -519,7 +518,7 @@ if open_gl_ok==True:
 
 			if lines!=False:
 				self.ray_model=val=str2bool(inp_search_token_value(lines, "#led_on"))
-				
+
 			lines=[]
 
 			for i in range(0,epitaxy_get_layers()):
@@ -562,6 +561,7 @@ if open_gl_ok==True:
 				if self.enable_draw_device==True:
 					self.draw_device(x,z)
 				draw_mode(x,y,z,scale_get_device_y())
+
 				draw_rays(x,y,z,self.ray_file,scale_get_device_y()-self.dy_layer_offset,scale_get_device_x(),scale_get_ymul(),scale_get_device_z()*1.05)
 
 				if self.view.render_photons==True:

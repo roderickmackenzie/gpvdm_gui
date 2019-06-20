@@ -137,13 +137,25 @@ class gl_mesh():
 
 		view=menu.addMenu(_("Dump"))
 
-		action=view.addAction(_("Set/Unset energy slice dump"))
+		if self.dump_energy_slice_xpos==-1:
+			action=view.addAction(_("Dump slice in energy space"))
+		else:
+			action=view.addAction(_("Don't dump slice in energy space"))
+
 		action.triggered.connect(self.menu_energy_slice_dump)
 
-		action=view.addAction(_("Set/Unset dumping 1D slice"))
+		if self.dump_1d_slice_xpos==-1:
+			action=view.addAction(_("Dump 1D slices"))
+		else:
+			action=view.addAction(_("Don't dump 1D slice"))
+
 		action.triggered.connect(self.menu_1d_slice_dump)
 
-		action=view.addAction(_("Set/Unset verbose electrical solver dumping"))
+		if self.dump_verbose_electrical_solver_results==False:
+			action=view.addAction(_("Set verbose electrical solver dumping"))
+		else:
+			action=view.addAction(_("Unset verbose electrical solver dumping"))
+
 		action.triggered.connect(self.menu_dump_verbose_electrical_solver_results)
 
 

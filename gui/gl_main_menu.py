@@ -51,7 +51,7 @@ from gpvdm_open import gpvdm_open
 from cal_path import get_sim_path
 from PyQt5.QtWidgets import QDialog
 from dat_file_math import dat_file_max_min
-
+from open_save_dlg import save_as_filter
 
 class gl_main_menu():
 	def menu(self,event):

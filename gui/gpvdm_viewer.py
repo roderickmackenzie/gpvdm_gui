@@ -99,6 +99,7 @@ _ = i18n.language.gettext
 
 #util
 from util import latex_to_html
+from util import peek_data
 
 class file_store():
 	def __init__(self):
@@ -113,6 +114,13 @@ class gpvdm_viewer(QListWidget):
 	accept = pyqtSignal()
 	reject = pyqtSignal()
 	path_changed = pyqtSignal()
+
+	def keyPressEvent(self, ev):
+		if ev.key() in (Qt.Key_Enter, Qt.Key_Return):
+			self.on_item_activated(self.currentItem())
+			ev.accept()
+		else:
+			return QListWidget.keyPressEvent(self, ev)
 
 	def dragEnterEvent(self, event):
 		#self.setText("<drop content>")
@@ -464,23 +472,10 @@ class gpvdm_viewer(QListWidget):
 							ext=""
 
 						if (ext==".dat"):
-							read_ok=False
-							try:
-								f = open(file_name, 'rb')
-								text = f.readline()
-								f.close()
-								read_ok=True
-							except:
-								pass
-
-							if read_ok==True:
-								if len(text)>0:
-									if text[len(text)-1]==10:
-										text=text[:-1]
-
-								if text==b"#gpvdm":
-									itm.file_name=fl
-									itm.icon="dat_file"
+							text=peek_data(file_name)
+							if text.startswith(b"#gpvdm"):
+								itm.file_name=fl
+								itm.icon="dat_file"
 
 						elif (ext==".inp") and self.show_inp_files==True:
 							itm.file_name=fl
@@ -495,29 +490,35 @@ class gpvdm_viewer(QListWidget):
 							itm.icon="info"
 
 						elif file_name.endswith("default.gpvdm")==False and file_name.endswith(".gpvdm"):
-							lines=[]
-							lines=inp_load_file("info.inp",archive=file_name)
-							if lines!=False:
-
+							text=peek_data(file_name)
+							if text.startswith(b"gpvdmenc"):
 								itm.file_name=fl
-								itm.display_name=inp_get_token_value_from_list(lines, "#info_name")+" ("+fl+")"
-								icon_name=inp_get_token_value_from_list(lines, "#info_icon")
-								itm.icon=icon_name
-								itm.hidden=str2bool(inp_get_token_value_from_list(lines, "#info_hidden"))
+								itm.hidden=True
+								itm.icon="sim_lock"
+							else:
+								lines=[]
+								lines=inp_load_file("info.inp",archive=file_name)
+								if lines!=False:
 
-								a=zip_lsdir(file_name,sub_dir="fs/") #,zf=None,sub_dir=None
-								if len(a)!=0:
-									for fname in a:
-										lines=ret=read_lines_from_archive(file_name,"fs/"+fname)
-										if lines!=False:
-											web_link=inp_get_token_value_from_list(lines, "#web_link")
-											name=inp_get_token_value_from_list(lines, "#name")
-											sub_itm=file_store()
-											sub_itm.icon="internet-web-browser"
-											sub_itm.display_name=name
-											sub_itm.file_name=web_link
-											sub_itm.hidden=False
-											self.file_list.append(sub_itm)
+									itm.file_name=fl
+									itm.display_name=inp_get_token_value_from_list(lines, "#info_name")+" ("+fl+")"
+									icon_name=inp_get_token_value_from_list(lines, "#info_icon")
+									itm.icon=icon_name
+									itm.hidden=str2bool(inp_get_token_value_from_list(lines, "#info_hidden"))
+
+									a=zip_lsdir(file_name,sub_dir="fs/") #,zf=None,sub_dir=None
+									if len(a)!=0:
+										for fname in a:
+											lines=ret=read_lines_from_archive(file_name,"fs/"+fname)
+											if lines!=False:
+												web_link=inp_get_token_value_from_list(lines, "#web_link")
+												name=inp_get_token_value_from_list(lines, "#name")
+												sub_itm=file_store()
+												sub_itm.icon="internet-web-browser"
+												sub_itm.display_name=name
+												sub_itm.file_name=web_link
+												sub_itm.hidden=False
+												self.file_list.append(sub_itm)
 
 						if itm.icon=="":
 							if icon_get(ext)!=False:	

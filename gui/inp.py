@@ -530,48 +530,6 @@ def inp_sum_items(lines,token):
 	return my_sum
 
 
-def inp_encrypt(file_name):
-	global enable_encrypt
-	if enable_encrypt==Ture:
-		iv="reallybadiv"
-		ls=zip_lsdir(file_name)
-		files_to_encrypt=[]
-		bs=32
-
-		password=inp_get_token_value("info.inp", "#info_password",archive=file_name)
-		if password=="":
-			return False
-
-		for i in range(0,len(ls)):
-			if ls[i].endswith(".inp")==True and ls[i]!="info.inp":
-				lines=[]
-				lines=inp_load_file(ls[i],archive=file_name,mode="b")
-
-				m = hashlib.md5()
-				m.update(password.encode('utf-8'))
-				key_hash=m.digest()
-
-				m = hashlib.md5()
-				m.update(iv.encode('utf-8'))
-				iv_hash=m.digest()
-
-				encryptor = AES.new(key_hash, AES.MODE_CBC, IV=iv_hash)
-				start="encrypt"
-				start=start.encode('utf-8')
-				s=(int((len(lines))/16.0)+1)*16
-				data=bytearray(int(s))
-					
-				for ii in range(0,len(lines)):
-					data[ii]=lines[ii]
-				
-				ret= encryptor.encrypt(bytes(data))
-
-				data=start+ret
-
-				replace_file_in_zip_archive(file_name,ls[i],data,mode="b")
-
-		inp_update_token_value("info.inp", "#info_password","encrypted",archive=file_name)
-
 def inp_get_file_ver(archive,file_name):
 	lines=[]
 	lines=read_lines_from_archive(archive,file_name)

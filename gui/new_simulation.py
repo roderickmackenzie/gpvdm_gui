@@ -62,6 +62,9 @@ from bugs import bugs_add_action
 from bugs import bugs_clear
 
 from disk_speed import disk_test
+from util import peek_data
+from inp_encrypt import decrypt_file
+from cal_path import get_tmp_path
 
 class simulation():
 	name=""
@@ -78,13 +81,15 @@ class new_simulation(QDialog):
 	def callback_next(self):
 		help_window().help_set_help(["document-save-as.png",_("<big><b>Now save the simulation</b></big><br>Now select where you would like to save the simulation directory.")])
 		if len(self.viewer.selectedItems())>0:
-			
-			password=inp_get_token_value("info.inp", "#info_password",archive=self.viewer.file_path)
-			if password!="":
+			device_lib_sim_file=self.viewer.file_path
+			decrypted_file=os.path.join(get_tmp_path(),"tmp.gpvdm")
+			if peek_data(device_lib_sim_file).startswith(b"gpvdmenc")==True:
 				pw_dlg=dlg_get_text( _("password:"), "","gnome-dialog-password")
-				if password!=pw_dlg.ret:
+				if decrypt_file(decrypted_file,device_lib_sim_file,pw_dlg.ret)==False:
 					error_dlg(self,_("Wrong password"))
 					return
+				else:
+					device_lib_sim_file=decrypted_file
 
 			file_path=save_as_gpvdm(self)
 			#print(file_path,get_exe_path())
@@ -106,7 +111,7 @@ class new_simulation(QDialog):
 				bugs_clear()
 				bugs_add_action(os.path.basename(self.viewer.file_path))
 				gpvdm_clone(os.getcwd(),copy_dirs=True)
-				import_archive(self.viewer.file_path,os.path.join(os.getcwd(),"sim.gpvdm"),False)
+				import_archive(device_lib_sim_file,os.path.join(os.getcwd(),"sim.gpvdm"),False)
 
 				disk_speed=disk_test(file_path)
 				print("disk_speed=",file_path,disk_speed)

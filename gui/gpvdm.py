@@ -213,8 +213,12 @@ def do_import():
 	from global_objects import global_object_run
 	from check_sim_exists import check_sim_exists
 
+from inp_encrypt import encrypt_file
+from inp_encrypt import decrypt_file
 
-
+#encrypt_file("device_lib/encode.gpvdm","device_lib/p3htpcbm.gpvdm","hello")
+#decrypt_file("decode.dat","encode.dat","hello")
+#addad
 class gpvdm_main_window(QMainWindow):
 
 	plot_after_run=False

@@ -293,6 +293,14 @@ def get_user_settings_dir():
 
 	return ret
 
+def get_tmp_path():
+	ret=os.path.join(get_user_settings_dir(),"tmp")
+
+	if os.path.isdir(ret)==False:
+		os.makedirs(ret)
+
+	return ret
+
 def get_web_cache_path():
 	ret=os.path.join(get_user_settings_dir(),"web_cache")
 

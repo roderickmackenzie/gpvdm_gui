@@ -37,6 +37,16 @@ from util_zip import zip_get_data_file
 
 from math import pow
 
+def peek_data(file_name):
+	try:
+		f = open(file_name, 'rb')
+		text = f.read(100)
+		f.close()
+		return text
+	except:
+		pass
+	return b"none"
+
 def is_numbered_file(file_name,filter):
 	if file_name.startswith(filter) and file_name.endswith(".inp"):
 		try:

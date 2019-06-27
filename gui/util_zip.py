@@ -77,10 +77,10 @@ def zip_lsdir(file_name,zf=None,sub_dir=None):
 		items=zf.namelist()
 		items.extend(my_list)
 
-#		print(items)
+		#print(items)
 		my_list=list(set(items))
 
-#		print(my_list)
+		#print(my_list)
 		#print(my_list[0])
 		#asdsa
 

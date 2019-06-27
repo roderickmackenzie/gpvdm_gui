@@ -63,6 +63,8 @@ from mesh import mesh_get_ymesh
 from epitaxy import epitaxy_get_epi
 from epitaxy import epitay_get_next_dos_layer
 from epitaxy import epitaxy_get_layer
+from error_dlg import error_dlg
+from gui_util import tab_get_value
 
 class doping_window(QWidgetSavePos):
 	lines=[]
@@ -223,7 +225,13 @@ class doping_window(QWidgetSavePos):
 		return True
 
 
-	def tab_changed(self, x,y):
+	def tab_changed(self, y,x):
+		val=tab_get_value(self.tab,y,x)
+		try:
+			val=float(val)
+		except:
+			error_dlg(self,_(val+" is not a valid number."))
+			return
 		self.build_mesh()
 		self.draw_graph()
 		self.fig.canvas.draw()

@@ -79,9 +79,9 @@ def inp_callback_add_write_hook(file_name,call_back_fn,id):
 	a.file_name=file_name
 	a.call_back=call_back_fn
 	a.id=id
-	print("add hook",a.file_name)
-	for i in range(0,len(callbacks)):
-		print(callbacks[i].file_name,callbacks[i].call_back_fn)
+	#print("add hook",a.file_name)
+	#for i in range(0,len(callbacks)):
+	#	print(callbacks[i].file_name,callbacks[i].call_back_fn)
 	for i in range(0,len(callbacks)):
 		c=callbacks[i]
 		if c==a:
@@ -98,9 +98,9 @@ def inp_callback_check_hook(file_name,id):
 	global callbacks
 	inp_dump_hooks()
 	for c in callbacks:
-		print("check>>",c.file_name,file_name)
+		#print("check>>",c.file_name,file_name)
 		if c.file_name==file_name and c.id!=id:
-			print("call")
+			#print("call")
 			inp_dump_hooks()
 			c.call_back()
 

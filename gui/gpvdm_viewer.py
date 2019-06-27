@@ -477,6 +477,9 @@ class gpvdm_viewer(QListWidget):
 								itm.file_name=fl
 								itm.icon="dat_file"
 
+						if (ext==".chk"):
+							itm.hidden=True
+
 						elif (ext==".inp") and self.show_inp_files==True:
 							itm.file_name=fl
 							itm.icon="text-x-generic"

@@ -216,9 +216,9 @@ def do_import():
 from inp_encrypt import encrypt_file
 from inp_encrypt import decrypt_file
 
-#encrypt_file("device_lib/encode.gpvdm","device_lib/p3htpcbm.gpvdm","hello")
+#encrypt_file("encode.dat","one.txt","hello")
 #decrypt_file("decode.dat","encode.dat","hello")
-#addad
+#ddad
 class gpvdm_main_window(QMainWindow):
 
 	plot_after_run=False

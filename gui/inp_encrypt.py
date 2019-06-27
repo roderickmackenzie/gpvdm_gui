@@ -32,8 +32,7 @@ import shutil
 from util_zip import replace_file_in_zip_archive
 
 import hashlib
-
-from Crypto.Cipher import AES
+import pyaes
 
 def decrypt_file(out_file,in_file,key):
 	iv="857585291b631481e586f3023b03c548a95ea6f369bdda171a6e0bc28ae929ee"
@@ -55,9 +54,16 @@ def decrypt_file(out_file,in_file,key):
 	if data.startswith(b"gpvdmenc")==True:
 		data=list(data[8:])
 
-		encryptor = AES.new(key_hash, AES.MODE_CBC, IV=iv_hash)
+		aes = pyaes.AESModeOfOperationCBC (key_hash,iv=iv_hash)
+		#encryptor = AES.new(key_hash, AES.MODE_CBC, IV=iv_hash)
 
-		ret= encryptor.decrypt(bytes(data))
+		#ret= encryptor.decrypt(bytes(data))
+		ret=b''
+		while len(data)!=0:
+			ret += aes.decrypt(bytes(data[:16]))
+			data = data[16:]	
+
+		#ret = aes.decrypt (bytes(data))
 
 		if ret.startswith(b"gpvdm")==False:
 			return False
@@ -103,13 +109,19 @@ def encrypt_file(out_file,in_file,key):
 	m.update(iv.encode('utf-8'))
 	iv_hash=m.digest()
 
-	encryptor = AES.new(key_hash, AES.MODE_CBC, IV=iv_hash)
+	#encryptor = AES.new(key_hash, AES.MODE_CBC, IV=iv_hash)
+	aes = pyaes.AESModeOfOperationCBC (key_hash,iv=iv_hash)
+
+
 	head="gpvdm"+str(len(data))+"#"
 	data=bytes(head,'utf-8')+data
 	padding=(int((len(data))/16.0)+1)*16-len(data)
 	data+=b"\0" * padding
-			
-	ret= encryptor.encrypt(bytes(data))
+
+	ret=b''
+	while len(data)!=0:
+		ret += aes.encrypt(bytes(data[:16]))
+		data = data[16:]	
 
 	ret=b"gpvdmenc"+ret
 	f = open(out_file, mode='wb')

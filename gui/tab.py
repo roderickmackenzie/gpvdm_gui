@@ -272,10 +272,12 @@ class tab_class(QWidget,tab_base):
 
 				result=my_token_lib.find(token)
 				if result!=False:
-					print(token,result.info)
+					#print(token,result.info)
 					units=result.units
 					text_info=result.info
 					show=True
+					if result.hidden==True:
+						show=False
 				
 				#self.set_size_request(600,-1)
 				if show == True :

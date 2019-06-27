@@ -34,7 +34,7 @@ class my_data():
 	token=""
 	units=""
 	info=""
-	def __init__(self,file_name,a,b,c,e,f,widget,defaults=None,units_widget="QLabel",min=None,max=None):
+	def __init__(self,file_name,a,b,c,e,f,widget,defaults=None,units_widget="QLabel",min=None,max=None,hidden=False):
 		self.file_name=file_name
 		self.token=a
 		self.units=b
@@ -44,6 +44,7 @@ class my_data():
 		self.number_mul=f
 		self.widget=widget
 		self.units_widget=units_widget
+		self.hidden=hidden
 		self.min=min
 		self.max=max
 
@@ -72,15 +73,18 @@ def build_token_lib():
 	lib.append(my_data("","#laser_photon_efficiency","0-1",_("Efficiency of photons"),"e",1.0,"QLineEdit"))
 
 
-	#dos.inp
+	#dos?.inp
 
 	lib.append(my_data("","#Nc","m^{-3}",_("Effective density of free electron states"),"e",1.0,"QLineEdit",min=1e10,max=1e27))
 	lib.append(my_data("","#Nv","m^{-3}",_("Effective density of free hole states"),"e",1.0,"QLineEdit",min=1e10,max=1e27))
 	lib.append(my_data("","#mueffe","m^{2}V^{-1}s^{-1}",_("Electron mobility"),"e",1.0,"QLineEdit",min=1.0,max=1e-14))
 	lib.append(my_data("","#mueffh","m^{2}V^{-1}s^{-1}",_("Hole mobility"),"e",1.0,"QLineEdit",min=1.0,max=1e-14))
 
-	lib.append(my_data("","#ion_density","m^{-3}",_("Perovskite ion density"),"e",1.0,"QLineEdit",min=1e10,max=1e27))
+	lib.append(my_data("","#ion_density","m^{-3}",_("Perovskite ion density"),"e",1.0,"QLineEdit",min=1e10,max=1e27,hidden=True))
 	#lib.append(my_data("","#ion_mobility","m^{2}V^{-1}s^{-1}",_("Perovskite ion mobility"),"e",1.0,"QLineEdit"))
+
+	lib.append(my_data("","#doping_start","m^{-3}",_("Doping density (x=0)"),"e",1.0,"QLineEdit",min=1.0,max=1e27,hidden=True))
+	lib.append(my_data("","#doping_stop","m^{-3}",_("Doping density (x=max)"),"e",1.0,"QLineEdit",min=1.0,max=1e27,hidden=True))
 
 	lib.append(my_data("","#Ntrape","m^{-3} eV^{-1}",_("Electron trap density"),"e",1.0,"QLineEdit",min=1e10,max=1e27))
 	lib.append(my_data("","#Ntraph","m^{-3} eV^{-1}",_("Hole trap density"),"e",1.0,"QLineEdit",min=1e10,max=1e27))

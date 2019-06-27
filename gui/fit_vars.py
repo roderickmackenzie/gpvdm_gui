@@ -230,7 +230,7 @@ class fit_vars(QWidget):
 		self.setWindowTitle(_("Fit vars window - gpvdm"))   
 		self.setWindowIcon(icon_get("fit"))
 		#self.setFixedSize(900, 700)
-
+		self.setMinimumWidth(1200)
 
 		self.vbox=QVBoxLayout()
 

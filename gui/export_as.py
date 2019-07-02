@@ -33,7 +33,6 @@ from inp import inp_search_token_value
 from token_lib import tokens
 from util import pygtk_to_latex_subscript
 
-from workbook import gen_workbook
 
 import glob
 from cal_path import get_sim_path
@@ -55,10 +54,7 @@ def export_as(output):
 	eol=" \\\\"
 	ext= os.path.splitext(output)[1]
 	line=""
-	print(ext,output)
-	if ext==".xlsx":
-		gen_workbook(get_sim_path(),output)
-	elif (ext==".pdf") or (ext==".jpg") or (ext==".tex")  or (ext==".csv"):
+	if (ext==".pdf") or (ext==".jpg") or (ext==".tex")  or (ext==".csv"):
 		print(ext)
 		if ext==".csv":
 			tex=False

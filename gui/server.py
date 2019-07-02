@@ -69,7 +69,6 @@ if gui_get()==True:
 
 from server_io import server_find_simulations_to_run
 
-from workbook import gen_workbook
 import time
 
 from cal_path import get_sim_path
@@ -314,9 +313,6 @@ if gui_get()==True:
 			if len(text)!=0:
 				self.dialog=sim_warnings(text)
 
-			if self.excel_workbook_gen_error==True:
-				help_window().help_append(["warning.png",_("<big><b>Excel workbook error</b></big><br>I can't write new data to the file data.xlsx, I think you have are viewing it using another program.  Please close data.xlsx to enable me to write new data to it.")])
-
 			self.jobs_update.emit()
 			self.sim_finished.emit()
 
@@ -332,7 +328,6 @@ if gui_get()==True:
 
 
 		def start(self):
-			self.excel_workbook_gen_error=False
 			self.finished_jobs=[]
 			if self.interactive_cluster==True or self.cluster==False:
 				self.progress_window.show()
@@ -410,11 +405,6 @@ if gui_get()==True:
 							self.base_job_finished(job)
 
 							self.finished_jobs.append(data)
-							make_work_book=inp_get_token_value(os.path.join(get_sim_path(),"dump.inp"),"#dump_workbook")
-							if make_work_book!=None:
-								if str2bool(make_work_book)==True:
-									if gen_workbook(self.jobs[job].path,os.path.join(self.jobs[job].path,"data.xlsx"))==False:
-										self.excel_workbook_gen_error=self.excel_workbook_gen_error or True
 
 							self.progress_window.set_fraction(float(self.jobs_run)/float(len(self.jobs)))
 

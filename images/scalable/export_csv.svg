@@ -15,7 +15,7 @@
    id="svg3885"
    version="1.1"
    inkscape:version="0.92.3 (2405546, 2018-03-11)"
-   sodipodi:docname="export_xls.svg"
+   sodipodi:docname="export_csv.svg"
    inkscape:export-filename="/home/rod/juan/hpc/final_graphs/windows/gui/dir_file.png"
    inkscape:export-xdpi="90"
    inkscape:export-ydpi="90"
@@ -647,6 +647,6 @@
          id="tspan908"
          x="13.665986"
          y="18.145599"
-         style="stroke-width:0.9375px;fill:#008000">xls</tspan></text>
+         style="stroke-width:0.9375px">csv</tspan></text>
   </g>
 </svg>

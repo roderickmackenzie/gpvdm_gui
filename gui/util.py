@@ -34,14 +34,13 @@ import re
 import hashlib
 import glob
 from util_zip import zip_get_data_file
+from util_zip import zip_get_raw_data
 
 from math import pow
 
 def peek_data(file_name):
 	try:
-		f = open(file_name, 'rb')
-		text = f.read(100)
-		f.close()
+		text=zip_get_raw_data(file_name,bytes=100)
 		return text
 	except:
 		pass

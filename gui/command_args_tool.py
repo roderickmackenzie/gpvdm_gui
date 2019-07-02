@@ -58,7 +58,6 @@ from device_lib_io import device_lib_delete
 from cal_path import test_arg_for_sim_file
 from cal_path import set_sim_path
 from import_archive import patch_file
-from inp import inp_encrypt
 from inp import inp_dir_listing
 from util_zip import archive_decompress
 from util_zip import archive_compress

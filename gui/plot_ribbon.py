@@ -49,6 +49,7 @@ from about import about_dlg
 
 from util import wrap_text
 from ribbon_base import ribbon_base
+from QAction_lock import QAction_lock
 
 class plot_ribbon(ribbon_base):
 		
@@ -59,17 +60,28 @@ class plot_ribbon(ribbon_base):
 
 		return self.plot_toolbar
 
-
-	def file(self):
+	def export(self):
 		self.file_toolbar = QToolBar()
 		self.file_toolbar.setToolButtonStyle( Qt.ToolButtonTextUnderIcon)
 		self.file_toolbar.setIconSize(QSize(42, 42))
 
-		self.tb_save = QAction(icon_get("document-save-as"), _("Save"), self)
-		self.file_toolbar.addAction(self.tb_save)
+		self.tb_export_as_jpg = QAction_lock("export_image", _("Export\nimage"), self,locked=True)
+		self.file_toolbar.addAction(self.tb_export_as_jpg)
 
-		self.tb_save_as = QAction(icon_get("document-save-as"), _("Save as"), self)
-		self.file_toolbar.addAction(self.tb_save_as)
+		self.tb_save_as_csv = QAction_lock("export_csv", _("Export\ncsv"), self,locked=True)
+		self.file_toolbar.addAction(self.tb_save_as_csv)
+
+		self.tb_save_as_txt = QAction_lock("export_xls", _("Export\nxls"), self,locked=True)
+		self.file_toolbar.addAction(self.tb_save_as_txt)
+
+		self.tb_save_as_txt = QAction_lock("export_xls", _("Export\ntxt"), self,locked=True)
+		self.file_toolbar.addAction(self.tb_save_as_txt)
+
+		self.tb_view_data = QAction_lock("dat_file", _("View\ndata"), self,locked=True)
+		self.file_toolbar.addAction(self.tb_view_data)
+
+		self.tb_view_data = QAction_lock("edit-copy", _("Copy to\nclipboard"), self,locked=True)
+		self.file_toolbar.addAction(self.tb_view_data)
 
 		return self.file_toolbar
 
@@ -141,8 +153,8 @@ class plot_ribbon(ribbon_base):
 		w=self.plot()
 		self.addTab(w,_("Plot"))
 
-		w=self.file()
-		self.addTab(w,_("File"))
+		w=self.export()
+		self.addTab(w,_("Export data"))
 
 		w=self.color()
 		self.addTab(w,_("Color"))

@@ -77,6 +77,7 @@ from colors import get_marker
 
 from dat_file import dat_file_print
 from plot_ribbon import plot_ribbon
+from lock import get_lock
 
 class plot_widget(QWidget):
 
@@ -327,7 +328,12 @@ class plot_widget(QWidget):
 		else:
 			if len(files)<40:
 				self.fig.legend(all_plots, files, self.data[0].legend_pos)
-			
+
+		if get_lock().is_trial()==True:
+			self.fig.text(0.90, 0.25, 'Upgrade to gpvdm proessional.', fontsize=15, color='gray', ha='right', va='bottom', alpha=0.1)
+			self.fig.text(0.40, 0.80, 'Upgrade to gpvdm proessional.', fontsize=15, color='gray', ha='right', va='bottom', alpha=0.1)
+			self.fig.text(0.40, 0.20, 'Upgrade to gpvdm proessional.', fontsize=15, color='gray', ha='right', va='bottom', alpha=0.1)
+
 		#self.fig.tight_layout(pad=0.0, w_pad=0.0, h_pad=0.0,axes_pad=0.0)
 		self.fig.canvas.draw()
 		#print("exit do plot")
@@ -453,9 +459,6 @@ class plot_widget(QWidget):
 		if len(self.data)>0:
 			self.do_plot()
 
-	def callback_save(self):
-		output_file=os.path.splitext(self.config_file)[0]+".png"
-		plot_export(output_file,self.input_files,self.data[0],self.fig)
 
 	def callback_key(self):
 		if len(self.data)>0:
@@ -580,15 +583,23 @@ class plot_widget(QWidget):
 		if enable_toolbar==True:
 			self.plot_ribbon=plot_ribbon()
 
-			self.plot_ribbon.tb_save.triggered.connect(self.callback_save)
-			self.plot_ribbon.tb_save_as.triggered.connect(self.save_image)
+			self.plot_ribbon.tb_export_as_jpg.triggered.connect(self.save_image)
 
 
 			self.tb_refresh = QAction(icon_get("view-refresh"), _("Refresh graph"), self)
 			self.tb_refresh .triggered.connect(self.callback_refresh)
 			self.plot_ribbon.plot_toolbar.addAction(self.tb_refresh )
 
+
+
 			nav_bar=NavigationToolbar(self.canvas,self)
+			actions = nav_bar.findChildren(QAction)
+			for a in actions:
+				print(a.text())
+				if a.text() == 'Save':
+					nav_bar.removeAction(a)
+					break
+
 			nav_bar.setToolButtonStyle(Qt.ToolButtonTextUnderIcon)
 			nav_bar.setIconSize(QSize(42, 42))
 			self.plot_ribbon.plot_toolbar.addWidget(nav_bar)

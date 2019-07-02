@@ -36,6 +36,7 @@ import time
 import glob
 import hashlib
 from update_file_info import update_file_info
+from libcrypt import libcrypt_decrypt
 
 ## Copy a file from one archive to another.
 def archive_copy_file(dest_archive,dest_file_name,src_archive,file_name,dest="archive"):
@@ -107,18 +108,19 @@ def zip_lsdir(file_name,zf=None,sub_dir=None):
 
 	return False
 
-## Read liens from a file in an archive
-def zip_get_data_file(file_name):
+def zip_get_raw_data(file_name,bytes=None):
 	found=False
-	lines=[]
-	zip_file=os.path.dirname(file_name)+".zip"
-	if os.path.isfile(zip_file)==False:
-		zip_file=os.path.join(os.path.dirname(file_name),"sim.gpvdm")
+	lines=b""
+
+	zip_file=os.path.join(os.path.dirname(file_name),"sim.gpvdm")
 
 	name=os.path.basename(file_name)
 	if os.path.isfile(file_name)==True:
 		f = open(file_name, mode='rb')
-		lines = f.read()
+		if bytes==None:
+			lines = f.read()
+		else:
+			lines = f.read(bytes)
 		f.close()
 		found=True
 
@@ -129,6 +131,22 @@ def zip_get_data_file(file_name):
 			lines = zf.read(name)
 			found=True
 		zf.close()
+
+	if found==False:
+		return False
+
+	lines=libcrypt_decrypt(lines)
+	return lines
+
+## Read lines from a file in an archive
+def zip_get_data_file(file_name):
+	lines=b""
+	found=True
+	lines=zip_get_raw_data(file_name)
+
+	if lines==False:
+		found=False
+
 	try:
 		lines=lines.decode('utf-8')
 		lines=[str.strip() for str in lines.splitlines()]#lines.split("\n")

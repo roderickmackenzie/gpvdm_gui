@@ -58,6 +58,7 @@ from PyQt5.QtGui import QPainter,QIcon,QImage
 #calpath
 from icon_lib import icon_get
 from open_save_dlg import save_as_image
+from open_save_dlg import save_as_filter
 
 from dat_file_math import dat_file_max_min
 from dat_file_math import dat_file_sub
@@ -100,7 +101,8 @@ class plot_widget(QWidget):
 		elif keyname=="q":
 			self.destroy()
 		elif  modifiers == Qt.ControlModifier and keyname=='c':
-			self.do_clip()
+			if get_lock().is_trial()==False:
+				self.callback_do_clip()
 
 		if len(self.data)>0:
 			if keyname=='g':
@@ -143,7 +145,7 @@ class plot_widget(QWidget):
 
 			self.fig.canvas.draw()
 
-	def do_clip(self):
+	def callback_do_clip(self):
 		buf = io.BytesIO()
 		self.fig.savefig(buf)
 		QApplication.clipboard().setImage(QImage.fromData(buf.getvalue()))
@@ -338,10 +340,20 @@ class plot_widget(QWidget):
 		self.fig.canvas.draw()
 		#print("exit do plot")
 
-	def save_image(self):
-		response=save_as_image(self)
-		if response != None:
-			plot_export(response,self.input_files,self.data[0],self.fig)
+	def callback_save_image(self):
+		file_name=save_as_image(self)
+		if file_name != None:
+			self.fig.savefig(file_name)
+
+	def callback_save_csv(self):
+		file_name=save_as_filter(self,"*.csv")
+		if file_name != None:
+			self.data[0].save_as_csv(file_name)
+
+	def callback_save_txt(self):
+		file_name=save_as_filter(self,"*.txt")
+		if file_name != None:
+			self.data[0].save_as_txt(file_name)
 
 	def set_labels(self,labels):
 		self.labels=labels
@@ -582,8 +594,15 @@ class plot_widget(QWidget):
 
 		if enable_toolbar==True:
 			self.plot_ribbon=plot_ribbon()
+			self.plot_ribbon.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Minimum)
 
-			self.plot_ribbon.tb_export_as_jpg.triggered.connect(self.save_image)
+			self.plot_ribbon.tb_export_as_jpg.secure_click.connect(self.callback_save_image)
+			self.plot_ribbon.tb_export_as_csv.secure_click.connect(self.callback_save_csv)
+			self.plot_ribbon.tb_export_as_txt.secure_click.connect(self.callback_save_txt)
+
+			self.plot_ribbon.tb_copy.secure_click.connect(self.callback_do_clip)
+
+			#self.plot_ribbon.tb_export_as_jpg.triggered.connect(self.save_image)
 
 
 			self.tb_refresh = QAction(icon_get("view-refresh"), _("Refresh graph"), self)

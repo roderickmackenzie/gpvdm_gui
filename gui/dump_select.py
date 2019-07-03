@@ -43,7 +43,6 @@ from PyQt5.QtGui import QFont
 from inp import inp_save
 from inp import inp_load_file
 from icon_lib import icon_get
-from gui_util import tab_set_value
 from error_dlg import error_dlg
 from util import str2bool
 

@@ -68,20 +68,20 @@ class plot_ribbon(ribbon_base):
 		self.tb_export_as_jpg = QAction_lock("export_image", _("Export\nimage"), self,locked=True)
 		self.file_toolbar.addAction(self.tb_export_as_jpg)
 
-		self.tb_save_as_csv = QAction_lock("export_csv", _("Export\ncsv"), self,locked=True)
-		self.file_toolbar.addAction(self.tb_save_as_csv)
+		self.tb_export_as_csv = QAction_lock("export_csv", _("Export\ncsv"), self,locked=True)
+		self.file_toolbar.addAction(self.tb_export_as_csv)
 
-		self.tb_save_as_txt = QAction_lock("export_xls", _("Export\nxls"), self,locked=True)
-		self.file_toolbar.addAction(self.tb_save_as_txt)
+		self.tb_export_as_txt = QAction_lock("export_xls", _("Export\nxls"), self,locked=True)
+		self.file_toolbar.addAction(self.tb_export_as_txt)
 
-		self.tb_save_as_txt = QAction_lock("export_xls", _("Export\ntxt"), self,locked=True)
-		self.file_toolbar.addAction(self.tb_save_as_txt)
+		self.tb_export_as_txt = QAction_lock("export_xls", _("Export\ntxt"), self,locked=True)
+		self.file_toolbar.addAction(self.tb_export_as_txt)
 
-		self.tb_view_data = QAction_lock("dat_file", _("View\ndata"), self,locked=True)
-		self.file_toolbar.addAction(self.tb_view_data)
+		#self.tb_view_data = QAction_lock("dat_file", _("View\ndata"), self,locked=True)
+		#self.file_toolbar.addAction(self.tb_view_data)
 
-		self.tb_view_data = QAction_lock("edit-copy", _("Copy to\nclipboard"), self,locked=True)
-		self.file_toolbar.addAction(self.tb_view_data)
+		self.tb_copy = QAction_lock("edit-copy", _("Copy to\nclipboard"), self,locked=True)
+		self.file_toolbar.addAction(self.tb_copy)
 
 		return self.file_toolbar
 
@@ -146,7 +146,7 @@ class plot_ribbon(ribbon_base):
 
 	def __init__(self):
 		ribbon_base.__init__(self)
-		self.setMaximumHeight(130)
+		#self.setMaximumHeight(130)
 		#self.setStyleSheet("QWidget {	background-color:cyan; }")
 
 

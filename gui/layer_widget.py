@@ -43,7 +43,7 @@ from gui_util import tab_move_down
 from gui_util import tab_move_up
 from gui_util import tab_remove
 from gui_util import tab_get_value
-from gui_util import tab_set_value
+from gpvdm_tab import gpvdm_tab
 from gui_util import tab_insert_row
 from error_dlg import error_dlg
 
@@ -110,10 +110,10 @@ class layer_widget(QWidgetSavePos):
 		epi=get_epi()
 		for i in range(0,self.tab.rowCount()):
 			epi.update_layer_type(i,tab_get_value(self.tab,i,3).lower())
-			tab_set_value(self.tab,i,4,epi.layers[i].electrical_layer)
-			tab_set_value(self.tab,i,5,epi.layers[i].pl_file)
-			tab_set_value(self.tab,i,6,epi.layers[i].homo_file)
-			tab_set_value(self.tab,i,7,epi.layers[i].lumo_file)
+			self.tab.set_value(i,4,epi.layers[i].electrical_layer)
+			self.tab.set_value(i,5,epi.layers[i].pl_file)
+			self.tab.set_value(i,6,epi.layers[i].homo_file)
+			self.tab.set_value(i,7,epi.layers[i].lumo_file)
 
 		self.tab.blockSignals(False)
 
@@ -172,7 +172,7 @@ class layer_widget(QWidgetSavePos):
 		
 		self.main_vbox.addWidget(self.toolbar)
 	
-		self.tab = QTableWidget()
+		self.tab = gpvdm_tab()
 		#self.tab.resizeColumnsToContents()
 
 

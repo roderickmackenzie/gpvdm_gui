@@ -43,7 +43,7 @@ from contacts_io import contacts_save
 from contacts_io import contacts_get_array
 from contacts_io import contacts_clear
 from contacts_io import contacts_print
-from contacts_io import contacts_load
+from contacts_io import get_contactsio
 from contacts_io import contacts_print
 from contacts_io import contacts_append
 
@@ -56,7 +56,6 @@ from PyQt5.QtWidgets import QWidget,QSizePolicy,QHBoxLayout,QPushButton,QDialog,
 from PyQt5.QtCore import pyqtSignal
 
 from gui_util import tab_get_value
-from gui_util import tab_set_value
 from gui_util import tab_insert_row
 from gui_util import tab_remove
 
@@ -69,6 +68,9 @@ from QComboBoxLang import QComboBoxLang
 from QWidgetSavePos import QWidgetSavePos
 
 from contacts_boundary import contacts_boundary
+from gpvdm_tab import gpvdm_tab
+
+from file_watch import get_watch
 
 class contacts_window(QWidgetSavePos):
 
@@ -94,36 +96,48 @@ class contacts_window(QWidgetSavePos):
 		for i in range(0,self.tab.rowCount()):
 			contacts_append(tab_get_value(self.tab,i, 0),tab_get_value(self.tab,i, 1),str2bool(tab_get_value(self.tab,i, 2)),float(tab_get_value(self.tab,i, 3)),float(tab_get_value(self.tab,i, 4)),float(tab_get_value(self.tab,i, 5)),float(tab_get_value(self.tab,i, 6)),float(tab_get_value(self.tab,i, 7)),tab_get_value(self.tab,i, 8))
 		return True
-	
-	def add_row(self,pos,name,top_btm,active,start,width,depth,voltage,np,charge_type):
+
+
+	def set_row(self,pos,name,top_btm,active,start,width,depth,voltage,np,charge_type):
+		self.tab.blockSignals(True)
+
+		self.tab.set_value(pos,0,name)
+		self.tab.set_value(pos,1,top_btm.lower())
+		self.tab.set_value(pos,2,active.lower())
+		self.tab.set_value(pos,3,start)
+		self.tab.set_value(pos,4,width)
+		self.tab.set_value(pos,5,depth)
+		self.tab.set_value(pos,6,voltage)
+		self.tab.set_value(pos,7,np)
+		self.tab.set_value(pos,8, charge_type.lower())
+
+		self.tab.blockSignals(False)
+		
+
+	def add_row(self):
 
 		pos= tab_insert_row(self.tab)
 
 		self.tab.blockSignals(True)
-		self.tab.setItem(pos,0,QTableWidgetItem(name))
+		self.tab.setItem(pos,0,QTableWidgetItem(""))
 
 		combobox = QComboBoxLang()
 		combobox.addItemLang("top",_("top"))
 		combobox.addItemLang("bottom",_("bottom"))
-
 		self.tab.setCellWidget(pos,1, combobox)
-		combobox.setValue_using_english(top_btm.lower())
-		#combobox.setCurrentIndex(combobox.findText(top_btm.lower()))
 		combobox.currentIndexChanged.connect(self.save)
 
 		combobox = QComboBoxLang()
 		combobox.addItemLang("true",_("true"))
 		combobox.addItemLang("false",_("false"))
-
 		self.tab.setCellWidget(pos,2, combobox)
-		combobox.setValue_using_english(active.lower()) #setCurrentIndex(combobox.findText(active.lower()))
 		combobox.currentIndexChanged.connect(self.save)
 		
-		self.tab.setItem(pos,3,QTableWidgetItem(start))
-		self.tab.setItem(pos,4,QTableWidgetItem(width))
-		self.tab.setItem(pos,5,QTableWidgetItem(depth))
-		self.tab.setItem(pos,6,QTableWidgetItem(voltage))
-		self.tab.setItem(pos,7,QTableWidgetItem(np))
+		self.tab.setItem(pos,3,QTableWidgetItem(""))
+		self.tab.setItem(pos,4,QTableWidgetItem(""))
+		self.tab.setItem(pos,5,QTableWidgetItem(""))
+		self.tab.setItem(pos,6,QTableWidgetItem(""))
+		self.tab.setItem(pos,7,QTableWidgetItem(""))
 
 
 		combobox = QComboBoxLang()
@@ -131,11 +145,7 @@ class contacts_window(QWidgetSavePos):
 		combobox.addItemLang("hole",_("Hole"))
 
 		self.tab.setCellWidget(pos,8, combobox)
-		combobox.setValue_using_english(charge_type.lower())
 		combobox.currentIndexChanged.connect(self.save)
-
-
-
 
 		self.tab.blockSignals(False)
 		
@@ -147,7 +157,8 @@ class contacts_window(QWidgetSavePos):
 		else:
 			pos = self.tab.rowCount()
 
-		self.add_row(pos,"","top","false","0.0","0.0","0.0","0.0","0.0","electron")
+		self.add_row()
+		self.set_row(pos,"","top","false","0.0","0.0","0.0","0.0","0.0","electron")
  
 		self.save()
 
@@ -170,15 +181,22 @@ class contacts_window(QWidgetSavePos):
 	def tab_changed(self, x,y):
 		self.save()
 
+	def update(self):
+		i=0
+		for c in contacts_get_array():
+			self.set_row(i,str(c.name),str(c.position),str(c.active),str(c.start),str(c.width),str(c.depth),str(c.voltage),str(c.np),str(c.charge_type))
+			i=i+1
+
 	def load(self):
 		self.tab.clear()
 		self.tab.setHorizontalHeaderLabels([_("Name"),_("Top/Bottom"),_("Active contact"),_("Start")+" (m)", _("Width")+" (m)",_("Depth")+" (m)",_("Voltage"),_("Charge density"),_("Charge type")])
-		contacts_load()
+		get_contactsio().load()
 		#contacts_print()
 		contacts=contacts_get_array()
 		i=0
 		for c in contacts_get_array():
-			self.add_row(i,str(c.name),str(c.position),str(c.active),str(c.start),str(c.width),str(c.depth),str(c.voltage),str(c.np),str(c.charge_type))
+			self.add_row()
+			self.set_row(i,str(c.name),str(c.position),str(c.active),str(c.start),str(c.width),str(c.depth),str(c.voltage),str(c.np),str(c.charge_type))
 
 			i=i+1
 
@@ -219,7 +237,7 @@ class contacts_window(QWidgetSavePos):
 
 		self.main_vbox.addWidget(toolbar)
 
-		self.tab = QTableWidget()
+		self.tab = gpvdm_tab()
 		self.tab.resizeColumnsToContents()
 
 		self.tab.verticalHeader().setVisible(False)
@@ -236,4 +254,7 @@ class contacts_window(QWidgetSavePos):
 
 
 		self.setLayout(self.main_vbox)
+
+		get_contactsio().changed.connect(self.update)
+
 

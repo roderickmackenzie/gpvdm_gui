@@ -41,7 +41,6 @@ from PyQt5.QtCore import QSize, Qt
 from PyQt5.QtWidgets import QWidget,QSizePolicy,QHBoxLayout,QPushButton,QDialog, QFileDialog, QToolBar, QMessageBox, QLineEdit,QVBoxLayout, QTableWidget, QAbstractItemView
 
 #gui_util
-from gui_util import tab_set_value
 from gui_util import tab_add
 from gui_util import tab_get_selected
 

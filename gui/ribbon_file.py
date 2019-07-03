@@ -60,7 +60,7 @@ class ribbon_file(QToolBar):
 		self.addAction(self.home_open)
 
 		self.home_export = QAction(icon_get("document-export"), _("Export\ndata"), self)
-		self.addAction(self.home_export)
+		#self.addAction(self.home_export)
 
 		self.home_export_xls = QAction_lock("export_xls", _("Export\nto Excel"), self,locked=True)
 		#self.home_export_xls = QAction(icon_get("export_xls"), _("Export\nto Excel"), self)

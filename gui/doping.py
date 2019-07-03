@@ -66,6 +66,8 @@ from epitaxy import epitaxy_get_layer
 from error_dlg import error_dlg
 from gui_util import tab_get_value
 
+from file_watch import get_watch
+
 class doping_window(QWidgetSavePos):
 	lines=[]
 
@@ -131,11 +133,19 @@ class doping_window(QWidgetSavePos):
 		self.tab.setHorizontalHeaderLabels([_("Layer"), _("Width"), _("Doping Start (m-3)"), _("Doping Stop (m-3)"), _("Mobile ion density (m-3)"), _("Mobile ion mobility (m-3)")])
 		layers=epitaxy_get_layers()
 
+		row=0
+		for i in range(0,layers):
+			dos_file=epitaxy_get_dos_file(i)
+			if dos_file.startswith("dos")==True:
+				row=row+1
+		self.tab.setRowCount(row)
+
+		row=0
 		for i in range(0,layers):
 			dos_file=epitaxy_get_dos_file(i)
 			e=epitaxy_get_layer(i)
 			width=e.width
-			if dos_file!="none":
+			if dos_file.startswith("dos")==True:
 				lines=[]
 				print("loading",dos_file)
 				file_name=os.path.join(get_sim_path(),dos_file+".inp")
@@ -147,29 +157,27 @@ class doping_window(QWidgetSavePos):
 					ion_density=float(inp_search_token_value(lines, "#ion_density"))
 					ion_mobility=float(inp_search_token_value(lines, "#ion_mobility"))
 
-
-					count=self.tab.rowCount()
-					self.tab.insertRow(count)
-
 					item = QTableWidgetItem(e.name)
 					item.setFlags(item.flags() ^ Qt.ItemIsEnabled)
-					self.tab.setItem(count,0,item)
+					self.tab.setItem(row,0,item)
 
 					item = QTableWidgetItem(str(width))
 					item.setFlags(item.flags() ^ Qt.ItemIsEnabled)
-					self.tab.setItem(count,1,item)
+					self.tab.setItem(row,1,item)
 
 					item = QTableWidgetItem(str(doping_start))
-					self.tab.setItem(count,2,item)
+					self.tab.setItem(row,2,item)
 
 					item = QTableWidgetItem(str(doping_stop))
-					self.tab.setItem(count,3,item)
+					self.tab.setItem(row,3,item)
 
 					item = QTableWidgetItem(str(ion_density))
-					self.tab.setItem(count,4,item)
+					self.tab.setItem(row,4,item)
 
 					item = QTableWidgetItem(str(ion_mobility))
-					self.tab.setItem(count,5,item)
+					self.tab.setItem(row,5,item)
+
+				row=row+1
 
 		self.tab.blockSignals(False)
 
@@ -300,6 +308,13 @@ class doping_window(QWidgetSavePos):
 		self.draw_graph()
 
 		self.setLayout(self.main_vbox)
+
+		layers=epitaxy_get_layers()
+		for i in range(0,layers):
+			dos_file=epitaxy_get_dos_file(i)+".inp"
+			if dos_file.startswith("dos")==True:
+				get_watch().add_call_back(dos_file,self.load)
+
 		return
 
 

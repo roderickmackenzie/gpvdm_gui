@@ -78,6 +78,3 @@ def plot_export(dest_dir,input_files,state,fig):
 		text_file.write(makefile_string)
 		text_file.close()
 
-	if file_ext==".png":
-		print("Saving png as",dest_dir)
-		fig.savefig(dest_dir)

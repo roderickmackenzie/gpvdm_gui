@@ -26,12 +26,17 @@
 #
 
 import os
+
+from PyQt5.QtCore import pyqtSignal
+from PyQt5.QtWidgets import QWidget
+
 from inp import inp_load_file
 from inp import inp_search_token_value
 from inp import inp_save
 
 from util import str2bool
 from cal_path import get_sim_path
+from file_watch import get_watch
 
 class segment():
 	def __init__(self):
@@ -123,82 +128,99 @@ def contacts_save():
 	inp_save(os.path.join(get_sim_path(),"contacts.inp"),lines)
 
 
-def contacts_load():
-	global store
-	store=[]
-	lines=[]
-	pos=0
-	lines=inp_load_file(os.path.join(get_sim_path(),"contacts.inp"))
-	if lines!=False:
-		pos=pos+1	#first comment
-		layers=int(lines[pos])
-
-		for i in range(0, layers):
-			#name
-			pos=pos+1					#token
-			token=lines[pos]
-			
-			pos=pos+1
-			name=lines[pos]			#read value
-
-			#position
-			pos=pos+1					#token
-			token=lines[pos]
-			
-			pos=pos+1
-			position=lines[pos]			#read value
-			
-			#active
-			pos=pos+1					#token
-			token=lines[pos]
-			
-			pos=pos+1
-			active=lines[pos]			#read value
-	
-			#start
-			pos=pos+1					#token
-			token=lines[pos]
-
-			pos=pos+1
-			start=lines[pos]			#read value
-
-			#width
-			pos=pos+1					#token
-			token=lines[pos]
-
-			pos=pos+1
-			width=lines[pos]			#read value
-
-			#depth
-			pos=pos+1					#token
-			token=lines[pos]
-
-			pos=pos+1
-			depth=lines[pos]			#read value
-
-			#voltage
-			pos=pos+1					#token
-			token=lines[pos]
-
-			pos=pos+1
-			voltage=lines[pos]			#read value
-
-			#contact_charge_density
-			pos=pos+1					#token
-			token=lines[pos]
-
-			pos=pos+1
-			charge_density=lines[pos]			#read value
-
-			#contact_charge_type
-			pos=pos+1					#token
-			token=lines[pos]
-
-			pos=pos+1
-			charge_type=lines[pos]			#read value
-
-			#print(depth,voltage,charge_density)
-			contacts_append(name,position,str2bool(active), float(start),float(width), float(depth),float(voltage),float(charge_density), charge_type)
 
 		#contacts_dump()
+class contacts_io(QWidget):
+	changed = pyqtSignal()
 
+	def init_watch(self):
+		get_watch().add_call_back("contacts.inp",self.em)
+
+	def em(self):
+		self.load()
+		self.changed.emit()
+
+	def load(self):
+		global store
+		store=[]
+		lines=[]
+		pos=0
+		lines=inp_load_file(os.path.join(get_sim_path(),"contacts.inp"))
+		if lines!=False:
+			pos=pos+1	#first comment
+			layers=int(lines[pos])
+
+			for i in range(0, layers):
+				#name
+				pos=pos+1					#token
+				token=lines[pos]
+				
+				pos=pos+1
+				name=lines[pos]			#read value
+
+				#position
+				pos=pos+1					#token
+				token=lines[pos]
+				
+				pos=pos+1
+				position=lines[pos]			#read value
+				
+				#active
+				pos=pos+1					#token
+				token=lines[pos]
+				
+				pos=pos+1
+				active=lines[pos]			#read value
+		
+				#start
+				pos=pos+1					#token
+				token=lines[pos]
+
+				pos=pos+1
+				start=lines[pos]			#read value
+
+				#width
+				pos=pos+1					#token
+				token=lines[pos]
+
+				pos=pos+1
+				width=lines[pos]			#read value
+
+				#depth
+				pos=pos+1					#token
+				token=lines[pos]
+
+				pos=pos+1
+				depth=lines[pos]			#read value
+
+				#voltage
+				pos=pos+1					#token
+				token=lines[pos]
+
+				pos=pos+1
+				voltage=lines[pos]			#read value
+
+				#contact_charge_density
+				pos=pos+1					#token
+				token=lines[pos]
+
+				pos=pos+1
+				charge_density=lines[pos]			#read value
+
+				#contact_charge_type
+				pos=pos+1					#token
+				token=lines[pos]
+
+				pos=pos+1
+				charge_type=lines[pos]			#read value
+
+				#print(depth,voltage,charge_density)
+				contacts_append(name,position,str2bool(active), float(start),float(width), float(depth),float(voltage),float(charge_density), charge_type)
+
+contacts=None
+
+def get_contactsio():
+	global contacts
+	if contacts==None:
+		contacts=contacts_io()
+	return contacts

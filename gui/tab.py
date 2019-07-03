@@ -69,6 +69,8 @@ from inp import inp_getmtime
 from dos_complex_switch import dos_complex_switch
 from shape_dos_switch import shape_dos_switch
 
+from file_watch import get_watch
+
 class QChangeLog(QTextEdit):
 	def __init__(self):
 		QTextEdit.__init__(self)
@@ -98,7 +100,6 @@ class tab_class(QWidget,tab_base):
 		self.icon_file=""
 		QWidget.__init__(self)
 		self.editable=True
-		self.last_edit_time=0
 
 	def callback_unit_click(self,token,widget,unit):
 		if type(widget)==shape_dos_switch:
@@ -185,11 +186,7 @@ class tab_class(QWidget,tab_base):
 		self.ref_window.show()
 
 	def callback_check_edited(self):
-		#print("bing"+self.file_name)
-		if self.last_edit_time!=inp_getmtime(self.file_name):
-			#print("edited")
-			self.last_edit_time=inp_getmtime(self.file_name)
-			self.update()
+		self.update()
 
 	def update(self):
 		self.lines=inp_load_file(self.file_name)
@@ -441,11 +438,7 @@ class tab_class(QWidget,tab_base):
 		
 		self.setLayout(self.hbox)
 
-		self.last_edit_time=inp_getmtime(self.file_name)
-		self.timer=QTimer()
-		#self.timer.setSingleShot(False)
-		self.timer.timeout.connect(self.callback_check_edited)
-		self.timer.start(1000)
+		get_watch().add_call_back(self.file_name,self.callback_check_edited)
 
 
 

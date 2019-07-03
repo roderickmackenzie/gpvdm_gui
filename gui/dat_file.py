@@ -554,6 +554,46 @@ class dat_file():
 		self.valid_data=True
 		return True
 
+	def save_as_csv(self,file_name):
+		if file_name.endswith(".csv")==False:
+			file_name=file_name+".csv"
+
+		lines=[]
+
+		lines.append(self.y_label+","+self.data_label)
+
+		for i in range(0,self.y_len):
+			y_text=str('{:.8e}'.format(float(self.y_scale[i])))
+			data_text=str('{:.8e}'.format(float(self.data[0][0][i])))
+			lines.append(y_text+","+data_text)
+
+		dump=""
+		for item in lines:
+			dump=dump+item+"\n"
+			
+		f=open(file_name, mode='w')
+		lines = f.write(dump)
+		f.close()
+
+	def save_as_txt(self,file_name):
+		if file_name.endswith(".txt")==False:
+			file_name=file_name+".txt"
+
+		lines=[]
+
+		for i in range(0,self.y_len):
+			y_text=str('{:.8e}'.format(float(self.y_scale[i])))
+			data_text=str('{:.8e}'.format(float(self.data[0][0][i])))
+			lines.append(y_text+" "+data_text)
+
+		dump=""
+		for item in lines:
+			dump=dump+item+"\n"
+			
+		f=open(file_name, mode='w')
+		lines = f.write(dump)
+		f.close()
+
 	def gen_output_data(self):
 		lines=[]
 		lines.append("#gpvdm")

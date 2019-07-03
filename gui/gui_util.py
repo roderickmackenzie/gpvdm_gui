@@ -88,6 +88,7 @@ def tab_get_value(tab,y,x):
 	else:
 		return tab.item(y, x).text()
 
+#Do not use this, use gpvdm_tab instead
 def tab_set_value(tab,y,x,value):
 	if type(tab.cellWidget(y, x))==QComboBox:
 		tab.cellWidget(y, x).blockSignals(True)

@@ -57,7 +57,6 @@ from gui_util import tab_move_down
 from gui_util import tab_move_up
 from gui_util import tab_remove
 from gui_util import tab_get_value
-from gui_util import tab_set_value
 from open_save_dlg import save_as_filter
 
 from error_dlg import error_dlg

@@ -87,7 +87,7 @@ from gui_util import tab_get_value
 from error_dlg import error_dlg
 from gui_util import yes_no_dlg
 from gui_util import tab_get_selected
-from gui_util import tab_set_value
+from gpvdm_tab import gpvdm_tab
 from gui_util import tab_insert_row
 
 import i18n
@@ -136,8 +136,8 @@ class scan_vbox(QWidget):
 
 		if len(a)>0:
 			a=a[0].row()
-			tab_set_value(self.tab,a,3,"str(round(random.uniform(1.0, 9.9),2))+\"e-\"+str(randint(1, 9))")
-			tab_set_value(self.tab,a,4,"python_code")
+			self.tab.set_value(a,3,"str(round(random.uniform(1.0, 9.9),2))+\"e-\"+str(randint(1, 9))")
+			self.tab.set_value(a,4,"python_code")
 
 
 	def add_line(self,data):
@@ -174,7 +174,7 @@ class scan_vbox(QWidget):
 #			row=row[0].row()
 #			if len(lines)>=4:
 #				for i in range(0,len(lines)):
-#					tab_set_value(self.tab,row,i,lines[i])
+#					self.tab.set_value(row,i,lines[i])
 
 	def callback_show_list(self):
 		self.select_param_window=select_param(self.tab)
@@ -392,28 +392,28 @@ class scan_vbox(QWidget):
 			if value == "constant":
 				found=True
 				if tab_get_value(self.tab,i,3)=="duplicate":
-					tab_set_value(self.tab,i,3,"0.0")
+					self.tab.set_value(i,3,"0.0")
 	
 			if value == "scan":
 				found=True
 				if tab_get_value(self.tab,i,3)=="duplicate":
-					tab_set_value(self.tab,i,3,"0.0 0.0 0.0")
+					self.tab.set_value(i,3,"0.0 0.0 0.0")
 
 			if value == "python_code":
 				found=True
 				if tab_get_value(self.tab,i,3)=="duplicate":
-					tab_set_value(self.tab,i,3,"0.0")
+					self.tab.set_value(i,3,"0.0")
 
 			if value == "random_file_name":
 				found=True
-				tab_set_value(self.tab,i,0,"not needed")
-				tab_set_value(self.tab,i,1,"not needed")
-				tab_set_value(self.tab,i,2,"not needed")
+				self.tab.set_value(i,0,"not needed")
+				self.tab.set_value(i,1,"not needed")
+				self.tab.set_value(i,2,"not needed")
 				if tab_get_value(self.tab,i,3)=="duplicate":
-					tab_set_value(self.tab,i,3,"10")
+					self.tab.set_value(i,3,"10")
 
 			if found==False:
-				tab_set_value(self.tab,i,3,"duplicate")
+				self.tab.set_value(i,3,"duplicate")
 
 		self.save_combo()
 
@@ -505,7 +505,7 @@ class scan_vbox(QWidget):
 
 			self.tab.setCellWidget(i,4, combobox)
 			
-			tab_set_value(self.tab,i,4,save_value)
+			self.tab.set_value(i,4,save_value)
 			combobox.currentIndexChanged.connect(self.combo_duplicate_changed)
 		self.tab.blockSignals(False)
 
@@ -597,7 +597,7 @@ class scan_vbox(QWidget):
 
 		self.main_vbox.addWidget(toolbar)
 
-		self.tab = QTableWidget()
+		self.tab = gpvdm_tab()
 		#self.tab.resizeColumnsToContents()
 
 		

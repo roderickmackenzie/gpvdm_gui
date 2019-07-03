@@ -99,8 +99,6 @@ from window_list import resize_window_to_be_sane
 from gpvdm_notebook import gpvdm_notebook
 from epitaxy import get_epi
 
-from contacts_io import contacts_load
-
 #server
 from server import server
 from server import server_init
@@ -110,12 +108,12 @@ from server import server_get
 from mesh import mesh_load_all
 
 
-from PyQt5.QtWidgets import QMainWindow,QApplication
 from splash import splash_window
 from process_events import process_events
 from error_han import error_han
 
 #qt
+from PyQt5.QtWidgets import QMainWindow,QApplication
 from PyQt5.QtWidgets import QTextEdit, QAction
 from PyQt5.QtGui import QIcon
 from PyQt5.QtCore import QSize, Qt,QFile,QIODevice
@@ -128,8 +126,10 @@ from cal_path import get_materials_path
 from clone_materials import clone_materials
 from cal_path import get_spectra_path
 from clone import clone_spectras
+from file_watch import get_watch
 
 
+from contacts_io import get_contactsio
 
 def do_import():
 	global new_simulation
@@ -377,7 +377,10 @@ class gpvdm_main_window(QMainWindow):
 		get_epi().load(get_sim_path())
 		self.splash.inc_value()
 
-		contacts_load()
+		get_watch().reset()
+
+		get_contactsio().load()
+		get_contactsio().init_watch()
 		self.splash.inc_value()
 
 		if mesh_load_all()==False:
@@ -411,6 +414,7 @@ class gpvdm_main_window(QMainWindow):
 		self.splash.inc_value()
 		#help_window().help_append(["star.png",_("<big><b>Update available!</b></big><br>")])
 
+		
 
 	def load_sim(self,filename):
 		new_path=os.path.dirname(filename)
@@ -475,6 +479,7 @@ class gpvdm_main_window(QMainWindow):
 		super(gpvdm_main_window,self).__init__()
 
 		self.splash=splash_window()
+
 		self.splash.inc_value()
 		process_events()
 		process_events()

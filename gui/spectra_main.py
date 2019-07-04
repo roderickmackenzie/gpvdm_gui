@@ -97,7 +97,7 @@ class spectra_main(QWidgetSavePos):
 		self.ribbon=ribbon_spectra()
 		
 
-		self.ribbon.import_data.triggered.connect(self.callback_import)
+		self.ribbon.import_data.secure_click.connect(self.callback_import)
 		self.ribbon.tb_ref.triggered.connect(self.callback_ref)
 
 		self.ribbon.help.triggered.connect(self.callback_help)
@@ -120,7 +120,7 @@ class spectra_main(QWidgetSavePos):
 		self.alpha=plot_widget()
 		self.alpha.init(enable_toolbar=False)
 		self.alpha.set_labels([_("Spectra")])
-		self.alpha.load_data([fname],os.path.splitext(fname)[0]+".oplot")
+		self.alpha.load_data([fname])
 
 		self.alpha.do_plot()
 		self.notebook.addTab(self.alpha,_("Absorption"))

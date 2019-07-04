@@ -88,27 +88,6 @@ def tab_get_value(tab,y,x):
 	else:
 		return tab.item(y, x).text()
 
-#Do not use this, use gpvdm_tab instead
-def tab_set_value(tab,y,x,value):
-	if type(tab.cellWidget(y, x))==QComboBox:
-		tab.cellWidget(y, x).blockSignals(True)
-		tab.cellWidget(y, x).setCurrentIndex(tab.cellWidget(y, x).findText(value))
-		tab.cellWidget(y, x).blockSignals(False)
-	elif type(tab.cellWidget(y, x))==QComboBoxLang:
-		tab.cellWidget(y, x).blockSignals(True)
-		tab.cellWidget(y, x).setValue_using_english(value)
-		tab.cellWidget(y, x).blockSignals(False)
-	elif type(tab.cellWidget(y,x))==gpvdm_select:
-		tab.cellWidget(y, x).blockSignals(True)
-		tab.cellWidget(y, x).setText(value)
-		tab.cellWidget(y, x).blockSignals(False)
-	elif type(tab.cellWidget(y,x))==gtkswitch:
-		tab.cellWidget(y, x).blockSignals(True)
-		tab.cellWidget(y, x).set_value(str2bool(value))
-		tab.cellWidget(y, x).blockSignals(False)
-	else:
-		item = QTableWidgetItem(str(value))
-		tab.setItem(y,x,item)
 
 def tab_get_selected(tab):
 	a=tab.selectionModel().selectedRows()
@@ -125,41 +104,6 @@ def tab_get_selected(tab):
 
 	return ret
 
-def tab_move_down(tab):
-	ret=-1
-
-	if tab.rowCount()==0:
-		return -1
-
-	tab.blockSignals(True)
-	a=tab.selectionModel().selectedRows()
-
-	if len(a)>0:
-		a=a[0].row()
-
-		b=a+1
-		if b>tab.rowCount()-1:
-			return -1
-
-		ret=a
-
-		av=[]
-		for i in range(0,tab.columnCount()):
-			av.append(str(tab_get_value(tab,a,i)))
-
-		bv=[]
-		for i in range(0,tab.columnCount()):
-			bv.append(str(tab_get_value(tab,b,i)))
-
-		for i in range(0,tab.columnCount()):
-			tab_set_value(tab,b,i,str(av[i]))
-			tab_set_value(tab,a,i,str(bv[i]))
-
-		tab.selectRow(b)
-		tab.blockSignals(False)
-		return ret
-	else:
-		return -1
 
 def tab_move_up(tab):
 	ret=-1
@@ -188,8 +132,8 @@ def tab_move_up(tab):
 			bv.append(str(tab_get_value(tab,b,i)))
 
 		for i in range(0,tab.columnCount()):
-			tab_set_value(tab,b,i,str(av[i]))
-			tab_set_value(tab,a,i,str(bv[i]))
+			tab.set_value(b,i,str(av[i]))
+			tab.set_value(a,i,str(bv[i]))
 
 		tab.selectRow(b)
 		tab.blockSignals(False)
@@ -210,31 +154,6 @@ def tab_insert_row(tab):
 	tab.insertRow(pos)
 	tab.blockSignals(False)
 	return pos
-
-	
-def tab_add(tab,data):
-	tab.blockSignals(True)
-	index = tab.selectionModel().selectedRows()
-
-	if len(index)>0:
-		pos=index[0].row()+1
-	else:
-		pos = tab.rowCount()
-
-	if tab.columnCount()==len(data):
-		tab.insertRow(pos)
-		for i in range(0,len(data)):
-			tab.setItem(pos,i,QTableWidgetItem(data[i]))
-
-	if len(data)>tab.columnCount():
-		rows=int(len(data)/tab.columnCount())
-		for ii in range(0,rows):
-			tab.insertRow(pos)
-			for i in range(0,tab.columnCount()):
-				tab.setItem(pos,i,QTableWidgetItem(data[ii*tab.columnCount()+i]))
-			pos=pos+1
-				
-	tab.blockSignals(False)
 
 
 def tab_remove(tab):

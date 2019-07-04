@@ -52,6 +52,7 @@ from tb_spectrum import tb_spectrum
 from util import wrap_text
 from ribbon_base import ribbon_base
 from play import play
+from QAction_lock import QAction_lock
 
 class optics_ribbon(ribbon_base):
 
@@ -62,10 +63,6 @@ class optics_ribbon(ribbon_base):
 		
 		self.run = play(self,run_text=wrap_text(_("Run optical simulation"),5))
 		toolbar.addAction(self.run)
-		
-		self.tb_save = QAction(icon_get("document-save-as"), _("Save graph"), self)
-		#self.tb_save.triggered.connect(self.save_image)
-		toolbar.addAction(self.tb_save)
 
 		self.fx_box=fx_selector()
 		self.fx_box.show_all=True
@@ -99,6 +96,15 @@ class optics_ribbon(ribbon_base):
 
 		return toolbar
 
+	def export_data(self):
+		toolbar = QToolBar()
+		toolbar.setToolButtonStyle( Qt.ToolButtonTextUnderIcon)
+		toolbar.setIconSize(QSize(42, 42))
+		
+		self.tb_save = QAction_lock("export_image", _("Save graph"), self,locked=True)
+		toolbar.addAction(self.tb_save)
+
+		return toolbar
 
 	def update(self):
 		self.fx_box.update()
@@ -122,6 +128,9 @@ class optics_ribbon(ribbon_base):
 
 		w=self.configure()
 		self.addTab(w,_("Configure"))
+
+		w=self.export_data()
+		self.addTab(w,_("Export data"))
 
 		sheet=self.readStyleSheet(os.path.join(get_css_path(),"style.css"))
 		if sheet!=None:

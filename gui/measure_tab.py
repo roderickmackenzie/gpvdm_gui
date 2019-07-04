@@ -40,7 +40,6 @@ from scan_item import scan_items_get_token
 from util import str2bool
 
 from scan_item import scan_items_lookup_item
-from gui_util import tab_move_down
 from gui_util import tab_move_up
 
 import i18n
@@ -51,7 +50,6 @@ from PyQt5.QtCore import QSize, Qt
 from PyQt5.QtWidgets import QWidget,QVBoxLayout,QToolBar,QSizePolicy,QAction,QTabWidget,QTableWidget,QAbstractItemView, QMenuBar,QTableWidgetItem
 from PyQt5.QtGui import QPainter,QIcon
 
-from gui_util import tab_add
 from gui_util import tab_remove
 from gui_util import tab_get_value
 
@@ -244,7 +242,7 @@ class measure_tab(QWidget):
 		self.setLayout(self.vbox)
 
 	def callback_move_down(self):
-		tab_move_down(self.tab)
+		self.tab.move_down()
 
 	def callback_move_up(self):
 		tab_move_up(self.tab)

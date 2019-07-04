@@ -99,7 +99,7 @@ class class_optical(QWidgetSavePos):
 
 		self.ribbon.help.triggered.connect(self.callback_help)
 
-		self.ribbon.tb_save.triggered.connect(self.callback_save)
+		self.ribbon.tb_save.secure_click.connect(self.callback_save)
 
 		self.ribbon.configwindow.triggered.connect(self.callback_configwindow)
 
@@ -122,8 +122,8 @@ class class_optical(QWidgetSavePos):
 			self.plot_widgets[i].hide_title=True
 			self.plot_widgets[i].init(enable_toolbar=False)
 			self.plot_widgets[i].set_labels([plot_labels[0]])
-			self.plot_widgets[i].load_data([input_files[i]],os.path.splitext(input_files[i])[0]+".oplot")
-
+			self.plot_widgets[i].load_data([input_files[i]])
+			#self.plot_widgets[i].watermark_alpha=0.5
 			self.plot_widgets[i].do_plot()
 			#self.plot_widgets[i].show()
 			self.notebook.addTab(self.plot_widgets[i],plot_labels[i])

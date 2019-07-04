@@ -78,7 +78,6 @@ from colors import get_marker
 
 from dat_file import dat_file_print
 from plot_ribbon import plot_ribbon
-from lock import get_lock
 
 class plot_widget(QWidget):
 
@@ -123,22 +122,22 @@ class plot_widget(QWidget):
 				self.ly.set_xdata(self.xdata)
 
 			elif keyname=="l":
-				if self.data[0].logy==True:
-					self.data[0].logy=False
+				if self.data[0].logdata==True:
+					self.data[0].logdata=False
 					for i in range(0,len(self.ax)):
 						self.ax[i].set_yscale("linear")
 				else:
-					self.data[0].logy=True
+					self.data[0].logdata=True
 					for i in range(0,len(self.ax)):
 						self.ax[i].set_yscale("log")
 
 			elif keyname=="L":
-				if self.data[0].logx==True:
-					self.data[0].logx=False
+				if self.data[0].logy==True:
+					self.data[0].logy=False
 					for i in range(0,len(self.ax)):
 						self.ax[i].set_xscale("linear")
 				else:
-					self.data[0].logx=True
+					self.data[0].logy=True
 					for i in range(0,len(self.ax)):
 						self.ax[i].set_xscale("log")
 
@@ -220,10 +219,11 @@ class plot_widget(QWidget):
 				data_text=self.data[i].data_label
 				data_units=self.data[i].data_units
 
-			if self.data[0].logx==True:
+			if self.data[0].logy==True:
 				self.ax[i].set_xscale("log")
 
-			if self.data[0].logy==True:
+			print(">>>>>>>>",self.data[0].logdata)
+			if self.data[0].logdata==True:
 				self.ax[i].set_yscale("log")
 
 
@@ -331,14 +331,13 @@ class plot_widget(QWidget):
 			if len(files)<40:
 				self.fig.legend(all_plots, files, self.data[0].legend_pos)
 
-		if get_lock().is_trial()==True:
-			self.fig.text(0.90, 0.25, 'Upgrade to gpvdm proessional.', fontsize=15, color='gray', ha='right', va='bottom', alpha=0.1)
-			self.fig.text(0.40, 0.80, 'Upgrade to gpvdm proessional.', fontsize=15, color='gray', ha='right', va='bottom', alpha=0.1)
-			self.fig.text(0.40, 0.20, 'Upgrade to gpvdm proessional.', fontsize=15, color='gray', ha='right', va='bottom', alpha=0.1)
 
 		#self.fig.tight_layout(pad=0.0, w_pad=0.0, h_pad=0.0,axes_pad=0.0)
 		self.fig.canvas.draw()
 		#print("exit do plot")
+
+	def save_imaeg(self):
+		self.callback_save_image()
 
 	def callback_save_image(self):
 		file_name=save_as_image(self)
@@ -370,19 +369,14 @@ class plot_widget(QWidget):
 
 		self.norm_data()
 
-	def load_data(self,input_files,config_file):
+	def load_data(self,input_files):
 		self.lx=None
 		self.ly=None
 		self.input_files=input_files
-		self.config_file=config_file
 
 		if len(input_files)==0:
 			print(_("No files were given to load"))
 			return
-
-		if self.config_file=="":
-			base=os.path.splitext(input_files[0])
-			self.config_file=base[0]+".oplot"
 
 		self.reload()
 
@@ -475,7 +469,6 @@ class plot_widget(QWidget):
 	def callback_key(self):
 		if len(self.data)>0:
 			self.data[0].legend_pos=widget.get_label()
-			#print(self.config_file,self.data[0])
 			self.do_plot()
 
 	def callback_units(self):
@@ -567,23 +560,22 @@ class plot_widget(QWidget):
 			self.do_plot()
 
 	def update(self):
-		self.load_data(self.input_files,self.config_file)
+		self.load_data(self.input_files)
 		self.do_plot()
 
 	def callback_refresh(self):
 		self.update()
 
 	def __init__(self):
+		self.watermark_alpha=0.05
 		self.data=[]
 		self.input_files=[]
-		self.config_file=""
 		self.hide_title=False
 		QWidget.__init__(self)
 		self.setWindowIcon(icon_get("plot"))
 
 	def init(self,enable_toolbar=True):
 		self.main_vbox = QVBoxLayout()
-		self.config_file=""
 		self.labels=[]
 		self.fig = Figure(figsize=(2.5,2), dpi=100)
 		self.canvas = FigureCanvas(self.fig)  # a gtk.DrawingArea
@@ -614,7 +606,6 @@ class plot_widget(QWidget):
 			nav_bar=NavigationToolbar(self.canvas,self)
 			actions = nav_bar.findChildren(QAction)
 			for a in actions:
-				print(a.text())
 				if a.text() == 'Save':
 					nav_bar.removeAction(a)
 					break

@@ -63,7 +63,7 @@ class plot_window():
 			plot_labels[i].replace("\\","/")
 
 		self.plot.set_labels(plot_labels)
-		self.plot.load_data(input_files,config_file)
+		self.plot.load_data(input_files)
 
 		self.plot.do_plot()
 		self.plot.show()

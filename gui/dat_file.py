@@ -32,6 +32,7 @@ import hashlib
 import glob
 from util_zip import zip_get_data_file
 from inp import inp_load_file
+from util import str2bool
 
 #search first 40 lines for dims
 def dat_file_load_info(output,lines):
@@ -81,13 +82,13 @@ def dat_file_load_info(output,lines):
 						if (command[0]=="#data_units"):
 							output.data_units=command[1]
 						if (command[0]=="#logscale_x"):
-							output.logx=bool(int(command[1]))
+							output.logx=str2bool(command[1])
 						if (command[0]=="#logscale_y"):
-							output.logy=bool(int(command[1]))
+							output.logy=str2bool(command[1])
 						if (command[0]=="#logscale_z"):
-							output.logz=bool(int(command[1]))
+							output.logz=str2bool(command[1])
 						if (command[0]=="#logscale_data"):
-							output.logdata=bool(int(command[1]))
+							output.logdata=str2bool(command[1])
 						if (command[0]=="#type"):
 							output.type=command[1]
 						if (command[0]=="#title"):
@@ -594,6 +595,11 @@ class dat_file():
 		lines = f.write(dump)
 		f.close()
 
+	def save(self,file_name):
+		a = open(file_name, "w")
+		a.write("\n".join(self.gen_output_data()))
+		a.close()
+
 	def gen_output_data(self):
 		lines=[]
 		lines.append("#gpvdm")
@@ -628,13 +634,16 @@ class dat_file():
 			lines.append("#data_units "+str(self.data_units))
 
 		if self.logy!=False:
-			lines.append("#logy "+str(self.logy))
+			lines.append("#logscale_y "+str(self.logy))
 
 		if self.logx!=False:
-			lines.append("#logx "+str(self.logx))
+			lines.append("#logscale_x "+str(self.logx))
 
 		if self.logz!=False:
-			lines.append("#logz "+str(self.logz))
+			lines.append("#logscale_z "+str(self.logz))
+
+		if self.logdata!=False:
+			lines.append("#logscale_data "+str(self.logdata))
 
 		lines.append("#time "+str(self.time))
 		lines.append("#Vexternal "+str(self.Vexternal))

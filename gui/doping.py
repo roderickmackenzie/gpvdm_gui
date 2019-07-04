@@ -45,7 +45,7 @@ from epitaxy import epitaxy_get_width
 
 #qt
 from PyQt5.QtCore import QSize, Qt 
-from PyQt5.QtWidgets import QWidget,QVBoxLayout,QToolBar,QSizePolicy,QAction,QTabWidget,QTableWidget,QTableWidgetItem,QAbstractItemView
+from PyQt5.QtWidgets import QWidget,QVBoxLayout,QToolBar,QSizePolicy,QAction,QTabWidget,QTableWidgetItem,QAbstractItemView
 from PyQt5.QtGui import QPainter,QIcon
 
 #matplotlib
@@ -67,6 +67,7 @@ from error_dlg import error_dlg
 from gui_util import tab_get_value
 
 from file_watch import get_watch
+from gpvdm_tab import gpvdm_tab
 
 class doping_window(QWidgetSavePos):
 	lines=[]
@@ -282,7 +283,7 @@ class doping_window(QWidgetSavePos):
 
 		self.main_vbox.addWidget(canvas)
 
-		self.tab = QTableWidget()
+		self.tab = gpvdm_tab()
 		self.tab.resizeColumnsToContents()
 
 		self.tab.verticalHeader().setVisible(False)

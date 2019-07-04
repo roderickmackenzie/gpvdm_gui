@@ -64,7 +64,7 @@ class fit_progress(QTabWidget):
 			self.plot_widgets.append(plot_widget())
 			self.plot_widgets[-1].init(enable_toolbar=False)
 			self.plot_widgets[-1].set_labels([os.path.basename(f_name)])
-			self.plot_widgets[-1].load_data([f_name],os.path.splitext(f_name)[0]+".oplot")
+			self.plot_widgets[-1].load_data([f_name])
 			self.plot_widgets[-1].do_plot()
 
 			self.addTab(self.plot_widgets[-1],file_name)

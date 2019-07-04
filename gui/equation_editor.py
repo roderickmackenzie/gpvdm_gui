@@ -52,8 +52,6 @@ from PyQt5.QtCore import QSize, Qt
 from PyQt5.QtWidgets import QWidget,QDialog,QVBoxLayout,QToolBar,QSizePolicy,QAction,QTabWidget,QTableWidget,QAbstractItemView
 
 #windows
-from gui_util import tab_add
-from gui_util import tab_move_down
 from gui_util import tab_move_up
 from gui_util import tab_remove
 from gui_util import tab_get_value
@@ -116,7 +114,7 @@ class equation_editor(QWidgetSavePos):
 
 	def callback_add_section(self):
 
-		tab_add(self.tab,["100e-9","1000e-9",self.default_value])
+		self.tab.add(["100e-9","1000e-9",self.default_value])
 
 		self.build_mesh()
 		self.draw_graph()
@@ -133,8 +131,7 @@ class equation_editor(QWidgetSavePos):
 		self.save_data()
 
 	def callback_move_down(self):
-
-		tab_move_down(self.tab)
+		self.tab.move_down()
 
 		self.build_mesh()
 		self.draw_graph()
@@ -192,7 +189,7 @@ class equation_editor(QWidgetSavePos):
 				token,start,pos=inp_read_next_item(lines,pos)
 				token,stop,pos=inp_read_next_item(lines,pos)
 				token,equation,pos=inp_read_next_item(lines,pos)
-				tab_add(self.tab,[str(start),str(stop),str(equation)])
+				self.tab.add([str(start),str(stop),str(equation)])
 
 	def build_mesh(self):
 
@@ -253,14 +250,10 @@ class equation_editor(QWidgetSavePos):
 		if response==True:
 			out_file=os.path.join(self.path,self.out_file)
 
-			#try:
-			a = open(out_file, "w")
-			a.write("\n".join(self.data.gen_output_data()))
-			a.close()
+			self.data.save(out_file)
 			self.data_written.emit()
 			self.close()
-			#except IOError:
-			#	print("Could not write the file file:", out_file)
+
 	
 	
 	def callback_play(self):

@@ -31,8 +31,9 @@ from icon_lib import icon_get
 
 #qt
 from PyQt5.QtCore import QSize, Qt 
-from PyQt5.QtWidgets import QWidget,QVBoxLayout,QToolBar,QSizePolicy,QAction,QTableWidget,QAbstractItemView
+from PyQt5.QtWidgets import QWidget,QVBoxLayout,QToolBar,QSizePolicy,QAction,QAbstractItemView
 from PyQt5.QtGui import QPainter,QIcon
+from gpvdm_tab import gpvdm_tab
 
 #python modules
 import webbrowser
@@ -52,8 +53,6 @@ try:
 	work_book_enabled=True
 except:
 	print("python3-openpyxl not found")
-
-from gui_util import tab_add
 
 
 from cal_path import get_materials_path
@@ -99,7 +98,7 @@ class cost(QWidgetSavePos):
 		self.main_vbox.addWidget(toolbar)
 
 
-		self.tab= QTableWidget()
+		self.tab= gpvdm_tab()
 
 		self.main_vbox.addWidget(self.tab)
 
@@ -143,7 +142,7 @@ class cost(QWidgetSavePos):
 				energy_per_kg = float(ws['B4'].value)
 				energy=energy_per_kg*mass
 
-				tab_add(self.tab,[name,str(volume),str(mass),str(cost),str(energy)])
+				self.tab.add([name,str(volume),str(mass),str(cost),str(energy)])
 
 				energy_tot=energy_tot+energy
 				cost_tot=cost_tot+cost
@@ -155,8 +154,8 @@ class cost(QWidgetSavePos):
 			gen_energy=1366.0*pce/100.0
 			payback_time=energy_tot/gen_energy/60.0/60.0/24/365
 		
-		tab_add(self.tab,["sum","","",str(cost_tot),str(energy_tot)])
-		tab_add(self.tab,["","","pay back time=",str(payback_time),"years"])
+		self.tab.add(self.tab,["sum","","",str(cost_tot),str(energy_tot)])
+		self.tab.add(self.tab,["","","pay back time=",str(payback_time),"years"])
 
 
 

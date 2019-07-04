@@ -27,22 +27,11 @@
 #
 
 import os
-from inp import inp_isfile
 from inp import inp_load_file
 from inp import inp_save
+
 from numpy import *
-from scan_item import scan_item_add
-from tab_base import tab_base
-
 from open_save_dlg import save_as_image
-
-#matplotlib
-import matplotlib
-matplotlib.use('Qt5Agg')
-from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
-from matplotlib.figure import Figure
-from matplotlib.backends.backend_qt5agg import NavigationToolbar2QT as NavigationToolbar
-import matplotlib.pyplot as plt
 
 #qt
 from PyQt5.QtCore import QSize, Qt 
@@ -53,11 +42,16 @@ from PyQt5.QtCore import pyqtSignal
 
 from icon_lib import icon_get
 
-from gui_util import tab_add
 from gui_util import tab_remove
 from gui_util import tab_get_value
 
 from ribbon_complex_dos import ribbon_complex_dos 
+from gpvdm_tab import gpvdm_tab
+from inp import inp_get_token_value
+from cal_path import get_sim_path
+from dat_file import dat_file
+
+from plot_widget import plot_widget
 
 class equation_editor(QGroupBox):
 
@@ -106,7 +100,7 @@ class equation_editor(QGroupBox):
 			c=lines[pos] 	#read value
 			pos=pos+1
 
-			tab_add(self.tab,[ str(function), str(enabled), str(a), str(b), str(c)])
+			self.tab.add([ str(function), str(enabled), str(a), str(b), str(c)])
 
 	def __init__(self,file_name,name):
 		QGroupBox.__init__(self)
@@ -118,19 +112,14 @@ class equation_editor(QGroupBox):
 		self.setLayout(vbox)
 
 		toolbar=QToolBar()
-		toolbar.setIconSize(QSize(48, 48))
+		self.tab = gpvdm_tab(toolbar=toolbar)
 
-		add = QAction(icon_get("list-add",size=16),  _("Add "+self.name+" mesh layer"), self)
-		add.triggered.connect(self.add_item_clicked)
-		toolbar.addAction(add)
+		self.tab.tb_add.triggered.connect(self.add_item_clicked)
 
-		remove = QAction(icon_get("list-remove",size=16),  _("Remove "+self.name+" mesh layer"), self)
-		remove.triggered.connect(self.on_remove_click)
-		toolbar.addAction(remove)
+		self.tab.tb_remove.triggered.connect(self.on_remove_click)
 
 		vbox.addWidget(toolbar)
 
-		self.tab = QTableWidget()
 
 		self.tab.resizeColumnsToContents()
 
@@ -151,7 +140,7 @@ class equation_editor(QGroupBox):
 		self.changed.emit()
 		
 	def add_item_clicked(self):
-		tab_add(self.tab,[ "exp", "true", "a", "b", "c"])
+		self.tab.add([ "exp", "true", "a", "b", "c"])
 		self.save()
 		self.changed.emit()
 
@@ -180,86 +169,174 @@ class equation_editor(QGroupBox):
 
 		
 ############
-class dos_editor(QWidget,tab_base):
+class dos_editor(QWidget):
 
 	def update_graph(self):
-		self.LUMO_fig.clf()
-		self.draw_graph_lumo()
-		self.LUMO_fig.canvas.draw()
-
-	def draw_graph_lumo(self):
-
-		ax1 = self.LUMO_fig.add_subplot(111)
-
-		ax1.set_ylabel('$DoS (m^{-3} eV^{-1})$')
-		ax1.set_xlabel('Energy (eV)')
-
-		#ax2 = ax1.twinx()
-		#x_pos=0.0
-		#layer=0
-		color =['r','g','b','y','o','r','g','b','y','o']
-		ax1.set_yscale('log')
-		ax1.set_ylim(ymin=1e17,ymax=1e28)
-		pos=0
-		Eg=2.0
-		ax1.set_xlim([0,-Eg])
-		x = linspace(0, -Eg, num=40)
-		for i in range(0,self.lumo.tab.rowCount()):
-			try:
-				a=float(tab_get_value(self.lumo.tab,i,2))
-				b=float(tab_get_value(self.lumo.tab,i,3))
-				c=float(tab_get_value(self.lumo.tab,i,4))
-			except:
-				a=0.0
-				b=0.0
-				c=0.0
-				
-			if tab_get_value(self.lumo.tab,i,0)=="exp":
-				y = a*exp(x/b)
-				line, = ax1.plot(x,y , '-', linewidth=3)
-				
-			if tab_get_value(self.lumo.tab,i,0)=="gaus":
-				y = a*exp(-pow(((b+x)/(sqrt(2.0)*c*1.0)),2.0))
-				line, = ax1.plot(x,y , color[pos], linewidth=3)
-				pos=pos+1
-
-		pos=0
-
-		x_homo = linspace(-Eg, 0, num=40)
-		for i in range(0,self.homo.tab.rowCount()):
-			try:
-				a=float(tab_get_value(self.homo.tab,i,2))
-				b=float(tab_get_value(self.homo.tab,i,3))
-				c=float(tab_get_value(self.homo.tab,i,4))
-			except:
-				a=0.0
-				b=0.0
-				c=0.0
-				
-			if tab_get_value(self.homo.tab,i,0)=="exp":
-				y = a*exp(x/b)
-				line, = ax1.plot(x_homo,y , '-', linewidth=3)
-			if tab_get_value(self.homo.tab,i,0)=="gaus":
-				y = a*exp(-pow(((b+x)/(sqrt(2.0)*c*1.0)),2.0))
-
-				line, = ax1.plot(x_homo,y , color[pos], linewidth=3)
-				pos=pos+1
- 
+		self.gen_mesh()
+		self.plot.update()
 
 	def callback_save(self):
 		file_name=save_as_image(self)
 		if file_name!=False:
 			self.canvas_lumo.figure.savefig(file_name)
 
-	def __init__(self,file_name):
-		ext=file_name[3:]
-		QWidget.__init__(self)
+	def gen_mesh(self):
+		self.mesh=[]
 
-		print(">>>>>>>>>>>lumo"+ext)
+		Xi=-float(inp_get_token_value(os.path.join(get_sim_path(),self.dos_file), "#Xi"))
+		Eg=float(inp_get_token_value(os.path.join(get_sim_path(),self.dos_file), "#Eg"))
+
+		srh_stop=float(inp_get_token_value(os.path.join(get_sim_path(),self.dos_file), "#srh_start"))+Xi
+		bands=float(inp_get_token_value(os.path.join(get_sim_path(),self.dos_file), "#srh_bands"))
+		dE_band=(srh_stop-Xi)/bands
+
+		#srh_lumo_pos=Xi
+		#srh_lumo_gate=Xi+dE_band
+
+		start=Xi
+		stop=Xi-Eg
+		pos=start
+		dx=(stop-start)/100
+		while(pos>stop):
+			pos=pos+dx
+			self.mesh.append(pos)
+
+		self.data_lumo=dat_file()
+		self.data_lumo.title="LUMO Density of states"
+
+		self.data_lumo.y_label="Energy"
+		self.data_lumo.data_label="States"
+
+		self.data_lumo.y_units="Ev"
+		self.data_lumo.data_units="m^{-3} eV"
+		
+		self.data_lumo.y_mul=1.0
+		self.data_lumo.data_mul=1.0
+
+		self.data_lumo.logdata=True
+
+		self.data_lumo.x_len=1
+		self.data_lumo.y_len=len(self.mesh)
+		self.data_lumo.z_len=1
+
+		self.data_lumo.init_mem()
+
+		self.data_numerical_lumo=dat_file()
+		self.data_numerical_lumo.title="LUMO Numberical DoS"
+
+		self.data_numerical_lumo.y_label="Energy"
+		self.data_numerical_lumo.data_label="States"
+
+		self.data_numerical_lumo.y_units="Ev"
+		self.data_numerical_lumo.data_units="m^{-3} eV"
+		
+		self.data_numerical_lumo.y_mul=1.0
+		self.data_numerical_lumo.data_mul=1.0
+
+		self.data_numerical_lumo.logdata=True
+
+		self.data_numerical_lumo.x_len=1
+		self.data_numerical_lumo.y_len=len(self.mesh)
+		self.data_numerical_lumo.z_len=1
+
+		self.data_numerical_lumo.init_mem()
+
+		self.data_homo=dat_file()
+		self.data_homo.title="HOMO Density of states"
+
+		self.data_homo.y_label="Energy"
+		self.data_homo.data_label="States"
+
+		self.data_homo.y_units="Ev"
+		self.data_homo.data_units="m^{-3} eV"
+		
+		self.data_homo.y_mul=1.0
+		self.data_homo.data_mul=1.0
+
+		self.data_homo.logdata=True
+
+		self.data_homo.x_len=1
+		self.data_homo.y_len=len(self.mesh)
+		self.data_homo.z_len=1
+
+		self.data_homo.init_mem()
+
+		self.data_numerical_homo=dat_file()
+		self.data_numerical_homo.title="HOMO Numerical DoS"
+
+		self.data_numerical_homo.y_label="Energy"
+		self.data_numerical_homo.data_label="States"
+
+		self.data_numerical_homo.y_units="Ev"
+		self.data_numerical_homo.data_units="m^{-3} eV"
+		
+		self.data_numerical_homo.y_mul=1.0
+		self.data_numerical_homo.data_mul=1.0
+
+		self.data_numerical_homo.logdata=True
+
+		self.data_numerical_homo.x_len=1
+		self.data_numerical_homo.y_len=len(self.mesh)
+		self.data_numerical_homo.z_len=1
+
+		self.data_numerical_homo.init_mem()
+
+		for iy in range(0,len(self.mesh)):
+			x=self.mesh[iy]
+			y=0
+			homo_y=0
+
+			for i in range(0,self.lumo.tab.rowCount()):
+				
+				try:
+					a=float(self.lumo.tab.get_value(i,2))
+					b=float(self.lumo.tab.get_value(i,3))
+					c=float(self.lumo.tab.get_value(i,4))
+				except:
+					a=0.0
+					b=0.0
+					c=0.0
+
+				if self.lumo.tab.get_value(i,0)=="exp":
+					y = y+ a*exp((x-Xi)/b)
+
+				if self.lumo.tab.get_value(i,0)=="gaus":
+					y = y+ a*exp(-pow(((b+(x-Xi))/(sqrt(2.0)*c*1.0)),2.0))
+
+			for i in range(0,self.homo.tab.rowCount()):
+				
+				try:
+					a=float(self.homo.tab.get_value(i,2))
+					b=float(self.homo.tab.get_value(i,3))
+					c=float(self.homo.tab.get_value(i,4))
+				except:
+					a=0.0
+					b=0.0
+					c=0.0
+
+				if self.homo.tab.get_value(i,0)=="exp":
+					homo_y = homo_y+ a*exp((Xi-Eg-x)/b)
+
+				if self.homo.tab.get_value(i,0)=="gaus":
+					homo_y = homo_y+ a*exp(-pow((((Xi-Eg-b)+x)/(sqrt(2.0)*c*1.0)),2.0))
+
+			self.data_lumo.y_scale[iy]=x
+			self.data_lumo.data[0][0][iy]=y
+
+			self.data_homo.y_scale[iy]=x
+			self.data_homo.data[0][0][iy]=homo_y
+
+		self.data_lumo.save("./lumo.dat")
+		self.data_homo.save("./homo.dat")
+
+	def __init__(self,file_name):
+		QWidget.__init__(self)
+		self.dos_file=file_name
+		ext=file_name[3:]
 
 		self.setWindowTitle(_("Complex Density of states editor - gpvdm"))
 		self.setWindowIcon(icon_get("electrical"))
-		self.setMinimumSize(1200,500)
+		self.setMinimumSize(1400,500)
 
 		edit_boxes=QWidget()
 		vbox=QVBoxLayout()
@@ -271,21 +348,21 @@ class dos_editor(QWidget,tab_base):
 		vbox.addWidget(self.homo)
 		
 		
+		self.gen_mesh()
+
 		edit_boxes.setLayout(vbox)
 
 		hbox=QHBoxLayout()
 
 
-		self.LUMO_fig = Figure(figsize=(5,4), dpi=100)
+		self.plot=plot_widget()
+		self.plot.init(enable_toolbar=False)
+		self.plot.set_labels([_("LUMO"),_("HOMO")])
+		self.plot.load_data(["lumo.dat","homo.dat"])
 
+		self.plot.do_plot()
 
-		self.draw_graph_lumo()
-		self.canvas_lumo = FigureCanvas(self.LUMO_fig)
-		self.canvas_lumo.figure.patch.set_facecolor('white')
-
-		self.LUMO_fig.tight_layout(pad=0.5)
-
-		hbox.addWidget(self.canvas_lumo)
+		hbox.addWidget(self.plot)
 
 
 		hbox.addWidget(edit_boxes)
@@ -302,7 +379,9 @@ class dos_editor(QWidget,tab_base):
 		self.big_vbox.addWidget(self.main_layout_widget)
 
 		self.setLayout(self.big_vbox)
-		
+
+
+
 		self.lumo.changed.connect(self.update_graph)
 		self.homo.changed.connect(self.update_graph)
 		

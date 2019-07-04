@@ -71,7 +71,7 @@ class fit_window_plot(QWidget):
 		error_exp=os.path.join(get_sim_path(),"fit_error_exp"+str(self.index)+".dat")
 		delta=os.path.join(get_sim_path(),"fit_error_delta"+str(self.index)+".dat")
 		oplot_file=os.path.join(get_sim_path(),"fit_error_sim"+str(self.index)+".oplot")
-		self.plot_widget.load_data([error_sim,error_exp,delta],oplot_file)
+		self.plot_widget.load_data([error_sim,error_exp,delta])
 
 		self.plot_widget.do_plot()
 

@@ -153,8 +153,8 @@ class plot_ribbon(ribbon_base):
 		w=self.plot()
 		self.addTab(w,_("Plot"))
 
-		w=self.export()
-		self.addTab(w,_("Export data"))
+		self.export_ribbon=self.export()
+		self.addTab(self.export_ribbon,_("Export data"))
 
 		w=self.color()
 		self.addTab(w,_("Color"))

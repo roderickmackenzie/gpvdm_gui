@@ -41,7 +41,6 @@ from PyQt5.QtCore import QSize, Qt
 from PyQt5.QtWidgets import QWidget,QSizePolicy,QHBoxLayout,QPushButton,QDialog, QFileDialog, QToolBar, QMessageBox, QLineEdit,QVBoxLayout, QTableWidget, QAbstractItemView
 
 #gui_util
-from gui_util import tab_add
 from gui_util import tab_get_selected
 
 from gui_util import yes_no_dlg
@@ -63,7 +62,7 @@ class device_lib_class(QDialog):
 			print("working on",files[i],zip_lsdir(files[i]))
 			lines=read_lines_from_archive(lines,files[i],"info.inp")
 			if lines!=False:
-				tab_add(self.tab,[os.path.basename(files[i]), " ".join(inp_search_token_value_multiline(lines,"#info_device_type"))," ".join(inp_search_token_value_multiline(lines,"#info_description"))])
+				self.tab.add([os.path.basename(files[i]), " ".join(inp_search_token_value_multiline(lines,"#info_device_type"))," ".join(inp_search_token_value_multiline(lines,"#info_description"))])
 
 
 	def __init__(self):

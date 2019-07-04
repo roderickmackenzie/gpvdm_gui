@@ -49,6 +49,9 @@ from util import wrap_text
 
 from ribbon_base import ribbon_base
 
+from QAction_lock import QAction_lock
+
+
 class ribbon_spectra(ribbon_base):
 	def main_toolbar(self):
 		self.main_toolbar = QToolBar()
@@ -61,9 +64,6 @@ class ribbon_spectra(ribbon_base):
 		#self.tb_save = QAction(icon_get("document-save-as"), _("Save image"), self)
 		#self.main_toolbar.addAction(self.tb_save)
 
-		self.import_data= QAction(icon_get("import"), _("Import data"), self)
-		self.main_toolbar.addAction(self.import_data)
-
 
 		spacer = QWidget()
 		spacer.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
@@ -75,12 +75,25 @@ class ribbon_spectra(ribbon_base):
 
 		return self.main_toolbar
 
+	def import_toolbar(self):
+		self.main_toolbar = QToolBar()
+		self.main_toolbar.setToolButtonStyle( Qt.ToolButtonTextUnderIcon)
+		self.main_toolbar.setIconSize(QSize(42, 42))
+
+		self.import_data= QAction_lock("import", _("From\nFile"), self,locked=True)
+		self.main_toolbar.addAction(self.import_data)
+
+
+		return self.main_toolbar
 
 	def __init__(self):
 		ribbon_base.__init__(self)
 
 		w=self.main_toolbar()
 		self.addTab(w,_("File"))
+
+		w=self.import_toolbar()
+		self.addTab(w,_("Import data"))
 
 		sheet=self.readStyleSheet(os.path.join(get_css_path(),"style.css"))
 		if sheet!=None:

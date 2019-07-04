@@ -55,8 +55,6 @@ from PyQt5.QtWidgets import QWidget,QVBoxLayout,QToolBar,QSizePolicy,QAction,QTa
 from PyQt5.QtGui import QPainter,QIcon
 
 #windows
-from gui_util import tab_add
-from gui_util import tab_move_down
 from gui_util import tab_move_up
 from gui_util import tab_remove
 from gui_util import tab_get_value
@@ -120,7 +118,7 @@ class tab_fxmesh(QWidget):
 
 
 	def callback_add_section(self):
-		tab_add(self.tab,["0.0","0.0","0.0","0.0"])
+		self.tab.add(["0.0","0.0","0.0","0.0"])
 
 		self.build_mesh()
 		self.draw_graph()
@@ -138,7 +136,7 @@ class tab_fxmesh(QWidget):
 
 	def callback_move_down(self):
 
-		tab_move_down(self.tab)
+		self.tab.move_down()
 
 		self.build_mesh()
 		self.draw_graph()
@@ -225,7 +223,7 @@ class tab_fxmesh(QWidget):
 					token,points,pos=inp_read_next_item(lines,pos)
 					token,mul,pos=inp_read_next_item(lines,pos)
 
-					tab_add(self.tab,[str(start),str(stop),str(points),str(mul)])
+					self.tab.add([str(start),str(stop),str(points),str(mul)])
 
 				return True
 			else:

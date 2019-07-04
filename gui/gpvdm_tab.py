@@ -28,13 +28,12 @@
 import os
 
 #qt
-from PyQt5.QtWidgets import QMainWindow, QTextEdit, QAction, QApplication
-from PyQt5.QtGui import QIcon
+from PyQt5.QtWidgets import QTextEdit, QAction
 from PyQt5.QtCore import QSize, Qt 
-from PyQt5.QtWidgets import QWidget,QSizePolicy,QHBoxLayout,QPushButton,QDialog,QFileDialog,QToolBar, QMessageBox, QVBoxLayout, QGroupBox, QTableWidget,QAbstractItemView, QTableWidgetItem, QComboBox
+from PyQt5.QtWidgets import QWidget,QPushButton,QToolBar, QVBoxLayout, QTableWidget,QAbstractItemView, QTableWidgetItem, QComboBox
 
 from QComboBoxLang import QComboBoxLang
-from PyQt5.QtGui import QIcon
+from icon_lib import icon_get
 
 from gpvdm_select import gpvdm_select
 from gtkswitch import gtkswitch
@@ -42,6 +41,23 @@ from leftright import leftright
 from gpvdm_select_material import gpvdm_select_material
 
 class gpvdm_tab(QTableWidget):
+
+	def __init__(self,toolbar=None):
+		QTableWidget.__init__(self)
+		self.toolbar=toolbar
+		if self.toolbar!=None:
+			self.toolbar.setIconSize(QSize(32, 32))
+			self.tb_add = QAction(icon_get("list-add"), _("Add"), self)
+			self.toolbar.addAction(self.tb_add)
+
+			self.tb_remove = QAction(icon_get("list-remove"), _("Remove"), self)
+			self.toolbar.addAction(self.tb_remove)
+
+			self.tb_down= QAction(icon_get("go-down"), _("Move down"), self)
+			self.toolbar.addAction(self.tb_down)
+
+			self.tb_up= QAction(icon_get("go-up"), _("Move up"), self)
+			self.toolbar.addAction(self.tb_up)
 
 	def set_value(self,y,x,value):
 		if type(self.cellWidget(y, x))==QComboBox:
@@ -63,4 +79,80 @@ class gpvdm_tab(QTableWidget):
 		else:
 			item = QTableWidgetItem(str(value))
 			self.setItem(y,x,item)
+
+	def move_down(self):
+		ret=-1
+
+		if self.rowCount()==0:
+			return -1
+
+		self.blockSignals(True)
+		a=self.selectionModel().selectedRows()
+
+		if len(a)>0:
+			a=a[0].row()
+
+			b=a+1
+			if b>self.rowCount()-1:
+				return -1
+
+			ret=a
+
+			av=[]
+			for i in range(0,self.columnCount()):
+				av.append(str(self.get_value(a,i)))
+
+			bv=[]
+			for i in range(0,self.columnCount()):
+				bv.append(str(self.get_value(b,i)))
+
+			for i in range(0,self.columnCount()):
+				self.set_value(b,i,str(av[i]))
+				self.set_value(a,i,str(bv[i]))
+
+			self.selectRow(b)
+			self.blockSignals(False)
+			return ret
+		else:
+			return -1
+
+	def get_value(self,y,x):
+		if type(self.cellWidget(y, x))==QComboBox:
+			return self.cellWidget(y, x).currentText()
+		elif type(self.cellWidget(y, x))==QComboBoxLang:
+			return self.cellWidget(y, x).currentText_english()
+		elif type(self.cellWidget(y,x))==gpvdm_select:
+			return self.cellWidget(y, x).text()
+		elif type(self.cellWidget(y,x))==leftright:
+			return self.cellWidget(y, x).get_value()
+		elif type(self.cellWidget(y,x))==gtkswitch:
+			return self.cellWidget(y, x).get_value()
+		elif type(self.cellWidget(y,x))==gpvdm_select_material:
+			return self.cellWidget(y, x).text()
+		else:
+			return self.item(y, x).text()
+
+	def add(self,data):
+		self.blockSignals(True)
+		index = self.selectionModel().selectedRows()
+
+		if len(index)>0:
+			pos=index[0].row()+1
+		else:
+			pos = self.rowCount()
+
+		if self.columnCount()==len(data):
+			self.insertRow(pos)
+			for i in range(0,len(data)):
+				self.setItem(pos,i,QTableWidgetItem(data[i]))
+
+		if len(data)>self.columnCount():
+			rows=int(len(data)/self.columnCount())
+			for ii in range(0,rows):
+				self.insertRow(pos)
+				for i in range(0,self.columnCount()):
+					self.setItem(pos,i,QTableWidgetItem(data[ii*tab.columnCount()+i]))
+				pos=pos+1
+					
+		self.blockSignals(False)
 

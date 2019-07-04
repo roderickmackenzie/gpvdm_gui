@@ -39,7 +39,6 @@ from PyQt5.QtGui import QPixmap
 from PyQt5.QtCore import pyqtSignal
 from PyQt5.QtWidgets import QWidget
 
-from gui_util import tab_add
 from server import server_get
 
 ## @package jobs
@@ -79,7 +78,7 @@ class jobs_view(QWidget):
 
 
 		for job in self.myserver.jobs:
-			tab_add(self.tab,[job.name,job.path,job.ip,job.start,job.stop,str(job.cpus),str(job.status)])
+			self.tab.add([job.name,job.path,job.ip,job.start,job.stop,str(job.cpus),str(job.status)])
 
 
 

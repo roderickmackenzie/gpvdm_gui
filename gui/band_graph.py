@@ -70,6 +70,7 @@ from cal_path import get_sim_path
 from cal_path import get_materials_path
 from cal_path import get_default_material_path
 
+
 class band_graph(QWidget):
 	def __init__(self):
 		QWidget.__init__(self)
@@ -91,16 +92,6 @@ class band_graph(QWidget):
 		self.setLayout(self.main_vbox)
 
 
-#	def keyPressEvent(self, event):
-#		pritn("oh")
-#
-#		keyname = ''
-#		key = event.key()
-#		modifiers = int(event.modifiers())
-#		if (Qt.CTRL & modifiers)==modifiers and key==67:
-#			self.do_clip()
-#			self.canvas.draw()
-
 	def press(self,event):
 		#print('press', event.key)
 		sys.stdout.flush()
@@ -110,9 +101,6 @@ class band_graph(QWidget):
 
 	def do_clip(self):
 		buf = io.BytesIO()
-		self.my_figure.savefig(buf)
-		QApplication.clipboard().setImage(QImage.fromData(buf.getvalue()))
-		buf.close()
 
 	def save_image(self):
 		response=save_as_filter(self,"png (*.png);;jpg (*.jpg);;svg (*.svg)")

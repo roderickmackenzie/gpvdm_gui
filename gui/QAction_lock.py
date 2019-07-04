@@ -67,7 +67,7 @@ class QAction_lock(QAction):
 		else:
 			self.setChecked(False)
 
-			self.trial=trial(override_text="<br><br><br><br>Please buy gpvdm to get access to this function.<br><br><br>",show_text=False,title_font_size=14)
+			self.trial=trial(override_text="<br><br><br><br>Upgrade today to gpvdm professional to use this function!.<br><br><br>",show_text=False,title_font_size=14)
 			self.trial.title_text.setAlignment(Qt.AlignCenter)
 			ret=self.trial.run()
 			if ret==QDialog.Accepted:

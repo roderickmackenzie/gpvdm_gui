@@ -48,10 +48,9 @@ _ = i18n.language.gettext
 
 #qt
 from PyQt5.QtCore import QSize, Qt 
-from PyQt5.QtWidgets import QWidget,QVBoxLayout,QToolBar,QSizePolicy,QAction,QTabWidget,QTableWidget,QAbstractItemView, QMenuBar, QTableWidgetItem
+from PyQt5.QtWidgets import QWidget,QVBoxLayout,QToolBar,QSizePolicy,QAction,QTabWidget,QAbstractItemView, QMenuBar, QTableWidgetItem
 from PyQt5.QtGui import QPainter,QIcon
 
-from gui_util import tab_add
 from gui_util import tab_remove
 from gui_util import tab_get_value
 
@@ -62,8 +61,8 @@ from scan_item import scan_items_lookup_item
 from cal_path import get_sim_path
 
 from gui_util import tab_move_up
-from gui_util import tab_move_down
 from gui_util import tab_insert_row
+from gpvdm_tab import gpvdm_tab
 
 class constraints(QWidget):
 
@@ -263,7 +262,7 @@ class constraints(QWidget):
 
 		self.vbox.addWidget(toolbar_mm)
 
-		self.tab_mm = QTableWidget()
+		self.tab_mm = gpvdm_tab()
 		self.tab_mm.resizeColumnsToContents()
 
 		self.tab_mm.verticalHeader().setVisible(False)
@@ -293,7 +292,7 @@ class constraints(QWidget):
 		toolbar_math.addAction(self.tb_save)
 
 		self.vbox.addWidget(toolbar_math)
-		self.tab_math = QTableWidget()
+		self.tab_math = gpvdm_tab()
 		self.tab_math.resizeColumnsToContents()
 
 		self.tab_math.verticalHeader().setVisible(False)
@@ -321,7 +320,7 @@ class constraints(QWidget):
 		self.hide()
 
 	def on_move_down(self):
-		tab_move_down(self.tab_mm)
+		self.tab_mm.move_down()
 		self.save_combo()
 		
 	def on_move_up(self):

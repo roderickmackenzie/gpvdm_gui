@@ -50,7 +50,6 @@ from PyQt5.QtCore import QSize, Qt
 from PyQt5.QtWidgets import QWidget,QVBoxLayout,QToolBar,QTextEdit,QSizePolicy,QAction,QTabWidget,QTableWidget,QAbstractItemView
 from PyQt5.QtGui import QPainter,QIcon
 
-from gui_util import tab_add
 from gui_util import tab_remove
 from gui_util import tab_get_value
 

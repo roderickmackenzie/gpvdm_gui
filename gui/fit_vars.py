@@ -45,7 +45,7 @@ _ = i18n.language.gettext
 
 #qt
 from PyQt5.QtCore import QSize, Qt 
-from PyQt5.QtWidgets import QWidget,QVBoxLayout,QToolBar,QSizePolicy,QAction,QTabWidget,QTableWidget,QAbstractItemView, QMenuBar, QTableWidgetItem
+from PyQt5.QtWidgets import QWidget,QVBoxLayout,QToolBar,QSizePolicy,QAction,QTabWidget,QAbstractItemView, QMenuBar, QTableWidgetItem
 from PyQt5.QtGui import QPainter,QIcon
 
 from gui_util import tab_remove
@@ -62,7 +62,8 @@ from gtkswitch import gtkswitch
 from util import str2bool
 
 from gui_util import tab_move_up
-from gui_util import tab_move_down
+
+from gpvdm_tab import gpvdm_tab
 
 class fit_vars(QWidget):
 
@@ -217,7 +218,7 @@ class fit_vars(QWidget):
 				line=line+1
 
 	def on_move_down(self):
-		tab_move_down(self.tab)
+		self.tab.move_down()
 		self.save_combo()
 		
 	def on_move_up(self):
@@ -259,7 +260,7 @@ class fit_vars(QWidget):
 		
 		self.vbox.addWidget(toolbar)
 
-		self.tab = QTableWidget()
+		self.tab = gpvdm_tab()
 		self.tab.resizeColumnsToContents()
 
 		self.tab.verticalHeader().setVisible(False)

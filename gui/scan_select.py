@@ -40,7 +40,6 @@ from PyQt5.QtGui import QPainter,QIcon
 from PyQt5.QtGui import QFont
 
 from icon_lib import icon_get
-from gui_util import tab_set_value
 from error_dlg import error_dlg
 from scan_item import scan_items_populate_from_files
 class select_param(QWidget):
@@ -164,9 +163,9 @@ class select_param(QWidget):
 			file_name=scan_items_get_file(path)
 			token=scan_items_get_token(path)
 
-			tab_set_value(self.dest_treeview,pos,self.file_name_tab_pos,file_name)
-			tab_set_value(self.dest_treeview,pos,self.token_tab_pos,token)
-			tab_set_value(self.dest_treeview,pos,self.path_tab_pos,path)
+			self.dest_treeview.set_value(pos,self.file_name_tab_pos,file_name)
+			self.dest_treeview.set_value(pos,self.token_tab_pos,token)
+			self.dest_treeview.set_value(pos,self.path_tab_pos,path)
 
 			if self.save_function!=None:
 				self.save_function()

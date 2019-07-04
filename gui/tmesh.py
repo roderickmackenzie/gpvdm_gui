@@ -57,8 +57,6 @@ from PyQt5.QtWidgets import QWidget,QVBoxLayout,QToolBar,QSizePolicy,QAction,QTa
 from PyQt5.QtGui import QPainter,QIcon
 
 #windows
-from gui_util import tab_add
-from gui_util import tab_move_down
 from gui_util import tab_move_up
 from gui_util import tab_remove
 from gui_util import tab_get_value
@@ -130,7 +128,7 @@ class tab_time_mesh(QWidget):
 
 
 	def callback_add_section(self):
-		tab_add(self.tab,["10e-6","0.1e-6","0.0","0.0","1.0","0.0","0.0"])
+		self.tab.add(["10e-6","0.1e-6","0.0","0.0","1.0","0.0","0.0"])
 
 		self.build_mesh()
 		self.draw_graph()
@@ -147,7 +145,7 @@ class tab_time_mesh(QWidget):
 		self.save_data()
 
 	def callback_move_down(self):
-		tab_move_down(self.tab)
+		self.tab.move_down()
 		self.build_mesh()
 		self.draw_graph()
 		self.fig.canvas.draw()
@@ -306,7 +304,7 @@ class tab_time_mesh(QWidget):
 					token,sun,pos=inp_read_next_item(lines,pos)
 					token,laser,pos=inp_read_next_item(lines,pos)
 
-					tab_add(self.tab,[str(length),str(dt),str(voltage_start),str(voltage_stop),str(mul),str(sun),str(laser)])
+					self.tab.add([str(length),str(dt),str(voltage_start),str(voltage_stop),str(mul),str(sun),str(laser)])
 
 
 				return True

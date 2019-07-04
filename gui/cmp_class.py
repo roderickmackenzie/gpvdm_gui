@@ -91,7 +91,7 @@ class cmp_class(QWidgetSavePos):
 		if file_name!=None:
 			self.plot.set_labels(["data"])
 			config_file=os.path.splitext(file_name)[0]+".oplot"
-			self.plot.load_data([file_name],config_file)
+			self.plot.load_data([file_name])
 			self.plot.do_plot()
 
 

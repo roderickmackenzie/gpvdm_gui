@@ -39,7 +39,6 @@ from inp import inp_update_token_value
 from epitaxy import epitaxy_get_layers
 
 #windows
-from gui_util import tab_move_down
 from gui_util import tab_move_up
 from gui_util import tab_remove
 from gui_util import tab_get_value
@@ -123,7 +122,7 @@ class layer_widget(QWidgetSavePos):
 		global_object_run("pl_update")
 
 	def on_move_down(self):
-		layer=tab_move_down(self.tab)
+		layer=self.tab.move_down()
 		epi=get_epi()
 		epi.move_down(layer)
 
@@ -151,28 +150,20 @@ class layer_widget(QWidgetSavePos):
 		self.main_vbox=QVBoxLayout()
 
 		self.toolbar=QToolBar()
-		self.toolbar.setIconSize(QSize(32, 32))
 
-		self.tb_add = QAction(icon_get("list-add"), _("Add device layer"), self)
-		self.tb_add.triggered.connect(self.on_add_item_clicked)
-		self.toolbar.addAction(self.tb_add)
-
-		self.tb_remove = QAction(icon_get("list-remove"), _("Delete device layer"), self)
-		self.tb_remove.triggered.connect(self.on_remove_item_clicked)
-		self.toolbar.addAction(self.tb_remove)
+		self.tab = gpvdm_tab(toolbar=self.toolbar)
 
 
-		self.tb_down= QAction(icon_get("go-down"), _("Move device layer"), self)
-		self.tb_down.triggered.connect(self.on_move_down)
-		self.toolbar.addAction(self.tb_down)
+		self.tab.tb_add.triggered.connect(self.on_add_item_clicked)
+		self.tab.tb_remove.triggered.connect(self.on_remove_item_clicked)
+		self.tab.tb_down.triggered.connect(self.on_move_down)
+		self.tab.tb_up.triggered.connect(self.on_move_up)
 
-		self.tb_up= QAction(icon_get("go-up"), _("Move device layer"), self)
-		self.tb_up.triggered.connect(self.on_move_up)
-		self.toolbar.addAction(self.tb_up)
+
 		
 		self.main_vbox.addWidget(self.toolbar)
 	
-		self.tab = gpvdm_tab()
+
 		#self.tab.resizeColumnsToContents()
 
 

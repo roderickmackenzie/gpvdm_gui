@@ -79,8 +79,6 @@ from PyQt5.QtGui import QPainter,QIcon,QCursor,QClipboard
 from plot_dlg import plot_dlg_class
 from scan_select import select_param
 #from notes import notes
-from gui_util import tab_add
-from gui_util import tab_move_down
 from gui_util import tab_move_up
 from gui_util import tab_remove
 from gui_util import tab_get_value
@@ -126,7 +124,7 @@ class scan_vbox(QWidget):
 		note.show()
 
 	def callback_move_down(self):
-		tab_move_down(self.tab)
+		self.tab.move_down()
 
 	def callback_move_up(self):
 		tab_move_up(self.tab)
@@ -167,7 +165,7 @@ class scan_vbox(QWidget):
 		text=cb.text()
 		lines=text.rstrip().split(';')
 		#print("text=",lines)
-		tab_add(self.tab,lines)
+		self.tab.add(lines)
 		self.save_combo()
 #		row=self.tab.selectionModel().selectedRows()
 #		if len(row)>0:

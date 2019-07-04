@@ -109,8 +109,8 @@ class materials_main(QWidgetSavePos):
 		
 		self.ribbon.cost.triggered.connect(self.callback_cost)
 		self.ribbon.folder_open.triggered.connect(self.callback_dir_open)
-		self.ribbon.import_data.triggered.connect(self.import_data)
-		self.ribbon.equation.triggered.connect(self.callback_equation_editor)
+		self.ribbon.import_data.secure_click.connect(self.import_data)
+		self.ribbon.equation.secure_click.connect(self.callback_equation_editor)
 
 		self.ribbon.tb_ref.triggered.connect(self.callback_ref)
 
@@ -129,7 +129,7 @@ class materials_main(QWidgetSavePos):
 		self.alpha=plot_widget()
 		self.alpha.init(enable_toolbar=False)
 		self.alpha.set_labels([_("Absorption")])
-		self.alpha.load_data([fname],os.path.splitext(fname)[0]+".oplot")
+		self.alpha.load_data([fname])
 
 		self.alpha.do_plot()
 		self.notebook.addTab(self.alpha,_("Absorption"))
@@ -138,7 +138,7 @@ class materials_main(QWidgetSavePos):
 		self.n=plot_widget()
 		self.n.init(enable_toolbar=False)
 		self.n.set_labels([_("Refractive index")])
-		self.n.load_data([fname],os.path.splitext(fname)[0]+".oplot")
+		self.n.load_data([fname])
 		self.n.do_plot()
 
 		self.notebook.addTab(self.n,_("Refractive index"))

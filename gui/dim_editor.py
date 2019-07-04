@@ -45,9 +45,7 @@ from inp import inp_lsdir
 from inp import inp_remove_file
 
 #windows
-from gui_util import tab_move_down
 from gui_util import tab_move_up
-from gui_util import tab_add
 from gui_util import tab_remove
 from gui_util import tab_get_value
 from gui_util import yes_no_dlg

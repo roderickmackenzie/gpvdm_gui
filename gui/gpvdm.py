@@ -414,6 +414,8 @@ class gpvdm_main_window(QMainWindow):
 		self.splash.inc_value()
 		#help_window().help_append(["star.png",_("<big><b>Update available!</b></big><br>")])
 
+
+		get_watch().rebase()
 		
 
 	def load_sim(self,filename):

@@ -122,7 +122,6 @@ def cal_share_path():
 		else:
 			share_path="c:\\gpvdm"
 
-		print("No registry key found using default",share_path)
 	else:
 		if os.path.isdir("/usr/lib64/gpvdm"):
 			share_path="/usr/lib64/gpvdm/"

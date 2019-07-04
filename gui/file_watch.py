@@ -34,6 +34,7 @@ from PyQt5.QtCore import QTimer
 from util_zip import zip_lsdir
 from cal_path import get_sim_path
 from inp import inp_getmtime
+from datetime import datetime
 
 class watch_data():
 	def __init__(self):
@@ -51,37 +52,50 @@ class watch_data():
 class file_watch():
 	def __init__(self):
 		self.files=[]
+		self.disabled=True
 
 	def reset(self):
 		self.files=[]
-		self.callback_check()
+		self.disabled=True
 		self.timer=QTimer()		
 		self.timer.timeout.connect(self.callback_check)
 		self.timer.start(1000)
+
 	
 	def dump(self):
 		for f in self.files:
 			print(f)
 
 	def callback_check(self):
+		if self.disabled==True:
+			return
+
 		files=zip_lsdir(os.path.join(get_sim_path(),"sim.gpvdm"))
+		if files==False:
+			return
+
 		for f in files:
 			if f not in self.files:
 				a=watch_data()
 				a.file_name=f
 				a.time=inp_getmtime(os.path.join(get_sim_path(),f))
+				print("add",f)
 				self.files.append(a)
 			else:
 				i=self.files.index(f)
 				file_time=inp_getmtime(os.path.join(get_sim_path(),f))
 				if self.files[i].time!=file_time:
-					#print("changed",self.files[i].file_name)
+					print("changed",self.files[i].file_name,datetime.fromtimestamp(self.files[i].time),datetime.fromtimestamp(file_time))
 					for c in self.files[i].call_backs:
 						c()
 
 					self.files[i].time=file_time
 				
 		#self.dump()
+
+	def rebase(self):
+		self.disabled=False
+		self.callback_check()
 
 	def add_call_back(self,file_name,function):
 		if file_name in self.files:

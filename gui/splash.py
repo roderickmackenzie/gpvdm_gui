@@ -104,7 +104,6 @@ class splash_window(QWidget):
 		number=time.localtime().tm_yday
 
 		number=number % len(files)
-		print("splash,",number,time.localtime().tm_yday)
 
 		if number>=len(files[number]):
 			number=0

@@ -208,7 +208,8 @@ def zip_remove_file(zip_file_name,target,act_only_on_archive=False):
 
 			for file in source.filelist:
 				if not file.filename.startswith(target):
-					zf.writestr(file.filename, source.read(file))
+					info=source.getinfo(file.filename)
+					zf.writestr(info, source.read(file))
 
 			zf.close()
 			os.close(fh)
@@ -345,6 +346,23 @@ def read_lines_from_file(file_name):
 		
 	return lines
 
+
+def archive_get_file_time(zip_file_path,file_name):
+	epoch=False
+	if os.path.isfile(zip_file_path):
+		try:
+			zf = zipfile.ZipFile(zip_file_path, 'r')
+		except:
+			return False
+		if zip_search_file(zf,file_name)==True:
+			t=zf.getinfo(file_name).date_time
+			dos_time=str(t[0])+" "+str(t[1])+" "+str(t[2])+" "+str(t[3])+" "+str(t[4])+" "+str(t[5])
+			epoch = int(time.mktime(time.strptime(dos_time, '%Y %m %d %H %M %S')))
+			#print(">>>>>",epoch)
+
+		zf.close()
+
+	return epoch
 
 ## Read liens from an archive.
 def read_lines_from_archive(zip_file_path,file_name,mode="l"):

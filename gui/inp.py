@@ -47,6 +47,7 @@ from cal_path import get_sim_path
 from util import str2bool
 
 import hashlib
+from util_zip import archive_get_file_time
 
 enable_encrypt=False
 try:
@@ -349,7 +350,7 @@ def inp_getmtime(file_path,archive="sim.gpvdm"):
 	zip_file_name=os.path.join(os.path.dirname(file_name),archive)
 
 	if os.path.isfile(zip_file_name):
-		return os.path.getmtime(zip_file_name)
+		return archive_get_file_time(zip_file_name,os.path.basename(file_name))
 
 	return False
 

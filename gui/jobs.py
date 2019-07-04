@@ -33,13 +33,15 @@ from status_icon import status_icon_stop
 #qt
 from PyQt5.QtCore import QSize, Qt
 from PyQt5.QtGui import QIcon,QPalette
-from PyQt5.QtWidgets import QWidget, QVBoxLayout,QProgressBar,QLabel,QDesktopWidget,QToolBar,QHBoxLayout,QAction, QSizePolicy, QTableWidget, QTableWidgetItem,QComboBox,QDialog,QAbstractItemView
+from PyQt5.QtWidgets import QWidget, QVBoxLayout,QProgressBar,QLabel,QDesktopWidget,QToolBar,QHBoxLayout,QAction, QSizePolicy,  QTableWidgetItem,QComboBox,QDialog,QAbstractItemView
 
 from PyQt5.QtGui import QPixmap
 from PyQt5.QtCore import pyqtSignal
 from PyQt5.QtWidgets import QWidget
 
 from server import server_get
+
+from gpvdm_tab import gpvdm_tab
 
 ## @package jobs
 #  A jobs viewer widget.
@@ -52,7 +54,7 @@ class jobs_view(QWidget):
 
 		self.main_vbox=QVBoxLayout()
 	
-		self.tab = QTableWidget()
+		self.tab = gpvdm_tab()
 		self.tab.resizeColumnsToContents()
 
 		self.tab.verticalHeader().setVisible(False)

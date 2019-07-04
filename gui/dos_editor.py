@@ -192,34 +192,7 @@ class dos_editor(QWidget):
 			bands=int(inp_get_token_value(os.path.join(get_sim_path(),self.dos_file), "#srh_bands"))
 		except:
 			return
-		dE_band=srh_stop/bands
 
-		srh_lumo_pos=Xi
-		srh_homo_pos=Xi-Eg
-
-		srh_lumo_stop_points=[]
-		srh_lumo_avg=[]
-		srh_lumo_count=[]
-
-		srh_homo_stop_points=[]
-		srh_homo_avg=[]
-		srh_homo_count=[]
-
-		for i in range(0,bands+1):
-
-			srh_lumo_stop_points.append(srh_lumo_pos)
-			srh_homo_stop_points.append(srh_homo_pos)
-
-			srh_lumo_avg.append(0.0)
-			srh_homo_avg.append(0.0)
-
-			srh_lumo_count.append(0.0)
-			srh_homo_count.append(0.0)
-
-			srh_lumo_pos=srh_lumo_pos+dE_band
-			srh_homo_pos=srh_homo_pos-dE_band
-
-		print(srh_homo_stop_points)
 		start=Xi
 		stop=Xi-Eg
 		pos=start
@@ -356,38 +329,66 @@ class dos_editor(QWidget):
 			self.data_homo.y_scale[iy]=x
 			self.data_homo.data[0][0][iy]=homo_y
 
-		#build numeical LUMO
-		for iy in range(0,len(self.mesh)):
-			x=self.mesh[iy]
-			for i in range(0,len(srh_lumo_stop_points)-1):
-				if srh_lumo_stop_points[i+1]<x:
-					srh_lumo_avg[i]=srh_lumo_avg[i]+self.data_lumo.data[0][0][iy]
-					srh_lumo_count[i]=srh_lumo_count[i]+1
-					break
+		if bands!=0:
+			dE_band=srh_stop/bands
 
-		for iy in range(0,len(self.mesh)):
-			x=self.mesh[iy]
-			for i in range(0,len(srh_lumo_stop_points)-1):
-				if srh_lumo_stop_points[i+1]<x:
-					self.data_numerical_lumo.data[0][0][iy]=srh_lumo_avg[i]/srh_lumo_count[i]
-					break
+			srh_lumo_pos=Xi
+			srh_homo_pos=Xi-Eg
 
-		#build numeical HOMO
-		for iy in range(0,len(self.mesh)):
-			x=self.mesh[iy]
-			for i in range(0,len(srh_homo_stop_points)-1):
-				if srh_homo_stop_points[i+1]>x:
-					srh_homo_avg[i]=srh_homo_avg[i]+self.data_homo.data[0][0][iy]
-					srh_homo_count[i]=srh_homo_count[i]+1
-					break
+			srh_lumo_stop_points=[]
+			srh_lumo_avg=[]
+			srh_lumo_count=[]
 
-		for iy in range(0,len(self.mesh)):
-			x=self.mesh[iy]
-			for i in range(0,len(srh_homo_stop_points)-1):
-				if srh_homo_stop_points[i+1]>x:
-					if srh_homo_count[i]!=0:
-						self.data_numerical_homo.data[0][0][iy]=srh_homo_avg[i]/srh_homo_count[i]
-					break
+			srh_homo_stop_points=[]
+			srh_homo_avg=[]
+			srh_homo_count=[]
+
+			for i in range(0,bands+1):
+
+				srh_lumo_stop_points.append(srh_lumo_pos)
+				srh_homo_stop_points.append(srh_homo_pos)
+
+				srh_lumo_avg.append(0.0)
+				srh_homo_avg.append(0.0)
+
+				srh_lumo_count.append(0.0)
+				srh_homo_count.append(0.0)
+
+				srh_lumo_pos=srh_lumo_pos+dE_band
+				srh_homo_pos=srh_homo_pos-dE_band
+
+			#build numeical LUMO
+			for iy in range(0,len(self.mesh)):
+				x=self.mesh[iy]
+				for i in range(0,len(srh_lumo_stop_points)-1):
+					if srh_lumo_stop_points[i+1]<x:
+						srh_lumo_avg[i]=srh_lumo_avg[i]+self.data_lumo.data[0][0][iy]
+						srh_lumo_count[i]=srh_lumo_count[i]+1
+						break
+
+			for iy in range(0,len(self.mesh)):
+				x=self.mesh[iy]
+				for i in range(0,len(srh_lumo_stop_points)-1):
+					if srh_lumo_stop_points[i+1]<x:
+						self.data_numerical_lumo.data[0][0][iy]=srh_lumo_avg[i]/srh_lumo_count[i]
+						break
+
+			#build numeical HOMO
+			for iy in range(0,len(self.mesh)):
+				x=self.mesh[iy]
+				for i in range(0,len(srh_homo_stop_points)-1):
+					if srh_homo_stop_points[i+1]>x:
+						srh_homo_avg[i]=srh_homo_avg[i]+self.data_homo.data[0][0][iy]
+						srh_homo_count[i]=srh_homo_count[i]+1
+						break
+
+			for iy in range(0,len(self.mesh)):
+				x=self.mesh[iy]
+				for i in range(0,len(srh_homo_stop_points)-1):
+					if srh_homo_stop_points[i+1]>x:
+						if srh_homo_count[i]!=0:
+							self.data_numerical_homo.data[0][0][iy]=srh_homo_avg[i]/srh_homo_count[i]
+						break
 
 		self.data_numerical_lumo.save(os.path.join(self.dos_dir,"lumo_numberical.dat"))
 		self.data_numerical_homo.save(os.path.join(self.dos_dir,"homo_numberical.dat"))

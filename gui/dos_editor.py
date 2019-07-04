@@ -53,6 +53,8 @@ from dat_file import dat_file
 
 from plot_widget import plot_widget
 
+from file_watch import get_watch
+
 class equation_editor(QGroupBox):
 
 	changed = pyqtSignal()
@@ -182,17 +184,42 @@ class dos_editor(QWidget):
 
 	def gen_mesh(self):
 		self.mesh=[]
+		try:
+			Xi=-float(inp_get_token_value(os.path.join(get_sim_path(),self.dos_file), "#Xi"))
+			Eg=float(inp_get_token_value(os.path.join(get_sim_path(),self.dos_file), "#Eg"))
 
-		Xi=-float(inp_get_token_value(os.path.join(get_sim_path(),self.dos_file), "#Xi"))
-		Eg=float(inp_get_token_value(os.path.join(get_sim_path(),self.dos_file), "#Eg"))
+			srh_stop=float(inp_get_token_value(os.path.join(get_sim_path(),self.dos_file), "#srh_start"))
+			bands=int(inp_get_token_value(os.path.join(get_sim_path(),self.dos_file), "#srh_bands"))
+		except:
+			return
+		dE_band=srh_stop/bands
 
-		srh_stop=float(inp_get_token_value(os.path.join(get_sim_path(),self.dos_file), "#srh_start"))+Xi
-		bands=float(inp_get_token_value(os.path.join(get_sim_path(),self.dos_file), "#srh_bands"))
-		dE_band=(srh_stop-Xi)/bands
+		srh_lumo_pos=Xi
+		srh_homo_pos=Xi-Eg
 
-		#srh_lumo_pos=Xi
-		#srh_lumo_gate=Xi+dE_band
+		srh_lumo_stop_points=[]
+		srh_lumo_avg=[]
+		srh_lumo_count=[]
 
+		srh_homo_stop_points=[]
+		srh_homo_avg=[]
+		srh_homo_count=[]
+
+		for i in range(0,bands+1):
+
+			srh_lumo_stop_points.append(srh_lumo_pos)
+			srh_homo_stop_points.append(srh_homo_pos)
+
+			srh_lumo_avg.append(0.0)
+			srh_homo_avg.append(0.0)
+
+			srh_lumo_count.append(0.0)
+			srh_homo_count.append(0.0)
+
+			srh_lumo_pos=srh_lumo_pos+dE_band
+			srh_homo_pos=srh_homo_pos-dE_band
+
+		print(srh_homo_stop_points)
 		start=Xi
 		stop=Xi-Eg
 		pos=start
@@ -320,18 +347,60 @@ class dos_editor(QWidget):
 				if self.homo.tab.get_value(i,0)=="gaus":
 					homo_y = homo_y+ a*exp(-pow((((Xi-Eg-b)+x)/(sqrt(2.0)*c*1.0)),2.0))
 
+			self.data_numerical_lumo.y_scale[iy]=x
+			self.data_numerical_homo.y_scale[iy]=x
+
 			self.data_lumo.y_scale[iy]=x
 			self.data_lumo.data[0][0][iy]=y
 
 			self.data_homo.y_scale[iy]=x
 			self.data_homo.data[0][0][iy]=homo_y
 
-		self.data_lumo.save("./lumo.dat")
-		self.data_homo.save("./homo.dat")
+		#build numeical LUMO
+		for iy in range(0,len(self.mesh)):
+			x=self.mesh[iy]
+			for i in range(0,len(srh_lumo_stop_points)-1):
+				if srh_lumo_stop_points[i+1]<x:
+					srh_lumo_avg[i]=srh_lumo_avg[i]+self.data_lumo.data[0][0][iy]
+					srh_lumo_count[i]=srh_lumo_count[i]+1
+					break
+
+		for iy in range(0,len(self.mesh)):
+			x=self.mesh[iy]
+			for i in range(0,len(srh_lumo_stop_points)-1):
+				if srh_lumo_stop_points[i+1]<x:
+					self.data_numerical_lumo.data[0][0][iy]=srh_lumo_avg[i]/srh_lumo_count[i]
+					break
+
+		#build numeical HOMO
+		for iy in range(0,len(self.mesh)):
+			x=self.mesh[iy]
+			for i in range(0,len(srh_homo_stop_points)-1):
+				if srh_homo_stop_points[i+1]>x:
+					srh_homo_avg[i]=srh_homo_avg[i]+self.data_homo.data[0][0][iy]
+					srh_homo_count[i]=srh_homo_count[i]+1
+					break
+
+		for iy in range(0,len(self.mesh)):
+			x=self.mesh[iy]
+			for i in range(0,len(srh_homo_stop_points)-1):
+				if srh_homo_stop_points[i+1]>x:
+					if srh_homo_count[i]!=0:
+						self.data_numerical_homo.data[0][0][iy]=srh_homo_avg[i]/srh_homo_count[i]
+					break
+
+		self.data_numerical_lumo.save(os.path.join(self.dos_dir,"lumo_numberical.dat"))
+		self.data_numerical_homo.save(os.path.join(self.dos_dir,"homo_numberical.dat"))
+		self.data_lumo.save(os.path.join(self.dos_dir,"lumo.dat"))
+		self.data_homo.save(os.path.join(self.dos_dir,"homo.dat"))
 
 	def __init__(self,file_name):
 		QWidget.__init__(self)
 		self.dos_file=file_name
+		self.dos_dir=os.path.join(get_sim_path(),file_name[:-4])
+		if os.path.isdir(self.dos_dir)==False:
+			os.mkdir(self.dos_dir)
+
 		ext=file_name[3:]
 
 		self.setWindowTitle(_("Complex Density of states editor - gpvdm"))
@@ -354,11 +423,10 @@ class dos_editor(QWidget):
 
 		hbox=QHBoxLayout()
 
-
 		self.plot=plot_widget()
 		self.plot.init(enable_toolbar=False)
-		self.plot.set_labels([_("LUMO"),_("HOMO")])
-		self.plot.load_data(["lumo.dat","homo.dat"])
+		self.plot.set_labels([_("LUMO"),_("HOMO"),_("LUMO numerical"),_("HOMO numerical")])
+		self.plot.load_data([os.path.join(self.dos_dir,"lumo.dat"),os.path.join(self.dos_dir,"homo.dat"),os.path.join(self.dos_dir,"lumo_numberical.dat"),os.path.join(self.dos_dir,"homo_numberical.dat")])
 
 		self.plot.do_plot()
 
@@ -384,6 +452,9 @@ class dos_editor(QWidget):
 
 		self.lumo.changed.connect(self.update_graph)
 		self.homo.changed.connect(self.update_graph)
+
+		get_watch().add_call_back(self.dos_file,self.update_graph)
+
 		
 	
 

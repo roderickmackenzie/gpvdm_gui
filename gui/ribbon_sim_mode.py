@@ -72,6 +72,8 @@ from inp import inp_update_token_value
 
 from global_objects import global_object_register
 
+from lock import get_lock
+
 from help import help_window
 from QAction_lock import QAction_lock
 from util import str2bool

@@ -25,6 +25,7 @@
 #  A library of all tokens used in the model.
 #
 
+from lock import get_lock
 import re
 
 import i18n
@@ -74,6 +75,9 @@ def build_token_lib():
 
 
 	#dos?.inp
+	#if get_lock().check_feature("defect_states")!="hide":
+	lib.append(my_data("","#dostype","Edit",_("DoS distribution"),"s",1.0,"dos_complex_switch",units_widget="QPushButton"))
+	lib.append(my_data("","#dos_photon_generation","Edit",_("Photon emission"),"s",1.0,"gtkswitch",units_widget="QPushButton"))
 
 	lib.append(my_data("","#Nc","m^{-3}",_("Effective density of free electron states"),"e",1.0,"QLineEdit",min=1e10,max=1e27))
 	lib.append(my_data("","#Nv","m^{-3}",_("Effective density of free hole states"),"e",1.0,"QLineEdit",min=1e10,max=1e27))

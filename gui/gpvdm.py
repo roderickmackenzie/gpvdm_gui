@@ -127,7 +127,9 @@ from clone_materials import clone_materials
 from cal_path import get_spectra_path
 from clone import clone_spectras
 from file_watch import get_watch
+from used_files import used_files_add
 
+from lock_gui import lock_gui
 
 from contacts_io import get_contactsio
 
@@ -359,6 +361,7 @@ class gpvdm_main_window(QMainWindow):
 
 
 	def change_dir_and_refresh_interface(self,new_dir):
+		used_files_add(os.path.join(new_dir,"sim.gpvdm"))
 		scan_items_clear()
 		inp_callbacks_clear()
 		self.splash.inc_value()
@@ -414,6 +417,8 @@ class gpvdm_main_window(QMainWindow):
 		self.splash.inc_value()
 		#help_window().help_append(["star.png",_("<big><b>Update available!</b></big><br>")])
 
+		if self.notebook.is_loaded()==True:
+			self.l.run()
 
 		get_watch().rebase()
 		
@@ -529,6 +534,9 @@ class gpvdm_main_window(QMainWindow):
 		#self.setGeometry(200, 100, 1300, 600)
 		self.setWindowTitle("General-purpose Photovoltaic Device Model (https://www.gpvdm.com)")
 
+		self.l=lock_gui()
+		#self.l.disable_all.connect(self.disable_interface)
+		#self.l.enable_all.connect(self.enable_disable_buttons)
 
 		#super(gpvdm_main_window, self).__init__(parent, QtCore.Qt.FramelessWindowHint)
 		#gobject.GObject.__init__(self)

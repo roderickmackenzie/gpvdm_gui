@@ -38,12 +38,16 @@ from code_ctrl import enable_betafeatures
 from cal_path import get_css_path
 
 #qt
-from PyQt5.QtWidgets import  QAction
+from PyQt5.QtWidgets import  QAction, QMenu
 from PyQt5.QtCore import QSize, Qt
 from PyQt5.QtWidgets import QWidget,QSizePolicy,QVBoxLayout,QHBoxLayout,QToolBar, QToolButton
 from PyQt5.QtWidgets import QTabWidget
 
 import webbrowser
+from lock import get_lock
+from QAction_lock import QAction_lock
+from used_files import used_files_load
+
 
 class ribbon_file(QToolBar):
 	def __init__(self):
@@ -56,7 +60,16 @@ class ribbon_file(QToolBar):
 		#self.home_new.setText(_("New\nsimulation"))
 		self.addAction(self.home_new)
 
+		self.old = QAction(icon_get("document-new"), _("New simulation").replace(" ","\n"), self)
+
+
 		self.home_open = QAction(icon_get("document-open"), _("Open\nsimulation"), self)
+
+		self.used_files_menu = QMenu(self)
+		self.populate_used_file_menu()
+		self.home_open.setMenu(self.used_files_menu)
+
+
 		self.addAction(self.home_open)
 
 		self.home_export = QAction(icon_get("document-export"), _("Export\ndata"), self)
@@ -73,15 +86,31 @@ class ribbon_file(QToolBar):
 		spacer.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
 		self.addWidget(spacer)
 
+		if get_lock().is_trial()==True and get_lock().is_registered()==True:
+			self.home_cart = QAction(icon_get("upgrade"), _("Upgrade to\ngpvdm professional."), self)
+			self.home_cart.triggered.connect(self.callback_buy)
+			self.addAction(self.home_cart)
 
 		self.home_help = QAction(icon_get("internet-web-browser"), _("Help"), self)
 		self.addAction(self.home_help)
+
+	def populate_used_file_menu(self):
+		self.used_files_menu.clear()
+		files=used_files_load()
+		for f in files:
+			f=QAction(f, self)
+			f.triggered.connect(self.callback_menu)
+			self.used_files_menu.addAction(f)
+
+	def callback_menu(self):
+		action = self.sender()
+		print('Action: ', action.text())
 
 	def callback_buy(self):
 		webbrowser.open("https://www.gpvdm.com/buy.html")
 
 	def update(self):
-		return
+		self.populate_used_file_menu()
 
 	def callback_export_xls(self):
 		from dlg_export import dlg_export_xls

@@ -58,6 +58,9 @@ from progress import progress_class
 from process_events import process_events
 from msg_dlg import msg_dlg
 
+from lock import get_lock
+from trial import trial
+from QAction_lock import QAction_lock
 
 checked_web=False
 
@@ -209,6 +212,16 @@ class update_window(QWidget):
 		self.update_check_thread.start()
 
 	def download_updates(self):
+		if get_lock().is_trial()==True:
+			self.trial=trial(override_text="<br><br><br><br>Please buy gpvdm to get access to the full materials database.<br><br><br>",show_text=False,title_font_size=14)
+			self.trial.title_text.setAlignment(Qt.AlignCenter)
+			ret=self.trial.run()
+			if ret==QDialog.Accepted:
+				msgBox = msg_dlg()
+				msgBox.setText("Thank you for buying gpvdm")
+				reply = msgBox.exec_()
+
+			return
 
 		self.status_bar.showMessage("Downloading updates.....")
 		p = Thread(target=self.thread_download_updates)

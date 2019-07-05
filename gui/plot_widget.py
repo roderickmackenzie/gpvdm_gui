@@ -78,6 +78,7 @@ from colors import get_marker
 
 from dat_file import dat_file_print
 from plot_ribbon import plot_ribbon
+from lock import get_lock
 
 class plot_widget(QWidget):
 
@@ -331,6 +332,19 @@ class plot_widget(QWidget):
 			if len(files)<40:
 				self.fig.legend(all_plots, files, self.data[0].legend_pos)
 
+		if get_lock().is_trial()==True:
+			x=0
+			y=0
+			while(x<1.0):
+				y=0
+				while(y<1.0):
+					self.fig.text(x, y, 'gpvdm', fontsize=20, color='gray', ha='right', va='bottom', alpha=self.watermark_alpha)
+
+					y=y+0.1
+				x=x+0.15
+			#self.fig.text(0.90, 0.1, 'Upgrade to gpvdm proessional today!', fontsize=20, color='blue', ha='right', va='bottom', alpha=0.2)
+			#self.fig.text(0.40, 0.80, 'Upgrade to gpvdm proessional.', fontsize=20, color='gray', ha='right', va='bottom', alpha=self.watermark_alpha)
+			#self.fig.text(0.40, 0.20, 'Upgrade to gpvdm proessional.', fontsize=20, color='gray', ha='right', va='bottom', alpha=self.watermark_alpha)
 
 		#self.fig.tight_layout(pad=0.0, w_pad=0.0, h_pad=0.0,axes_pad=0.0)
 		self.fig.canvas.draw()

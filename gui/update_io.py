@@ -59,6 +59,8 @@ from threading import Thread
 from code_ctrl import am_i_rod
 import random
 
+from lock import get_lock
+
 
 class http_get_u(http_get):
 	"""This is a """

@@ -70,6 +70,7 @@ from cal_path import get_sim_path
 from cal_path import get_materials_path
 from cal_path import get_default_material_path
 
+from lock import get_lock
 
 class band_graph(QWidget):
 	def __init__(self):
@@ -101,6 +102,10 @@ class band_graph(QWidget):
 
 	def do_clip(self):
 		buf = io.BytesIO()
+		if get_lock().is_trial()==False:
+			self.my_figure.savefig(buf)
+			QApplication.clipboard().setImage(QImage.fromData(buf.getvalue()))
+			buf.close()
 
 	def save_image(self):
 		response=save_as_filter(self,"png (*.png);;jpg (*.jpg);;svg (*.svg)")
@@ -227,6 +232,11 @@ class band_graph(QWidget):
 
 
 		self.my_figure.tight_layout()
+
+		if get_lock().is_trial()==True:
+			self.my_figure.text(0.90, 0.25, 'Upgrade to gpvdm proessional.', fontsize=15, color='gray', ha='right', va='bottom', alpha=0.1)
+			self.my_figure.text(0.40, 0.80, 'Upgrade to gpvdm proessional.', fontsize=15, color='gray', ha='right', va='bottom', alpha=0.1)
+			self.my_figure.text(0.40, 0.20, 'Upgrade to gpvdm proessional.', fontsize=15, color='gray', ha='right', va='bottom', alpha=0.1)
 
 		self.canvas.draw()
 

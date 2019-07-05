@@ -79,7 +79,7 @@ class file_watch():
 				a=watch_data()
 				a.file_name=f
 				a.time=inp_getmtime(os.path.join(get_sim_path(),f))
-				print("add",f)
+				#print("add",f)
 				self.files.append(a)
 			else:
 				i=self.files.index(f)

@@ -45,6 +45,8 @@ from icon_lib import icon_get
 
 from msg_dlg import msg_dlg
 
+from lock import get_lock
+from trial import trial
 
 class QAction_lock(QAction):
 	secure_click=pyqtSignal(QAction)
@@ -62,6 +64,7 @@ class QAction_lock(QAction):
 		self.triggered.connect(self.callback_secure_click)
 
 	def callback_secure_click(self):
+		get_lock().debug_action("QAction_lock:"+self.text)
 		if self.locked==False:
 			self.secure_click.emit(self)
 		else:

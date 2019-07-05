@@ -65,6 +65,7 @@ from optics import class_optical
 import webbrowser
 from global_objects import global_object_register
 
+from lock import get_lock
 
 class ribbon_home(QToolBar):
 
@@ -130,6 +131,10 @@ class ribbon_home(QToolBar):
 		spacer.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
 		self.addWidget(spacer)
 
+		if get_lock().is_trial()==True and get_lock().is_registered()==True:
+			self.home_cart = QAction(icon_get("upgrade"), _("Upgrade to\ngpvdm professional."), self)
+			self.home_cart.triggered.connect(self.callback_buy)
+			self.addAction(self.home_cart)
 
 		self.help = QAction(icon_get("internet-web-browser"), _("Help"), self)
 		self.addAction(self.help)

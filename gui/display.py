@@ -184,8 +184,15 @@ class display_widget(QWidget):
 		
 		if open_gl_working==True:
 			print("OpenGL is working")
+
+			from lock import get_lock
+			get_lock().open_gl_working=True
+
 		else:
 			print("OpenGL is not working going to fallback")
+			from lock import get_lock
+			get_lock().open_gl_working=False
+
 			self.hbox.removeWidget(self.display)
 			self.display.deleteLater()
 			self.display = None

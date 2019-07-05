@@ -1,4 +1,3 @@
-REM <stripall>
 REM rd /s /q __pycahce__
 REM rd /s /q dist
 REM rd /s /q C:\tmp

@@ -32,9 +32,16 @@ import shutil
 from util_zip import replace_file_in_zip_archive
 
 import hashlib
-import pyaes
+aes_support=True
+try:
+	import pyaes
+except:
+	aes_support=False
 
 def decrypt_file(out_file,in_file,key):
+	if aes_support==False:
+		print("no encoding")
+		return False
 	iv="857585291b631481e586f3023b03c548a95ea6f369bdda171a6e0bc28ae929ee"
 
 	bs=32

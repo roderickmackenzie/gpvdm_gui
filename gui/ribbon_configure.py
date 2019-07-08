@@ -77,7 +77,7 @@ class ribbon_configure(QToolBar):
 		self.mesh.triggered.connect(self.callback_edit_mesh)		
 		self.addAction(self.mesh)
 
-		self.pl = QAction_lock("thermal", _("Temperature"), self,locked=False)
+		self.pl = QAction_lock("thermal", _("Temperature"), self,locked=True)
 		self.pl.secure_click.connect(self.callback_thermal)
 		self.addAction(self.pl)
 

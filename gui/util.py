@@ -41,6 +41,8 @@ from math import pow
 def peek_data(file_name):
 	try:
 		text=zip_get_raw_data(file_name,bytes=100)
+		if text==False:
+			return b"none"
 		return text
 	except:
 		pass

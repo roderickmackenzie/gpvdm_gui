@@ -383,7 +383,6 @@ class gpvdm_main_window(QMainWindow):
 		get_watch().reset()
 
 		get_contactsio().load()
-		get_contactsio().init_watch()
 		self.splash.inc_value()
 
 		if mesh_load_all()==False:
@@ -421,7 +420,7 @@ class gpvdm_main_window(QMainWindow):
 			self.l.run()
 
 		get_watch().rebase()
-		
+		get_contactsio().init_watch()
 
 	def load_sim(self,filename):
 		new_path=os.path.dirname(filename)
@@ -601,6 +600,7 @@ class gpvdm_main_window(QMainWindow):
 
 		self.ribbon.file.home_new.triggered.connect(self.callback_new)
 		self.ribbon.file.home_open.triggered.connect(self.callback_open)
+		self.ribbon.file.used_files_click.connect(self.load_sim)
 		self.ribbon.home.undo.triggered.connect(self.callback_undo)
 		self.ribbon.home.run.start_sim.connect(self.callback_simulate)
 		self.splash.inc_value()

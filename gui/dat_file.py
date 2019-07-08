@@ -78,7 +78,9 @@ def dat_file_load_info(output,lines):
 						if (command[0]=="#y_units"):
 							output.y_units=command[1]
 						if (command[0]=="#z_units"):
-							output.z_units=command[1]
+							output.y_units=command[1]
+						if (command[0]=="#rgb"):
+							output.rgb=command[1]
 						if (command[0]=="#data_units"):
 							output.data_units=command[1]
 						if (command[0]=="#logscale_x"):
@@ -308,6 +310,7 @@ def dat_file_print(dat):
 	print("x_units",dat.x_units)
 	print("y_units",dat.y_units)
 	print("z_units",dat.z_units)
+	print("rgb",dat.rgb)
 	print("data_units",dat.data_units)
 	print("x_mul",dat.x_mul)
 	print("y_mul",dat.y_mul)
@@ -375,6 +378,7 @@ class dat_file():
 		self.x_units=""
 		self.y_units=""
 		self.z_units=""
+		self.rgb=""
 		self.data_units=""
 
 		self.x_mul=1.0
@@ -629,6 +633,9 @@ class dat_file():
 
 		if self.z_units!="":
 			lines.append("#y_units "+str(self.z_units))
+
+		if self.rgb!="":
+			lines.append("#rgb "+str(self.rgb))
 
 		if self.data_units!="":
 			lines.append("#data_units "+str(self.data_units))

@@ -47,7 +47,7 @@ def libcrypt_decrypt(data,key="hello"):
 		data=bytearray(data)
 
 		if data.startswith(b"gpvdm")==False:
-			return False
+			return b"gpvdmenc"
 		data=data[5:]
 
 	return data

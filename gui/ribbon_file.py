@@ -47,9 +47,10 @@ import webbrowser
 from lock import get_lock
 from QAction_lock import QAction_lock
 from used_files import used_files_load
-
+from PyQt5.QtCore import pyqtSignal
 
 class ribbon_file(QToolBar):
+	used_files_click= pyqtSignal(str)
 	def __init__(self):
 		QToolBar.__init__(self)
 
@@ -104,7 +105,7 @@ class ribbon_file(QToolBar):
 
 	def callback_menu(self):
 		action = self.sender()
-		print('Action: ', action.text())
+		self.used_files_click.emit(action.text())
 
 	def callback_buy(self):
 		webbrowser.open("https://www.gpvdm.com/buy.html")

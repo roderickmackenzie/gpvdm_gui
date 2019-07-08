@@ -58,7 +58,7 @@ from leftright import leftright
 from util import str2bool
 from gui_util import tab_get_value
 
-from inp import inp_callback_add_write_hook
+from file_watch import get_watch
 
 from cal_path import get_sim_path
 
@@ -97,7 +97,7 @@ class electrical_mesh_editor(QGroupBox):
 		#self.tab.setItem(pos,3,QTableWidgetItem("left"))
 
 		self.save()
-		self.redraw()
+		#self.redraw()
 		self.tab.blockSignals(False)
 		self.changed.emit()
 
@@ -110,7 +110,7 @@ class electrical_mesh_editor(QGroupBox):
 			self.tab.removeRow(pos)
 
 		self.save()
-		self.redraw()
+		#self.redraw()
 		self.tab.blockSignals(False)
 		self.changed.emit()
 
@@ -243,14 +243,13 @@ class electrical_mesh_editor(QGroupBox):
 
 		if self.xyz=="y": 
 			self.mesh=mesh_get_ymesh()
-			inp_callback_add_write_hook(os.path.join(get_sim_path(),"mesh_y.inp"),self.load,"mesh_editor")
+			get_watch().add_call_back("mesh_y.inp",self.load)
 		elif self.xyz=="x":
 			self.mesh=mesh_get_xmesh()
-			inp_callback_add_write_hook(os.path.join(get_sim_path(),"mesh_x.inp"),self.load,"mesh_editor")
+			get_watch().add_call_back("mesh_x.inp",self.load)
 		elif self.xyz=="z":
 			self.mesh=mesh_get_zmesh()
-			inp_callback_add_write_hook(os.path.join(get_sim_path(),"mesh_z.inp"),self.load,"mesh_editor")
-
+			get_watch().add_call_back("mesh_z.inp",self.load)
 
 		self.load()
 

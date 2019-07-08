@@ -237,7 +237,12 @@ class plot_widget(QWidget):
 			self.ax[0].set_ylabel(self.data[0].data_label+" ("+self.data[0].data_units+")")
 
 			for i in range(0,len(self.input_files)):
-				cur_plot, = self.ax[i].plot(self.data[i].y_scale,self.data[i].data[0][0], linewidth=3 ,alpha=1.0,color=get_color(i),marker=get_marker(i))
+				if self.data[i].rgb!="":
+					col="#"+self.data[i].rgb
+				else:
+					col=get_color(i)
+
+				cur_plot, = self.ax[i].plot(self.data[i].y_scale,self.data[i].data[0][0], linewidth=3 ,alpha=1.0,color=col,marker=get_marker(i))
 
 				if self.labels[i]!="":
 					files.append("$"+numbers_to_latex(str(self.labels[i]))+" "+pygtk_to_latex_subscript(self.data[0].key_units)+"$")
@@ -338,10 +343,10 @@ class plot_widget(QWidget):
 			while(x<1.0):
 				y=0
 				while(y<1.0):
-					self.fig.text(x, y, 'gpvdm', fontsize=20, color='gray', ha='right', va='bottom', alpha=self.watermark_alpha)
+					self.fig.text(x, y, 'gpvdm trial', fontsize=20, color='gray', ha='right', va='bottom', alpha=self.watermark_alpha)
 
 					y=y+0.1
-				x=x+0.15
+				x=x+0.25
 			#self.fig.text(0.90, 0.1, 'Upgrade to gpvdm proessional today!', fontsize=20, color='blue', ha='right', va='bottom', alpha=0.2)
 			#self.fig.text(0.40, 0.80, 'Upgrade to gpvdm proessional.', fontsize=20, color='gray', ha='right', va='bottom', alpha=self.watermark_alpha)
 			#self.fig.text(0.40, 0.20, 'Upgrade to gpvdm proessional.', fontsize=20, color='gray', ha='right', va='bottom', alpha=self.watermark_alpha)

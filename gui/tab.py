@@ -194,36 +194,37 @@ class tab_class(QWidget,tab_base):
 			return
 
 		for w in self.widget_list:
-			values=inp_search_token_array(self.lines, w.token)
-			w.edit_box.blockSignals(True)
+			if w.edit_box.hasFocus()==False:
+				values=inp_search_token_array(self.lines, w.token)
+				w.edit_box.blockSignals(True)
 
-			if w.widget=="gtkswitch":
-				w.edit_box.set_value(str2bool(values[0]))
-			elif w.widget=="leftright":
-				w.edit_box.set_value(str2bool(values[0]))
-			elif w.widget=="gpvdm_select":
-				w.edit_box.setText(values[0])
-			elif w.widget=="gpvdm_select_material":
-				w.edit_box.setText(values[0])
-			elif w.widget=="QLineEdit":
-				w.edit_box.setText(values[0])
-			elif w.widget=="QColorPicker":
-				print()
-			elif w.widget=="QComboBoxLang":
-				print()
-			elif w.widget=="QParasitic":
-				w.edit_box.setValue(values[0])
-			elif w.widget=="QChangeLog":
-				w.edit_box.setText(values[0])
-			elif w.widget=="QComboBoxNewtonSelect":
-				w.edit_box.setText(values[0])
-			elif w.widget=="dos_complex_switch":
-				w.edit_box.set_value(values[0])
-			elif w.widget=="shape_dos_switch":
-				w.edit_box.set_value(values[0])
+				if w.widget=="gtkswitch":
+					w.edit_box.set_value(str2bool(values[0]))
+				elif w.widget=="leftright":
+					w.edit_box.set_value(str2bool(values[0]))
+				elif w.widget=="gpvdm_select":
+					w.edit_box.setText(values[0])
+				elif w.widget=="gpvdm_select_material":
+					w.edit_box.setText(values[0])
+				elif w.widget=="QLineEdit":
+					w.edit_box.setText(values[0])
+				elif w.widget=="QColorPicker":
+					print()
+				elif w.widget=="QComboBoxLang":
+					print()
+				elif w.widget=="QParasitic":
+					w.edit_box.setValue(values[0])
+				elif w.widget=="QChangeLog":
+					w.edit_box.setText(values[0])
+				elif w.widget=="QComboBoxNewtonSelect":
+					w.edit_box.setText(values[0])
+				elif w.widget=="dos_complex_switch":
+					w.edit_box.set_value(values[0])
+				elif w.widget=="shape_dos_switch":
+					w.edit_box.set_value(values[0])
 
 		
-			w.edit_box.blockSignals(False)
+				w.edit_box.blockSignals(False)
 
 
 	def init(self,filename,tab_name):

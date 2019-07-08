@@ -44,6 +44,7 @@ from icon_lib import icon_get
 
 from gui_util import tab_remove
 from gui_util import tab_get_value
+from gui_util import tab_insert_row
 
 from ribbon_complex_dos import ribbon_complex_dos 
 from gpvdm_tab import gpvdm_tab
@@ -60,13 +61,16 @@ class equation_editor(QGroupBox):
 	changed = pyqtSignal()
 
 	def load(self):
+		self.tab.blockSignals(True)
+
 		lines=[]
 		self.tab.clear()
 		self.tab.setHorizontalHeaderLabels([_("Function"), _("Enabled"), _("a"), _("b"), _("c")])
 
 		lines=inp_load_file(self.file_name)
 		pos=0
-		print(lines)
+
+		row=0
 		while True:
 			if lines[pos]=="#end":
 				break
@@ -102,7 +106,18 @@ class equation_editor(QGroupBox):
 			c=lines[pos] 	#read value
 			pos=pos+1
 
-			self.tab.add([ str(function), str(enabled), str(a), str(b), str(c)])
+			if (row+1)>self.tab.rowCount():
+				tab_insert_row(self.tab)
+
+			self.tab.set_value(row,0,str(function))
+			self.tab.set_value(row,1,str(enabled))
+			self.tab.set_value(row,2,str(a))
+			self.tab.set_value(row,3,str(b))
+			self.tab.set_value(row,4,str(c))
+
+			row=row+1
+
+		self.tab.blockSignals(False)
 
 	def __init__(self,file_name,name):
 		QGroupBox.__init__(self)
@@ -398,11 +413,15 @@ class dos_editor(QWidget):
 	def __init__(self,file_name):
 		QWidget.__init__(self)
 		self.dos_file=file_name
+
 		self.dos_dir=os.path.join(get_sim_path(),file_name[:-4])
 		if os.path.isdir(self.dos_dir)==False:
 			os.mkdir(self.dos_dir)
 
 		ext=file_name[3:]
+
+		self.lumo_file="lumo"+ext
+		self.homo_file="homo"+ext
 
 		self.setWindowTitle(_("Complex Density of states editor - gpvdm"))
 		self.setWindowIcon(icon_get("electrical"))
@@ -455,6 +474,10 @@ class dos_editor(QWidget):
 		self.homo.changed.connect(self.update_graph)
 
 		get_watch().add_call_back(self.dos_file,self.update_graph)
+		print(">>>>>>>>>",self.lumo_file)
+		get_watch().add_call_back(self.lumo_file,self.lumo.load)
+		get_watch().add_call_back(self.homo_file,self.homo.load)
+
 
 		
 	

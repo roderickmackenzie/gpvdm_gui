@@ -85,7 +85,7 @@ class file_watch():
 				i=self.files.index(f)
 				file_time=inp_getmtime(os.path.join(get_sim_path(),f))
 				if self.files[i].time!=file_time:
-					print("changed",self.files[i].file_name,datetime.fromtimestamp(self.files[i].time),datetime.fromtimestamp(file_time))
+					#print("changed",self.files[i].file_name,datetime.fromtimestamp(self.files[i].time),datetime.fromtimestamp(file_time),len(self.files[i].call_backs))
 					for c in self.files[i].call_backs:
 						c()
 

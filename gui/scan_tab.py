@@ -29,7 +29,6 @@ import gc
 import os
 from inp import inp_get_token_value
 from plot import check_info_file
-from used_files_menu import used_files_menu
 from plot_gen import plot_gen
 from dat_file import dat_file
 from cmp_class import cmp_class

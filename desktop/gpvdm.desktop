@@ -1,8 +1,8 @@
 [Desktop Entry]
 Name=gpvdm
-Icon=//gpvdm_gui/images/application-gpvdm.svg
+Icon=/usr/local/share/gpvdm_gui/images/application-gpvdm.svg
 Type=Application
 MimeType=application/gpvdm;
-Exec=//gpvdm %F
+Exec=/usr/local/bin/gpvdm %F
 Terminal=true
 Categories=GTK;GNOME;Science;

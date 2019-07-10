@@ -58,14 +58,14 @@ def archive_materials(path):
 				print(mat_dir)
 
 
-def find_materials(mat_path=get_materials_path()):
+def find_materials(mat_path=get_materials_path(),file_type="material"):
 	ret=[]
 
 	for root, dirs, files in os.walk(mat_path):
 		#for file in files:
 		#path=os.path.join(root, file)
 		#print(root)
-		if get_dir_type(root)=="material":
+		if get_dir_type(root)==file_type:
 			
 			#if os.path.isdir(root)==True:
 			#	path=os.path.dirname(root)

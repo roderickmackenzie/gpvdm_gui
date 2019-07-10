@@ -61,10 +61,13 @@ from util import wrap_text
 from gui_util import dlg_get_text
 from clone_materials import clone_material
 
+from cal_path import get_emission_path
 from cal_path import get_base_material_path
-from error_dlg import error_dlg
 from cal_path import get_base_spectra_path
+from cal_path import get_base_emission_path
+
 from clone import clone_spectra
+from error_dlg import error_dlg
 
 from lasers import lasers
 
@@ -102,6 +105,10 @@ class ribbon_database(QToolBar):
 		self.lasers.triggered.connect(self.callback_configure_lasers)
 		self.addAction(self.lasers)
 
+		self.emission = QAction(icon_get("pl"), _("Emission\ndatabase"), self)
+		self.emission.triggered.connect(self.callback_configure_emission)
+		self.addAction(self.emission)
+
 		self.lasers_window=None
 
 	def update(self):
@@ -137,9 +144,18 @@ class ribbon_database(QToolBar):
 			new_spectra=os.path.join(self.dialog.viewer.path,new_sim_name)
 			ret=clone_spectra(new_spectra,os.path.join(get_base_spectra_path(),"sun"))
 			if ret==False:
-				error_dlg(self,_("I cant write to:")+new_material+" "+_("This means either the disk is full or your system administrator has not given you write permissions to that location."))
+				error_dlg(self,_("I cant write to:")+new_spectra+" "+_("This means either the disk is full or your system administrator has not given you write permissions to that location."))
 			self.dialog.viewer.fill_store()
 
+	def on_new_emission_clicked(self):
+		new_sim_name=dlg_get_text( _("New emission spectra name:"), _("New emission spectra name"),"add_emission")
+		new_sim_name=new_sim_name.ret
+		if new_sim_name!=None:
+			new_emission=os.path.join(self.dialog.viewer.path,new_sim_name)
+			ret=clone_material(new_emission,os.path.join(get_base_emission_path(),"Irppy3"))
+			if ret==False:
+				error_dlg(self,_("I cant write to:")+new_emission+" "+_("This means either the disk is full or your system administrator has not given you write permissions to that location."))
+			self.dialog.viewer.fill_store()
 
 	def callback_view_materials(self):
 		self.dialog=gpvdm_open(get_materials_path(),big_toolbar=True)
@@ -182,3 +198,12 @@ class ribbon_database(QToolBar):
 			self.lasers_window.hide()
 		else:
 			self.lasers_window.show()
+
+	def callback_configure_emission(self):
+		self.dialog=gpvdm_open(get_emission_path(),big_toolbar=True)
+		self.new_emission = QAction_lock("add_emission", wrap_text(_("Add Spectra"),8), self,locked=True)
+		self.new_emission.secure_click.connect(self.on_new_emission_clicked)
+		self.dialog.toolbar.addAction(self.new_emission)
+		self.dialog.show_inp_files=False
+		ret=self.dialog.exec_()
+

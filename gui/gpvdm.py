@@ -217,6 +217,10 @@ def do_import():
 
 from inp_encrypt import encrypt_file
 from inp_encrypt import decrypt_file
+from cal_path import get_base_material_path
+
+from cal_path import get_base_emission_path
+from cal_path import get_emission_path
 
 #encrypt_file("encode.dat","one.txt","hello")
 #decrypt_file("decode.dat","encode.dat","hello")
@@ -630,7 +634,10 @@ class gpvdm_main_window(QMainWindow):
 		self.enable_disable_buttons()
 
 		if os.path.isdir(get_materials_path())==False:
-			clone_materials(get_materials_path())
+			clone_materials(get_materials_path(), get_base_material_path(),"material")
+
+		if os.path.isdir(get_emission_path())==False:
+			clone_materials(get_emission_path(), get_base_emission_path(),"emission")
 
 		if os.path.isdir(get_spectra_path())==False:
 			clone_spectras(get_spectra_path())

@@ -52,9 +52,6 @@ from gui_util import dlg_get_text
 from gui_util import yes_no_dlg
 
 
-from clone_materials import clone_material
-from clone import clone_spectra
-
 from inp import inp_get_token_value
 from inp import inp_load_file
 from inp import inp_get_token_value_from_list
@@ -452,6 +449,9 @@ class gpvdm_viewer(QListWidget):
 						elif dir_type=="material":
 							itm.file_name=fl
 							itm.icon="organic_material"
+						elif dir_type=="emission":
+							itm.file_name=fl
+							itm.icon="emission"
 						else:
 							show_dir=True
 
@@ -717,6 +717,12 @@ class gpvdm_viewer(QListWidget):
 				from materials_main import materials_main
 				self.mat_window=materials_main(full_path)
 				self.mat_window.show()
+				return
+
+			if dir_type=="emission":
+				from emission_main import emission_main
+				self.emission_window=emission_main(full_path)
+				self.emission_window.show()
 				return
 
 			if dir_type=="snapshots":

@@ -83,13 +83,11 @@ class lock():
 		self.register_date=0
 		self.lver="2.0"
 		self.error=""
-		self.nag_fraction=0.5
 		self.disabled=False
 		self.use_count=False
 		self.ping_server=True
 		self.open_gl_working=True
 		self.features=None
-		self.trial_does_expire=True
 		self.reg_client_ver="ver"
 		self.client_ver_from_lock=""
 		if am_i_rod()==True:
@@ -293,7 +291,6 @@ class lock():
 			return False
 
 		self.uid=inp_search_token_value(lines, "#uid")
-		self.trial=str2bool(inp_search_token_value(lines, "#trial"))
 		self.disabled=str2bool(inp_search_token_value(lines, "#disabled"))
 		self.renew_date=int(inp_search_token_value(lines, "#renew_date"))
 		self.allowed=inp_search_token_value(lines, "#allowed").split(",")
@@ -315,10 +312,6 @@ class lock():
 			self.ping_server=str2bool(val)
 
 		#print(lines,self.ping_server)
-
-		val=inp_search_token_value(lines, "#trial_does_expire")
-		if val!=False:
-			self.trial_does_expire=str2bool(val)
 
 		#print(lines)
 
@@ -433,12 +426,6 @@ class lock():
 		if self.renew_date==-1:
 			return False
 
-		if self.trial==True:
-			return True
-
-		#if self.trial==True:
-		#	return True
-
 		if self.days_left()>0:
 			return False
 
@@ -467,9 +454,6 @@ class lock():
 		return False
 
 	def days_left(self):
-		if self.trial_does_expire==False and self.trial==True:
-			return 100
-
 		return round((self.renew_date/1000-time.time())/24/60/60)
 
 	def over_use_count_limit(self):
@@ -504,22 +488,11 @@ class lock():
 		self.disabled=False
 
 	def is_trial(self):
-		return self.trial
+		if self.days_left()>0:
+			return False
 
+		return True
 
-	def can_i(self,data):
-		for a in self.allowed:
-			if a==data:
-				return True
-
-			if a=="all":
-				return True
-
-		for a in self.banned:
-			if a==data:
-				return False
-
-		return False
 
 
 my_lock=lock(lock_on=True)

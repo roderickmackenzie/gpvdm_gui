@@ -49,6 +49,7 @@ src_path=None
 spectra_base_path=None
 sim_path=None
 materials_base_path=None
+emission_base_path=None
 html_path=None
 cluster_path=None
 cluster_libs_path=None
@@ -231,6 +232,7 @@ def calculate_paths():
 	global ui_path
 	global spectra_base_path
 	global materials_base_path
+	global emission_base_path
 	global html_path
 	global cluster_path
 	global cluster_libs_path
@@ -239,6 +241,7 @@ def calculate_paths():
 	if os.path.isdir(root_materials_path)==False:
 		root_materials_path=search_known_paths("materials",[""],None,False)
 	materials_base_path=search_known_paths("materials",[""],None,False)
+	emission_base_path=search_known_paths("emission",[""],None,False)
 	device_lib_path=search_known_paths("device_lib",[""],None,False)
 	plugins_path=search_known_paths("plugins",[""],None,False)
 	image_path=search_known_paths("images",[""],"image.jpg",True)
@@ -315,9 +318,16 @@ def get_html_path():
 def get_materials_path():
 	return os.path.join(get_user_settings_dir(),"materials")
 
+def get_emission_path():
+	return os.path.join(get_user_settings_dir(),"emission")
+
 def get_base_material_path():
 	global materials_base_path
 	return materials_base_path
+
+def get_base_emission_path():
+	global emission_base_path
+	return emission_base_path
 
 def get_default_material_path():
 	global materials_base_path

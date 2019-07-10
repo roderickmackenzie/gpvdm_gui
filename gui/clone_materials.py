@@ -44,6 +44,8 @@ def clone_material(dest_material_dir,src_material_dir):
 
 	files=os.listdir(src_material_dir)
 	all_files=["alpha.gmat","dos.inp","shape.inp","fit.inp","homo.inp","lumo.inp","mat.inp","n.gmat","pl.inp","n_gen.gmat","alpha_gen.gmat"]
+	all_files.append("spectra.inp")
+
 	for i in range(0,len(files)):
 		if files[i] in all_files:
 			src_mat_file=os.path.join(src_material_dir,files[i])
@@ -51,18 +53,17 @@ def clone_material(dest_material_dir,src_material_dir):
 				copyfile(src_mat_file,os.path.join(dest_material_dir,files[i]))
 	return True
 
-def clone_materials(dest):
+def clone_materials(dest,src_dir,file_type):
 	progress_window=progress_class()
 	progress_window.show()
 	progress_window.start()
 
 	process_events()
 
-	src_dir=get_base_material_path()
 	if os.path.isdir(dest)==False:
 		os.makedirs(dest)
 
-	files=find_materials(mat_path=src_dir)
+	files=find_materials(mat_path=src_dir,file_type=file_type)
 	for i in range(0,len(files)):
 
 		src_file=os.path.join(src_dir,files[i])
@@ -75,3 +76,4 @@ def clone_materials(dest):
 		process_events()
 
 	progress_window.stop()
+

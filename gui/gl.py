@@ -514,10 +514,10 @@ if open_gl_ok==True:
 			self.emission=False
 			self.ray_model=False
 			
-			lines=inp_load_file(os.path.join(get_sim_path(),"led.inp"))
+			lines=inp_load_file(os.path.join(get_sim_path(),"ray.inp"))
 
 			if lines!=False:
-				self.ray_model=val=str2bool(inp_search_token_value(lines, "#led_on"))
+				self.ray_model=val=str2bool(inp_search_token_value(lines, "#ray_auto_run"))
 
 			lines=[]
 
@@ -623,6 +623,9 @@ if open_gl_ok==True:
 			self.z_mesh=mesh_get_zmesh()
 
 			self.x_len=mesh_get_xlen()
+			if os.path.isdir(os.path.join(os.path.join(get_sim_path(),"ray_trace")))==True:
+				self.view.render_photons=False
+
 
 		def random_device(self):
 			self.view.render_grid=True

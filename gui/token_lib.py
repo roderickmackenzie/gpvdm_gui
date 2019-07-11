@@ -324,13 +324,16 @@ def build_token_lib():
 	#pl_ss?.inp
 	lib.append(my_data("","#pl_mode","au",_("Device state"),"s",1.0,"QComboBoxLang",defaults=[[("voc"),_("Voc")],["Jsc",_("Jsc")]]))
 
-
-
+	#ray
+	lib.append(my_data("ray.inp","#ray_theta_steps","au",_("Theta steps"),"e",1.0,"QLineEdit"))
+	lib.append(my_data("ray.inp","#ray_input_spectrum","au",_("Theta steps"),"e",1.0,"QLineEdit"))
+	lib.append(my_data("ray.inp","#ray_wavelength_start","au",_("Wavelength start"),"e",1.0,"QLineEdit"))
+	lib.append(my_data("ray.inp","#ray_wavelength_stop","au",_("Wavelength stop"),"e",1.0,"QLineEdit"))
+	lib.append(my_data("ray.inp","#ray_wavelength_points","au",_("Wavelength points"),"e",1.0,"QLineEdit"))
+	lib.append(my_data("ray.inp","#ray_auto_run",_("True/False"),_("Autorun ray tracer"),"e",1.0,"gtkswitch"))
 
 
 	#led.inp
-	lib.append(my_data("","#led_on",_("True/False"),_("Turn on LED"),"e",1.0,"gtkswitch"))
-	lib.append(my_data("","#led_wavelength","m",_("LED emission wavelength"),"e",1.0,"QLineEdit"))
 	lib.append(my_data("","#led_extract_eff","0.0-1.0",_("LED extraction efficiency"),"e",1.0,"QLineEdit"))
 
 	#device.inp

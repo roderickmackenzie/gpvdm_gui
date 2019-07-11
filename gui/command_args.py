@@ -93,8 +93,6 @@ parser = argparse.ArgumentParser(epilog=_("Additional information about gpvdm is
 parser.add_argument("--version", help=_("displays the current version"), action='store_true')
 parser.add_argument("--ver", help=_("displays the current version"), action='store_true')
 parser.add_argument("--replace", help=_("replaces file in device lib --replace file.inp path_to_device_lib"), nargs=2)
-
-parser.add_argument("--delete", help=_("deletes file in device lib --delete file.inp path_to_device_lib"), nargs=2)
 parser.add_argument("--clean", help=_("cleans the current simulation directory deleting .dat files but not  scan dirs"), action='store_true')
 parser.add_argument("--export", help=_("export a simulation to a gz file"), nargs=1)
 parser.add_argument("--syncver", help=_("Synchronizes the saved file version to that of the source code."), action='store_true')

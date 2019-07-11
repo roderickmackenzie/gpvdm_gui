@@ -379,11 +379,11 @@ class gpvdm_viewer(QListWidget):
 			itm.display_name=_("Solver")
 			self.file_list.append(itm)
 
-			itm=file_store()
-			itm.file_name="gpvdm_led_config"
-			itm.icon="oled"
-			itm.display_name=_("LED")
-			self.file_list.append(itm)
+			#itm=file_store()
+			#itm.file_name="gpvdm_led_config"
+			#itm.icon="oled"
+			#itm.display_name=_("LED")
+			#self.file_list.append(itm)
 
 			itm=file_store()
 			itm.file_name="gpvdm_dump_config"
@@ -650,13 +650,13 @@ class gpvdm_viewer(QListWidget):
 			self.config_window.show()
 
 			return
-		elif decode=="gpvdm_led_config":
-			self.config_window=class_config_window()
-			self.config_window.files=["led.inp"]
-			self.config_window.description=[_("LED")]
-			self.config_window.init()
-			self.config_window.show()
-			return
+		#elif decode=="gpvdm_led_config":
+		#	self.config_window=class_config_window()
+		#	self.config_window.files=["led.inp"]
+		#	self.config_window.description=[_("LED")]
+		#	self.config_window.init()
+		#	self.config_window.show()
+		#	return
 		elif decode=="gpvdm_dump_config":
 			self.config_window=class_config_window()
 			self.config_window.files=["dump.inp"]

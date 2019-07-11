@@ -49,6 +49,8 @@ from sunsvoc import sunsvoc
 from sunsjsc import sunsjsc
 
 from ideal_diode_editor import ideal_diode_editor
+from ray_trace_editor import ray_trace_editor
+
 from qe import qe_window
 from measure import measure
 from cost import cost
@@ -77,6 +79,7 @@ class ribbon_simulations(QToolBar):
 		self.solar_spectrum_window=None
 		self.cost_window=None
 		self.diode_window=None
+		self.ray_trace_window=None
 		self.fdtd_window=None
 
 		self.plexperiment_window=None
@@ -109,6 +112,10 @@ class ribbon_simulations(QToolBar):
 		self.diode = QAction(icon_get("diode"), wrap_text(_("Simple diode model"),8), self)
 		self.diode.triggered.connect(self.callback_diode_window)
 		self.addAction(self.diode)
+
+		self.ray_trace = QAction(icon_get("ray"), wrap_text(_("Ray tracing\neditor"),8), self)
+		self.ray_trace.triggered.connect(self.callback_ray_tracing_window)
+		self.addAction(self.ray_trace)
 
 		self.pl = QAction(icon_get("pl"), _("PL\neditor"), self)
 		self.pl.triggered.connect(self.callback_pl_window)
@@ -260,6 +267,17 @@ class ribbon_simulations(QToolBar):
 			self.sunsjsc_experiment_window.hide()
 		else:
 			self.sunsjsc_experiment_window.show()
+
+	def callback_ray_tracing_window(self):
+
+		if self.ray_trace_window==None:
+			self.ray_trace_window=ray_trace_editor()
+
+		help_window().help_set_help(["ray.png",_("<big><b>The ray tracing editor</b></big><br> Use this window to configure ray tracing.")])
+		if self.ray_trace_window.isVisible()==True:
+			self.ray_trace_window.hide()
+		else:
+			self.ray_trace_window.show()
 
 
 	def callback_diode_window(self):

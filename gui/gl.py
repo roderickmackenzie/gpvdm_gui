@@ -165,6 +165,22 @@ from gl_scale import scale_m2screen_y
 
 from gl_main_menu import gl_main_menu
 
+from gl_list import gl_objects_add
+from gl_list import gl_objects_render
+from gl_list import gl_base_object
+from gl_list import gl_objects_clear
+from gl_list import gl_objects_select
+from gl_list import gl_objects_is_selected
+from gl_list import gl_objects_move
+from gl_list import gl_object_deselect
+
+from gl_scale import scale_screen_x2m
+from gl_scale import scale_screen_y2m
+from epitaxy import epitaxy_get_device_start
+
+from inp import inp_update_token_value
+from gl_list import gl_objects_remove_regex
+
 if open_gl_ok==True:		
 	class glWidget(QGLWidget,gl_move_view,gl_mesh,gl_layer_editor,gl_cords,gl_base_widget,gl_main_menu):
 
@@ -304,17 +320,21 @@ if open_gl_ok==True:
 				self.lastPos=event.pos()
 			dx = event.x() - self.lastPos.x();
 			dy = event.y() - self.lastPos.y();
+			sel=gl_objects_is_selected()
+			if sel==False:
+				if event.buttons()==Qt.LeftButton:
+					
+					self.view.xRot =self.view.xRot - 1 * dy
+					self.view.yRot =self.view.yRot - 1 * dx
 
-			if event.buttons()==Qt.LeftButton:
-				
-				self.view.xRot =self.view.xRot - 1 * dy
-				self.view.yRot =self.view.yRot - 1 * dx
+				if event.buttons()==Qt.RightButton:
+					self.view.x_pos =self.view.x_pos + 0.1 * dx
+					self.view.y_pos =self.view.y_pos - 0.1 * dy
+			else:
 
-			if event.buttons()==Qt.RightButton:
-				self.view.x_pos =self.view.x_pos + 0.1 * dx
-				self.view.y_pos =self.view.y_pos - 0.1 * dy
-				
-
+				gl_objects_move(sel,dx*0.05,-dy*0.05)
+				#print(dx,dy)
+			
 			self.lastPos=event.pos()
 			self.setFocusPolicy(Qt.StrongFocus)
 			self.setFocus()
@@ -325,6 +345,8 @@ if open_gl_ok==True:
 			self.lastPos=None
 			self.mouse_click_time=time.time()
 			self.obj=self.event_to_3d_obj(event)
+
+			
 
 			if self.obj.startswith("layer")==True:
 				self.selected_layer=self.obj
@@ -345,6 +367,9 @@ if open_gl_ok==True:
 				self.obj=search_color(c)
 				if self.obj=="none":
 					return
+
+				gl_objects_select(self.obj)
+				self.do_draw()
 
 				print("you have clicked on=",self.obj)
 
@@ -367,7 +392,19 @@ if open_gl_ok==True:
 							self.mesh_menu(event)
 					else:
 						self.menu(event)
+			obj=gl_object_deselect()
+			if obj!=False:
 
+				print(obj.type)
+				if obj.id=="ray_src":
+					x=scale_screen_x2m(obj.x)
+					y=scale_screen_y2m(obj.y)-epitaxy_get_device_start()
+					z=scale_m2screen_z(obj.z)
+					inp_update_token_value("ray.inp","#ray_xsrc",str(x))
+					inp_update_token_value("ray.inp","#ray_ysrc",str(y))
+					inp_update_token_value("ray.inp","#ray_zsrc",str(z))
+
+				self.do_draw()
 		#	self.lastPos=None
 
 
@@ -492,7 +529,23 @@ if open_gl_ok==True:
 
 				l=l+1
 
-				
+		def reset(self):
+			gl_objects_clear()
+			self.update_real_to_gl_mul()
+
+			a=gl_base_object()
+			a.id="ray_src"
+			a.type="box"
+			a.x=0.5
+			a.y=0.5
+			a.z=scale_m2screen_z(0.0)
+			a.dx=0.2
+			a.dy=0.2
+			a.dz=0.2
+			a.r=1.0
+			a.g=0.0
+			a.b=0.0
+			gl_objects_add(a)
 
 		def render(self):
 
@@ -562,7 +615,7 @@ if open_gl_ok==True:
 					self.draw_device(x,z)
 				draw_mode(x,y,z,scale_get_device_y())
 
-				draw_rays(x,y,z,self.ray_file,scale_get_device_y()-self.dy_layer_offset,scale_get_device_x(),scale_get_ymul(),scale_get_device_z()*1.05)
+				draw_rays(z,self.ray_file,scale_get_device_z()*1.05)
 
 				if self.view.render_photons==True:
 					self.draw_photons(x,z)
@@ -575,6 +628,7 @@ if open_gl_ok==True:
 			if self.view.zoom>self.view.stars_distance:
 				draw_stars()
 
+			gl_objects_render()
 
 		def do_draw(self):
 			self.render()

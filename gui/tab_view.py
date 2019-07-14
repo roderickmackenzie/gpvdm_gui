@@ -39,7 +39,6 @@ from epitaxy import epitaxy_get_electrical_layer
 from help import help_window
 from epitaxy import epitaxy_get_pl_file
 from epitaxy import epitaxy_get_name
-from display import display_widget
 from win_lin import running_on_linux
 from code_ctrl import enable_webupdates
 

@@ -113,6 +113,7 @@ def scale_get_start_y():
 
 def scale_m2screen_x(x):
 	global x_mul
+	global x_start
 	return x_start+x_mul*x
 
 def scale_m2screen_y(y):
@@ -124,8 +125,19 @@ def scale_m2screen_y(y):
 
 def scale_m2screen_z(z):
 	global z_mul
+	global z_start
+
 	return z_start+z_mul*z
-	
+
+def scale_screen_x2m(x):
+	global x_mul
+	global x_start
+	return (x-x_start)/x_mul
+
+def scale_screen_y2m(y):
+	global y_mul
+	global y_start
+	return -(y-y_start)/y_mul
 
 def scale_get_xmul():
 	global x_mul

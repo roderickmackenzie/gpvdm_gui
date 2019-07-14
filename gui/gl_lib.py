@@ -104,6 +104,18 @@ def draw_stars():
 		glEnd()
 
 
+def plane(x0,y0,z0,dx,dy,dz,r,g,b):
+			glColor4f(r, g, b,0.5)
+			glBegin(GL_QUADS)
+
+			glVertex3f(x0, y0, z0)
+			glVertex3f(x0+dx, y0+dy, z0)
+
+			glVertex3f(x0+dx, y0+dy, z0+dz)
+			glVertex3f(x0, y0, z0+dz)
+
+			glEnd()
+
 def draw_grid():
 	glLineWidth(1)
 

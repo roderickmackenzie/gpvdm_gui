@@ -326,12 +326,9 @@ def build_token_lib():
 
 	#ray
 	lib.append(my_data("ray.inp","#ray_theta_steps","au",_("Theta steps"),"e",1.0,"QLineEdit"))
-	lib.append(my_data("ray.inp","#ray_input_spectrum","au",_("Theta steps"),"e",1.0,"QLineEdit"))
-	lib.append(my_data("ray.inp","#ray_wavelength_start","au",_("Wavelength start"),"e",1.0,"QLineEdit"))
-	lib.append(my_data("ray.inp","#ray_wavelength_stop","au",_("Wavelength stop"),"e",1.0,"QLineEdit"))
 	lib.append(my_data("ray.inp","#ray_wavelength_points","au",_("Wavelength points"),"e",1.0,"QLineEdit"))
 	lib.append(my_data("ray.inp","#ray_auto_run",_("True/False"),_("Autorun ray tracer"),"e",1.0,"gtkswitch"))
-
+	lib.append(my_data("ray.inp","#ray_input_spectrum",_("Edit"),_("Emission spectra"),"e",1.0,"gpvdm_select_emission" ,units_widget="QPushButton"))
 
 	#led.inp
 	lib.append(my_data("","#led_extract_eff","0.0-1.0",_("LED extraction efficiency"),"e",1.0,"QLineEdit"))

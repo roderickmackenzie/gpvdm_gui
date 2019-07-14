@@ -41,6 +41,8 @@ from leftright import leftright
 from help import help_window
 from gpvdm_select import gpvdm_select
 from gpvdm_select_material import gpvdm_select_material
+from gpvdm_select_emission import gpvdm_select_emission
+
 
 
 from PyQt5.QtCore import pyqtSignal
@@ -111,6 +113,9 @@ class tab_class(QWidget,tab_base):
 		if type(widget)==gpvdm_select_material:
 			widget.callback_button_click()
 
+		if type(widget)==gpvdm_select_emission:
+			widget.callback_button_click()
+
 		if token=="#dostype":
 			from dos_editor import dos_editor
 			self.dos_editor=dos_editor(self.file_name)
@@ -142,6 +147,8 @@ class tab_class(QWidget,tab_base):
 		elif type(widget)==gpvdm_select:
 			inp_update_token_value(self.file_name, token, widget.text())
 		elif type(widget)==gpvdm_select_material:
+			inp_update_token_value(self.file_name, token, widget.text())
+		elif type(widget)==gpvdm_select_emission:
 			inp_update_token_value(self.file_name, token, widget.text())
 		elif type(widget)==QComboBox:
 			inp_update_token_value(self.file_name, token, widget.itemText(widget.currentIndex()))
@@ -205,6 +212,8 @@ class tab_class(QWidget,tab_base):
 				elif w.widget=="gpvdm_select":
 					w.edit_box.setText(values[0])
 				elif w.widget=="gpvdm_select_material":
+					w.edit_box.setText(values[0])
+				elif w.widget=="gpvdm_select_emission":
 					w.edit_box.setText(values[0])
 				elif w.widget=="QLineEdit":
 					w.edit_box.setText(values[0])
@@ -317,6 +326,12 @@ class tab_class(QWidget,tab_base):
 						edit_box.setText(value)
 						edit_box.edit.textChanged.connect(functools.partial(self.callback_edit,token,edit_box,unit))
 
+					elif result.widget=="gpvdm_select_emission":
+						edit_box=gpvdm_select_emission(file_box=False)
+						edit_box.setFixedSize(300, 25)
+						edit_box.setText(value)
+						edit_box.edit.textChanged.connect(functools.partial(self.callback_edit,token,edit_box,unit))
+
 					elif result.widget=="QLineEdit":
 						edit_box=QLineEdit()
 						edit_box.setFixedSize(300, 25)
@@ -377,7 +392,8 @@ class tab_class(QWidget,tab_base):
 						edit_box.setFixedSize(300, 25)
 						edit_box.set_value(value)
 						edit_box.changed.connect(functools.partial(self.callback_edit,token,edit_box,unit))
-
+						if str2bool(value)==False:
+							unit.setEnabled(False)
 
 					else:
 						edit_box=QComboBox()
@@ -395,8 +411,6 @@ class tab_class(QWidget,tab_base):
 
 					if type(unit)==QPushButton:
 						unit.clicked.connect(functools.partial(self.callback_unit_click,token,edit_box,unit))
-						if str2bool(value)==False:
-							unit.setEnabled(False)
 
 					a=tab_line()
 					a.token=token

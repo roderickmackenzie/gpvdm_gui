@@ -146,10 +146,10 @@ class gpvdm_notebook(QTabWidget):
 		self.setMovable(True)
 		if (os.path.isfile(os.path.join(get_sim_path(),"sim.gpvdm"))==True):
 
-			widget=tab_main()
-			self.addTab(widget,_("Device structure"))
+			self.tab_main=tab_main()
+			self.addTab(self.tab_main,_("Device structure"))
 
-			self.update_display_function=widget.update
+			self.update_display_function=self.tab_main.update
 
 
 			self.terminal=tab_terminal()

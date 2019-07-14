@@ -44,11 +44,15 @@ from lines import lines_read
 from util import wavelength_to_rgb
 from epitaxy import epitaxy_get_device_start
 from util import isnumber
+from gl_scale import scale_m2screen_x
+from gl_scale import scale_m2screen_y
+
+from gl_list import gl_objects_remove_regex
+from gl_list import gl_objects_add
+from gl_list import gl_base_object
 
 class fast_data():
 	date=0
-	m=0
-	std=0
 	out=[]
 
 def fast_reset(d):
@@ -68,81 +72,59 @@ def fast_load(d,file_name):
 			if lines_read(d.out,file_name)==True:
 				if len(d.out)==0:
 					return False
-				#print(d.out)
+
 				d.date=age
-
-				d.m=0
-				s=0
-				for i in range(0,len(d.out)):
-					d.m=d.m+d.out[i].x
-				d.m=d.m/len(d.out)
-
-				for i in range(0,len(d.out)):
-					s=s+(d.out[i].x-d.m)*(d.out[i].x-d.m)
-				d.std=sqrt(s/len(d.out))
 				
-				return True
+				return "reload"
 			else:
 				return False
 		
 	return True
 
-def draw_rays(x0,y0,z0,ray_file,top,width,y_mul,w):
+def draw_rays(z0,ray_file,w):
 	global ray_fast
 	d=ray_fast
-	
-	if fast_load(d,ray_file)==True:
+
+	if fast_load(d,ray_file)=="reload":
 		if len(d.out)>2:
 			head, tail = os.path.split(ray_file)
 			out=d.out
-			m=d.m
-			std=d.std
 
-			#for i in range(0,len(out)):
-			#	print(out[i].x,out[i].x)
-			#print(ray_file)
 			glLineWidth(2)
 			num=tail[10:-4]
-			if isnumber(num)==False:
-				#print("not a number")
-				return
-
-			if std==0.0:
-				#print("std is zero")
-				return
 
 			wavelength=float(num)
 			r,g,b=wavelength_to_rgb(wavelength)
 
-			glColor4f(r, g, b,0.5)
-			glBegin(GL_QUADS)
-
-			sub=epitaxy_get_device_start()
-			s=0
-			mm=0
-
-			std_mul=0.05
-			#print(len(d.out))
-			#print(d.m)
-			#print(d.std)
-			x_mul=width/(std*std_mul)
 			i=0
-			#step=((int)(len(out)/6000))*2
-			#if step<2:
 			step=2
-				
+
+			gl_objects_remove_regex("ray_trace_results")
+
 			while(i<len(out)-2):
-				if fabs(out[i].x-m)<std*std_mul:
-					if fabs(out[i+1].x-m)<std*std_mul:
-						#print(sub)
-						glVertex3f(x0+width/2+(out[i].x-m)*x_mul, y0+top-(out[i].y+sub)*y_mul, z0+0)
-						glVertex3f(x0+width/2+(out[i+1].x-m)*x_mul, y0+top-(out[i+1].y+sub)*y_mul, z0+0)
+				x=scale_m2screen_x(out[i].x)
+				dx=scale_m2screen_x(out[i+1].x)-scale_m2screen_x(out[i].x)
 
-						glVertex3f(x0+width/2+(out[i+1].x-m)*x_mul, y0+top-(out[i+1].y+sub)*y_mul, z0+w)
-						glVertex3f(x0+width/2+(out[i].x-m)*x_mul, y0+top-(out[i].y+sub)*y_mul, z0+w)
+				y=scale_m2screen_y(out[i].y)
+				dy=scale_m2screen_y(out[i+1].y)-scale_m2screen_y(out[i].y)
 
+				z=z0
+				dz=w
 
-
+				a=gl_base_object()
+				a.id="ray_trace_results"
+				a.type="plane"
+				a.x=x
+				a.y=y
+				a.z=z
+				a.dx=dx
+				a.dy=dy
+				a.dz=dz
+				a.r=r
+				a.g=g
+				a.b=b
+				gl_objects_add(a)
+				
 				i=i+step
 
-			glEnd()
+

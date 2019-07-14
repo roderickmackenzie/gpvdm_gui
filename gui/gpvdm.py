@@ -132,6 +132,7 @@ from used_files import used_files_add
 from lock_gui import lock_gui
 
 from contacts_io import get_contactsio
+from gl_list import gl_objects_clear
 
 def do_import():
 	global new_simulation
@@ -425,6 +426,7 @@ class gpvdm_main_window(QMainWindow):
 
 		get_watch().rebase()
 		get_contactsio().init_watch()
+		self.notebook.tab_main.three_d.update()
 
 	def load_sim(self,filename):
 		new_path=os.path.dirname(filename)

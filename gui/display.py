@@ -212,10 +212,11 @@ class display_widget(QWidget):
 		self.display.graph_path=self.gl_cmp.slider.get_file_name()
 		self.display.graph_z_max=self.gl_cmp.slider.z_max
 		self.display.graph_z_min=self.gl_cmp.slider.z_min
-		
+			
 		self.display.force_redraw()
-
-	#def update(self):
+		
+	def update(self):
+		self.display.reset()
 #		print("recalculate")
 	#	self.display.update()
 	#	self.fx_box.update()

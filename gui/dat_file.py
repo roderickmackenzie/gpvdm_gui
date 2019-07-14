@@ -78,7 +78,7 @@ def dat_file_load_info(output,lines):
 						if (command[0]=="#y_units"):
 							output.y_units=command[1]
 						if (command[0]=="#z_units"):
-							output.y_units=command[1]
+							output.z_units=command[1]
 						if (command[0]=="#rgb"):
 							output.rgb=command[1]
 						if (command[0]=="#data_units"):

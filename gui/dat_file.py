@@ -472,7 +472,7 @@ class dat_file():
 		label=""
 		labels=False
 		#print(file_name)
-		#print(lines)
+		
 		for line in lines:
 			s,label=decode_line(line)
 			l=len(s)
@@ -502,14 +502,26 @@ class dat_file():
 
 					if l==3:
 						line_found=True
-						self.data[z][x][y]=float(s[2])
+						if self.type=="rgb":
+							r=float(int(s[2][0:2], 16)/255)
+							g=float(int(s[2][2:4], 16)/255)
+							b=float(int(s[2][4:6], 16)/255)
+							self.data[z][x][y]=[r,g,b]
+						else:
+							self.data[z][x][y]=float(s[2])
 						a0=s[0]
 						a1=s[1]
 						a2=0.0
 
 					elif l==2:
 						line_found=True
-						self.data[z][x][y]=float(s[1])
+						if self.type=="rgb":
+							r=float(int(s[1][0:2], 16)/255)
+							g=float(int(s[1][2:4], 16)/255)
+							b=float(int(s[1][4:6], 16)/255)
+							self.data[z][x][y]=[r,g,b]
+						else:
+							self.data[z][x][y]=float(s[1])
 						a0=s[0]
 						a1=0.0
 						a2=0.0

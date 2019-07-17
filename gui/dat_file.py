@@ -79,8 +79,6 @@ def dat_file_load_info(output,lines):
 							output.y_units=command[1]
 						if (command[0]=="#z_units"):
 							output.z_units=command[1]
-						if (command[0]=="#rgb"):
-							output.rgb=command[1]
 						if (command[0]=="#data_units"):
 							output.data_units=command[1]
 						if (command[0]=="#logscale_x"):
@@ -116,6 +114,9 @@ def dat_file_load_info(output,lines):
 						if (command[0]=="#z"):
 							output.z_len=int(command[1])
 							found_xyz=True
+						if (command[0]=="#rgb"):
+							output.decode_rgb("#rgb "+command[1])
+
 			if found_xyz==True and output.x_len != -1 and output.y_len != -1 and output.z_len != -1:
 				return True
 			else:
@@ -378,7 +379,9 @@ class dat_file():
 		self.x_units=""
 		self.y_units=""
 		self.z_units=""
-		self.rgb=""
+		self.r=1.0
+		self.g=0.0
+		self.b=0.0
 		self.data_units=""
 
 		self.x_mul=1.0
@@ -427,23 +430,60 @@ class dat_file():
 		self.z_scale=[]
 		self.data=[]
 		self.labels=[]
+		self.file_age=0
+		self.new_read=True
+
+	def rgb(self):
+		return format(int(self.r*255), '02x')+format(int(self.g*255), '02x')+format(int(self.b*255), '02x')
 
 	def init_mem(self):
+		if self.type=="poly":
+			return
 		self.data=[[[0.0 for k in range(self.y_len)] for j in range(self.x_len)] for i in range(self.z_len)]
 				
 		self.x_scale= [0.0]*self.x_len
 		self.y_scale= [0.0]*self.y_len
 		self.z_scale= [0.0]*self.z_len
 
+	def decode_poly_lines(self,lines):
+		build=[]
+		self.data=[]
+		for line in lines:
+			s,label=decode_line(line)
+			l=len(s)
+			if l>0:
+				if s[0].startswith("#")==False:
+					if s not in build:
+						s=list(map(float, s))
+						build.append(s)
+
+			if len(build)!=0 and len(s)==0:
+				self.data.append(build)
+				build=[]
+
+		return True
+
 	def load(self,file_name,guess=True):
 		self.valid_data=False
 		
 		if file_name==None:
 			return False
-		
+
+		if os.path.isfile(file_name)==True:
+			age=os.path.getmtime(file_name)
+
+			if age==self.file_age:
+				self.new_read=False
+				return True
+			else:
+				self.new_read=True
+				self.file_age=age
+
 		found,lines=zip_get_data_file(file_name)
 		if found==False:
 			return False
+
+
 
 		self.x_scale=[]
 		self.y_scale=[]
@@ -472,7 +512,9 @@ class dat_file():
 		label=""
 		labels=False
 		#print(file_name)
-		
+		if self.type=="poly":
+			return self.decode_poly_lines(lines)
+
 		for line in lines:
 			s,label=decode_line(line)
 			l=len(s)
@@ -616,6 +658,16 @@ class dat_file():
 		a.write("\n".join(self.gen_output_data()))
 		a.close()
 
+	def decode_rgb(self,line):
+		if line.startswith("#rgb"):
+			print(line)
+			line=line.split()
+			if len(line)==2:
+				rgb=line[1]
+				self.r=float(int(rgb[0:2], 16)/255)
+				self.g=float(int(rgb[2:4], 16)/255)
+				self.b=float(int(rgb[4:6], 16)/255)
+
 	def gen_output_data(self):
 		lines=[]
 		lines.append("#gpvdm")
@@ -647,7 +699,7 @@ class dat_file():
 			lines.append("#y_units "+str(self.z_units))
 
 		if self.rgb!="":
-			lines.append("#rgb "+str(self.rgb))
+			lines.append("#rgb "+str(self.rgb()))
 
 		if self.data_units!="":
 			lines.append("#data_units "+str(self.data_units))

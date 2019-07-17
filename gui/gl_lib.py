@@ -182,7 +182,15 @@ def draw_photon(x,y,z,up,color=[0.0, 1.0, 0.0]):
 		glVertex3f(x,start_y+0.1 ,z)
 
 		glEnd()
-		
+
+def raw_ray(x0,y0,z0,dx,dy,dz,r,g,b):
+	glLineWidth(5)
+	set_color(r, g, b,"rays")
+	glBegin(GL_LINES)
+	glVertex3f(x0, y0, z0)
+	glVertex3f(x0+dx, y0+dy, z0+dz)
+	glEnd()
+
 def box_lines(x,y,z,w,h,d):
 
 	glLineWidth(10)

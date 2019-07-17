@@ -31,6 +31,7 @@ import glob
 from gl_lib import box
 from gl_lib import box_lines
 from gl_lib import plane
+from gl_lib import raw_ray
 
 from gl_scale import scale_screen_x2m
 from gl_scale import scale_screen_y2m
@@ -85,6 +86,16 @@ def gl_objects_move(id,dx,dy):
 			objects[i].x=objects[i].x+dx
 			objects[i].y=objects[i].y+dy
 
+def gl_objects_count_regex(id):
+	count=0
+	global objects
+	for i in range(0,len(objects)):
+		if objects[i].id.startswith(id)==False:
+			counnt=count+1
+
+	return count
+
+
 def gl_objects_remove_regex(id):
 	global objects
 	new_objects=[]
@@ -117,7 +128,8 @@ def gl_objects_render():
 			box(o.x,o.y,o.z,o.dx,o.dy,o.dz,o.r,o.g,o.b,0.5,name=o.id)
 		elif o.type=="plane":
 			plane(o.x,o.y,o.z,o.dx,o.dy,o.dz,o.r,o.g,o.b)
-
+		elif o.type=="ray":
+			raw_ray(o.x,o.y,o.z,o.dx,o.dy,o.dz,o.r,o.g,o.b)
 		if o.selected==True:
 			box_lines(o.x,o.y,o.z,o.dx,o.dy,o.dz)
 

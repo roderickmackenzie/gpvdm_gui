@@ -90,7 +90,7 @@ from gl_lib import box_lines
 from gl_lib import box
 
 from gl_lib_ray import draw_rays
-from gl_lib_ray import fast_data
+from gl_lib_ray import draw_ray_mesh
 
 from global_objects import global_object_register
 
@@ -206,6 +206,8 @@ if open_gl_ok==True:
 
 			self.draw_electrical_mesh=False
 			self.enable_draw_device=True
+			self.draw_ray_mesh=False
+
 
 			#For image
 			#self.render_grid=False
@@ -610,12 +612,16 @@ if open_gl_ok==True:
 			self.draw_cords()
 			if self.draw_electrical_mesh==True:
 				self.draw_mesh()
-			else:
-				if self.enable_draw_device==True:
-					self.draw_device(x,z)
+
+			if self.draw_ray_mesh==True:
+				draw_rays(self.ray_file)
+				draw_ray_mesh(self.ray_file)
+				
+			if self.enable_draw_device==True:
+				self.draw_device(x,z)
 				draw_mode(x,y,z,scale_get_device_y())
 
-				draw_rays(z,self.ray_file,scale_get_device_z()*1.05)
+				draw_rays(self.ray_file)
 
 				if self.view.render_photons==True:
 					self.draw_photons(x,z)

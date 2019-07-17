@@ -242,8 +242,8 @@ class plot_widget(QWidget):
 			self.ax[0].set_ylabel(self.data[0].data_label+" ("+self.data[0].data_units+")")
 
 			for i in range(0,len(self.input_files)):
-				if self.data[i].rgb!="":
-					col="#"+self.data[i].rgb
+				if self.data[i].rgb()!="":
+					col="#"+self.data[i].rgb()
 				else:
 					col=get_color(i)
 

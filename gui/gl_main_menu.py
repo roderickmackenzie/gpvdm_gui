@@ -41,7 +41,7 @@ try:
 	from gl_scale import scale_get_zmul
 	from gl_scale import scale_get_start_x
 	from gl_scale import scale_get_start_z
-
+	from gl_list import gl_objects_remove_regex
 except:
 	pass
 
@@ -66,7 +66,10 @@ class gl_main_menu():
 
 		view=menu.addMenu(_("View"))
 
-		action=view.addAction(_("Mesh view"))
+		action=view.addAction(_("Electrical mesh"))
+		action.triggered.connect(self.menu_toggle_view)
+
+		action=view.addAction(_("Ray tracing mesh"))
 		action.triggered.connect(self.menu_toggle_view)
 
 		action=view.addAction(_("Device view"))
@@ -112,7 +115,19 @@ class gl_main_menu():
 			self.force_redraw()
 
 	def menu_toggle_view(self):
-		self.draw_electrical_mesh=not self.draw_electrical_mesh
+		action = self.sender()
+		text=action.text()
+		print(text)
+		if text==_("Electrical mesh"):
+			self.draw_electrical_mesh=not self.draw_electrical_mesh
+		if text==_("Ray tracing mesh"):
+			self.draw_ray_mesh= not self.draw_ray_mesh
+			if self.draw_ray_mesh==False:
+				gl_objects_remove_regex("ray_mesh")
+		if text==_("Device view"):
+			self.enable_draw_device = not self.enable_draw_device
+
+
 		self.force_redraw()
 
 	def menu_toggle_grid(self):

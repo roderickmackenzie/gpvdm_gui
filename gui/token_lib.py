@@ -325,12 +325,18 @@ def build_token_lib():
 	lib.append(my_data("","#pl_mode","au",_("Device state"),"s",1.0,"QComboBoxLang",defaults=[[("voc"),_("Voc")],["Jsc",_("Jsc")]]))
 
 	#ray
-	lib.append(my_data("ray.inp","#ray_theta_steps","au",_("Theta steps"),"e",1.0,"QLineEdit"))
 	lib.append(my_data("ray.inp","#ray_wavelength_points","au",_("Wavelength points"),"e",1.0,"QLineEdit"))
 	lib.append(my_data("ray.inp","#ray_auto_run",_("True/False"),_("Autorun ray tracer"),"e",1.0,"gtkswitch"))
 	lib.append(my_data("ray.inp","#ray_input_spectrum",_("Edit"),_("Emission spectra"),"e",1.0,"gpvdm_select_emission" ,units_widget="QPushButton"))
+
+	lib.append(my_data("ray.inp","#ray_theta_steps","au",_("Theta steps"),"e",1.0,"QLineEdit"))
 	lib.append(my_data("ray.inp","#ray_theta_start","Degrees",_("Theta start"),"e",1.0,"QLineEdit"))
 	lib.append(my_data("ray.inp","#ray_theta_stop","Degrees",_("Theta stop"),"e",1.0,"QLineEdit"))
+
+	lib.append(my_data("ray.inp","#ray_phi_steps","au",_("Phi steps"),"e",1.0,"QLineEdit"))
+	lib.append(my_data("ray.inp","#ray_phi_start","Degrees",_("Phi start"),"e",1.0,"QLineEdit"))
+	lib.append(my_data("ray.inp","#ray_phi_stop","Degrees",_("Phi stop"),"e",1.0,"QLineEdit"))
+
 	lib.append(my_data("ray.inp","#ray_escape_bins","au",_("Escape bins"),"e",1.0,"QLineEdit"))
 
 

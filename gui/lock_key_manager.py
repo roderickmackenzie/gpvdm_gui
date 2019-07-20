@@ -99,14 +99,6 @@ class lock_key_manager(QDialog):
 		self.setWindowFlags(Qt.WindowStaysOnTopHint)
 
 		vbox=QVBoxLayout()
-		if get_lock().renew_needed()==True:
-			left=get_lock().days_left()
-			if left<0:
-				left=0
-			if get_lock().is_trial()==True:
-				text=_("You are using the trial version, time remaining: ")+str(left)+" days."
-			else:
-				text=_("Your license has run out please renew it:")
 
 		if override_text!=False:
 			text=override_text

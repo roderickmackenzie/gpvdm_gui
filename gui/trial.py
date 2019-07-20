@@ -102,14 +102,6 @@ class trial(QDialog):
 		self.setWindowFlags(Qt.WindowStaysOnTopHint)
 
 		vbox=QVBoxLayout()
-		if get_lock().renew_needed()==True:
-			left=get_lock().days_left()
-			if left<0:
-				left=0
-			if get_lock().is_trial()==True:
-				text=_("You are using the trial version, time remaining: ")+str(left)+" days."
-			else:
-				text=_("Your license has run out please renew it:")
 
 		if override_text!=False:
 			text=override_text
@@ -118,11 +110,11 @@ class trial(QDialog):
 		self.title_text.setWordWrap(True)
 		vbox.addWidget(self.title_text)
 
-		if show_text==True:
-			l=QLabel(_("<br>Dear User, <br><br>Thank you for downloading and using gpvdm. I hope you find the software useful. Developing gpvdm takes a considerable amount of time and money.  So that I can continue to develop the model and make it available, I would ask you to buy license.  I will invest all money in the future development of the model.<br><br>  If you really can’t afford to buy a license, or wish to use the model in classroom teaching please contact me. Please also contact me if you are a long time collaborator of mine. <br><br>Many thanks,<br>Rod"))
-			l.setWordWrap(True)
-			l.setFont(QFont('SansSerif', 14))
-			vbox.addWidget(l)
+		#if show_text==True:
+		#	l=QLabel(_("<br>Dear User, <br><br>Thank you for downloading and using gpvdm. I hope you find the software useful. Developing gpvdm takes a considerable amount of time and money.  So that I can continue to develop the model and make it available, I would ask you to buy license.  I will invest all money in the future development of the model.<br><br>  If you really can’t afford to buy a license, or wish to use the model in classroom teaching please contact me. Please also contact me if you are a long time collaborator of mine. <br><br>Many thanks,<br>Rod"))
+		#	l.setWordWrap(True)
+		#	l.setFont(QFont('SansSerif', 14))
+		#	vbox.addWidget(l)
 
 
 

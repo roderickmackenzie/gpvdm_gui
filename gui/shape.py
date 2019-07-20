@@ -28,10 +28,10 @@
 import os
 from inp import inp_load_file
 from inp import inp_search_token_value
-from inp import inp_callback_add_write_hook
 from inp import inp_search_token_array
 from cal_path import get_sim_path
 from util import str2bool
+from file_watch import get_watch
 
 class shape():
 	def __init__(self):
@@ -56,29 +56,36 @@ class shape():
 
 
 	def do_load(self):
+		print("load...")
 		lines=inp_load_file(self.file_name+".inp")
 
 		if lines==False:
 			return
-
-		self.type=inp_search_token_value(lines, "#shape_type")
-		self.dx=float(inp_search_token_value(lines, "#shape_dx"))
-		self.dy=float(inp_search_token_value(lines, "#shape_dy"))
-		self.dz=float(inp_search_token_value(lines, "#shape_dz"))
-
-		rgb=inp_search_token_array(lines, "#red_green_blue")
-		self.r=float(rgb[0])
-		self.g=float(rgb[1])
-		self.b=float(rgb[2])
-
 		try:
+			self.type=inp_search_token_value(lines, "#shape_type")
+			self.dx=float(inp_search_token_value(lines, "#shape_dx"))
+			self.dy=float(inp_search_token_value(lines, "#shape_dy"))
+			self.dz=float(inp_search_token_value(lines, "#shape_dz"))
+
+			self.dx_padding=float(inp_search_token_value(lines, "#shape_padding_dx"))
+			self.dy_padding=float(inp_search_token_value(lines, "#shape_padding_dy"))
+			self.dz_padding=float(inp_search_token_value(lines, "#shape_padding_dz"))
+
+			rgb=inp_search_token_array(lines, "#red_green_blue")
+			self.r=float(rgb[0])
+			self.g=float(rgb[1])
+			self.b=float(rgb[2])
+
+
 			self.shape_nx=int(inp_search_token_value(lines, "#shape_nx"))
 			self.shape_nz=int(inp_search_token_value(lines, "#shape_nz"))
 			self.shape_name=inp_search_token_value(lines, "#shape_name")
 			self.shape_dos=inp_search_token_value(lines, "#shape_dos")
-			self.shape_x0=float(inp_search_token_value(lines, "#shape_x0"))
+			self.x0=float(inp_search_token_value(lines, "#shape_x0"))
 
-			self.shape_z0=float(inp_search_token_value(lines, "#shape_z0"))
+			self.z0=float(inp_search_token_value(lines, "#shape_z0"))
+			self.y0=0.0
+
 			self.shape_remove_layer=str2bool(inp_search_token_value(lines, "#shape_remove_layer"))
 		except:
 			pass
@@ -92,6 +99,8 @@ class shape():
 
 		self.file_name=file_name
 		self.do_load()
+		get_watch().add_call_back(self.file_name+".inp",self.do_load)
+		
 
 	def dump(self):
 		print(self.file_name,self.type,self.width)

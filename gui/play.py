@@ -83,7 +83,6 @@ class play(QAction_lock):
 		else:
 			self.lock=lock_gui()
 			self.lock.bing()
-			print(get_lock().disabled,get_lock().renew_needed(),get_lock().nag())
 
 	def __init__(self,parent,play_icon="media-playback-start",run_text=_("Run simulation"),locked=False):
 		self.play_icon=play_icon

@@ -83,6 +83,7 @@ class register(QDialog):
 				error_dlg(self,_("Your version of gpvdm is too old to register, please download the latest version."))
 
 			return
+
 		get_lock().get_license()
 
 		self.accept()

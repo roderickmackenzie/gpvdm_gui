@@ -369,6 +369,7 @@ class gpvdm_main_window(QMainWindow):
 		used_files_add(os.path.join(new_dir,"sim.gpvdm"))
 		scan_items_clear()
 		inp_callbacks_clear()
+		get_watch().reset()
 		self.splash.inc_value()
 
 		scan_items_populate_from_known_tokens()
@@ -382,10 +383,10 @@ class gpvdm_main_window(QMainWindow):
 		calculate_paths()
 		self.splash.inc_value()
 
+
 		get_epi().load(get_sim_path())
 		self.splash.inc_value()
 
-		get_watch().reset()
 
 		get_contactsio().load()
 		self.splash.inc_value()
@@ -423,10 +424,10 @@ class gpvdm_main_window(QMainWindow):
 
 		if self.notebook.is_loaded()==True:
 			self.l.run()
-
+			self.notebook.tab_main.three_d.update()
 		get_watch().rebase()
 		get_contactsio().init_watch()
-		self.notebook.tab_main.three_d.update()
+
 
 	def load_sim(self,filename):
 		new_path=os.path.dirname(filename)

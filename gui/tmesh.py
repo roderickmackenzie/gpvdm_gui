@@ -64,6 +64,7 @@ from open_save_dlg import save_as_image
 from cal_path import get_sim_path
 from icon_lib import icon_get
 from error_dlg import error_dlg
+from gpvdm_tab import gpvdm_tab
 
 import i18n
 _ = i18n.language.gettext
@@ -462,7 +463,7 @@ class tab_time_mesh(QWidget):
 
 
 
-		self.tab = QTableWidget()
+		self.tab = gpvdm_tab()
 		self.tab.resizeColumnsToContents()
 
 		self.tab.verticalHeader().setVisible(False)

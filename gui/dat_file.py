@@ -453,8 +453,8 @@ class dat_file():
 			l=len(s)
 			if l>0:
 				if s[0].startswith("#")==False:
+					s=list(map(float, s))
 					if s not in build:
-						s=list(map(float, s))
 						build.append(s)
 
 			if len(build)!=0 and len(s)==0:
@@ -660,7 +660,7 @@ class dat_file():
 
 	def decode_rgb(self,line):
 		if line.startswith("#rgb"):
-			print(line)
+			#print(line)
 			line=line.split()
 			if len(line)==2:
 				rgb=line[1]

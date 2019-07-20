@@ -62,6 +62,7 @@ from open_save_dlg import save_as_jpg
 
 from colors import get_color
 from cal_path import get_sim_path
+from gpvdm_tab import gpvdm_tab
 
 mesh_articles = []
 
@@ -326,7 +327,7 @@ class tab_fxmesh(QWidget):
 
 		self.main_vbox.addWidget(toolbar2)
 
-		self.tab = QTableWidget()
+		self.tab = gpvdm_tab()
 		self.tab.resizeColumnsToContents()
 
 		self.tab.verticalHeader().setVisible(False)

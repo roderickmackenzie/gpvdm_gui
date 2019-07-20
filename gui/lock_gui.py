@@ -64,8 +64,6 @@ class lock_gui(QWidget):
 				get_lock().debug_tx_info()
 				image_file=""
 				text="Thank you for registering gpvdm."
-				if get_lock().is_trial()==True and get_lock().trial_does_expire==True:
-					text=text+" This is the fully featured trial version of gpvdm.<br><br>In "+str(get_lock().days_left())+" days it will ask you to upgrade to the paid version.  This contribution will be used to fund the gpvdm project, the money will be used to keep the servers on the web and pay for future development. <br><br>I hope you find the software useful.<br><br>If you have questions plase e-mail me at: <a href=\"info@gpvdm.com\">info@gpvdm.com</a>"
 
 				msgBox = msg_dlg()
 
@@ -76,7 +74,14 @@ class lock_gui(QWidget):
 				#self.enable_all.emit()
 			else:
 				return
-
+		
+		if get_lock().status=="expired":
+			self.trial=trial(override_text="<br><br>Please renew your gpvdm license it has expired.<br>")
+			ret=self.trial.run()
+			if ret==QDialog.Accepted:
+				msgBox = msg_dlg()
+				msgBox.setText("Thank you for buying gpvdm")
+				reply = msgBox.exec_()
 		#if get_lock().is_disabled()==True:
 		#	self.disable_all.emit()
 
@@ -85,18 +90,9 @@ class lock_gui(QWidget):
 		
 		if get_lock().get_next_gui_action()=="no_internet":
 			msgBox = msg_dlg()
-			msgBox.setText("I can not connect to the update server.")
+			msgBox.setText("I can not connect to the update server.  Gpvdm may not be able to run.  Please connect to the internet.")
 			reply = msgBox.exec_()
 			return
-
-		if get_lock().get_next_gui_action()=="nag":
-			self.trial=trial()
-			ret=self.trial.run()
-			if ret==QDialog.Accepted:
-				msgBox = msg_dlg()
-				msgBox.setText("Thank you for buying gpvdm")
-				reply = msgBox.exec_()
-				#self.enable_all.emit()
 
 
 

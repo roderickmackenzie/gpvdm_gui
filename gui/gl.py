@@ -132,8 +132,6 @@ from gl_lib import val_to_rgb
 
 from gl_mesh import gl_mesh
 
-from inp import inp_callback_add_write_hook
-
 from mesh import mesh_get_xmesh
 from mesh import mesh_get_ymesh
 from mesh import mesh_get_zmesh
@@ -180,6 +178,7 @@ from epitaxy import epitaxy_get_device_start
 
 from inp import inp_update_token_value
 from gl_list import gl_objects_remove_regex
+from file_watch import get_watch
 
 if open_gl_ok==True:		
 	class glWidget(QGLWidget,gl_move_view,gl_mesh,gl_layer_editor,gl_cords,gl_base_widget,gl_main_menu):
@@ -510,10 +509,11 @@ if open_gl_ok==True:
 								if (c.start+c.width)>self.x_len:
 									xwidth=scale_get_device_x()
 							#lens_layer(xstart,y+dy_shrink/2,z,xwidth,scale_get_device_z(),y_len-dy_shrink,scale_get_device_x()/10)
-
-							box(xstart,y+dy_shrink/2,z,xwidth,y_len-dy_shrink, scale_get_device_z(), obj.r,obj.g, obj.b,alpha, name=layer_name)
+							if name!="air":
+								box(xstart,y+dy_shrink/2,z,xwidth,y_len-dy_shrink, scale_get_device_z(), obj.r,obj.g, obj.b,alpha, name=layer_name)
 				else:
-					box(x,y+dy_shrink/2,z,scale_get_device_x(),y_len-dy_shrink,scale_get_device_z(),obj.r,obj.g,obj.b,alpha,name=layer_name)
+					if name!="air":
+						box(x,y+dy_shrink/2,z,scale_get_device_x(),y_len-dy_shrink,scale_get_device_z(),obj.r,obj.g,obj.b,alpha,name=layer_name)
 
 				if obj.electrical_layer.startswith("dos")==True:
 					tab(x+scale_get_device_x(),y,z,y_len-dy_shrink)
@@ -612,16 +612,15 @@ if open_gl_ok==True:
 			self.draw_cords()
 			if self.draw_electrical_mesh==True:
 				self.draw_mesh()
+			else:
+				draw_rays(self.ray_file)
 
 			if self.draw_ray_mesh==True:
-				draw_rays(self.ray_file)
 				draw_ray_mesh(self.ray_file)
 				
 			if self.enable_draw_device==True:
 				self.draw_device(x,z)
 				draw_mode(x,y,z,scale_get_device_y())
-
-				draw_rays(self.ray_file)
 
 				if self.view.render_photons==True:
 					self.draw_photons(x,z)
@@ -782,7 +781,9 @@ if open_gl_ok==True:
 			
 				self.failed=False
 				global_object_register("gl_force_redraw",self.force_redraw)
-				inp_callback_add_write_hook(os.path.join(get_sim_path(),"light.inp"),self.force_redraw,"gl")
+				get_watch().add_call_back("light.inp",self.force_redraw)
+				get_watch().add_call_back("shape[0-9]+.inp",self.force_redraw)
+
 			except:
 				print("OpenGL failed to load falling back to 2D rendering.",sys.exc_info()[0])
 

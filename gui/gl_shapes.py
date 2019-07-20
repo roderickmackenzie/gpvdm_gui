@@ -43,15 +43,12 @@ import random
 import numpy as np
 from math import pi,acos,sin,cos
 
-def pyrmid(x,y,z,height,width,name="name"):
+def pyrmid(x,y,z,dx,dy,dz,name="name"):
 	alpha=0.2
 	segs=40
 	delta=180/segs
 	theata=0
 	theta_rad=(theata/360)*2*3.141592653
-	dz=0.5
-	dx=width
-	dy=height
 	set_color(1.0,0.0,0.0,name,alpha=alpha)
 
 	#top
@@ -146,3 +143,88 @@ def dome(x,y,z,height,width,name="name"):
 		#print(phi)
 
 		#break
+
+def half_cyl(x0,y0,z0,dx,dy0,dz,name="name"):
+	r=dx/2
+	x=x0+r
+	y=y0
+	z=z0
+	alpha=0.2
+	segs=40
+	delta=180/segs
+	theata=0
+	theta_rad=(theata/360)*2*3.141592653
+
+	set_color(1.0,0.0,0.0,name,alpha=alpha)
+
+	#top
+	while (theata<180):
+
+
+		glBegin(GL_QUADS)
+		dx=r*cos(theta_rad)
+		dy=dy0*sin(theta_rad)
+
+		glVertex3f(x+dx,y+dy,z+0.0)
+		glVertex3f(x+dx,y+dy,z+dz)
+
+		theata=theata+delta			
+		theta_rad=(theata/360)*2*3.141592653
+
+		dx=r*cos(theta_rad)
+		dy=dy0*sin(theta_rad)
+
+		glVertex3f(x+dx,y+dy,z+dz)
+		glVertex3f(x+dx,y+dy,z)
+
+		glEnd()
+
+	theata=0
+	theta_rad=(theata/360)*2*3.141592653
+
+	set_color(1.0,0.0,0.0,name,alpha=alpha)
+
+	while (theata<180):
+
+
+		glBegin(GL_TRIANGLES)
+		dx=r*cos(theta_rad)
+		dy=dy0*sin(theta_rad)
+
+		glVertex3f(x+dx,y+dy,z)
+
+		theata=theata+delta			
+		theta_rad=(theata/360)*2*3.141592653
+
+		dx=r*cos(theta_rad)
+		dy=dy0*sin(theta_rad)
+
+		glVertex3f(x+dx,y+dy,z)
+
+		glVertex3f(x,y,z)
+
+		glEnd()
+
+	theata=0
+	theta_rad=(theata/360)*2*3.141592653
+
+	while (theata<180):
+
+
+		glBegin(GL_TRIANGLES)
+		dx=r*cos(theta_rad)
+		dy=dy0*sin(theta_rad)
+
+		glVertex3f(x+dx,y+dy,z+dz)
+
+		theata=theata+delta			
+		theta_rad=(theata/360)*2*3.141592653
+
+		dx=r*cos(theta_rad)
+		dy=dy0*sin(theta_rad)
+
+		glVertex3f(x+dx,y+dy,z+dz)
+
+		glVertex3f(x,y,z+dz)
+
+		glEnd()

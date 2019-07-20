@@ -37,7 +37,7 @@ try:
 	from gl_color import set_color
 	from gl_shapes import pyrmid
 	from gl_shapes import dome
-
+	from gl_shapes import half_cyl
 	open_gl_ok=True
 except:
 	print("opengl error from gl_lib",sys.exc_info()[0])
@@ -268,119 +268,34 @@ def box_lines(x,y,z,w,h,d):
 
 	glEnd()
 
-def shape_layer(obj,s,x0,y0,z0, name="name"):
-	x_pos=x0+s.shape_x0*scale_get_xmul()
-	y_pos=y0
-	z_pos=z0+s.shape_z0*scale_get_zmul()
+def shape_layer(obj,s,ix,iy,iz, name="name"):
+	x_pos=ix+s.x0*scale_get_xmul()#+s.shape_x0*scale_get_xmul()
+	y_pos=iy+s.y0*scale_get_ymul()
+	z_pos=iz+s.z0*scale_get_zmul()#+s.shape_z0*scale_get_zmul()
 
 	height=1.0
 	dx=s.dx*scale_get_xmul()
 	dz=s.dz*scale_get_zmul()
 	dy=s.dy*scale_get_ymul()
 
+	dx_tot=(s.dx+s.dx_padding)*scale_get_xmul()
+	dz_tot=(s.dz+s.dz_padding)*scale_get_zmul()
+	dy_tot=(s.dy+s.dy_padding)*scale_get_ymul()
+
 	for x in range(0,s.shape_nx):
-		z_pos=z0+s.shape_z0*scale_get_zmul()
+		z_pos=iz+s.z0*scale_get_zmul()
 		for z in range(0,s.shape_nz):
 			if s.type=="dome":
 				dome(x_pos,y_pos,z_pos,height,dx,name=name)
-			elif s.type=="cone":
-				#cone(x0,x,y,z,height,dx/2, name=name)
-				pyrmid(x_pos,y_pos,z_pos,height,dx, name=name)
 			elif s.type=="pyrmid":
-				pyrmid(x_pos,y_pos,z_pos,height,dx, name=name)
+				pyrmid(x_pos,y_pos,z_pos,dx,dy,dz, name=name)
 			elif s.type=="box":
-				#pyrmid(x_pos,y_pos,z_pos,height,dx, name=name)
 				box(x_pos,y_pos,z_pos,dx, dy,dx, s.r, s.g, s.b, obj.alpha, name=name)
-			else:
-				half_cyl(x0,x_pos,y_pos,z_pos,dx,height,dx/2, name=name)
-			z_pos=z_pos+dz
-			#print(x,z,dx)
-			#break
-		#break
-		x_pos=x_pos+dx
+			elif s.type=="tube":
+				half_cyl(x_pos,y_pos,z_pos,dx,dy,dz, name=name)
+			z_pos=z_pos+dz_tot
+		x_pos=x_pos+dx_tot
 
-
-
-def half_cyl(x0,x,y,z,dz,height,r,name="name"):
-	alpha=0.2
-	segs=40
-	delta=180/segs
-	theata=0
-	theta_rad=(theata/360)*2*3.141592653
-
-	set_color(1.0,0.0,0.0,name,alpha=alpha)
-
-	#top
-	while (theata<180):
-
-
-		glBegin(GL_QUADS)
-		dx=r*cos(theta_rad)
-		dy=height*sin(theta_rad)
-
-		glVertex3f(x+dx,y+dy,z+0.0)
-		glVertex3f(x+dx,y+dy,z+dz)
-
-		theata=theata+delta			
-		theta_rad=(theata/360)*2*3.141592653
-
-		dx=r*cos(theta_rad)
-		dy=height*sin(theta_rad)
-
-		glVertex3f(x+dx,y+dy,z+dz)
-		glVertex3f(x+dx,y+dy,z)
-
-		glEnd()
-
-	theata=0
-	theta_rad=(theata/360)*2*3.141592653
-
-	set_color(1.0,0.0,0.0,name,alpha=alpha)
-
-	while (theata<180):
-
-
-		glBegin(GL_TRIANGLES)
-		dx=r*cos(theta_rad)
-		dy=height*sin(theta_rad)
-
-		glVertex3f(x+dx,y+dy,z)
-
-		theata=theata+delta			
-		theta_rad=(theata/360)*2*3.141592653
-
-		dx=r*cos(theta_rad)
-		dy=height*sin(theta_rad)
-
-		glVertex3f(x+dx,y+dy,z)
-
-		glVertex3f(x,y,z)
-
-		glEnd()
-
-	theata=0
-	theta_rad=(theata/360)*2*3.141592653
-
-	while (theata<180):
-
-
-		glBegin(GL_TRIANGLES)
-		dx=r*cos(theta_rad)
-		dy=height*sin(theta_rad)
-
-		glVertex3f(x+dx,y+dy,z+dz)
-
-		theata=theata+delta			
-		theta_rad=(theata/360)*2*3.141592653
-
-		dx=r*cos(theta_rad)
-		dy=height*sin(theta_rad)
-
-		glVertex3f(x+dx,y+dy,z+dz)
-
-		glVertex3f(x,y,z+dz)
-
-		glEnd()
 
 def box(x,y,z,w,h,d,r,g,b,alpha,name="box"):
 	gl_save_add("box",x,y,z,[w,h,d,r,g,b,alpha])
@@ -400,11 +315,7 @@ def box(x,y,z,w,h,d,r,g,b,alpha,name="box"):
 	glEnd()
 	
 	#back
-	red=red*0.95
-	green=green*0.95
-	blue=blue*0.95
 
-	set_color(red,green,blue,name,alpha=alpha)
 
 	glBegin(GL_QUADS)
 	glVertex3f(x+0.0,y+h,z+0.0)
@@ -414,10 +325,6 @@ def box(x,y,z,w,h,d,r,g,b,alpha,name="box"):
 	glEnd()
 
 	#right
-	red=red*0.95
-	green=green*0.95
-	blue=blue*0.95
-	set_color(red,green,blue,name,alpha=alpha)
 
 	glBegin(GL_QUADS)
 	glVertex3f(x+w,y,z)
@@ -427,10 +334,6 @@ def box(x,y,z,w,h,d,r,g,b,alpha,name="box"):
 	glEnd()
 
 	#left
-	red=red*0.95
-	green=green*0.95
-	blue=blue*0.95
-	set_color(red,green,blue,name,alpha=alpha)
 
 	glBegin(GL_QUADS)
 	glVertex3f(x,y,z)
@@ -440,11 +343,6 @@ def box(x,y,z,w,h,d,r,g,b,alpha,name="box"):
 	glEnd()
 	
 	#front
-	red=r
-	green=g
-	blue=b
-
-	set_color(red,green,blue,name,alpha=alpha)
 	
 	glBegin(GL_QUADS)
 	glVertex3f(x,y,z+d)
@@ -453,12 +351,8 @@ def box(x,y,z,w,h,d,r,g,b,alpha,name="box"):
 	glVertex3f(x, y+h,z+d) 
 	glEnd()
 
-	red=red*0.8
-	green=green*0.8
-	blue=blue*0.8
-
 	#top
-	set_color(red,green,blue,name,alpha=alpha)
+
 	glBegin(GL_QUADS)
 	glVertex3f(x,y+h,z)
 	glVertex3f(x+w,y+ h,z)

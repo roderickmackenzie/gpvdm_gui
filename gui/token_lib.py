@@ -102,10 +102,14 @@ def build_token_lib():
 	lib.append(my_data("","#free_to_free_recombination","m^{3}s^{-1}",_("n_{free} to p_{free} Recombination rate constant"),"e",1.0,"QLineEdit",min=1e-27,max=1e-15))
 
 	#shape?.inp
-	lib.append(my_data("","#shape_type","au",_("Shape type"),"s",1.0,"QComboBoxLang",defaults=[[("none"),_("None")],[("dome"),_("Dome")],["tube",_("Tube")],["cone",_("Cone")],["pyrmid",_("Pyrmid")],["box",_("Box")]]))
+	lib.append(my_data("","#shape_type","au",_("Shape type"),"s",1.0,"QComboBoxLang",defaults=[[("none"),_("None")],[("dome"),_("Dome")],["tube",_("Tube")],["pyrmid",_("Pyrmid")],["box",_("Box")]]))
 	lib.append(my_data("","#shape_dx","m",_("dx of the object"),"e",1.0,"QLineEdit"))
 	lib.append(my_data("","#shape_dy","m",_("dy of the object"),"e",1.0,"QLineEdit"))
 	lib.append(my_data("","#shape_dz","m",_("dz of the object"),"e",1.0,"QLineEdit"))
+
+	lib.append(my_data("","#shape_padding_dx","m",_("dx padding"),"e",1.0,"QLineEdit"))
+	lib.append(my_data("","#shape_padding_dy","m",_("dy padding"),"e",1.0,"QLineEdit"))
+	lib.append(my_data("","#shape_padding_dz","m",_("dz padding"),"e",1.0,"QLineEdit"))
 
 
 	lib.append(my_data("","#shape_nx","au",_("Number of objects x"),"e",1.0,"QLineEdit"))

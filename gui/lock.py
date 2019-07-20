@@ -75,10 +75,7 @@ class lock():
 	def __init__(self,lock_on=False):
 		self.lock_on=lock_on
 		self.registered=False
-		self.trial=True
 		self.uid=""
-		self.allowed=[]
-		self.banned=[]
 		self.renew_date=0
 		self.register_date=0
 		self.lver="2.0"
@@ -87,9 +84,10 @@ class lock():
 		self.use_count=False
 		self.ping_server=True
 		self.open_gl_working=True
-		self.features=None
 		self.reg_client_ver="ver"
 		self.client_ver_from_lock=""
+		self.status="trial"
+		self.use_count_check_web=5
 		if am_i_rod()==True:
 			print("I'm running on Rods pc")
 			self.website="127.0.0.1"
@@ -111,8 +109,6 @@ class lock():
 
 		if self.lock_on==False:
 			self.registered=True
-			self.allowed="all"
-			self.trial=False
 			self.uid="LINUX_OPEN"
 
 		if self.load()==True:
@@ -126,23 +122,8 @@ class lock():
 			return True
 
 	def server_check_user(self):
-		a=http_get()
-		lines=a.get("http://"+self.website+self.port+"/user_check?uid="+self.get_uid()+"&use_count="+str(self.use_count)+"&win_id="+self.get_win_id())
-		if lines==False:
-			return
-
-		lines=lines.decode("utf-8")
-		if lines=="notok":
-			self.disable_now()
-			#print("NOT OK")
-		if lines=="not_registerd":
-			self.registered=False
-		if lines=="ok":
-			if self.use_count>5 or self.disabled==True:
-				self.use_count=0
-				lock_update_token(self.data_path,"#use_count",str(self.use_count))
-				if self.disabled==True:
-					self.enable_now()
+		if self.use_count>self.use_count_check_web:
+			self.get_license()
 
 	def report_bug(self,data):
 		#Transmit debug info
@@ -180,7 +161,7 @@ class lock():
 
 	def register(self,email="",name="",company=""):
 		a=http_get()
-		params = {'email': email, "ver": ver(), "name": name, "uid": self.uid, "lang": get_full_language() ,"lver":self.lver, "test":"true" , "win_id":self.get_win_id(),"company":company,"client_ver":self.reg_client_ver}
+		params = {'email': email, "ver": ver(), "name": name, "uid": self.uid, "lang": get_full_language() ,"lver":self.lver, "test":"true" , "win_id":self.get_win_id(),"company":company,"client_ver":self.reg_client_ver,"mac":self.get_mac()}
 
 		lines=a.get("http://"+self.website+self.port+"/register?"+urllib.parse.urlencode(params))
 		if lines==False:
@@ -200,35 +181,23 @@ class lock():
 	def get_term(self):
 		return (self.renew_date-self.register_date)/1000/60/60/24
 
-	def nag(self):
-		if self.is_disabled()==True:
-			return True
-
-		if self.renew_date==-1:
-			return False
-
-		if self.get_term()*self.nag_fraction>=self.days_left():
-			return True
-
-		return False
 
 	def html(self):
 		text=""
 		if self.lock_on==True:
-		#	if self.renew_date!=-1 or am_i_rod()==True:
-			#text=text+"Trial version:"+str(self.trial)+"<br>"
-			#text=text+"Days left on license:"+str(self.days_left())+"<br>"
-			#text=text+"Renew date:"+str(self.renew_date)+"<br>"
-
 			text=text+"UID:"+self.uid+"<br>"
 
 		return text
 
-	def get_license(self):
+	def get_license(self,key="none"):
 
 		a=http_get()
-		params = {"uid": self.uid, "lver":self.lver, "win_id":self.get_win_id()}
+		params = {"uid": self.uid, "key": key,"lver":self.lver, "win_id":self.get_win_id(),"win_id":self.get_mac()}
 		lines=a.get("http://"+self.website+self.port+"/license?"+urllib.parse.urlencode(params))
+	
+		if lines==False:
+			self.error="no_internet"
+			return False
 
 		lines=lines.decode("utf-8").split("\n")
 
@@ -240,12 +209,12 @@ class lock():
 
 		
 		lock_save(self.data_path,lines)
+		self.write_reg_key("new_install","false")
 
 		self.load()
 
 		self.registered=True
 		return True
-
 
 	def get_uid(self):
 		return self.uid
@@ -257,29 +226,18 @@ class lock():
 		if self.is_registered()==False:
 			return "register"
 
-		if self.renew_needed()==True:
-			if get_lock().nag()==True:
-				return "nag"
 
-		return "ok"
-
-	def check_feature(self,feature):
-		return "ok"
-		if self.features==None:
-			return "ok"
-
-		for f in self.features:
-			if f.startswith(feature+":")==True:
-				f=f.split(":")
-				#print(f)
-				if f[1]=="hide":
-					return "hide"
 		return "ok"
 
 	def load_new(self):
 
+		if self.get_reg_key("new_install")=="true":
+			print("fresh install.....")
+			return False
+
 		lines=[]
 		lines=lock_load(self.data_path)
+		#print(lines)
 
 		self.reg_client_ver=self.get_gpvdm_ver_from_reg()
 
@@ -293,23 +251,20 @@ class lock():
 		self.uid=inp_search_token_value(lines, "#uid")
 		self.disabled=str2bool(inp_search_token_value(lines, "#disabled"))
 		self.renew_date=int(inp_search_token_value(lines, "#renew_date"))
-		self.allowed=inp_search_token_value(lines, "#allowed").split(",")
-		self.banned=inp_search_token_value(lines, "#banned").split(",")
 		self.register_date=int(inp_search_token_value(lines, "#register_date"))
 		self.old_user=inp_search_token_value(lines, "#old_user")
-		self.nag_fraction=float(inp_search_token_value(lines, "#nag_fraction"))
 		self.win_id=inp_search_token_value(lines, "#win_id")
+		self.mac=inp_search_token_value(lines, "#mac")
 		self.use_count=inp_search_token_value(lines, "#use_count")
-		self.features=inp_search_token_value(lines, "#features")
 
 		self.client_ver_from_lock=inp_search_token_value(lines, "#client_ver")
 
 
-		self.features=self.features.split(",")
-
 		val=inp_search_token_value(lines, "#ping_server")
 		if val!=False:
 			self.ping_server=str2bool(val)
+
+		self.status=inp_search_token_value(lines, "#status")
 
 		#print(lines,self.ping_server)
 
@@ -328,14 +283,13 @@ class lock():
 			self.registered=True
 			return True
 
-
 		return False
 
 	def load(self):
 
 		if self.load_new()==True:
-			if self.get_reg_key()==False:
-				self.write_reg_key()
+			if self.get_reg_key("uid")==False:
+				self.write_reg_key("uid",self.uid)
 			return
 
 		#check if old file exists
@@ -356,16 +310,16 @@ class lock():
 				pass
 
 
-		value=self.get_reg_key()
+		value=self.get_reg_key("uid")
 		if value!=False:
 			self.uid=value
 			#print("I found a uid in the registry.")
 
-	def get_reg_key(self):
+	def get_reg_key(self,token):
 		if running_on_linux()==False:
 			try:
 				registry_key = winreg.OpenKey(winreg.HKEY_CURRENT_USER, "Software\\gpvdm", 0, winreg.KEY_READ)
-				value, regtype = winreg.QueryValueEx(registry_key, "uid")
+				value, regtype = winreg.QueryValueEx(registry_key, token)
 				winreg.CloseKey(registry_key)
 				return value
 			except WindowsError:
@@ -397,6 +351,10 @@ class lock():
 				print("data search")
 				pass
 		else:
+			return "undefined"
+
+	def get_mac(self):
+		if running_on_linux()==True:
 			import fcntl
 			import socket
 			import struct
@@ -405,28 +363,54 @@ class lock():
 			s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 			info = fcntl.ioctl(s.fileno(), 0x8927,  struct.pack('256s', bytes(ifname, 'utf-8')[:15]))
 			return ':'.join('%02x' % b for b in info[18:24])
+		else:
+			return "undefined"
 
-		return "linux1234"
-
-	def write_reg_key(self):
+	def write_reg_key(self,token,value):
 		if running_on_linux()==False:
 			try:
 				key = winreg.OpenKey(winreg.HKEY_CURRENT_USER, "Software\\gpvdm", sam=winreg.KEY_SET_VALUE | winreg.KEY_WRITE)
 			except:
 				key = winreg.CreateKey(winreg.HKEY_CURRENT_USER, "Software\\gpvdm")
 			try:
-				winreg.SetValueEx(key, "uid", 0, winreg.REG_SZ, self.uid)
+				winreg.SetValueEx(key, token, 0, winreg.REG_SZ, value)
 			finally:
 				key.Close()
 
 	def is_registered(self):
 		return self.registered
 
-	def renew_needed(self):
+	def over_use_count_limit(self):
+		return self.use_count>self.use_count_check_web+5
+
+	#is the GUI disabled
+	def is_disabled(self):
+		#print("disabled",self.disabled)
+		#return True
+		if self.disabled==True:
+			return True
+
+		if self.over_use_count_limit()==True:
+			return True
+
 		if self.renew_date==-1:
 			return False
 
-		if self.days_left()>0:
+
+
+		self.disable_now()
+		return True
+
+	def disable_now(self):
+		lock_update_token(self.data_path,"#disabled","true")
+		self.disabled=True
+
+	def enable_now(self):
+		lock_update_token(self.data_path,"#disabled","false")
+		self.disabled=False
+
+	def is_trial(self):
+		if self.status=="full_version":
 			return False
 
 		return True
@@ -434,7 +418,7 @@ class lock():
 	def validate_key(self,key):
 		a=http_get()
 
-		params = {"key": key, "uid": self.uid,"lver":self.lver, "win_id":self.get_win_id()}
+		params = {"key": key, "uid": self.uid,"lver":self.lver, "win_id":self.get_win_id(), "mac":self.get_mac()}
 
 		data=a.get("http://"+self.website+self.port+"/activate?"+urllib.parse.urlencode(params))
 		if data==False:
@@ -452,47 +436,6 @@ class lock():
 
 		self.error=data
 		return False
-
-	def days_left(self):
-		return round((self.renew_date/1000-time.time())/24/60/60)
-
-	def over_use_count_limit(self):
-		return self.use_count>15
-
-	#is the GUI disabled
-	def is_disabled(self):
-		#print("disabled",self.disabled)
-		#return True
-		if self.disabled==True:
-			return True
-
-		if self.over_use_count_limit()==True:
-			return True
-
-		if self.renew_date==-1:
-			return False
-
-		if self.days_left()>0:
-			return False
-
-
-		self.disable_now()
-		return True
-
-	def disable_now(self):
-		lock_update_token(self.data_path,"#disabled","true")
-		self.disabled=True
-
-	def enable_now(self):
-		lock_update_token(self.data_path,"#disabled","false")
-		self.disabled=False
-
-	def is_trial(self):
-		if self.days_left()>0:
-			return False
-
-		return True
-
 
 
 my_lock=lock(lock_on=True)

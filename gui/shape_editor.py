@@ -66,11 +66,6 @@ class shape_editor(QWidgetSavePos):
 	def callback_help(self):
 		webbrowser.open('http://www.gpvdm.com/man/index.html')
 
-	def callback_refresh(self):
-		epi=get_epi()
-		epi.reload_shapes()
-		global_object_run("gl_force_redraw")
-
 	def __init__(self):
 		QWidgetSavePos.__init__(self,"shape_editor")
 		self.setMinimumSize(40, 200)
@@ -98,10 +93,6 @@ class shape_editor(QWidgetSavePos):
 		self.tb_rename.triggered.connect(self.callback_rename_shape)
 		toolbar.addAction(self.tb_rename)
 
-		self.refresh = QAction(icon_get("help"), _("Refresh"), self)
-		self.refresh.setStatusTip(_("Refresh"))
-		self.refresh.triggered.connect(self.callback_refresh)
-		toolbar.addAction(self.refresh)
 
 		spacer = QWidget()
 		spacer.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)

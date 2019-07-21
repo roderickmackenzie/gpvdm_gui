@@ -268,98 +268,6 @@ def box_lines(x,y,z,w,h,d):
 
 	glEnd()
 
-def shape_layer(obj,s,ix,iy,iz, name="name"):
-	x_pos=ix+s.x0*scale_get_xmul()#+s.shape_x0*scale_get_xmul()
-	y_pos=iy+s.y0*scale_get_ymul()
-	z_pos=iz+s.z0*scale_get_zmul()#+s.shape_z0*scale_get_zmul()
-
-	height=1.0
-	dx=s.dx*scale_get_xmul()
-	dz=s.dz*scale_get_zmul()
-	dy=s.dy*scale_get_ymul()
-
-	dx_tot=(s.dx+s.dx_padding)*scale_get_xmul()
-	dz_tot=(s.dz+s.dz_padding)*scale_get_zmul()
-	dy_tot=(s.dy+s.dy_padding)*scale_get_ymul()
-
-	for x in range(0,s.shape_nx):
-		z_pos=iz+s.z0*scale_get_zmul()
-		for z in range(0,s.shape_nz):
-			if s.type=="dome":
-				dome(x_pos,y_pos,z_pos,height,dx,name=name)
-			elif s.type=="pyrmid":
-				pyrmid(x_pos,y_pos,z_pos,dx,dy,dz, name=name)
-			elif s.type=="box":
-				box(x_pos,y_pos,z_pos,dx, dy,dx, s.r, s.g, s.b, obj.alpha, name=name)
-			elif s.type=="tube":
-				half_cyl(x_pos,y_pos,z_pos,dx,dy,dz, name=name)
-			z_pos=z_pos+dz_tot
-		x_pos=x_pos+dx_tot
-
-
-def box(x,y,z,w,h,d,r,g,b,alpha,name="box"):
-	gl_save_add("box",x,y,z,[w,h,d,r,g,b,alpha])
-	red=r
-	green=g
-	blue=b
-
-
-	#btm
-	set_color(red,green,blue,name,alpha=alpha)
-
-	glBegin(GL_QUADS)
-	glVertex3f(x+0.0,y+0.0,z+0.0)
-	glVertex3f(x+w,y+ 0.0,z+0.0)
-	glVertex3f(x+w,y+ 0.0,z+d)
-	glVertex3f(x+ 0.0, y+0.0,z+ d) 
-	glEnd()
-	
-	#back
-
-
-	glBegin(GL_QUADS)
-	glVertex3f(x+0.0,y+h,z+0.0)
-	glVertex3f(x+w,y+ h,z+0.0)
-	glVertex3f(x+w,y+ h,z+d)
-	glVertex3f(x+ 0.0, y+h,z+ d) 
-	glEnd()
-
-	#right
-
-	glBegin(GL_QUADS)
-	glVertex3f(x+w,y,z)
-	glVertex3f(x+w,y+ h,z)
-	glVertex3f(x+w,y+ h,z+d)
-	glVertex3f(x+w, y,z+d) 
-	glEnd()
-
-	#left
-
-	glBegin(GL_QUADS)
-	glVertex3f(x,y,z)
-	glVertex3f(x,y+ h,z)
-	glVertex3f(x,y+ h,z+d)
-	glVertex3f(x, y,z+d) 
-	glEnd()
-	
-	#front
-	
-	glBegin(GL_QUADS)
-	glVertex3f(x,y,z+d)
-	glVertex3f(x+w,y,z+d)
-	glVertex3f(x+w,y+h,z+d)
-	glVertex3f(x, y+h,z+d) 
-	glEnd()
-
-	#top
-
-	glBegin(GL_QUADS)
-	glVertex3f(x,y+h,z)
-	glVertex3f(x+w,y+ h,z)
-	glVertex3f(x+w,y+ h,z+ d)
-	glVertex3f(x, y+h,z+ d) 
-	glEnd()
-
 def val_to_rgb(v):
 
 	dx=1.0
@@ -396,3 +304,4 @@ def val_to_rgb(v):
 		b=1*(v-5*dx)/dx
 		
 	return r,g,b
+

@@ -43,13 +43,18 @@ import random
 import numpy as np
 from math import pi,acos,sin,cos
 
-def pyrmid(x,y,z,dx,dy,dz,name="name"):
-	alpha=0.2
+def pyrmid(o):
+	x=o.x
+	y=o.y
+	z=o.z
+	dx=o.dx
+	dy=o.dy
+	dz=o.dz
 	segs=40
 	delta=180/segs
 	theata=0
 	theta_rad=(theata/360)*2*3.141592653
-	set_color(1.0,0.0,0.0,name,alpha=alpha)
+	set_color(o.r,o.g,o.b,o.id,alpha=o.alpha)
 
 	#top
 
@@ -77,72 +82,65 @@ def pyrmid(x,y,z,dx,dy,dz,name="name"):
 	glVertex3f(x+dx/2,y+dy,z+dz/2)
 	glEnd()
 
-def dome(x,y,z,height,width,name="name"):
-	alpha=0.2
-	segs=40
-	delta=180/segs
-	theata=0
-	theta_rad=0
-	dz=0.5
-	r=width/2.0
-	set_color(1.0,0.0,0.0,name,alpha=alpha)
+def dome(o):
+	set_color(o.r,o.g,o.b,o.id,alpha=o.alpha)
 
-	x=x+width/2
-	y=y
-	z=z+width/2
+	dx0=o.dx/2
+	dy0=o.dy/2
+	dz0=o.dz/2
+	
+	x=o.x+dx0
+	y=o.y
+	z=o.z+dz0
 
 	#top
+	theta=0.0
+	theta_max=2.0*3.1415
+	dtheta=theta_max/10.0
+
 	phi=0.0
-	phi_rad=0.0
-	dphi=40
-	dphi_rad=(dphi/360)*2*3.141592653
-	dtheta=40
-	dtheta_rad=(dtheta/360)*2*3.141592653
-	while(phi<90):
-		theata=0
-		theta_rad=0
-		while (theata<360):
+	phi_max=3.1415/2.0
+	dphi=phi_max/10.0
 
+	while(phi<phi_max):
+		theta=0
+		while (theta<theta_max):
 			glBegin(GL_QUADS)
 
-			dx=r*cos(theta_rad)*cos(phi_rad)
-			dz=r*sin(theta_rad)*cos(phi_rad)
-			dy=r*sin(phi_rad)
+			dx=dx0*cos(theta)*cos(phi)
+			dz=dz0*sin(theta)*cos(phi)
+			dy=dy0*sin(phi)
 
 			#print(dx,dy,dz)
 			glVertex3f(x+dx,y+dy,z+dz)
 
-			dx=r*cos(theta_rad)*cos(phi_rad+dphi_rad)
-			dz=r*sin(theta_rad)*cos(phi_rad+dphi_rad)
-			dy=r*sin(phi_rad+dphi_rad)
+			dx=dx0*cos(theta)*cos(phi+dphi)
+			dz=dz0*sin(theta)*cos(phi+dphi)
+			dy=dy0*sin(phi+dphi)
 
 			#print(dx,dy,dz)
 			glVertex3f(x+dx,y+dy,z+dz)
 
-			dx=r*cos(theta_rad+dtheta_rad)*cos(phi_rad+dphi_rad)
-			dz=r*sin(theta_rad+dtheta_rad)*cos(phi_rad+dphi_rad)
-			dy=r*sin(phi_rad+dphi_rad)
+			dx=dx0*cos(theta+dtheta)*cos(phi+dphi)
+			dz=dz0*sin(theta+dtheta)*cos(phi+dphi)
+			dy=dy0*sin(phi+dphi)
 
 			#print(dx,dy,dz)
 			glVertex3f(x+dx,y+dy,z+dz)
 
-			dx=r*cos(theta_rad+dtheta_rad)*cos(phi_rad)
-			dz=r*sin(theta_rad+dtheta_rad)*cos(phi_rad)
-			dy=r*sin(phi_rad)
+			dx=dx0*cos(theta+dtheta)*cos(phi)
+			dz=dz0*sin(theta+dtheta)*cos(phi)
+			dy=dy0*sin(phi)
 
 			#print(dx,dy,dz)
 			glVertex3f(x+dx,y+dy,z+dz)
 
 
-			theata=theata+dtheta			
-			theta_rad=(theata/360)*2*3.141592653
+			theta=theta+dtheta
 
 			glEnd()
-		phi=phi+dphi
-		phi_rad=(phi/360)*2*3.141592653
-		#print(phi)
 
-		#break
+		phi=phi+dphi
 
 def half_cyl(x0,y0,z0,dx,dy0,dz,name="name"):
 	r=dx/2
@@ -228,3 +226,68 @@ def half_cyl(x0,y0,z0,dx,dy0,dz,name="name"):
 		glVertex3f(x,y,z+dz)
 
 		glEnd()
+
+
+def box(x,y,z,w,h,d,r,g,b,alpha,name="box"):
+	gl_save_add("box",x,y,z,[w,h,d,r,g,b,alpha])
+	red=r
+	green=g
+	blue=b
+
+
+	#btm
+	set_color(red,green,blue,name,alpha=alpha)
+
+	glBegin(GL_QUADS)
+	glVertex3f(x+0.0,y+0.0,z+0.0)
+	glVertex3f(x+w,y+ 0.0,z+0.0)
+	glVertex3f(x+w,y+ 0.0,z+d)
+	glVertex3f(x+ 0.0, y+0.0,z+ d) 
+	glEnd()
+	
+	#back
+
+
+	glBegin(GL_QUADS)
+	glVertex3f(x+0.0,y+h,z+0.0)
+	glVertex3f(x+w,y+ h,z+0.0)
+	glVertex3f(x+w,y+ h,z+d)
+	glVertex3f(x+ 0.0, y+h,z+ d) 
+	glEnd()
+
+	#right
+
+	glBegin(GL_QUADS)
+	glVertex3f(x+w,y,z)
+	glVertex3f(x+w,y+ h,z)
+	glVertex3f(x+w,y+ h,z+d)
+	glVertex3f(x+w, y,z+d) 
+	glEnd()
+
+	#left
+
+	glBegin(GL_QUADS)
+	glVertex3f(x,y,z)
+	glVertex3f(x,y+ h,z)
+	glVertex3f(x,y+ h,z+d)
+	glVertex3f(x, y,z+d) 
+	glEnd()
+	
+	#front
+	
+	glBegin(GL_QUADS)
+	glVertex3f(x,y,z+d)
+	glVertex3f(x+w,y,z+d)
+	glVertex3f(x+w,y+h,z+d)
+	glVertex3f(x, y+h,z+d) 
+	glEnd()
+
+	#top
+
+	glBegin(GL_QUADS)
+	glVertex3f(x,y+h,z)
+	glVertex3f(x+w,y+ h,z)
+	glVertex3f(x+w,y+ h,z+ d)
+	glVertex3f(x, y+h,z+ d) 
+	glEnd()
+

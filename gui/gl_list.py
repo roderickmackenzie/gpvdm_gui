@@ -28,7 +28,9 @@
 import sys
 import glob
 
-from gl_lib import box
+from gl_shapes import box
+from gl_shapes import dome
+from gl_shapes import pyrmid
 from gl_lib import box_lines
 from gl_lib import plane
 from gl_lib import raw_ray
@@ -53,7 +55,10 @@ class gl_base_object():
 		self.r=r
 		self.g=g
 		self.b=b
+		self.alpha=0.5
 		self.selected=False
+		self.selectable=False
+		self.moveable=False
 
 def gl_objects_clear():
 	global objects
@@ -72,19 +77,16 @@ def gl_objects_is_selected():
 	global objects
 	for i in range(0,len(objects)):
 		if objects[i].selected==True:
-			return objects[i].id
+			return objects[i]
 	return False
 
 def gl_objects_add(my_object):
 	global objects
 	objects.append(my_object)
 
-def gl_objects_move(id,dx,dy):
-	global objects
-	for i in range(0,len(objects)):
-		if id==objects[i].id:
-			objects[i].x=objects[i].x+dx
-			objects[i].y=objects[i].y+dy
+def gl_objects_move(obj,dx,dy):
+	obj.x=obj.x+dx
+	obj.y=obj.y+dy
 
 def gl_objects_count_regex(id):
 	count=0
@@ -130,6 +132,11 @@ def gl_objects_render():
 			plane(o.x,o.y,o.z,o.dx,o.dy,o.dz,o.r,o.g,o.b)
 		elif o.type=="ray":
 			raw_ray(o.x,o.y,o.z,o.dx,o.dy,o.dz,o.r,o.g,o.b)
+		elif o.type=="dome":
+			dome(o)
+		elif o.type=="pyrmid":
+			pyrmid(o)
 		if o.selected==True:
-			box_lines(o.x,o.y,o.z,o.dx,o.dy,o.dz)
+			if o.selectable==True:
+				box_lines(o.x,o.y,o.z,o.dx,o.dy,o.dz)
 

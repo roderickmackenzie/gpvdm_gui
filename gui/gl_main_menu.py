@@ -75,6 +75,9 @@ class gl_main_menu():
 		action=view.addAction(_("Device view"))
 		action.triggered.connect(self.menu_toggle_view)
 
+		action=view.addAction(_("Light source"))
+		action.triggered.connect(self.menu_toggle_view)
+
 		plot=menu.addMenu(_("Plot"))
 
 		action=plot.addAction(_("Open"))
@@ -126,7 +129,8 @@ class gl_main_menu():
 				gl_objects_remove_regex("ray_mesh")
 		if text==_("Device view"):
 			self.enable_draw_device = not self.enable_draw_device
-
+		if text==_("Light source"):
+			self.enable_draw_light_source = not self.enable_draw_light_source
 
 		self.force_redraw()
 

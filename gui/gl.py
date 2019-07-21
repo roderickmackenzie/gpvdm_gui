@@ -87,7 +87,7 @@ from gl_lib import draw_stars
 from gl_lib import draw_grid
 from gl_lib import draw_photon
 from gl_lib import box_lines
-from gl_lib import box
+from gl_shapes import box
 
 from gl_lib_ray import draw_rays
 from gl_lib_ray import draw_ray_mesh
@@ -142,7 +142,7 @@ from gl_layer_editor import gl_layer_editor
 
 from gl_cords import gl_cords
 
-from gl_lib import shape_layer
+from gl_shape_layer import shape_layer
 from gl_base_widget import gl_base_widget
 
 from gl_scale import scale_get_xmul
@@ -206,7 +206,7 @@ if open_gl_ok==True:
 			self.draw_electrical_mesh=False
 			self.enable_draw_device=True
 			self.draw_ray_mesh=False
-
+			self.enable_draw_light_source=False
 
 			#For image
 			#self.render_grid=False
@@ -332,8 +332,9 @@ if open_gl_ok==True:
 					self.view.x_pos =self.view.x_pos + 0.1 * dx
 					self.view.y_pos =self.view.y_pos - 0.1 * dy
 			else:
-
-				gl_objects_move(sel,dx*0.05,-dy*0.05)
+				#print(sel.moveable)
+				if sel.moveable==True:
+					gl_objects_move(sel,dx*0.05,-dy*0.05)
 				#print(dx,dy)
 			
 			self.lastPos=event.pos()
@@ -395,15 +396,13 @@ if open_gl_ok==True:
 						self.menu(event)
 			obj=gl_object_deselect()
 			if obj!=False:
-
-				print(obj.type)
 				if obj.id=="ray_src":
 					x=scale_screen_x2m(obj.x)
 					y=scale_screen_y2m(obj.y)-epitaxy_get_device_start()
 					z=scale_m2screen_z(obj.z)
 					inp_update_token_value("ray.inp","#ray_xsrc",str(x))
 					inp_update_token_value("ray.inp","#ray_ysrc",str(y))
-					inp_update_token_value("ray.inp","#ray_zsrc",str(z))
+					#inp_update_token_value("ray.inp","#ray_zsrc",str(z))
 
 				self.do_draw()
 		#	self.lastPos=None
@@ -471,6 +470,25 @@ if open_gl_ok==True:
 			for zz in range(0,10):
 				box(0,0,0+zz,0.5,0.5,0.5,0.0,0,1,0.5)
 
+		def draw_device2(self,x,z):
+			y=scale_get_device_y()
+
+
+			l=0
+			btm_layer=len(epitaxy_get_epi())-1
+
+			for obj in epitaxy_get_epi():
+				y_len=obj.width*scale_get_ymul()
+				y=y-y_len
+				dy_shrink=y_len*0.1
+
+				name=obj.name
+				layer_name="layer:"+name
+				display_name=name
+				alpha=obj.alpha
+				if len(obj.shapes)>0:
+					for s in obj.shapes:
+						shape_layer(obj,s,x,y+dy_shrink/2, z, name=layer_name)
 
 		def draw_device(self,x,z):
 
@@ -491,8 +509,6 @@ if open_gl_ok==True:
 				display_name=name
 				alpha=obj.alpha
 				if len(obj.shapes)>0:
-					for s in obj.shapes:
-						shape_layer(obj,s,x,y+dy_shrink/2, z, name=layer_name)
 					alpha=0.5
 
 				if obj.electrical_layer=="contact":
@@ -532,22 +548,9 @@ if open_gl_ok==True:
 				l=l+1
 
 		def reset(self):
-			gl_objects_clear()
 			self.update_real_to_gl_mul()
+			self.rebuild_scene()
 
-			a=gl_base_object()
-			a.id="ray_src"
-			a.type="box"
-			a.x=0.5
-			a.y=0.5
-			a.z=scale_m2screen_z(0.0)
-			a.dx=0.2
-			a.dy=0.2
-			a.dz=0.2
-			a.r=1.0
-			a.g=0.0
-			a.b=0.0
-			gl_objects_add(a)
 
 		def render(self):
 
@@ -612,8 +615,6 @@ if open_gl_ok==True:
 			self.draw_cords()
 			if self.draw_electrical_mesh==True:
 				self.draw_mesh()
-			else:
-				draw_rays(self.ray_file)
 
 			if self.draw_ray_mesh==True:
 				draw_ray_mesh(self.ray_file)
@@ -705,7 +706,51 @@ if open_gl_ok==True:
 
 				self.do_draw()
 				self.grabFrameBuffer().save("./one/a"+str(i)+".png")
-			
+
+		#This will rebuild the scene from scratch
+		def rebuild_scene(self):
+			gl_objects_clear()
+			x=scale_m2screen_x(0)
+			z=scale_m2screen_z(0)
+
+			print(">>>>>>>>>")
+			#if self.draw_electrical_mesh==False:
+			draw_rays(self.ray_file)
+
+			if self.enable_draw_light_source==True:
+
+				lines=inp_load_file(os.path.join(get_sim_path(),"ray.inp"))
+
+				if lines!=False:
+					point_x=float(inp_search_token_value(lines, "#ray_xsrc"))
+					point_y=float(inp_search_token_value(lines, "#ray_ysrc"))
+					if point_x==-1.0:
+						point_x=0.0
+						point_y=0.0
+					else:
+						point_x=scale_m2screen_x(point_x)
+						point_y=scale_m2screen_y(point_y)
+
+					a=gl_base_object()
+					a.id="ray_src"
+					a.type="box"
+					a.x=point_x
+					a.y=point_y
+					a.z=0.0
+					a.dx=0.2
+					a.dy=0.2
+					a.dz=0.2
+					a.r=0.0
+					a.g=0.0
+					a.b=1.0
+
+					a.moveable=True
+					a.selectable=True
+					gl_objects_add(a)
+
+			if self.enable_draw_device==True:
+				self.draw_device2(x,z)
+
 		def force_redraw(self):
 			self.load_data()
 			self.update()
@@ -713,6 +758,7 @@ if open_gl_ok==True:
 			#y_mesh.calculate_points()
 			#x_mesh.calculate_points()
 			#z_mesh.calculate_points()
+			self.rebuild_scene()
 			self.do_draw()
 
 		def resizeEvent(self,event):

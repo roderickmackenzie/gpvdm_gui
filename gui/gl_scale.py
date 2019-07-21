@@ -102,6 +102,7 @@ def set_m2screen():
 	z_start=-device_z/2.0
 	y_start=device_y
 
+
 def scale_get_start_x():
 	return x_start
 

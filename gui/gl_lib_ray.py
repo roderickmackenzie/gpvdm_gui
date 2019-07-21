@@ -63,32 +63,31 @@ def draw_rays(ray_file):
 	g=0.0
 	b=0.0
 	if ray_data.load(ray_file)==True:
-		if ray_data.new_read==True:
-			gl_objects_remove_regex("ray_trace_results")
-			for l in ray_data.data:
-				if len(l)==2:
-					z=scale_m2screen_z(l[0][0])
-					dz=scale_m2screen_z(l[1][0])-scale_m2screen_x(l[0][0])
+		gl_objects_remove_regex("ray_trace_results")
+		for l in ray_data.data:
+			if len(l)==2:
+				z=scale_m2screen_z(l[0][0])
+				dz=scale_m2screen_z(l[1][0])-scale_m2screen_x(l[0][0])
 
-					x=scale_m2screen_x(l[0][1])
-					dx=scale_m2screen_x(l[1][1])-scale_m2screen_x(l[0][1])
+				x=scale_m2screen_x(l[0][1])
+				dx=scale_m2screen_x(l[1][1])-scale_m2screen_x(l[0][1])
 
-					y=scale_m2screen_y(l[0][2])
-					dy=scale_m2screen_y(l[1][2])-scale_m2screen_y(l[0][2])
+				y=scale_m2screen_y(l[0][2])
+				dy=scale_m2screen_y(l[1][2])-scale_m2screen_y(l[0][2])
 
-					a=gl_base_object()
-					a.id="ray_trace_results"
-					a.type="ray"
-					a.x=x
-					a.y=y
-					a.z=z
-					a.dx=dx
-					a.dy=dy
-					a.dz=dz
-					a.r=ray_data.r
-					a.g=ray_data.g
-					a.b=ray_data.b
-					gl_objects_add(a)
+				a=gl_base_object()
+				a.id="ray_trace_results"
+				a.type="ray"
+				a.x=x
+				a.y=y
+				a.z=z
+				a.dx=dx
+				a.dy=dy
+				a.dz=dz
+				a.r=ray_data.r
+				a.g=ray_data.g
+				a.b=ray_data.b
+				gl_objects_add(a)
 
 def draw_ray_mesh(ray_file):
 	global ray_mesh_data

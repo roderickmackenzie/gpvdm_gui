@@ -107,14 +107,10 @@ parser.add_argument("--clone", help=_("Generate a clean simulation in the curren
 parser.add_argument("--clonesrc", help=_("Clone the source code."), action='store_true')
 parser.add_argument("--editvalue", help=_("edits a value in a .gpvdm archive. Usage --edit-value /path/to/sim.gpvdm #token_to_change new_value "), nargs=3)
 parser.add_argument("--scanplot", help=_("Runs an oplot file, usage --scanplot /path/to/oplot/file.oplot "), nargs=1)
-parser.add_argument("--runscan", help=_("Runs a scan, usage --runscan /path/to/scan/dir/ "), nargs=1)
-parser.add_argument("--buildscan", help=_("Builds a scan, usage --buildscan /path/to/scan/dir/ /path/containing/base/files/"), nargs=2)
-parser.add_argument("--buildnestedscan", help=_("Builds a nested scan, usage --buildnestedscan /path/to/scan/dir/ sim_to_nest"), nargs=2)
 parser.add_argument("--load", help=_("Loads a simulation --load /path/containing/simulation/sim.gpvdm"), nargs=1)
 parser.add_argument("--encrypt", help=_("Encrypt a gpvdm file --file sim.gpvdm"), nargs=1)
 parser.add_argument("--unpack", help=_("Extract the sim.gpvdm archive --unpack"), action='store_true')
 parser.add_argument("--pack", help=_("Extract the sim.gpvdm archive --pack"), action='store_true')
-parser.add_argument("--scanarchive", help=_("Compress a scandir --scanarchive path_to_scan_dir"), nargs=1)
 parser.add_argument("--scanbuildvectors", help=_("Build vectors from scan dir --scanbuildvectors path_to_scan_dir"), nargs=1)
 parser.add_argument("--matcompress", help=_("Compresses the materials dir"), action='store_true')
 parser.add_argument("--list", help=_("List the content of a gpvdm archive"), action='store_true')
@@ -211,65 +207,11 @@ def command_args(argc,argv):
 				print("Problem loading oplot file")
 			sys.exit(0)
 
-		if args.runscan:
-			set_gui(False)
-			scan_dir_path=args.runscan[0]	#program file
-			exe_command=get_exe_command()
-			program_list=tree_load_program(scan_dir_path)
-	
-			watch_dir=os.path.join(os.getcwd(),scan_dir_path)
-
-			commands=[]
-			#server_find_simulations_to_run(commands,scan_dir_path)
-			commands=tree_load_flat_list(scan_dir_path)
-			print(commands)
-			
-			myserver=base_server()
-			myserver.base_server_init(watch_dir)
-
-			for i in range(0, len(commands)):
-				myserver.base_server_add_job(commands[i],"")
-				print("Adding job"+commands[i])
-
-			myserver.print_jobs()
-			myserver.simple_run()
-			#simple_run(exe_command)
-
-			sys.exit(0)
-
-		if args.scanarchive:
-			set_gui(False)
-			scan_archive(args.scanarchive[0])
-			sys.exit(0)
-
-		if args.buildscan:
-			set_gui(False)
-			scan_items_clear()
-			scan_items_populate_from_known_tokens()
-			scan_items_populate_from_files()
-
-			scan_dir_path=args.buildscan[0]	#program file
-			base_dir=args.buildscan[1]				#base dir
-
-			build_scan(scan_dir_path,base_dir)
-
-			sys.exit(0)
 
 		if args.scanbuildvectors:
 			set_gui(False)
 			scan_ml_build_vector(args.scanbuildvectors[0])
 			sys.exit(0)
 
-		if args.buildnestedscan:
-			set_gui(False)
 
-			scan_items_clear()
-			scan_items_populate_from_known_tokens()
-			scan_items_populate_from_files()
-
-			scan_dir_path=os.path.abspath(args.buildnestedscan[0])	#program file
-			sim_to_nest=os.path.abspath(args.buildnestedscan[1])	#program file
-			scan_build_nested_simulation(scan_dir_path,os.path.join(os.getcwd(),sim_to_nest))
-
-			sys.exit(0)
 

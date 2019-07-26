@@ -34,7 +34,7 @@ from inp import inp_load_file
 from inp import inp_search_token_value
 from inp import inp_save
 
-from util import str2bool
+from str2bool import str2bool
 from cal_path import get_sim_path
 from file_watch import get_watch
 

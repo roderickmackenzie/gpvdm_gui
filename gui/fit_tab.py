@@ -47,7 +47,7 @@ from fit_window_plot_real import fit_window_plot_real
 
 from open_save_dlg import save_as_filter
 from cal_path import get_sim_path
-from util import str2bool
+from str2bool import str2bool
 
 from matlab_editor import matlab_editor
 

@@ -31,7 +31,7 @@ from cal_path import get_share_path
 from cal_path import get_bin_path
 from cal_path import get_home_path 
 from inp import inp_load_file
-from util import str2bool
+from str2bool import str2bool
 from inp import inp_search_token_value
 
 store_enable_webupdates=False

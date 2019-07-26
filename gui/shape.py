@@ -30,7 +30,7 @@ from inp import inp_load_file
 from inp import inp_search_token_value
 from inp import inp_search_token_array
 from cal_path import get_sim_path
-from util import str2bool
+from str2bool import str2bool
 from file_watch import get_watch
 
 class shape():
@@ -39,6 +39,14 @@ class shape():
 		self.dx=1e-9
 		self.dy=1e-9
 		self.dz=1e-9
+
+		self.x0=0.0
+		self.z0=0.0
+		self.y0=0.0
+
+		self.dx_padding=0.0
+		self.dy_padding=0.0
+		self.dz_padding=0.0
 
 		self.shape_nx=1
 		self.shape_nz=1
@@ -60,6 +68,7 @@ class shape():
 		lines=inp_load_file(self.file_name+".inp")
 
 		if lines==False:
+			print("shape file not found: ",self.file_name)
 			return
 		try:
 			self.type=inp_search_token_value(lines, "#shape_type")

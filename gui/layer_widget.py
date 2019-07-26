@@ -27,7 +27,7 @@
 
 
 import os
-from util import str2bool
+from str2bool import str2bool
 from icon_lib import icon_get
 from cal_path import get_materials_path
 from global_objects import global_object_get

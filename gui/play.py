@@ -35,7 +35,7 @@ from PyQt5.QtCore import QSize, Qt
 from PyQt5.QtWidgets import QWidget,QSizePolicy,QHBoxLayout,QPushButton,QDialog,QFileDialog,QToolBar,QMessageBox, QLineEdit
 
 from icon_lib import icon_get
-from util import str2bool
+from str2bool import str2bool
 from help import help_window
 from inp import inp_update_token_value
 from inp import inp_get_token_value

@@ -34,7 +34,7 @@ from inp import inp_update_token_value
 from scan_item import scan_items_index_item
 from inp import inp_get_token_value
 from inp import inp_get_token_array
-from util import str2bool
+from str2bool import str2bool
 from util import get_cache_path
 from cal_path import get_materials_path
 from scan_item import scan_items_get_file

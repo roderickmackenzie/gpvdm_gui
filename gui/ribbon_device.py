@@ -62,7 +62,7 @@ from dim_editor import dim_editor
 
 from dos_main import dos_main
 from global_objects import global_object_register
-
+from pl_main import pl_main
 
 class ribbon_device(QToolBar):
 	def __init__(self):
@@ -75,6 +75,8 @@ class ribbon_device(QToolBar):
 		self.layer_editor=None
 		self.dim_editor=None
 		self.electrical_editor=None
+		self.emission_editor=None
+
 
 		self.setToolButtonStyle( Qt.ToolButtonTextUnderIcon)
 		self.setOrientation(Qt.Vertical);
@@ -100,6 +102,10 @@ class ribbon_device(QToolBar):
 		self.tb_electrical_editor = QAction(icon_get("electrical"), _("Electrical\nparameters"), self)
 		self.tb_electrical_editor.triggered.connect(self.callback_electrical_editor)
 		self.addAction(self.tb_electrical_editor)
+
+		self.tb_emission_editor = QAction(icon_get("emission"), _("Emission\nparameters"), self)
+		self.tb_emission_editor.triggered.connect(self.callback_emission_editor)
+		self.addAction(self.tb_emission_editor)
 
 		self.tb_dimension_editor = QAction(icon_get("dimensions"), _("xz-size"), self)
 		self.tb_dimension_editor.triggered.connect(self.callback_dimension_editor)
@@ -211,3 +217,13 @@ class ribbon_device(QToolBar):
 		else:
 			self.electrical_editor.show()
 
+	def callback_emission_editor(self):
+		help_window().help_set_help(["emission.png",_("<big><b>Emission parameters</b></big>\nUse this window to set if a layer emits light or not.  You can choose between theoretically calculated emission spectra and imported experimental spectra.")])
+			
+		if self.emission_editor==None:
+			self.emission_editor=pl_main()
+
+		if self.emission_editor.isVisible()==True:
+			self.emission_editor.hide()
+		else:
+			self.emission_editor.show()

@@ -30,7 +30,7 @@ import os
 from inp import inp_load_file
 from inp import inp_search_token_value
 from util_zip import zip_get_data_file
-from util import str2bool
+from str2bool import str2bool
 from inp import inp_save_lines_to_file
 
 def plot_load_info(plot_token,file_name_in):

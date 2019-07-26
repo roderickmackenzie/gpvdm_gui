@@ -48,7 +48,7 @@ from inp import inp_load_file
 from inp import inp_get_token_value_from_list
 from inp import inp_get_token_value
 
-from util import str2bool
+from str2bool import str2bool
 from gui_util import dlg_get_text
 
 from tab import tab_class

@@ -90,6 +90,15 @@ def device_lib_token_insert(file_name,token_to_insert_after,token,value):
 		print(sim_file_name,archive)
 		inp_insert_token(sim_file_name, token_to_insert_after, token, value, archive=archives[i])
 
+def device_lib_token_insert_top(file_name,token,value):
+	archives=find_device_libs()
+	for i in range(0,len(archives)):
+		sim_file_name=os.path.join(os.path.dirname(archives[i]),file_name)
+		archive=os.path.basename(archives[i])
+		#inp_update_token_value(file_path, token, replace,archive="sim.gpvdm",id="")
+		print(sim_file_name,archive)
+		inp_insert_token(sim_file_name, False, token, value, archive=archives[i])
+
 def device_lib_token_duplicate(dest_file, dest_token, src_file, src_token):
 	archives=find_device_libs()
 	for i in range(0,len(archives)):

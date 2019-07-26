@@ -636,14 +636,16 @@ class gpvdm_main_window(QMainWindow):
 
 		self.enable_disable_buttons()
 
-		if os.path.isdir(get_materials_path())==False:
-			clone_materials(get_materials_path(), get_base_material_path(),"material")
+		val=inp_get_token_value(os.path.join(get_sim_path(),"config.inp"), "#use_gpvdm_local")
+		if val!="false":
+			if os.path.isdir(get_materials_path())==False:
+				clone_materials(get_materials_path(), get_base_material_path(),"material")
 
-		if os.path.isdir(get_emission_path())==False:
-			clone_materials(get_emission_path(), get_base_emission_path(),"emission")
+			if os.path.isdir(get_emission_path())==False:
+				clone_materials(get_emission_path(), get_base_emission_path(),"emission")
 
-		if os.path.isdir(get_spectra_path())==False:
-			clone_spectras(get_spectra_path())
+			if os.path.isdir(get_spectra_path())==False:
+				clone_spectras(get_spectra_path())
 
 	def dragEnterEvent(self, event):
 		if event.mimeData().hasUrls:

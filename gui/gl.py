@@ -75,7 +75,7 @@ from PyQt5.QtCore import QRectF,QPoint
 
 import numpy as np
 from inp import inp_get_token_value
-from util import str2bool
+from str2bool import str2bool
 
 import random
 
@@ -207,6 +207,7 @@ if open_gl_ok==True:
 			self.enable_draw_device=True
 			self.draw_ray_mesh=False
 			self.enable_draw_light_source=False
+			self.enable_draw_rays=True
 
 			#For image
 			#self.render_grid=False
@@ -687,35 +688,14 @@ if open_gl_ok==True:
 				self.view.render_photons=False
 
 
-		def random_device(self):
-			self.view.render_grid=True
-			self.view.render_photons=True
-			self.view.render_text=False
-
-			for i in range(0,100):
-				r=random.randint(0,epitaxy_get_layers()-1)
-				w=float(random.randint(20,100))*1e-9
-				e=epitaxy_get_epi()
-				e[r].width=w
-				levels = range(32,256,32)
-				color=tuple(random.choice(levels) for _ in range(3))
-				if r!=2:
-					e[r].r=color[0]/256.0
-					e[r].g=color[1]/256.0
-					e[r].b=color[2]/256.0
-
-				self.do_draw()
-				self.grabFrameBuffer().save("./one/a"+str(i)+".png")
-
 		#This will rebuild the scene from scratch
 		def rebuild_scene(self):
 			gl_objects_clear()
 			x=scale_m2screen_x(0)
 			z=scale_m2screen_z(0)
 
-			print(">>>>>>>>>")
-			#if self.draw_electrical_mesh==False:
-			draw_rays(self.ray_file)
+			if self.enable_draw_rays==True:
+				draw_rays(self.ray_file)
 
 			if self.enable_draw_light_source==True:
 

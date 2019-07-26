@@ -38,7 +38,7 @@ from scan_item import scan_items_get_file
 from scan_item import scan_items_get_token
 from gui_util import tab_insert_row
 
-from util import str2bool
+from str2bool import str2bool
 
 import i18n
 _ = i18n.language.gettext
@@ -59,7 +59,7 @@ from open_save_dlg import open_as_filter
 from error_dlg import error_dlg
 from cal_path import get_sim_path
 from gtkswitch import gtkswitch
-from util import str2bool
+from str2bool import str2bool
 
 from gui_util import tab_move_up
 

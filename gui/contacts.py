@@ -59,7 +59,7 @@ from gui_util import tab_get_value
 from gui_util import tab_insert_row
 from gui_util import tab_remove
 
-from util import str2bool
+from str2bool import str2bool
 from error_dlg import error_dlg
 
 from global_objects import global_object_run

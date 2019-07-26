@@ -26,7 +26,7 @@
 #
 
 import os
-from util import str2bool
+from str2bool import str2bool
 from inp import inp_search_token_value
 from scan_item import scan_item_add
 from scan_item import scan_remove_file

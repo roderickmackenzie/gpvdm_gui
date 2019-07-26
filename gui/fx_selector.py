@@ -36,13 +36,27 @@ from tab import tab_class
 from PyQt5.QtCore import QSize, Qt 
 from PyQt5.QtWidgets import QWidget,QVBoxLayout,QToolBar,QSizePolicy,QAction,QTabWidget,QSystemTrayIcon,QMenu, QComboBox, QMenuBar, QLabel
 from PyQt5.QtGui import QIcon
+import operator
 
 from cal_path import get_sim_path
+
+class lam_file():
+	def __init__(self):
+		self.file=""
+		self.lam=0.0
+		self.layer=0
+	def __str__(self):
+		return str(self.lam)+"nm: layer "+str(self.layer)
+
+	def text(self):
+		return str(self.lam)+"nm: layer "+str(self.layer)
+		
 
 class fx_selector(QWidget):
 
 	def __init__(self):
 		QWidget.__init__(self)
+		self.thefiles=[]
 		self.dump_dir=os.path.join(get_sim_path(),"ray_trace")
 
 		self.layout=QVBoxLayout()
@@ -53,20 +67,17 @@ class fx_selector(QWidget):
 		self.layout.addWidget(self.cb)
 		self.setLayout(self.layout)
 		self.show()
-		self.start=""
-		self.end=""
 		self.show_all=False
 
-	def get_text(self):
-		out=self.cb.currentText()
-		out=out.split(" ")[0]
-		return out
+	def get_file_name(self):
+		txt=self.cb.currentText()
+		for i in range(0, len(self.thefiles)):
+			if str(self.thefiles[i])==txt:
+				return os.path.join(self.dump_dir,self.thefiles[i].file_name)
 
-	def file_name_set_start(self,start):
-		self.start=start
+		return "none"
 
-	def file_name_set_end(self,end):
-		self.end=end
+
 		
 	def find_modes(self,path):
 		result = []
@@ -88,34 +99,35 @@ class fx_selector(QWidget):
 		
 		if os.path.isdir(dump_dir)==True:
 			files=os.listdir(dump_dir)
+			files.sort()
 			for f in files:
 				if f.startswith("light_ray_"):
-					f=f[:-4]
-					f=f[10:]
-					#print(f)
-					result.append(f)
+					a=lam_file()
+					a.layer=f[10:11]
+					a.lam=f[12:-4]
+					a.file_name=f
+					
+					result.append(a)
 
 		return result
 
 	def update(self):
 		self.cb.blockSignals(True)
 
-		thefiles=self.find_modes(self.dump_dir)
-		thefiles.sort()
+		self.thefiles=self.find_modes(self.dump_dir)
 
-		if len(thefiles)==0:
+		if len(self.thefiles)==0:
 			self.setEnabled(False)
 		else:
 			self.setEnabled(True)
 
 		self.cb.clear()
-		if self.show_all==True:
-			self.cb.addItem("all")
-		for i in range(0, len(thefiles)):
-			path=os.path.join(self.dump_dir,self.start+str(thefiles[i])+self.end)
+
+		for i in range(0, len(self.thefiles)):
+			path=os.path.join(self.dump_dir,self.thefiles[i].file_name)
 			#print(path)
 			if os.path.isfile(path):
-				self.cb.addItem(str(thefiles[i])+" nm")
+				self.cb.addItem(str(self.thefiles[i]))
 		self.cb.setCurrentIndex(0)
 		self.cb.blockSignals(False)
 

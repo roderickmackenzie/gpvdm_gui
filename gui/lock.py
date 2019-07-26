@@ -44,7 +44,7 @@ from win_lin import running_on_linux
 from inp import inp_save
 from inp import inp_search_token_value
 from os.path import expanduser
-from util import str2bool
+from str2bool import str2bool
 import time
 from i18n import get_full_language
 from inp import inp_replace_token_value
@@ -72,8 +72,7 @@ from i18n import get_full_language
 #firewall-cmd --reload
 
 class lock():
-	def __init__(self,lock_on=False):
-		self.lock_on=lock_on
+	def __init__(self):
 		self.registered=False
 		self.uid=""
 		self.renew_date=0
@@ -107,9 +106,6 @@ class lock():
 			self.data_path=os.path.join(get_user_settings_dir(),"settings.inp")
 			#self.li_file=os.path.join(get_user_settings_dir(),"gpvdm_li.inp")
 
-		if self.lock_on==False:
-			self.registered=True
-			self.uid="LINUX_OPEN"
 
 		if self.load()==True:
 			if self.client_ver_from_lock!=self.reg_client_ver:
@@ -139,9 +135,10 @@ class lock():
 		lines=a.get(tx_string)
 
 	def debug_action(self,data):
-		p = Thread(target=self.debug_action_worker,args=(data,))
-		p.daemon = True
-		p.start()
+		if self.ping_server==True:
+			p = Thread(target=self.debug_action_worker,args=(data,))
+			p.daemon = True
+			p.start()
 
 	def debug(self):
 		self.server_check_user()
@@ -153,9 +150,10 @@ class lock():
 
 
 	def debug_tx_info(self):
-		p = Thread(target=self.debug)
-		p.daemon = True
-		p.start()	
+		if self.ping_server==True:
+			p = Thread(target=self.debug)
+			p.daemon = True
+			p.start()	
 
 
 
@@ -184,8 +182,7 @@ class lock():
 
 	def html(self):
 		text=""
-		if self.lock_on==True:
-			text=text+"UID:"+self.uid+"<br>"
+		text=text+"UID:"+self.uid+"<br>"
 
 		return text
 
@@ -236,6 +233,7 @@ class lock():
 			return False
 
 		lines=[]
+
 		lines=lock_load(self.data_path)
 		#print(lines)
 
@@ -259,12 +257,16 @@ class lock():
 
 		self.client_ver_from_lock=inp_search_token_value(lines, "#client_ver")
 
+		self.status=inp_search_token_value(lines, "#status")
 
 		val=inp_search_token_value(lines, "#ping_server")
 		if val!=False:
 			self.ping_server=str2bool(val)
 
-		self.status=inp_search_token_value(lines, "#status")
+		if self.status=="cluster":
+			self.ping_server=False
+
+
 
 		#print(lines,self.ping_server)
 
@@ -413,6 +415,12 @@ class lock():
 		if self.status=="full_version":
 			return False
 
+		if self.status=="cluster":
+			if round((self.renew_date/1000-time.time())/24/60/60)<0:
+				return True
+
+			return False
+
 		return True
 
 	def validate_key(self,key):
@@ -438,7 +446,7 @@ class lock():
 		return False
 
 
-my_lock=lock(lock_on=True)
+my_lock=lock()
 
 def get_lock():
 	global my_lock

@@ -32,7 +32,7 @@ import hashlib
 import glob
 from util_zip import zip_get_data_file
 from inp import inp_load_file
-from util import str2bool
+from str2bool import str2bool
 
 #search first 40 lines for dims
 def dat_file_load_info(output,lines):

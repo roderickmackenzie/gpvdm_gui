@@ -55,7 +55,7 @@ import numpy as np
 from util import distance_with_units
 
 from leftright import leftright
-from util import str2bool
+from str2bool import str2bool
 from gui_util import tab_get_value
 
 from file_watch import get_watch

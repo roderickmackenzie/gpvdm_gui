@@ -164,7 +164,7 @@ class epitaxy():
 		#shape files
 		for l in self.layers:
 			for s in l.shapes:
-				tab.append(s+".inp")
+				tab.append(s.file_name+".inp")
 
 		for i in range(0,len(files)):
 			if is_numbered_file(files[i],"shape")==True:

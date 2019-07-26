@@ -31,7 +31,7 @@ import os
 import shutil
 from PyQt5.QtCore import QTimer
 
-from util_zip import zip_lsdir
+import zipfile
 from cal_path import get_sim_path
 from inp import inp_getmtime
 from datetime import datetime
@@ -89,40 +89,68 @@ class file_watch():
 	def check_callbacks(self,changed_file):
 		for h in self.hooks:
 			#print(h.file_name,changed_file)
-			if  bool(re.match(h.file_name,changed_file))==True:
-				for c in h.call_backs:
-					c()
+			try:
+				if  bool(re.match(h.file_name,changed_file))==True:
+					for c in h.call_backs:
+						c()
+			except:
+				pass
 
-	def check_dir(self):
+	def check_zip_file(self,f):
+		zip_file=os.path.join(get_sim_path(),f)
+		if os.path.isfile(zip_file)==True:
+			zf = zipfile.ZipFile(zip_file, 'r')
+			my_list=zf.namelist()
+			zf.close()
+			#print("open")
+			self.check_files(my_list,open_zip_files=False)
+
+	def check_files(self,in_files,open_zip_files=True):
 		if self.disabled==True:
 			return
 
-		files=zip_lsdir(os.path.join(get_sim_path(),"sim.gpvdm"))
-		if files==False:
-			return
+		#if open_zip_files==False:
+		#	print("here",in_files)
 
-		for f in files:
+		for f in in_files:
 			if f not in self.files:
 				a=file_data()
 				a.file_name=f
 				a.time=inp_getmtime(os.path.join(get_sim_path(),f))
-				#print("add",f)
 				self.files.append(a)
+
+				if f=="sim.gpvdm" and open_zip_files==True:
+					self.check_zip_file(f)
 			else:
 				i=self.files.index(f)
 				file_time=inp_getmtime(os.path.join(get_sim_path(),f))
+				#if open_zip_files==False:
+				#	print("here",f,self.files[i].time,file_time)
 				if self.files[i].time!=file_time:
-					#print("changed",self.files[i].file_name,datetime.fromtimestamp(self.files[i].time),datetime.fromtimestamp(file_time))
+					#print("changed",f)	#print("changed",self.files[i].file_name,datetime.fromtimestamp(self.files[i].time),datetime.fromtimestamp(file_time))
 					#self.dump()
 					self.check_callbacks(self.files[i].file_name)
 
 					self.files[i].time=file_time
-				
+
+					if f=="sim.gpvdm" and open_zip_files==True:
+						self.check_zip_file(f)
+							
+
 		#self.dump()
 
+
+	def check_dir(self):
+		if os.path.isdir(get_sim_path())==True:
+			my_list=os.listdir(get_sim_path())
+			self.check_files(my_list)
+
+
 	def rebase(self):
+		print("rebase>>")
 		self.disabled=False
 		self.check_dir()
+
 
 	def add_call_back(self,file_name,function):
 		if file_name not in self.hooks:

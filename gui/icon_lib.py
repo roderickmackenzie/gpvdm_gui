@@ -30,7 +30,7 @@ import os
 from cal_path import get_icon_path
 from win_lin import running_on_linux
 from inp import inp_get_token_value
-from util import str2bool
+from str2bool import str2bool
 from inp import inp_load_file
 from cal_path import get_inp_file_path
 

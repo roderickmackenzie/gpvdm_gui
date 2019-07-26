@@ -34,7 +34,7 @@ from inp import inp_load_file
 from code_ctrl import enable_betafeatures
 
 from cal_path import get_sim_path
-from util import str2bool
+from str2bool import str2bool
 
 class mlayer():
 	def __init__(self):

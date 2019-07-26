@@ -35,6 +35,7 @@ import hashlib
 import glob
 from util_zip import zip_get_data_file
 from util_zip import zip_get_raw_data
+from str2bool import str2bool
 
 from math import pow
 
@@ -176,15 +177,6 @@ def numbers_to_latex(data):
 		out=out+"" #$
 
 	return out
-
-def str2bool(v):
-	if type(v) is bool:
-		return v
-	else:
-		if v.lower() in ("false","none"):
-			return False
-
-		return v.lower() in ("ja","yes", "true", "t", "1","right","complex")
 
 def pygtk_to_latex_subscript(in_string):
 	out_string=in_string.replace("<sub>","_{")

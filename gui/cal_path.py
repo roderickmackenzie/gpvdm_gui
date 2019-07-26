@@ -32,6 +32,7 @@ from pathlib import Path
 from win_lin import running_on_linux
 from gui_enable import gui_get
 from os.path import expanduser
+from str2bool import str2bool
 
 root_materials_path=None
 plugins_path=None
@@ -53,6 +54,8 @@ emission_base_path=None
 html_path=None
 cluster_path=None
 cluster_libs_path=None
+home_path=None
+use_gpvdm_local=None
 
 def subtract_paths(root,b_in):
 	a=root.replace("/","\\")
@@ -288,11 +291,29 @@ def get_spectra_path():
 
 
 def get_user_settings_dir():
-	ret=os.path.join(get_home_path(),"gpvdm_local")
+	global use_gpvdm_local
+	if use_gpvdm_local==None:
+		use_gpvdm_local=True
+		file_path=os.path.join(os.getcwd(),"config.inp")
 
-	if os.path.isdir(ret)==False:
-		os.makedirs(ret)
+		if os.path.isfile(file_path):
+			f=open(file_path, mode='r')
+			read_lines = f.read().split()
+			f.close()
+			for i in range(0,len(read_lines)):
+				read_lines[i]=read_lines[i].rstrip()
+			for i in range(0,len(read_lines)):
+				if read_lines[i]=="#use_gpvdm_local":
+					use_gpvdm_local=str2bool(read_lines[i+1])
+					break
 
+	if use_gpvdm_local==True:
+		ret=os.path.join(get_home_path(),"gpvdm_local")
+
+		if os.path.isdir(ret)==False:
+			os.makedirs(ret)
+	else:
+		return os.getcwd()
 	return ret
 
 def get_tmp_path():
@@ -399,11 +420,15 @@ def get_exe_args():
 		return ""
 
 def get_home_path():
-	path=str(Path.home())
-	if path.endswith("NTUSER.DAT")==True:
-		path=os.path.dirname(path)
-	return path
+	global home_path
+	if home_path==None:
+		home_path=str(Path.home())
+		if home_path.endswith("NTUSER.DAT")==True:
+			home_path=os.path.dirname(home_path)
 
+	return home_path
+
+	
 def get_desktop_path():
 	path=os.path.join(get_home_path(),"Desktop")
 	if os.path.isdir(path):
@@ -446,3 +471,7 @@ def find_light_source(path=None):
 
 
 	return ret
+
+def print_paths():
+	print("get_inp_file_path:",get_inp_file_path())
+

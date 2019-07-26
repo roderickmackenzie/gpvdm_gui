@@ -21,22 +21,25 @@
 #
 # 
 
-## @package gui_hooks
-#  Transmit infomration to running model.
+
+## @package str2bool
+#  str2bool
 #
 
-import sys
-import os
-from cal_path import get_icon_path
-from win_lin import running_on_linux
-from inp import inp_get_token_value
-from str2bool import str2bool
-from inp import inp_load_file
-from cal_path import get_sim_path
 
-def tx_to_core(data):
-	path=os.path.join(get_sim_path(),"tx.dat")
-	print("tx to core:"+path+" "+data)
-	f=open(path,"w")
-	f.write(data)
-	f.close()
+
+import os
+import shutil
+import re
+import hashlib
+import glob
+
+def str2bool(v):
+	if type(v) is bool:
+		return v
+	else:
+		if v.lower() in ("false","none"):
+			return False
+
+		return v.lower() in ("ja","yes", "true", "t", "1","right","complex")
+

@@ -40,7 +40,7 @@ from scan_item import scan_items_get_token
 
 from gpvdm_select import gpvdm_select
 
-from util import str2bool
+from str2bool import str2bool
 
 import i18n
 _ = i18n.language.gettext

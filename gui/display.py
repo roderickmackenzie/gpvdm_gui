@@ -48,7 +48,7 @@ from icon_lib import icon_get
 from help import help_window
 from gl_cmp import gl_cmp
 
-from util import str2bool
+from str2bool import str2bool
 from fx_selector import fx_selector
 
 from cal_path import get_sim_path
@@ -80,7 +80,7 @@ class display_widget(QWidget):
 		self.hbox.addWidget(self.display)
 	
 	def update_ray_file(self):
-		self.display.ray_file=os.path.join(get_sim_path(),"ray_trace","light_ray_"+self.fx_box.get_text()+".dat")
+		self.display.ray_file=self.fx_box.get_file_name()
 
 	def __init__(self):
 		QWidget.__init__(self)
@@ -124,8 +124,6 @@ class display_widget(QWidget):
 		toolbar.addAction(self.tb_config)
 
 		self.fx_box=fx_selector()
-		self.fx_box.file_name_set_start("light_ray_") 
-		self.fx_box.file_name_set_end(".dat")
 		self.fx_box.update()
 
 		self.fx_box.cb.currentIndexChanged.connect(self.fx_box_changed)
@@ -170,7 +168,7 @@ class display_widget(QWidget):
 
 	def fx_box_changed(self):
 		self.update_ray_file()
-		self.display.update()
+		self.display.force_redraw()
 		#print("rod",self.display.ray_file)
 		
 

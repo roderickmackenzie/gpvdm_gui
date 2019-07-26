@@ -44,7 +44,7 @@ from inp import inp_save
 from inp import inp_load_file
 from icon_lib import icon_get
 from error_dlg import error_dlg
-from util import str2bool
+from str2bool import str2bool
 
 
 class dump_select(QWidget):

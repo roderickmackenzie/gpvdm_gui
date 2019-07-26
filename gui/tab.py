@@ -30,7 +30,7 @@ import os
 from token_lib import tokens
 from undo import undo_list_class
 from tab_base import tab_base
-from util import str2bool
+from str2bool import str2bool
 from inp import inp_load_file
 from inp import inp_update_token_value
 from inp import inp_get_token_value
@@ -93,6 +93,7 @@ class tab_line():
 		self.edit_box=None
 		self.units=None
 		self.widget=""
+		self.hide_on_true_token="none"
 
 class tab_class(QWidget,tab_base):
 
@@ -121,10 +122,31 @@ class tab_class(QWidget,tab_base):
 			self.dos_editor=dos_editor(self.file_name)
 			self.dos_editor.show()
 
-		if token=="#dos_photon_generation":
-			from pl_main import pl_main
-			self.dos_editor=pl_main()
-			self.dos_editor.show()
+	def hide_show_widgets(self):
+		for w in self.widget_list:
+			if w.hide_on_true_token!="none":			
+				for ww in self.widget_list:
+					if ww.token==w.hide_on_true_token:
+						if str2bool(ww.edit_box.get_value())==True:
+							w.edit_box.setVisible(False)
+							w.units.setVisible(False)
+							w.label.setVisible(False)
+						else:
+							w.edit_box.setVisible(True)
+							w.units.setVisible(True)
+							w.label.setVisible(True)
+
+			if w.hide_on_false_token!="none":			
+				for ww in self.widget_list:
+					if ww.token==w.hide_on_false_token:
+						if str2bool(ww.edit_box.get_value())==False:
+							w.edit_box.setVisible(False)
+							w.units.setVisible(False)
+							w.label.setVisible(False)
+						else:
+							w.edit_box.setVisible(True)
+							w.units.setVisible(True)
+							w.label.setVisible(True)
 
 	def callback_edit(self,token,widget,unit):
 		if token=="#dos_photon_generation":
@@ -179,6 +201,7 @@ class tab_class(QWidget,tab_base):
 
 		help_window().help_set_help(["document-save-as","<big><b>Saved to disk</b></big>\n"])
 		self.last_edit_time=inp_getmtime(self.file_name)
+		self.hide_show_widgets()
 		self.changed.emit()
 
 	def help(self):
@@ -418,6 +441,8 @@ class tab_class(QWidget,tab_base):
 					a.edit_box=edit_box
 					a.units=unit
 					a.widget=result.widget
+					a.hide_on_true_token=result.hide_on_true_token
+					a.hide_on_false_token=result.hide_on_false_token
 
 					self.widget_list.append(a)
 					self.tab.addWidget(description,widget_number,0)
@@ -452,7 +477,7 @@ class tab_class(QWidget,tab_base):
 		self.hbox.addWidget(self.scroll)
 		
 		self.setLayout(self.hbox)
-
+		self.hide_show_widgets()
 		get_watch().add_call_back(self.file_name,self.callback_check_edited)
 
 

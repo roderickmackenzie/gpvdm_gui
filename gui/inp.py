@@ -44,7 +44,7 @@ from util_zip import archive_isfile
 from util_zip import zip_lsdir
 
 from cal_path import get_sim_path
-from util import str2bool
+from str2bool import str2bool
 
 import hashlib
 from util_zip import archive_get_file_time
@@ -267,20 +267,27 @@ def inp_insert_token(file_path, token_to_insert_after, token, value, archive="si
 	lines=inp_load_file(file_path,archive=archive)
 	if lines==False:
 		return False
+	if token_to_insert_after==False:
+		new_lines=[]
+		new_lines.append(token)
+		new_lines.append(value)
+		new_lines.extend(lines)
+		lines_out=new_lines
+		print(lines_out)
+	else:
+		count=3
+		for l in lines:
 
-	count=3
-	for l in lines:
+			lines_out.append(l)
 
-		lines_out.append(l)
+			if l==token_to_insert_after:
+				count=0
 
-		if l==token_to_insert_after:
-			count=0
+			if count==1:
+				lines_out.append(token)
+				lines_out.append(value)
 
-		if count==1:
-			lines_out.append(token)
-			lines_out.append(value)
-
-		count=count+1
+			count=count+1
 	
 	#print(lines_out)	
 	inp_save(file_path,lines_out,archive=archive,id=id)

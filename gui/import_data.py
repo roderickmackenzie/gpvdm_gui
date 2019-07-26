@@ -68,7 +68,7 @@ from inp import inp_get_token_value_from_list
 
 from ribbon_import import ribbon_import
 
-from util import str2bool
+from str2bool import str2bool
 
 articles = []
 mesh_articles = []

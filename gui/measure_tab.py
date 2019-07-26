@@ -37,7 +37,7 @@ from cal_path import get_exe_command
 from icon_lib import icon_get
 from scan_item import scan_items_get_file
 from scan_item import scan_items_get_token
-from util import str2bool
+from str2bool import str2bool
 
 from scan_item import scan_items_lookup_item
 from gui_util import tab_move_up

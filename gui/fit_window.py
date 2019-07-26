@@ -63,7 +63,7 @@ from gui_util import dlg_get_text
 
 from fit_progress import fit_progress
 from inp import inp_get_token_value
-from util import str2bool
+from str2bool import str2bool
 
 from util import wrap_text
 from cal_path import get_sim_path

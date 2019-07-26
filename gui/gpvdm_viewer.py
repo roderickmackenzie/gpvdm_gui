@@ -59,7 +59,7 @@ from inp import inp_get_token_value_from_list
 from util import isfiletype
 from win_lin import desktop_open
 
-from util import str2bool
+from str2bool import str2bool
 
 from plot_gen import plot_gen
 

@@ -35,7 +35,7 @@ class my_data():
 	token=""
 	units=""
 	info=""
-	def __init__(self,file_name,a,b,c,e,f,widget,defaults=None,units_widget="QLabel",min=None,max=None,hidden=False):
+	def __init__(self,file_name,a,b,c,e,f,widget,defaults=None,units_widget="QLabel",min=None,max=None,hidden=False,hide_on_true_token="none",hide_on_false_token="none"):
 		self.file_name=file_name
 		self.token=a
 		self.units=b
@@ -46,6 +46,9 @@ class my_data():
 		self.widget=widget
 		self.units_widget=units_widget
 		self.hidden=hidden
+		self.hide_on_true_token=hide_on_true_token
+		self.hide_on_false_token=hide_on_false_token
+
 		self.min=min
 		self.max=max
 
@@ -331,7 +334,6 @@ def build_token_lib():
 	#ray
 	lib.append(my_data("ray.inp","#ray_wavelength_points","au",_("Wavelength points"),"e",1.0,"QLineEdit"))
 	lib.append(my_data("ray.inp","#ray_auto_run",_("True/False"),_("Autorun ray tracer"),"e",1.0,"gtkswitch"))
-	lib.append(my_data("ray.inp","#ray_input_spectrum",_("Edit"),_("Emission spectra"),"e",1.0,"gpvdm_select_emission" ,units_widget="QPushButton"))
 
 	lib.append(my_data("ray.inp","#ray_theta_steps","au",_("Theta steps"),"e",1.0,"QLineEdit"))
 	lib.append(my_data("ray.inp","#ray_theta_start","Degrees",_("Theta start"),"e",1.0,"QLineEdit"))
@@ -362,12 +364,18 @@ def build_token_lib():
 
 	#pl?.inp
 	lib.append(my_data("","#pl_enabled",_("True/False"),_("Turn on luminescence"),"e",1.0,"gtkswitch"))
-	lib.append(my_data("","#pl_fe_fh","0.0-1.0",_("n_{free} to p_{free} photon generation efficiency"),"e",1.0,"QLineEdit"))
-	lib.append(my_data("","#pl_fe_te","0.0-1.0",_("n_{free} to n_{trap} photon generation efficiency"),"e",1.0,"QLineEdit"))
-	lib.append(my_data("","#pl_te_fh","0.0-1.0",_("n_{trap} to p_{free} photon generation efficiency"),"e",1.0,"QLineEdit"))
-	lib.append(my_data("","#pl_th_fe","0.0-1.0",_("p_{trap} to n_{free} photon generation efficiency"),"e",1.0,"QLineEdit"))
-	lib.append(my_data("","#pl_fh_th","0.0-1.0",_("p_{free} to p_{trap} photon generation efficiency"),"e",1.0,"QLineEdit"))
+	lib.append(my_data("","#pl_fe_fh","0.0-1.0",_("n_{free} to p_{free} photon generation efficiency"),"e",1.0,"QLineEdit", hide_on_true_token="#pl_use_experimental_emission_spectra"))
+	lib.append(my_data("","#pl_fe_te","0.0-1.0",_("n_{free} to n_{trap} photon generation efficiency"),"e",1.0,"QLineEdit", hide_on_true_token="#pl_use_experimental_emission_spectra"))
+	lib.append(my_data("","#pl_te_fh","0.0-1.0",_("n_{trap} to p_{free} photon generation efficiency"),"e",1.0,"QLineEdit", hide_on_true_token="#pl_use_experimental_emission_spectra"))
+	lib.append(my_data("","#pl_th_fe","0.0-1.0",_("p_{trap} to n_{free} photon generation efficiency"),"e",1.0,"QLineEdit", hide_on_true_token="#pl_use_experimental_emission_spectra"))
+	lib.append(my_data("","#pl_fh_th","0.0-1.0",_("p_{free} to p_{trap} photon generation efficiency"),"e",1.0,"QLineEdit", hide_on_true_token="#pl_use_experimental_emission_spectra"))
+	lib.append(my_data("","#pl_input_spectrum",_("Edit"),_("Experimental emission spectra"),"e",1.0,"gpvdm_select_emission" ,units_widget="QPushButton", hide_on_false_token="#pl_use_experimental_emission_spectra"))
+	lib.append(my_data("","#pl_experimental_emission_efficiency","0.0-1.0",_("Experimental emission efficiency"),"e",1.0,"QLineEdit", hide_on_false_token="#pl_use_experimental_emission_spectra"))
+	lib.append(my_data("","#pl_emission_enabled",_("True/False"),_("Emission enabled from this layer"),"e",1.0,"gtkswitch"))
 
+#pl_experimental_emission_efficiency
+
+	lib.append(my_data("","#pl_use_experimental_emission_spectra",_("True/False"),_("Use experimental emission spectra"),"e",1.0,"gtkswitch"))
 	#fxdomain?.inp
 	lib.append(my_data("","#fxdomain_Rload","Ohms",_("Load resistor"),"e",1.0,"QLineEdit"))
 	lib.append(my_data("","#fxdomain_points","au",_("fx domain mesh points"),"e",1.0,"QLineEdit"))

@@ -30,7 +30,7 @@ from inp import inp_load_file
 from inp import inp_sum_items
 from inp import inp_search_token_value
 from inp import inp_update_token_value
-from util import str2bool
+from str2bool import str2bool
 class mesh_dump_ctl(gtk.VBox):
 
 	def scroll(self, adj):

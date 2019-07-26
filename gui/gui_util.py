@@ -53,7 +53,7 @@ from cal_path import get_ui_path
 from icon_lib import icon_get
 
 
-from util import str2bool
+from str2bool import str2bool
 
 class dlg_get_text():
 	def __init__(self,text,default,image):

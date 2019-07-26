@@ -76,7 +76,7 @@ from lock import get_lock
 
 from help import help_window
 from QAction_lock import QAction_lock
-from util import str2bool
+from str2bool import str2bool
 
 class gQAction(QAction_lock):
 	clicked=pyqtSignal(QAction_lock)

@@ -27,7 +27,7 @@
 
 import sys
 import os
-from util import str2bool
+from str2bool import str2bool
 from inp import inp_get_token_value
 import threading
 import multiprocessing

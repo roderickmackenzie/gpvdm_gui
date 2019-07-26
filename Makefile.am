@@ -81,6 +81,8 @@ gpvdm_core$(EXEEXT):
 install-data-hook:
 	pwd
 	cp ui $(DESTDIR)$(datadir)/gpvdm_gui/ui -rf
+	chmod +x $(DESTDIR)$(pkgdatadir)/gui/gpvdm.py
+	chmod +x $(DESTDIR)$(pkgdatadir)/gui/gpvdm_tool.py
 
 uninstall-hook:
 	-rm $(DESTDIR)$(pkgdatadir) -rf

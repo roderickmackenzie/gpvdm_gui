@@ -42,7 +42,7 @@ from gpvdm_open import gpvdm_open
 from cal_path import get_exe_command
 from icon_lib import icon_get
 
-from util import str2bool
+from str2bool import str2bool
 
 #scan_io
 from scan_io import scan_clean_dir

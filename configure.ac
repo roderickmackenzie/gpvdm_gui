@@ -22,6 +22,16 @@ AC_ARG_ENABLE(nodesktop, "used to disable desktop files for free desktop intergr
 [AM_CONDITIONAL([INCLUDE_DESKTOP],[true])]
 )
 
+AC_ARG_ENABLE(noimages, "used to disable compilation of images",
+[AM_CONDITIONAL([INCLUDE_IMAGES],[false])],
+[AM_CONDITIONAL([INCLUDE_IMAGES],[true])]
+)
+
+AC_ARG_ENABLE(nohtml, "used to disable compilation of html",
+[AM_CONDITIONAL([INCLUDE_HTML],[false])],
+[AM_CONDITIONAL([INCLUDE_HTML],[true])]
+)
+
 AC_SUBST(INSTALL_LANG,"")
 AC_SUBST(WIN_ICON, "" )
 AC_SUBST(WIN_RES_FILE, "" )
@@ -111,4 +121,4 @@ m4_include([config_files.m4])
 
 AC_OUTPUT
 
-AC_MSG_NOTICE([gpvdm_gui build finished.])
+AC_MSG_NOTICE([gpvdm_gui build finished (gpvdm_build_finished).])

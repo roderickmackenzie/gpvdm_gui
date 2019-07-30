@@ -2,9 +2,12 @@ AUTOMAKE_OPTIONS = foreign
 EXTRA_DIST = config.rpath m4/ChangeLog 
 SUBDIRS = @BUILD_DIRS@
 
+if INCLUDE_HTML
 htmlsrcdir = $(pkgdatadir)/html
 htmlsrc_DATA = html/*.html
+endif
 
+if INCLUDE_IMAGES
 imagedir = $(pkgdatadir)/images
 image_DATA = images/*.jpg images/*.png  images/*.ico
 
@@ -40,6 +43,7 @@ icon512_DATA = images/icons/512x512/*.png
 
 iconsdir=$(datadir)/icons/hicolor/scalable/mimetypes
 icons_DATA=$(srcdir)/images/icons/scalable/*.svg
+endif
 
 cssdir = $(pkgdatadir)/css
 css_DATA = css/*.css
@@ -72,10 +76,10 @@ clean-local:
 	rm ./gui/__pycache__/* -f
 	rm autom4te.cache -rf
 	find . -type f -name '.~lock*' -delete
+	@echo "(gpvdm_build_finished)"
 	
-	
-gpvdm_core$(EXEEXT):
-	@printf ""
+all:
+	@echo "(gpvdm_build_finished)"
 
 
 install-data-hook:
@@ -83,6 +87,7 @@ install-data-hook:
 	cp ui $(DESTDIR)$(datadir)/gpvdm_gui/ui -rf
 	chmod +x $(DESTDIR)$(pkgdatadir)/gui/gpvdm.py
 	chmod +x $(DESTDIR)$(pkgdatadir)/gui/gpvdm_tool.py
+	@echo "(gpvdm_build_finished)"
 
 uninstall-hook:
 	-rm $(DESTDIR)$(pkgdatadir) -rf

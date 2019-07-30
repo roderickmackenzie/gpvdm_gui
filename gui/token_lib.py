@@ -25,7 +25,6 @@
 #  A library of all tokens used in the model.
 #
 
-from lock import get_lock
 import re
 
 import i18n

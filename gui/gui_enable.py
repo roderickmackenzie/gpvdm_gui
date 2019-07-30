@@ -52,3 +52,7 @@ def set_gui(value):
 def gui_get():
 	global enabled
 	return enabled
+
+class QWidget():
+	def __init__(self):
+		return

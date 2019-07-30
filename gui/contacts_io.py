@@ -27,16 +27,22 @@
 
 import os
 
-from PyQt5.QtCore import pyqtSignal
-from PyQt5.QtWidgets import QWidget
-
 from inp import inp_load_file
 from inp import inp_search_token_value
 from inp import inp_save
 
 from str2bool import str2bool
 from cal_path import get_sim_path
-from file_watch import get_watch
+
+
+from gui_enable import gui_get
+if gui_get()==True:
+	from file_watch import get_watch
+	from PyQt5.QtCore import pyqtSignal
+	from PyQt5.QtWidgets import QWidget
+else:
+	from gui_enable import QWidget
+
 
 class segment():
 	def __init__(self):
@@ -131,10 +137,12 @@ def contacts_save():
 
 		#contacts_dump()
 class contacts_io(QWidget):
-	changed = pyqtSignal()
+	if gui_get()==True:
+		changed = pyqtSignal()
 
 	def init_watch(self):
-		get_watch().add_call_back("contacts.inp",self.em)
+		if gui_get()==True:
+			get_watch().add_call_back("contacts.inp",self.em)
 
 	def em(self):
 		self.load()

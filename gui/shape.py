@@ -31,7 +31,9 @@ from inp import inp_search_token_value
 from inp import inp_search_token_array
 from cal_path import get_sim_path
 from str2bool import str2bool
-from file_watch import get_watch
+from gui_enable import gui_get
+if gui_get()==True:
+	from file_watch import get_watch
 
 class shape():
 	def __init__(self):
@@ -108,7 +110,8 @@ class shape():
 
 		self.file_name=file_name
 		self.do_load()
-		get_watch().add_call_back(self.file_name+".inp",self.do_load)
+		if gui_get()==True:
+			get_watch().add_call_back(self.file_name+".inp",self.do_load)
 		
 
 	def dump(self):

@@ -35,7 +35,7 @@ from PyQt5.QtOpenGL import QGLWidget
 from PyQt5.QtWidgets import QMenu
 from gl_color import set_color
 from gl_lib import val_to_rgb
-from shape_editor import shape_editor
+from object_editor import object_editor
 
 
 from PyQt5.QtCore import QTimer
@@ -130,7 +130,7 @@ class gl_layer_editor():
 		index=epi.layer_to_index(name)
 		
 		print(">>>>>>>loading shapes for >>>>",index)
-		self.shape_edit=shape_editor()
+		self.shape_edit=object_editor()
 		self.shape_edit.load(index)
 		self.shape_edit.show()
 		#epi.save()

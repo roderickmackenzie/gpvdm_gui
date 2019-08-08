@@ -183,7 +183,6 @@ from file_watch import get_watch
 if open_gl_ok==True:		
 	class glWidget(QGLWidget,gl_move_view,gl_mesh,gl_layer_editor,gl_cords,gl_base_widget,gl_main_menu):
 
-
 		def __init__(self, parent):
 			QGLWidget.__init__(self, parent)
 			gl_move_view.__init__(self)
@@ -554,7 +553,6 @@ if open_gl_ok==True:
 
 
 		def render(self):
-
 			self.update_real_to_gl_mul()
 			x=scale_m2screen_x(0)
 			y=0.0#scale_m2screen_y(0)
@@ -600,13 +598,6 @@ if open_gl_ok==True:
 			glColor3f( 1.0, 1.5, 0.0 )
 			glPolygonMode(GL_FRONT, GL_FILL);
 
-			threed_files=glob.glob("*.3d")
-			if len(threed_files)>0:
-				gl_save_load()
-				gl_save_draw()
-				draw_grid()
-				return
-
 			#glClearColor(0.92, 0.92, 0.92, 0.5) # Clear to black.
 
 			lines=[]
@@ -614,6 +605,7 @@ if open_gl_ok==True:
 			self.pos=0.0
 			
 			self.draw_cords()
+
 			if self.draw_electrical_mesh==True:
 				self.draw_mesh()
 
@@ -694,6 +686,7 @@ if open_gl_ok==True:
 			x=scale_m2screen_x(0)
 			z=scale_m2screen_z(0)
 
+			print("here------->>",self.enable_draw_rays)
 			if self.enable_draw_rays==True:
 				draw_rays(self.ray_file)
 

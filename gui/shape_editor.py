@@ -22,7 +22,7 @@
 # 
 
 ## @package shape_editor
-#  An editor for shape files
+#  The shape editor
 #
 
 import os
@@ -38,145 +38,92 @@ from PyQt5.QtGui import QPainter,QIcon
 import webbrowser
 
 from help import help_window
+
+from plot_widget import plot_widget
+from win_lin import desktop_open
+
+from ref import get_ref_text
 from QWidgetSavePos import QWidgetSavePos
-from css import css_apply
 
-from global_objects import global_object_run
-from epitaxy import get_epi
-from util import wrap_text
-from inp import inp_copy_file
+from ribbon_shape import ribbon_shape
 
-from shape import shape
-from cal_path import get_sim_path
-from inp import inp_get_token_value
-from inp import inp_update_token_value
-from inp import inp_ls_seq_files
-from inp import inp_remove_file
+from import_data import import_data
 
-from gui_util import dlg_get_text
-from error_dlg import error_dlg
-from gui_util import yes_no_dlg
-from cal_path import get_default_material_path
+from ref import ref_window
+from ref import get_ref_text
+from ref_io import ref
+
+from gl import glWidget
+from shape_import import shape_import
 
 articles = []
 mesh_articles = []
 
 class shape_editor(QWidgetSavePos):
 
+	def changed_click(self):
+
+		if self.notebook.tabText(self.notebook.currentIndex()).strip()==_("Refractive index"):
+			text=get_ref_text(os.path.join(self.path,"n.ref"))
+			if text==None:
+				text=""
+			help_window().help_set_help(["n.png",_("<big><b>Refractive index</b></big><br>"+text)])
+
 	def callback_help(self):
-		webbrowser.open('http://www.gpvdm.com/man/index.html')
+		webbrowser.open("https://www.gpvdm.com/docs.html")
 
-	def __init__(self):
-		QWidgetSavePos.__init__(self,"shape_editor")
-		self.setMinimumSize(40, 200)
-		self.setWindowIcon(icon_get("diode"))
+	def callback_import_image(self):
+		self.shape_import=shape_import(self.path)
+		self.shape_import.show()
 
-		self.setWindowTitle(_("Micro lens editor")+"  (https://www.gpvdm.com)") 
+	def __init__(self,path):
+		QWidgetSavePos.__init__(self,"spectra_main")
+		self.path=path
+		self.setMinimumSize(900, 600)
+		self.setWindowIcon(icon_get("shape"))
+
+		self.setWindowTitle(_("Shape editor")+" (https://www.gpvdm.com)"+" "+os.path.basename(self.path)) 
 		
 
 		self.main_vbox = QVBoxLayout()
 
-		toolbar=QToolBar()
-		toolbar.setIconSize(QSize(48, 48))
+		self.ribbon=ribbon_shape()
+		
 
-		self.tb_new = QAction(icon_get("document-new"), wrap_text("New shape",2), self)
-		self.tb_new.triggered.connect(self.callback_add_shape)
+		#self.ribbon.import_data.secure_click.connect(self.callback_import)
+		#self.ribbon.tb_ref.triggered.connect(self.callback_ref)
+		self.ribbon.tb_import.triggered.connect(self.callback_import_image)
 
-		toolbar.addAction(self.tb_new)
-
-		self.tb_delete = QAction(icon_get("edit-delete"), wrap_text("Delete shape",3), self)
-		self.tb_delete.triggered.connect(self.callback_delete_shape)
-
-		toolbar.addAction(self.tb_delete)
-
-		self.tb_rename = QAction(icon_get("rename"), wrap_text("Rename shape",3), self)
-		self.tb_rename.triggered.connect(self.callback_rename_shape)
-		toolbar.addAction(self.tb_rename)
+		self.ribbon.help.triggered.connect(self.callback_help)
 
 
-		spacer = QWidget()
-		spacer.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
-		toolbar.addWidget(spacer)
-
-
-		self.help = QAction(icon_get("help"), _("Help"), self)
-		self.help.setStatusTip(_("Close"))
-		self.help.triggered.connect(self.callback_help)
-		toolbar.addAction(self.help)
-
-		self.main_vbox.addWidget(toolbar)
-
+		self.main_vbox.addWidget(self.ribbon)
 
 		self.notebook = QTabWidget()
-		css_apply(self.notebook,"tab_default.css")
+
 		self.notebook.setMovable(True)
 
 		self.main_vbox.addWidget(self.notebook)
 
 
+		self.three_d_shape=glWidget(self)
+		self.three_d_shape.draw_electrical_mesh=False
+		self.three_d_shape.enable_draw_device=False
+		self.three_d_shape.draw_ray_mesh=True
+		self.three_d_shape.enable_draw_light_source=False
+		self.three_d_shape.enable_draw_rays=False
+		self.notebook.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+		self.ribbon.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Minimum)
+		#self.alpha.init(enable_toolbar=False)
+		#self.alpha.set_labels([_("Spectra")])
+		#self.alpha.load_data([fname])
+
+		#self.alpha.do_plot()
+		self.notebook.addTab(self.three_d_shape,_("Shape"))
+
 		self.setLayout(self.main_vbox)
-
-	def load(self,layer_index):
-		self.layer_index=layer_index
-		shapes=get_epi().get_shapes(self.layer_index)
-		for s in shapes:
-			my_tab=tab_class()
-			shape_name=inp_get_token_value(s.file_name+".inp", "#shape_name")
-
-			my_tab.init(s.file_name+".inp",s.file_name+".inp")
-			self.notebook.addTab(my_tab,shape_name)	
-
-	def callback_add_shape(self):
-		new_filename=get_epi().new_shape_file()+".inp"
-		orig_filename=os.path.join(get_default_material_path(),"shape.inp")
-		inp_copy_file(os.path.join(get_sim_path(),new_filename),os.path.join(get_sim_path(),orig_filename))
-
-		my_shape=shape()
-		my_shape.load(new_filename)
-		get_epi().layers[self.layer_index].shapes.append(my_shape)
-		get_epi().save()
-
-		shape_name=inp_get_token_value(new_filename, "#shape_name")
-
-		my_tab=tab_class()
-		my_tab.init(new_filename,new_filename)
-		self.notebook.addTab(my_tab,shape_name)
-		global_object_run("gl_force_redraw")
+		
+		self.notebook.currentChanged.connect(self.changed_click)
 
 
-	def callback_rename_shape(self):
-		tab = self.notebook.currentWidget()
-		name=inp_get_token_value(tab.file_name, "#shape_name")
-
-		new_sim_name=dlg_get_text( "Rename the shape:", name,"rename.png")
-
-		new_sim_name=new_sim_name.ret
-
-		if new_sim_name!=None:
-			inp_update_token_value(tab.file_name, "#shape_name", new_sim_name)
-			index=self.notebook.currentIndex() 
-			self.notebook.setTabText(index, new_sim_name)
-
-
-	def callback_delete_shape(self):
-		files=inp_ls_seq_files(os.path.join(get_sim_path(),"sim.gpvdm"),"shape")
-
-		tab = self.notebook.currentWidget()
-		name=inp_get_token_value(tab.file_name, "#shape_name")
-
-		response=yes_no_dlg(self,"Do you really want to delete the file: "+name)
-
-		if response == True:
-			inp_remove_file(os.path.join(get_sim_path(),tab.file_name))
-
-			index=self.notebook.currentIndex() 
-			self.notebook.removeTab(index)
-
-			for i in range(0,len(get_epi().layers[self.layer_index].shapes)):
-				if get_epi().layers[self.layer_index].shapes[i].file_name+".inp"==tab.file_name:
-					get_epi().layers[self.layer_index].shapes.pop(i)
-					get_epi().save()
-					break
-
-		global_object_run("gl_force_redraw")
 

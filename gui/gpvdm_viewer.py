@@ -440,6 +440,9 @@ class gpvdm_viewer(QListWidget):
 						if dir_type=="spectra":
 							itm.file_name=fl
 							itm.icon="spectra"
+						elif dir_type=="shape":
+							itm.file_name=fl
+							itm.icon="shape"
 						elif dir_type=="snapshots":
 							itm.file_name=fl
 							itm.icon="cover_flow"
@@ -707,6 +710,11 @@ class gpvdm_viewer(QListWidget):
 				from spectra_main import spectra_main
 				self.mat_window=spectra_main(full_path)
 				self.mat_window.show()
+				return
+			if dir_type=="shape":
+				from shape_editor import shape_editor
+				self.shape_window=shape_editor(full_path)
+				self.shape_window.show()
 				return
 			if dir_type=="light":
 				from optics import class_optical 

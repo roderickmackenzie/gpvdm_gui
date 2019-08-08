@@ -223,6 +223,9 @@ from cal_path import get_base_material_path
 from cal_path import get_base_emission_path
 from cal_path import get_emission_path
 
+from cal_path import get_base_shape_path
+from cal_path import get_shape_path
+
 #encrypt_file("encode.dat","one.txt","hello")
 #decrypt_file("decode.dat","encode.dat","hello")
 #ddad
@@ -643,6 +646,9 @@ class gpvdm_main_window(QMainWindow):
 
 			if os.path.isdir(get_emission_path())==False:
 				clone_materials(get_emission_path(), get_base_emission_path(),"emission")
+
+			if os.path.isdir(get_shape_path())==False:
+				clone_materials(get_shape_path(), get_base_shape_path(),"shape")
 
 			if os.path.isdir(get_spectra_path())==False:
 				clone_spectras(get_spectra_path())

@@ -253,7 +253,7 @@ def tree_gen_random_files(sim_path,flat_simulation_list,program_list,base_dir):
 				return False
 
 			tree_apply_duplicate(cur_dir,program_list)
-
+			
 			archive_compress(os.path.join(cur_dir,"sim.gpvdm"))
 
 			flat_simulation_list.append(cur_dir)
@@ -297,7 +297,6 @@ def tree(flat_simulation_list,program_list,tree_items,base_dir,level,path,var_to
 			config_file=os.path.join(cur_dir,"sim.gpvdm")
 			if os.path.isfile(config_file)==False:	#Don't build a simulation over something that exists already
 				copy_simulation(base_dir,cur_dir)
-
 				os.chdir(cur_dir)
 				if tree_apply_constant(cur_dir,program_list)==False:
 					return False

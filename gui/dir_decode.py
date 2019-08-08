@@ -54,6 +54,8 @@ def get_dir_type(path):
 			return "material"
 		elif token=="spectra":
 			return "spectra"
+		elif token=="shape":
+			return "shape"
 		elif token=="emission":
 			return "emission"
 		else:

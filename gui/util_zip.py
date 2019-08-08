@@ -156,17 +156,16 @@ def zip_get_data_file(file_name):
 	return [found,lines]
 
 ## Replace a file in an archive.
-def replace_file_in_zip_archive(zip_file_name,target,lines,mode="l",delete_first=True):
+def replace_file_in_zip_archive(zip_file_name,target,lines,delete_first=True):
 	if os.path.isfile(zip_file_name)==True:
 		if delete_first==True:
 			zip_remove_file(zip_file_name,target)
 
 		zf = zipfile.ZipFile(zip_file_name, 'a',zipfile.ZIP_DEFLATED)
 
-		if mode=="l":
+		if type(lines)==list:
 			build='\n'.join(lines)
-
-		if mode=="b":
+		else:
 			build=lines
 
 		zf.writestr(target, build)
@@ -254,11 +253,15 @@ def write_lines_to_archive(archive_path,file_name,lines,mode="l",dest="archive")
 			dump=lines
 			
 		f=open(file_path, mode='wb')
-		lines = f.write(str.encode(dump))
+		if mode=="l":
+			lines = f.write(str.encode(dump))
+		if mode=="b":
+			lines = f.write(dump)
+
 		f.close()
 		return True
 	else:
-		return replace_file_in_zip_archive(archive_path,file_name,lines,mode=mode)
+		return replace_file_in_zip_archive(archive_path,file_name,lines)
 
 ## Move all .inp files into an archive, and remove them from the simulation directory.
 def archive_compress(archive_path):
@@ -271,7 +274,7 @@ def archive_compress(archive_path):
 		for file_name in os.listdir(dir_name):
 			full_name=os.path.join(dir_name,file_name)
 			if file_name.endswith(".inp")==True:
-				lines=read_lines_from_archive(archive_path,file_name)
+				lines=read_lines_from_archive(archive_path,file_name,mode="b")
 				os.remove(full_name)
 				replace_file_in_zip_archive(archive_path,file_name,lines,delete_first=False)
 

@@ -57,8 +57,8 @@ def gpvdm_clone(path,src_archive="",copy_dirs=False,dest="archive"):
 
 	for i in range(0,len(files)):
 		if files[i].endswith(".inp"):
-			lines=read_lines_from_archive(src_archive,files[i])
-			write_lines_to_archive(dest_archive,files[i],lines,dest=dest)
+			lines=read_lines_from_archive(src_archive,files[i],mode="b")
+			write_lines_to_archive(dest_archive,files[i],lines,dest=dest,mode="b")
 
 
 	if copy_dirs==True:

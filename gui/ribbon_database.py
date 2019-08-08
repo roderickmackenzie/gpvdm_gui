@@ -62,9 +62,14 @@ from gui_util import dlg_get_text
 from clone_materials import clone_material
 
 from cal_path import get_emission_path
-from cal_path import get_base_material_path
-from cal_path import get_base_spectra_path
 from cal_path import get_base_emission_path
+
+from cal_path import get_base_material_path
+
+from cal_path import get_base_spectra_path
+
+from cal_path import get_shape_path
+from cal_path import get_base_shape_path
 
 from clone import clone_spectra
 from error_dlg import error_dlg
@@ -108,6 +113,10 @@ class ribbon_database(QToolBar):
 		self.emission = QAction(icon_get("pl"), _("Emission\ndatabase"), self)
 		self.emission.triggered.connect(self.callback_configure_emission)
 		self.addAction(self.emission)
+
+		self.shape = QAction(icon_get("shape"), _("Shape\ndatabase"), self)
+		self.shape.triggered.connect(self.callback_configure_shape)
+		self.addAction(self.shape)
 
 		self.lasers_window=None
 
@@ -204,6 +213,14 @@ class ribbon_database(QToolBar):
 		self.new_emission = QAction_lock("add_emission", wrap_text(_("Add Spectra"),8), self,locked=True)
 		self.new_emission.secure_click.connect(self.on_new_emission_clicked)
 		self.dialog.toolbar.addAction(self.new_emission)
+		self.dialog.show_inp_files=False
+		ret=self.dialog.exec_()
+
+	def callback_configure_shape(self):
+		self.dialog=gpvdm_open(get_shape_path(),big_toolbar=True)
+		self.new_shape = QAction_lock("add_shape", wrap_text(_("Add Shape"),8), self,locked=True)
+		#self.new_emission.secure_click.connect(self.on_new_emission_clicked)
+		self.dialog.toolbar.addAction(self.new_shape)
 		self.dialog.show_inp_files=False
 		ret=self.dialog.exec_()
 

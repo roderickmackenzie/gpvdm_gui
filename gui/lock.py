@@ -426,7 +426,11 @@ class lock():
 	def validate_key(self,key):
 		a=http_get()
 
-		params = {"key": key, "uid": self.uid,"lver":self.lver, "win_id":self.get_win_id(), "mac":self.get_mac()}
+		win_id=self.get_win_id()
+		if win_id=="undefined":
+			win_id=self.get_mac()
+
+		params = {"key": key, "uid": self.uid,"lver":self.lver, "win_id":win_id}
 
 		data=a.get("http://"+self.website+self.port+"/activate?"+urllib.parse.urlencode(params))
 		if data==False:

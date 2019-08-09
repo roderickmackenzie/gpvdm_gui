@@ -54,6 +54,11 @@ from ref import get_ref_text
 from ref_io import ref
 
 from inp import inp_get_token_value
+from triangle_xy_editor import triangle_xy_editor
+from open_save_dlg import open_as_filter
+
+from shutil import copyfile
+from dat_file import dat_file
 
 class tri():
 	def __init__(self):
@@ -74,6 +79,7 @@ class image_widget(QWidget):
 	def __init__(self,path):
 		super().__init__()
 		self.path=path
+		self.image_path=os.path.join(self.path,"image.png")
 		self.setGeometry(30, 30, 500, 300)
 		self.len_x=800e-9
 		self.len_y=800e-9
@@ -96,18 +102,34 @@ class image_widget(QWidget):
 
 		return int(ret)
 
+	def force_update(self):
+		self.build_mesh()
+		self.repaint()
+
 	def save_mesh(self):
-		f=open("triangles.dat", mode='w')
+		d=dat_file()
+		d.title="title Ray trace triange file"
+		d.type="poly"
+		d.x_label="Position"
+		d.y_label="Position"
+		d.data_label="Position"
+		d.x_units="m"
+		d.y_units="m"
+		d.data_units="m"
+
+		d.data=[]
+
 		for t in self.triangles:
-			f.write(str(t.x0)+" "+str(t.y0)+" "+str(t.z0)+"\n")
-			f.write(str(t.x1)+" "+str(t.y1)+" "+str(t.z1)+"\n")
-			f.write(str(t.x2)+" "+str(t.y2)+" "+str(t.z2)+"\n")
-			f.write(str(t.x0)+" "+str(t.y0)+" "+str(t.z0)+"\n")
-			f.write("\n")
-		f.close()
+			d.data.append([[t.x0,t.y0,t.z0],[t.x1,t.y1,t.z1],[t.x2,t.y2,t.z2]])
+
+		d.save(os.path.join(self.path,"shape.inp"))
 
 	def build_mesh(self):
-		pixmap = QPixmap("afm.png")
+		if os.path.isfile(self.image_path)==False:
+			return
+
+		pixmap = QPixmap(self.image_path)
+
 		self.im=pixmap.toImage()
 		print(os.path.join(self.path,"shape_import.inp"))
 		x_segs=int(inp_get_token_value(os.path.join(self.path,"shape_import.inp"),"#x_trianges"))
@@ -152,7 +174,11 @@ class image_widget(QWidget):
 
 	def paintEvent(self, event):
 		painter = QPainter(self)
-		pixmap = QPixmap("afm.png")
+
+		if os.path.isfile(self.image_path)==False:
+			return
+
+		pixmap = QPixmap(self.image_path)
 		self.im=pixmap.toImage()
 		x_mul=self.width()/pixmap.width()
 		y_mul=self.height()/pixmap.height()
@@ -181,12 +207,15 @@ class shape_import(QWidgetSavePos):
 	def update(self):
 		self.alpha.update()
 
-	def callback_import(self):
-		output_file=os.path.join(self.path,"spectra.inp")
-		config_file=os.path.join(self.path,"spectra_import.inp")
-		self.im=import_data(output_file,config_file)
-		self.im.run()
-		self.update()
+	def callback_xy_triangles(self):
+		self.xy_triangles=triangle_xy_editor(self.path)
+		self.xy_triangles.show()
+		self.xy_triangles.changed.connect(self.image_widget.force_update)
+
+	def callback_open_image(self):
+		file_name=open_as_filter(self,"png (*.png)",path=self.path)
+		copyfile(file_name, os.path.join(self.path,"image.png"))
+		self.image_widget.self.build_mesh()
 
 	def __init__(self,path):
 		QWidgetSavePos.__init__(self,"shape_import")
@@ -202,6 +231,10 @@ class shape_import(QWidgetSavePos):
 		self.main_vbox = QVBoxLayout()
 
 		self.ribbon=ribbon_shape_import()
+
+		self.ribbon.xy_triangles.triggered.connect(self.callback_xy_triangles)
+		self.ribbon.import_image.triggered.connect(self.callback_open_image)
+		self.ribbon.save_data.triggered.connect(self.callback_import)
 
 
 		#self.ribbon.help.triggered.connect(self.callback_help)
@@ -230,5 +263,6 @@ class shape_import(QWidgetSavePos):
 		
 		#self.notebook.currentChanged.connect(self.changed_click)
 
-
+	def callback_import(self):
+		self.image_widget.save_mesh()
 

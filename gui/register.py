@@ -31,7 +31,7 @@ import os
 
 #qt
 from PyQt5.QtCore import QSize, Qt 
-from PyQt5.QtWidgets import QWidget,QLineEdit,QComboBox,QHBoxLayout,QPushButton,QLabel,QDialog,QVBoxLayout,QSizePolicy
+from PyQt5.QtWidgets import QWidget,QApplication,QLineEdit,QComboBox,QHBoxLayout,QPushButton,QLabel,QDialog,QVBoxLayout,QSizePolicy
 from PyQt5.QtGui import QPainter,QIcon,QImage
 from PyQt5.QtGui import QFont
 
@@ -45,6 +45,7 @@ import re
 from error_dlg import error_dlg
 from lock import lock
 from code_ctrl import am_i_rod
+from spinner import spinner
 
 def isValidEmail(email):
 	if len(email) > 7:
@@ -66,15 +67,27 @@ class register(QDialog):
 			error_dlg(self,_("The e-mail addresses do not match."))
 			return
 
-		if self.name.text()=="":
-			error_dlg(self,_("Please enter your name."))
+		if self.first_name.text()=="":
+			error_dlg(self,_("Please enter your first name."))
 			return
+
+		if self.surname.text()=="":
+			error_dlg(self,_("Please enter your surname."))
+			return
+
 
 		if self.company.text()=="":
 			error_dlg(self,_("Please enter your Company/University."))
 			return
 
-		ret=get_lock().register(email=self.email0.text(),name=self.name.text(),company=self.company.text())
+		#QApplication.processEvents()
+		#QApplication.processEvents()
+
+		#self.spinner.show()
+		#self.working.show()
+
+		self.register.setEnabled(False)
+		ret=get_lock().register(email=self.email0.text(),name=self.title.currentText()+" "+self.first_name.text()+" "+self.surname.text(),company=self.company.text())
 		if ret==False:
 			if get_lock().error=="no_internet":
 				error_dlg(self,_("I can't access the internet, or gpvdm.com is down."))
@@ -103,11 +116,27 @@ class register(QDialog):
 		hbox_widget=QWidget()
 		hbox=QHBoxLayout()
 		hbox_widget.setLayout(hbox)
-		l=QLabel("<b>"+_("Name")+"</b>:")
+
+		self.title = QComboBox()
+		self.title.addItem("Dr.")
+		self.title.addItem("Prof.")
+		self.title.addItem("Mr.")
+		self.title.addItem("Mrs.")
+		self.title.addItem("Ms.")
+		self.title.addItem("Other")
+		hbox.addWidget(self.title)
+		l=QLabel("<b>"+_("First name")+"</b>:")
 		l.setFont(QFont('SansSerif', 14))
 		hbox.addWidget(l)
-		self.name = QLineEdit()
-		hbox.addWidget(self.name)
+		self.first_name = QLineEdit()
+		hbox.addWidget(self.first_name)
+
+		l=QLabel("<b>"+_("Surname")+"</b>:")
+		l.setFont(QFont('SansSerif', 14))
+		hbox.addWidget(l)
+		self.surname = QLineEdit()
+		hbox.addWidget(self.surname)
+
 		vbox.addWidget(hbox_widget)
 
 
@@ -143,10 +172,18 @@ class register(QDialog):
 
 		button_box=QHBoxLayout()
 
+		#self.spinner=spinner()
+		#self.spinner.hide()
+		#button_box.addWidget(self.spinner)
+
+		#self.working=QLabel("Registering....")
+		#self.working.setFont(QFont('SansSerif', 14))
+		#self.working.hide()
+		#button_box.addWidget(self.working)
+
 		spacer = QWidget()
 		spacer.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
 		button_box.addWidget(spacer)
-
 		self.register=QPushButton("Register", self)
 		self.register.clicked.connect(self.callback_register)
 		button_box.addWidget(self.register)
@@ -165,7 +202,8 @@ class register(QDialog):
 			self.email1.setText("r.c.i.mackenzie@googlemail.com")
 			self.company.setText("The University of Nottingham")
 
-			self.name.setText("波长-反射光")
+			self.fist_name.setText("波长-")
+			self.surname.setText("反射光")
 		
 		
 	def run(self):

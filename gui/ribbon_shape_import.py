@@ -73,6 +73,8 @@ class ribbon_shape_import(ribbon_base):
 		self.save_data= QAction(icon_get("document-save-as"), wrap_text(_("Import data"),4), self)
 		toolbar.addAction(self.save_data)
 
+		self.xy_triangles= QAction(icon_get("shape"), wrap_text(_("xy triangles"),2), self)
+		toolbar.addAction(self.xy_triangles)
 
 		spacer = QWidget()
 		spacer.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)

@@ -724,10 +724,18 @@ class dat_file():
 
 		lines.append("#begin")
 
-		for i in range(0,self.y_len):
-			y_text=str('{:.8e}'.format(float(self.y_scale[i])))
-			data_text=str('{:.8e}'.format(float(self.data[0][0][i])))
-			lines.append(y_text+" "+data_text)
+		if self.type=="poly":
+			for d in self.data:
+				lines.append(str(d[0][0])+" "+str(d[0][1])+" "+str(d[0][2]))
+				lines.append(str(d[1][0])+" "+str(d[1][1])+" "+str(d[1][2]))
+				lines.append(str(d[2][0])+" "+str(d[2][1])+" "+str(d[2][2]))
+				lines.append(str(d[0][0])+" "+str(d[0][1])+" "+str(d[0][2]))
+				lines.append("")
+		else:
+			for i in range(0,self.y_len):
+				y_text=str('{:.8e}'.format(float(self.y_scale[i])))
+				data_text=str('{:.8e}'.format(float(self.data[0][0][i])))
+				lines.append(y_text+" "+data_text)
 
 		lines.append("#end")
 

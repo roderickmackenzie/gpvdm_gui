@@ -38,7 +38,6 @@ except:
 	print("opengl error ",sys.exc_info()[0])
 
 from PyQt5 import QtGui
-from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QScreen
 from PyQt5.QtWidgets import QWidget, QHBoxLayout, QMenu, QColorDialog, QAction
 
@@ -96,7 +95,6 @@ from global_objects import global_object_register
 
 from inp import inp_search_token_array
 from math import fabs
-from gl_color import color
 # Rotations for cube.
 cube_rotate_x_rate = 0.2
 cube_rotate_y_rate = 0.2
@@ -106,8 +104,7 @@ cube_rotate_z_rate = 0.2
 from gl_color import set_color
 from gl_color import clear_color
 from gl_color import print_color
-from gl_color import set_false_color
-from gl_color import search_color
+
 
 from gl_save import gl_save_clear
 from gl_save import gl_save_print
@@ -117,7 +114,6 @@ from gl_save import gl_save_load
 
 from OpenGL.GLU import *
 
-import time
 import copy
 
 from thumb import thumb_nail_gen
@@ -167,10 +163,6 @@ from gl_list import gl_objects_add
 from gl_list import gl_objects_render
 from gl_list import gl_base_object
 from gl_list import gl_objects_clear
-from gl_list import gl_objects_select
-from gl_list import gl_objects_is_selected
-from gl_list import gl_objects_move
-from gl_list import gl_object_deselect
 
 from gl_scale import scale_screen_x2m
 from gl_scale import scale_screen_y2m
@@ -179,9 +171,12 @@ from epitaxy import epitaxy_get_device_start
 from inp import inp_update_token_value
 from gl_list import gl_objects_remove_regex
 from file_watch import get_watch
+from gl_input import gl_input
+
+from gl_text import gl_text
 
 if open_gl_ok==True:		
-	class glWidget(QGLWidget,gl_move_view,gl_mesh,gl_layer_editor,gl_cords,gl_base_widget,gl_main_menu):
+	class glWidget(QGLWidget,gl_text,gl_move_view,gl_mesh,gl_layer_editor,gl_cords,gl_base_widget,gl_main_menu,gl_input):
 
 		def __init__(self, parent):
 			QGLWidget.__init__(self, parent)
@@ -189,6 +184,7 @@ if open_gl_ok==True:
 			gl_base_widget.__init__(self)
 			self.setAutoBufferSwap(False)
 
+			self.enable_render_text=True
 			self.failed=True
 			self.graph_path=None
 			#view pos
@@ -234,7 +230,7 @@ if open_gl_ok==True:
 			gluCylinder(quad, 0.1, 0.00, 0.2, 10, 1)
 			set_color(1.0,1.0,1.0,"cordinates",alpha=1.0)
 			if self.view.zoom>-20:
-				self.renderText (0.2,0.0,0.0, "x",font)
+				self.render_text (0.2,0.0,0.0, "x",font)
 			glPopMatrix()
 
 			glPushMatrix()
@@ -248,7 +244,7 @@ if open_gl_ok==True:
 			gluCylinder(quad, 0.1, 0.00, 0.2, 10, 1)
 			set_color(1.0,1.0,1.0,"cordinates",alpha=1.0)
 			if self.view.zoom>-20:
-				self.renderText (0.2,0.0,0.0, "y",font)
+				self.render_text (0.2,0.0,0.0, "y",font)
 			glPopMatrix()
 
 			glPushMatrix()
@@ -264,160 +260,8 @@ if open_gl_ok==True:
 			gluSphere(quad,0.08,32,32)
 			set_color(1.0,1.0,1.0,"cordinates",alpha=1.0)
 			if self.view.zoom>-20:
-				self.renderText (-0.2,0.0,0.0, "z",font)
+				self.render_text (-0.2,0.0,0.0, "z",font)
 			glPopMatrix()
-
-		def keyPressEvent(self, event):
-			if type(event) == QtGui.QKeyEvent:
-				if event.text()=="f":
-					self.showFullScreen()
-				if event.text()=="r":
-					if self.timer==None:
-						self.start_rotate()
-					else:
-						self.timer.stop()
-						self.timer=None
-				if event.text()=="z":
-					if self.timer==None:
-						self.start_rotate()
-						if self.view.zoom>-40:
-							self.view.zoom =-400
-						self.timer=QTimer()
-						self.timer.timeout.connect(self.fzoom_timer)
-						self.timer.start(50)
-					else:
-						self.timer.stop()
-						self.timer=None
-
-
-		def event_to_3d_obj(self,event):
-			x = event.x()
-			y = self.height()-event.y()
-			set_false_color(True)
-			self.render()
-			data=glReadPixelsub(x, y, 1, 1, GL_RGBA,GL_FLOAT)
-
-			#self.swapBuffers()
-			c=color(int(255*data[0][0][0]),int(255*data[0][0][1]),int(255*data[0][0][2]))
-			obj=search_color(c)
-
-			set_false_color(False)
-			return obj
-
-		def mouseDoubleClickEvent(self,event):
-			#thumb_nail_gen()
-			self.obj=self.event_to_3d_obj(event)
-
-			if self.obj.startswith("layer")==True:
-				self.selected_layer=self.obj
-				self.do_draw()
-
-		def mouseMoveEvent(self,event):
-			if 	self.timer!=None:
-				self.timer.stop()
-				self.timer=None
-
-			if self.lastPos==None:
-				self.lastPos=event.pos()
-			dx = event.x() - self.lastPos.x();
-			dy = event.y() - self.lastPos.y();
-			sel=gl_objects_is_selected()
-			if sel==False:
-				if event.buttons()==Qt.LeftButton:
-					
-					self.view.xRot =self.view.xRot - 1 * dy
-					self.view.yRot =self.view.yRot - 1 * dx
-
-				if event.buttons()==Qt.RightButton:
-					self.view.x_pos =self.view.x_pos + 0.1 * dx
-					self.view.y_pos =self.view.y_pos - 0.1 * dy
-			else:
-				#print(sel.moveable)
-				if sel.moveable==True:
-					gl_objects_move(sel,dx*0.05,-dy*0.05)
-				#print(dx,dy)
-			
-			self.lastPos=event.pos()
-			self.setFocusPolicy(Qt.StrongFocus)
-			self.setFocus()
-			self.update()
-			#self.view_dump()
-
-		def mousePressEvent(self,event):
-			self.lastPos=None
-			self.mouse_click_time=time.time()
-			self.obj=self.event_to_3d_obj(event)
-
-			
-
-			if self.obj.startswith("layer")==True:
-				self.selected_layer=self.obj
-				self.do_draw()
-
-			if event.buttons()==Qt.LeftButton:
-				#thumb_nail_gen()
-				#self.mouse_click_time=time.time()
-				x = event.x()
-				y = self.height()-event.y()
-				set_false_color(True)
-				self.render()
-				data=glReadPixelsub(x, y, 1, 1, GL_RGBA,GL_FLOAT)
-				set_false_color(False)
-
-				c=color(int(255*data[0][0][0]),int(255*data[0][0][1]),int(255*data[0][0][2]))
-
-				self.obj=search_color(c)
-				if self.obj=="none":
-					return
-
-				gl_objects_select(self.obj)
-				self.do_draw()
-
-				print("you have clicked on=",self.obj)
-
-
-
-		def mouseReleaseEvent(self,event):
-			self.obj=self.event_to_3d_obj(event)
-
-			if event.button()==Qt.RightButton:
-				delta=time.time() - self.mouse_click_time
-				if (delta)<0.5:
-					if self.obj!="none":
-						if self.obj.startswith("layer")==True:
-							self.selected_layer=self.obj
-							self.do_draw()
-							self.menu_layer(event)
-
-							return
-						if self.obj.startswith("mesh")==True:
-							self.mesh_menu(event)
-					else:
-						self.menu(event)
-			obj=gl_object_deselect()
-			if obj!=False:
-				if obj.id=="ray_src":
-					x=scale_screen_x2m(obj.x)
-					y=scale_screen_y2m(obj.y)-epitaxy_get_device_start()
-					z=scale_m2screen_z(obj.z)
-					inp_update_token_value("ray.inp","#ray_xsrc",str(x))
-					inp_update_token_value("ray.inp","#ray_ysrc",str(y))
-					#inp_update_token_value("ray.inp","#ray_zsrc",str(z))
-
-				self.do_draw()
-		#	self.lastPos=None
-
-
-		def isChecked(self): 
-			""" Prints selected menu labels. """ 
-			[print(action.text()) for action in self.m.actions() if action.isChecked()]
-
-
-
-		def wheelEvent(self,event):
-			p=event.angleDelta()
-			self.view.zoom =self.view.zoom - p.y()/120
-			self.update()
 
 		def draw_photons(self,x0,z0):
 			up_photons=False
@@ -456,7 +300,6 @@ if open_gl_ok==True:
 				for i in range(0,len(x)):
 					for ii in range(0,len(z)):
 						draw_photon(x[i]+0.1,y+0.1,z[ii],True,color=[0.0, 0.0, 1.0])
-
 
 
 		def bix_axis(self):
@@ -543,7 +386,7 @@ if open_gl_ok==True:
 						set_color(1.0,1.0,1.0,"text")
 						font = QFont("Arial")
 						font.setPointSize(18)
-						self.renderText (x+scale_get_device_x()+0.1,y+y_len/2,z, display_name,font)
+						self.render_text (x+scale_get_device_x()+0.1,y+y_len/2,z, display_name,font)
 
 				l=l+1
 
@@ -553,6 +396,7 @@ if open_gl_ok==True:
 
 
 		def render(self):
+
 			self.update_real_to_gl_mul()
 			x=scale_m2screen_x(0)
 			y=0.0#scale_m2screen_y(0)
@@ -632,22 +476,23 @@ if open_gl_ok==True:
 		def do_draw(self):
 			self.render()
 			self.swapBuffers()
-			#gl_save_print()
-
-		#def paintEvent(self, e):
-		#	qp = QPainter()
-		#	qp.begin(self)
-
-		#	path=QPainterPath()
-		#	path.addRoundedRect(QRectF(0, 0, 1000, 100), 0, 0)
-		#	qp.fillPath(path,QColor(206 , 206, 206))
-
-		#	qp.end()
-
 
 
 		def paintGL(self):
+			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
+			glLoadIdentity()
+			glScalef(1.0, 1.0, -1.0) 
 
+			glTranslatef(self.view.x_pos, self.view.y_pos, self.view.zoom) # Move Into The Screen
+			
+			glRotatef(self.view.xRot, 1.0, 0.0, 0.0)
+			glRotatef(self.view.yRot, 0.0, 1.0, 0.0)
+			glRotatef(self.view.zRot, 0.0, 0.0, 1.0)
+
+			glColor3f( 1.0, 1.5, 0.0 )
+			glPolygonMode(GL_FRONT, GL_FILL);
+
+			self.bix_axis()
 			if self.failed==False:
 				self.do_draw()
 

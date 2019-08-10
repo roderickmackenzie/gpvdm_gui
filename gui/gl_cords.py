@@ -71,7 +71,7 @@ class gl_cords():
 		gluCylinder(quad, 0.1, 0.00, 0.2, 10, 1)
 		set_color(1.0,1.0,1.0,"cordinates",alpha=1.0)
 		if self.view.zoom<20:
-			self.renderText (0.2,0.0,0.0, "x",font)
+			self.render_text (0.2,0.0,0.0, "x",font)
 		glPopMatrix()
 
 		glPushMatrix()
@@ -85,7 +85,7 @@ class gl_cords():
 		gluCylinder(quad, 0.1, 0.00, 0.2, 10, 1)
 		set_color(1.0,1.0,1.0,"cordinates",alpha=1.0)
 		if self.view.zoom<20:
-			self.renderText (0.2,0.0,0.0, "y",font)
+			self.render_text (0.2,0.0,0.0, "y",font)
 		glPopMatrix()
 
 		glPushMatrix()
@@ -101,6 +101,6 @@ class gl_cords():
 		gluSphere(quad,0.08,32,32)
 		set_color(1.0,1.0,1.0,"cordinates",alpha=1.0)
 		if self.view.zoom<20:
-			self.renderText (-0.2,0.0,0.0, "z",font)
+			self.render_text (-0.2,0.0,0.0, "z",font)
 		glPopMatrix()
 

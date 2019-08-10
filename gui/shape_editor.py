@@ -107,6 +107,7 @@ class shape_editor(QWidgetSavePos):
 
 
 		self.three_d_shape=glWidget(self)
+		self.three_d_shape.bing=False
 		self.three_d_shape.draw_electrical_mesh=False
 		self.three_d_shape.enable_draw_device=False
 		self.three_d_shape.draw_ray_mesh=True

@@ -57,11 +57,6 @@ from mesh import mesh_get_xlen
 from mesh import mesh_get_zlen
 from epitaxy import get_epi
 
-from gl_list import gl_object_deselect
-from gl_list import gl_objects_is_selected
-from gl_list import gl_objects_select
-from gl_list import gl_objects_move
-
 class gl_input():
 
 	def keyPressEvent(self, event):
@@ -122,7 +117,7 @@ class gl_input():
 			self.lastPos=event.pos()
 		dx = event.x() - self.lastPos.x();
 		dy = event.y() - self.lastPos.y();
-		sel=gl_objects_is_selected()
+		sel=self.gl_objects_is_selected()
 		if sel==False:
 			if event.buttons()==Qt.LeftButton:
 				
@@ -135,7 +130,7 @@ class gl_input():
 		else:
 			#print(sel.moveable)
 			if sel.moveable==True:
-				gl_objects_move(sel,dx*0.05,-dy*0.05)
+				self.gl_objects_move(sel,dx*0.05,-dy*0.05)
 			#print(dx,dy)
 		
 		self.lastPos=event.pos()
@@ -149,12 +144,14 @@ class gl_input():
 		self.mouse_click_time=time.time()
 
 		self.obj=self.event_to_3d_obj(event)
-		return
 		
 
 		if self.obj.startswith("layer")==True:
 			self.selected_layer=self.obj
-			self.do_draw()
+			#self.enable_render_text=False
+			self.update()
+			#self.enable_render_text=True
+		return
 
 		if event.buttons()==Qt.LeftButton:
 			#thumb_nail_gen()
@@ -162,7 +159,9 @@ class gl_input():
 			x = event.x()
 			y = self.height()-event.y()
 			set_false_color(True)
+			self.enable_render_text=False
 			self.render()
+			self.enable_render_text=True
 			data=glReadPixelsub(x, y, 1, 1, GL_RGBA,GL_FLOAT)
 			set_false_color(False)
 
@@ -172,15 +171,14 @@ class gl_input():
 			if self.obj=="none":
 				return
 
-			gl_objects_select(self.obj)
-			self.do_draw()
+			self.gl_objects_select(self.obj)
+			self.update()
 
 			print("you have clicked on=",self.obj)
 
 
 
 	def mouseReleaseEvent(self,event):
-		return
 		self.obj=self.event_to_3d_obj(event)
 
 		if event.button()==Qt.RightButton:
@@ -189,7 +187,7 @@ class gl_input():
 				if self.obj!="none":
 					if self.obj.startswith("layer")==True:
 						self.selected_layer=self.obj
-						self.do_draw()
+						self.update()
 						self.menu_layer(event)
 
 						return
@@ -197,7 +195,7 @@ class gl_input():
 						self.mesh_menu(event)
 				else:
 					self.menu(event)
-		obj=gl_object_deselect()
+		obj=self.gl_object_deselect()
 		if obj!=False:
 			if obj.id=="ray_src":
 				x=scale_screen_x2m(obj.x)
@@ -207,7 +205,7 @@ class gl_input():
 				inp_update_token_value("ray.inp","#ray_ysrc",str(y))
 				#inp_update_token_value("ray.inp","#ray_zsrc",str(z))
 
-			self.do_draw()
+			self.update()
 	#	self.lastPos=None
 
 

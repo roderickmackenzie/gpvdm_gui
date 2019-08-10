@@ -132,7 +132,6 @@ from used_files import used_files_add
 from lock_gui import lock_gui
 
 from contacts_io import get_contactsio
-from gl_list import gl_objects_clear
 
 def do_import():
 	global new_simulation

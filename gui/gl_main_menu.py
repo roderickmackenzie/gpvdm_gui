@@ -127,8 +127,8 @@ class gl_main_menu():
 		if text==_("Electrical mesh"):
 			self.draw_electrical_mesh=not self.draw_electrical_mesh
 		if text==_("Ray tracing mesh"):
-			self.draw_ray_mesh= not self.draw_ray_mesh
-			if self.draw_ray_mesh==False:
+			self.enable_draw_ray_mesh= not self.enable_draw_ray_mesh
+			if self.enable_draw_ray_mesh==False:
 				gl_objects_remove_regex("ray_mesh")
 		if text==_("Device view"):
 			self.enable_draw_device = not self.enable_draw_device

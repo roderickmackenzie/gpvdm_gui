@@ -88,9 +88,6 @@ from gl_lib import draw_photon
 from gl_lib import box_lines
 from gl_shapes import box
 
-from gl_lib_ray import draw_rays
-from gl_lib_ray import draw_ray_mesh
-
 from global_objects import global_object_register
 
 from inp import inp_search_token_array
@@ -159,29 +156,28 @@ from gl_scale import scale_m2screen_y
 
 from gl_main_menu import gl_main_menu
 
-from gl_list import gl_objects_add
-from gl_list import gl_objects_render
-from gl_list import gl_base_object
-from gl_list import gl_objects_clear
+from gl_list import gl_objects
 
 from gl_scale import scale_screen_x2m
 from gl_scale import scale_screen_y2m
 from epitaxy import epitaxy_get_device_start
 
 from inp import inp_update_token_value
-from gl_list import gl_objects_remove_regex
 from file_watch import get_watch
 from gl_input import gl_input
 
 from gl_text import gl_text
+from gl_lib_ray import gl_lib_ray
 
 if open_gl_ok==True:		
-	class glWidget(QGLWidget,gl_text,gl_move_view,gl_mesh,gl_layer_editor,gl_cords,gl_base_widget,gl_main_menu,gl_input):
+	class glWidget(QGLWidget,shape_layer, gl_lib_ray,gl_objects, gl_text,gl_move_view,gl_mesh,gl_layer_editor,gl_cords,gl_base_widget,gl_main_menu,gl_input):
 
 		def __init__(self, parent):
 			QGLWidget.__init__(self, parent)
 			gl_move_view.__init__(self)
 			gl_base_widget.__init__(self)
+			gl_objects.__init__(self)
+			gl_lib_ray.__init__(self)
 			self.setAutoBufferSwap(False)
 
 			self.enable_render_text=True
@@ -200,7 +196,7 @@ if open_gl_ok==True:
 
 			self.draw_electrical_mesh=False
 			self.enable_draw_device=True
-			self.draw_ray_mesh=False
+			self.enable_draw_ray_mesh=False
 			self.enable_draw_light_source=False
 			self.enable_draw_rays=True
 
@@ -331,7 +327,7 @@ if open_gl_ok==True:
 				alpha=obj.alpha
 				if len(obj.shapes)>0:
 					for s in obj.shapes:
-						shape_layer(obj,s,x,y+dy_shrink/2, z, name=layer_name)
+						self.shape_layer(obj,s,x,y+dy_shrink/2, z, name=layer_name)
 
 		def draw_device(self,x,z):
 
@@ -453,8 +449,8 @@ if open_gl_ok==True:
 			if self.draw_electrical_mesh==True:
 				self.draw_mesh()
 
-			if self.draw_ray_mesh==True:
-				draw_ray_mesh(self.ray_file)
+			if self.enable_draw_ray_mesh==True:
+				self.draw_ray_mesh()
 				
 			if self.enable_draw_device==True:
 				self.draw_device(x,z)
@@ -471,7 +467,7 @@ if open_gl_ok==True:
 			if self.view.zoom>self.view.stars_distance:
 				draw_stars()
 
-			gl_objects_render()
+			self.gl_objects_render()
 
 		def do_draw(self):
 			self.render()
@@ -527,13 +523,13 @@ if open_gl_ok==True:
 
 		#This will rebuild the scene from scratch
 		def rebuild_scene(self):
-			gl_objects_clear()
+			self.gl_objects_clear()
 			x=scale_m2screen_x(0)
 			z=scale_m2screen_z(0)
 
 			print("here------->>",self.enable_draw_rays)
 			if self.enable_draw_rays==True:
-				draw_rays(self.ray_file)
+				self.draw_rays(self.ray_file)
 
 			if self.enable_draw_light_source==True:
 
@@ -564,7 +560,7 @@ if open_gl_ok==True:
 
 					a.moveable=True
 					a.selectable=True
-					gl_objects_add(a)
+					self.gl_objects_add(a)
 
 			if self.enable_draw_device==True:
 				self.draw_device2(x,z)

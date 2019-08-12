@@ -41,13 +41,11 @@ try:
 	from gl_scale import scale_get_zmul
 	from gl_scale import scale_get_start_x
 	from gl_scale import scale_get_start_z
-	from gl_list import gl_objects_remove_regex
 except:
 	pass
 
 from PyQt5.QtCore import QTimer
 from inp import inp_update_token_value
-from gpvdm_open import gpvdm_open
 from cal_path import get_sim_path
 from PyQt5.QtWidgets import QDialog
 from dat_file_math import dat_file_max_min
@@ -129,7 +127,7 @@ class gl_main_menu():
 		if text==_("Ray tracing mesh"):
 			self.enable_draw_ray_mesh= not self.enable_draw_ray_mesh
 			if self.enable_draw_ray_mesh==False:
-				gl_objects_remove_regex("ray_mesh")
+				self.gl_objects_remove_regex("ray_mesh")
 		if text==_("Device view"):
 			self.enable_draw_device = not self.enable_draw_device
 		if text==_("Light source"):
@@ -155,6 +153,7 @@ class gl_main_menu():
 		self.force_redraw()
 
 	def menu_plot_open(self):
+		from gpvdm_open import gpvdm_open
 		dialog=gpvdm_open(get_sim_path(),show_inp_files=False,act_as_browser=False)
 		ret=dialog.exec_()
 		if ret==QDialog.Accepted:

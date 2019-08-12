@@ -107,7 +107,6 @@ class shape_editor(QWidgetSavePos):
 
 
 		self.three_d_shape=glWidget(self)
-		self.three_d_shape.bing=False
 		self.three_d_shape.triangle_file=os.path.join(self.path,"shape.inp")
 
 		self.three_d_shape.draw_electrical_mesh=False

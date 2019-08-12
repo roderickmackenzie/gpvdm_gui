@@ -31,10 +31,15 @@ import os
 #import shutil
 #from token_lib import tokens
 from plot_widget import plot_widget
-from PyQt5.QtWidgets import QWidget
+from PyQt5.QtWidgets import QWidget,QVBoxLayout
+from dat_file import dat_file
+from icon_lib import icon_get
 
-class plot_window():
+class plot_window(QWidget):
 	def __init__(self):
+		QWidget.__init__(self)
+		self.main_vbox=QVBoxLayout()
+		self.setMinimumSize(800,800)
 		self.shown=False
 
 	def destroy(self):
@@ -45,28 +50,54 @@ class plot_window():
 		self.destroy()
 
 	def init(self,input_files,plot_labels,config_file):
-		self.shown=True
+		three_d=False
 
-		self.plot=plot_widget()
-		self.plot.init()
+		if len(input_files)==1:
+			data=dat_file()
+			data.load(input_files[0])
 
-		print("labels",plot_labels)
-		if len(plot_labels)==0:
-			for i in range(0,len(input_files)):
-				plot_labels.append(os.path.basename(input_files[i]).replace("_","\_"))
+			if data.type=="poly":
+				three_d=True
 
-		#print plot_labels
-		for i in range(0,len(plot_labels)):
-			if len(plot_labels[i])>0:
-				if plot_labels[i][0]=="\\":
-					plot_labels[i]=plot_labels[i][1:]
-			plot_labels[i].replace("\\","/")
+		if three_d==False:
+			self.shown=True
 
-		self.plot.set_labels(plot_labels)
-		self.plot.load_data(input_files)
+			self.plot=plot_widget()
+			self.plot.init()
 
-		self.plot.do_plot()
-		self.plot.show()
+			if len(plot_labels)==0:
+				for i in range(0,len(input_files)):
+					plot_labels.append(os.path.basename(input_files[i]).replace("_","\_"))
 
+			#print plot_labels
+			for i in range(0,len(plot_labels)):
+				if len(plot_labels[i])>0:
+					if plot_labels[i][0]=="\\":
+						plot_labels[i]=plot_labels[i][1:]
+				plot_labels[i].replace("\\","/")
+
+			self.plot.set_labels(plot_labels)
+			self.plot.load_data(input_files)
+
+			self.plot.do_plot()
+			self.plot.show()
+		else:
+			self.setWindowTitle(_("3D object viewer")+" https://www.gpvdm.com")
+			self.setWindowIcon(icon_get("shape"))
+
+
+			from gl import glWidget
+			self.plot=glWidget(self)
+			self.main_vbox.addWidget(self.plot)
+			self.setLayout(self.main_vbox)
+
+			self.plot.triangle_file=input_files[0]
+
+			self.plot.draw_electrical_mesh=False
+			self.plot.enable_draw_device=False
+			self.plot.enable_draw_ray_mesh=True
+			self.plot.enable_draw_light_source=False
+			self.plot.enable_draw_rays=False
+			self.show()
 
 

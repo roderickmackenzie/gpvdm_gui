@@ -33,6 +33,7 @@ import glob
 from util_zip import zip_get_data_file
 from inp import inp_load_file
 from str2bool import str2bool
+from triangle import triangle
 
 #search first 40 lines for dims
 def dat_file_load_info(output,lines):
@@ -458,7 +459,23 @@ class dat_file():
 						build.append(s)
 
 			if len(build)!=0 and len(s)==0:
-				self.data.append(build)
+				if len(build)==3 and len(build[0])==3:
+					t=triangle()
+					t.xyz0.x=build[0][0]
+					t.xyz0.y=build[0][1]
+					t.xyz0.z=build[0][2]
+
+					t.xyz1.x=build[1][0]
+					t.xyz1.y=build[1][1]
+					t.xyz1.z=build[1][2]
+
+					t.xyz2.x=build[2][0]
+					t.xyz2.y=build[2][1]
+					t.xyz2.z=build[2][2]
+					self.data.append(t)
+
+				else:
+					self.data.append(build)
 				build=[]
 
 		return True

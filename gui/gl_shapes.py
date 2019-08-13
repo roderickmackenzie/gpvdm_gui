@@ -43,6 +43,10 @@ import random
 import numpy as np
 from math import pi,acos,sin,cos
 
+from gl_scale import scale_m2screen_x
+from gl_scale import scale_m2screen_y
+from gl_scale import scale_m2screen_z
+
 def pyrmid(o):
 	x=o.x
 	y=o.y
@@ -81,6 +85,55 @@ def pyrmid(o):
 	glVertex3f(x,y,z+dz)
 	glVertex3f(x+dx/2,y+dy,z+dz/2)
 	glEnd()
+
+def paint_from_array(o):
+	set_color(o.r,o.g,o.b,o.id,alpha=o.alpha)
+
+	dx=o.dx/2
+	dy=o.dy/2
+	dz=o.dz/2
+	
+	x=o.x
+	y=o.y
+	z=o.z
+
+	for t in o.triangles.data:
+		glBegin(GL_TRIANGLES)
+		glVertex3f(scale_m2screen_x(t.xyz0.x),scale_m2screen_y(t.xyz0.y),scale_m2screen_z(t.xyz0.z))
+		glVertex3f(scale_m2screen_x(t.xyz1.x),scale_m2screen_y(t.xyz1.y),scale_m2screen_z(t.xyz1.z))
+		glVertex3f(scale_m2screen_x(t.xyz2.x),scale_m2screen_y(t.xyz2.y),scale_m2screen_z(t.xyz2.z))
+		print(t)
+		glEnd()
+
+def paint_open_triangles_from_array(o):
+	set_color(o.r,o.g,o.b,o.id,alpha=o.alpha)
+
+	dx=o.dx/2
+	dy=o.dy/2
+	dz=o.dz/2
+	
+	x=o.x
+	y=o.y
+	z=o.z
+
+	glLineWidth(5)
+
+	for t in o.triangles.data:
+		glBegin(GL_LINES)
+		glVertex3f(scale_m2screen_x(t.xyz0.x),scale_m2screen_y(t.xyz0.y),scale_m2screen_z(t.xyz0.z))
+		glVertex3f(scale_m2screen_x(t.xyz1.x),scale_m2screen_y(t.xyz1.y),scale_m2screen_z(t.xyz1.z))
+		glEnd()
+
+		glBegin(GL_LINES)
+		glVertex3f(scale_m2screen_x(t.xyz1.x),scale_m2screen_y(t.xyz1.y),scale_m2screen_z(t.xyz1.z))
+		glVertex3f(scale_m2screen_x(t.xyz2.x),scale_m2screen_y(t.xyz2.y),scale_m2screen_z(t.xyz2.z))
+		glEnd()
+
+		glBegin(GL_LINES)
+		glVertex3f(scale_m2screen_x(t.xyz2.x),scale_m2screen_y(t.xyz2.y),scale_m2screen_z(t.xyz2.z))
+		glVertex3f(scale_m2screen_x(t.xyz0.x),scale_m2screen_y(t.xyz0.y),scale_m2screen_z(t.xyz0.z))
+		glEnd()
+
 
 def dome(o):
 	set_color(o.r,o.g,o.b,o.id,alpha=o.alpha)

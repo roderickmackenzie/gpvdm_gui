@@ -97,30 +97,13 @@ class gl_lib_ray():
 		if self.ray_mesh_data.load(self.triangle_file)==True:
 			if self.ray_mesh_data.new_read==True or self.gl_objects_count_regex("ray_mesh")==0:
 				self.gl_objects_remove_regex("ray_mesh")
-				for l in self.ray_mesh_data.data:
-					pos=[[0,1],[1,2],[2,0]]
-					for p in pos:
-						z=scale_m2screen_z(l[p[0]][0])
-						dz=scale_m2screen_z(l[p[1]][0])-scale_m2screen_x(l[p[0]][0])
-
-						x=scale_m2screen_x(l[p[0]][1])
-						dx=scale_m2screen_x(l[p[1]][1])-scale_m2screen_x(l[p[0]][1])
-
-						y=scale_m2screen_y(l[p[0]][2])
-						dy=scale_m2screen_y(l[p[1]][2])-scale_m2screen_y(l[p[0]][2])
-
-						a=gl_base_object()
-						a.id="ray_mesh"
-						a.type="ray"
-						a.x=x
-						a.y=y
-						a.z=z
-						a.dx=dx
-						a.dy=dy
-						a.dz=dz
-						a.r=r
-						a.g=g
-						a.b=b
-						self.gl_objects_add(a)
+				a=gl_base_object()
+				a.id="ray_mesh"
+				a.type="open_triangles"
+				a.r=r
+				a.g=g
+				a.b=b
+				a.triangles=self.ray_mesh_data
+				self.gl_objects_add(a)
 
 

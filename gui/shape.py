@@ -35,9 +35,13 @@ from gui_enable import gui_get
 if gui_get()==True:
 	from file_watch import get_watch
 
+from cal_path import get_shape_path
+from dat_file import dat_file
+
 class shape():
 	def __init__(self):
 		self.type="none"
+		self.triangles=None
 		self.dx=1e-9
 		self.dy=1e-9
 		self.dz=1e-9
@@ -72,11 +76,17 @@ class shape():
 		if lines==False:
 			print("shape file not found: ",self.file_name)
 			return
+		self.type=inp_search_token_value(lines, "#shape_type")
+
 		try:
-			self.type=inp_search_token_value(lines, "#shape_type")
 			self.dx=float(inp_search_token_value(lines, "#shape_dx"))
 			self.dy=float(inp_search_token_value(lines, "#shape_dy"))
 			self.dz=float(inp_search_token_value(lines, "#shape_dz"))
+
+			shape_path=os.path.join(get_shape_path(),self.type,"shape.inp")
+			if os.path.isfile(shape_path)==True:
+				self.triangles=dat_file()
+				self.triangles.load(shape_path)
 
 			self.dx_padding=float(inp_search_token_value(lines, "#shape_padding_dx"))
 			self.dy_padding=float(inp_search_token_value(lines, "#shape_padding_dy"))

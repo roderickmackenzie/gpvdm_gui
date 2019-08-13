@@ -84,6 +84,7 @@ class shape_layer():
 					a.r=s.r
 					a.g=s.g
 					a.b=s.b
+					a.triangles=s.triangles
 					self.gl_objects_add(a)
 					#dome(x_pos,y_pos,z_pos,dx,dy,dz,name=name)
 				elif s.type=="pyrmid":
@@ -114,6 +115,7 @@ class shape_layer():
 					a.r=s.r
 					a.g=s.g
 					a.b=s.b
+					a.triangles=s.triangles
 					self.gl_objects_add(a)
 					#box(x_pos,y_pos,z_pos,dx, dy,dx, s.r, s.g, s.b, obj.alpha, name=name)
 				elif s.type=="tube":

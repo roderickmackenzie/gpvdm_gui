@@ -54,6 +54,7 @@ from PyQt5.QtGui import QPixmap, QIcon
 from QComboBoxLang import QComboBoxLang
 from QColorPicker import QColorPicker
 from QComboBoxNewtonSelect import QComboBoxNewtonSelect
+from QComboBoxShape import QComboBoxShape
 
 from icon_lib import icon_get
 
@@ -184,6 +185,8 @@ class tab_class(QWidget,tab_base):
 			inp_update_token_array(self.file_name, token, widget.toPlainText().split("\n"))
 		elif type(widget)==QComboBoxNewtonSelect:
 			inp_update_token_value(self.file_name, token, widget.currentText())
+		elif type(widget)==QComboBoxShape:
+			inp_update_token_value(self.file_name, token, widget.currentText())
 		elif type(widget)==QParasitic:
 			inp_update_token_value(self.file_name, token, widget.text())
 		elif type(widget)==dos_complex_switch:
@@ -249,6 +252,8 @@ class tab_class(QWidget,tab_base):
 				elif w.widget=="QChangeLog":
 					w.edit_box.setText(values[0])
 				elif w.widget=="QComboBoxNewtonSelect":
+					w.edit_box.setText(values[0])
+				elif w.widget=="QComboBoxShape":
 					w.edit_box.setText(values[0])
 				elif w.widget=="dos_complex_switch":
 					w.edit_box.set_value(values[0])
@@ -387,6 +392,11 @@ class tab_class(QWidget,tab_base):
 							edit_box.addItem(result.defaults[i])
 						edit_box.setValue(value)
 								
+						edit_box.currentIndexChanged.connect(functools.partial(self.callback_edit,token,edit_box,unit))
+					elif result.widget=="QComboBoxShape":
+						edit_box=QComboBoxShape()
+						edit_box.setFixedSize(300, 25)
+						edit_box.setValue(value)
 						edit_box.currentIndexChanged.connect(functools.partial(self.callback_edit,token,edit_box,unit))
 
 					elif result.widget=="QParasitic":

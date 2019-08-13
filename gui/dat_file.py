@@ -461,17 +461,17 @@ class dat_file():
 			if len(build)!=0 and len(s)==0:
 				if len(build)==3 and len(build[0])==3:
 					t=triangle()
-					t.xyz0.x=build[0][0]
-					t.xyz0.y=build[0][1]
-					t.xyz0.z=build[0][2]
+					t.xyz0.z=build[0][0]
+					t.xyz0.x=build[0][1]
+					t.xyz0.y=build[0][2]
 
-					t.xyz1.x=build[1][0]
-					t.xyz1.y=build[1][1]
-					t.xyz1.z=build[1][2]
+					t.xyz1.z=build[1][0]
+					t.xyz1.x=build[1][1]
+					t.xyz1.y=build[1][2]
 
-					t.xyz2.x=build[2][0]
-					t.xyz2.y=build[2][1]
-					t.xyz2.z=build[2][2]
+					t.xyz2.z=build[2][0]
+					t.xyz2.x=build[2][1]
+					t.xyz2.y=build[2][2]
 					self.data.append(t)
 
 				else:

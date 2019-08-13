@@ -71,68 +71,21 @@ class shape_layer():
 		for x in range(0,s.shape_nx):
 			z_pos=iz+s.z0*scale_get_zmul()
 			for z in range(0,s.shape_nz):
-				if s.type=="dome":
-					a=gl_base_object()
-					a.id=name
-					a.type="dome"
-					a.x=x_pos
-					a.y=y_pos
-					a.z=z_pos
-					a.dx=dx
-					a.dy=dy
-					a.dz=dz
-					a.r=s.r
-					a.g=s.g
-					a.b=s.b
-					a.triangles=s.triangles
-					self.gl_objects_add(a)
-					#dome(x_pos,y_pos,z_pos,dx,dy,dz,name=name)
-				elif s.type=="pyrmid":
-					a=gl_base_object()
-					a.id=name
-					a.type="pyrmid"
-					a.x=x_pos
-					a.y=y_pos
-					a.z=z_pos
-					a.dx=dx
-					a.dy=dy
-					a.dz=dz
-					a.r=s.r
-					a.g=s.g
-					a.b=s.b
-					self.gl_objects_add(a)
-					#pyrmid(x_pos,y_pos,z_pos,dx,dy,dz, name=name)
-				elif s.type=="box":
-					a=gl_base_object()
-					a.id=name
-					a.type="box"
-					a.x=x_pos
-					a.y=y_pos
-					a.z=z_pos
-					a.dx=dx
-					a.dy=dy
-					a.dz=dz
-					a.r=s.r
-					a.g=s.g
-					a.b=s.b
-					a.triangles=s.triangles
-					self.gl_objects_add(a)
-					#box(x_pos,y_pos,z_pos,dx, dy,dx, s.r, s.g, s.b, obj.alpha, name=name)
-				elif s.type=="tube":
-					a=gl_base_object()
-					a.id=name
-					a.type="half_cyl"
-					a.x=x_pos
-					a.y=y_pos
-					a.z=z_pos
-					a.dx=dx
-					a.dy=dy
-					a.dz=dz
-					a.r=s.r
-					a.g=s.g
-					a.b=s.b
-					self.gl_objects_add(a)
-					#half_cyl(x_pos,y_pos,z_pos,dx,dy,dz, name=name)
+				a=gl_base_object()
+				a.id=name
+				a.type=s.type
+				a.x=x_pos
+				a.y=y_pos
+				a.z=z_pos
+				a.dx=dx
+				a.dy=dy
+				a.dz=dz
+				a.r=s.r
+				a.g=s.g
+				a.b=s.b
+				a.triangles=s.triangles
+				self.gl_objects_add(a)
+
 				z_pos=z_pos+dz_tot
 			x_pos=x_pos+dx_tot
 

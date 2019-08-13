@@ -38,6 +38,13 @@ if gui_get()==True:
 from cal_path import get_shape_path
 from dat_file import dat_file
 
+from triangle_io import triangles_get_min
+from triangle_io import triangles_get_max
+from triangle_io import triangles_sub_vec
+from triangle_io import triangles_div_vec
+from triangle_io import triangles_mul_vec
+from triangle import vec
+
 class shape():
 	def __init__(self):
 		self.type="none"
@@ -78,16 +85,41 @@ class shape():
 			return
 		self.type=inp_search_token_value(lines, "#shape_type")
 
+		shape_path=os.path.join(get_shape_path(),self.type,"shape.inp")
+		self.dx=float(inp_search_token_value(lines, "#shape_dx"))
+		self.dy=float(inp_search_token_value(lines, "#shape_dy"))
+		self.dz=float(inp_search_token_value(lines, "#shape_dz"))
+
+		if os.path.isfile(shape_path)==True:
+			self.triangles=dat_file()
+			self.triangles.load(shape_path)
+			if self.triangles.data!=None:
+				min_vec=triangles_get_min(self.triangles.data)
+
+				triangles_sub_vec(self.triangles.data,min_vec)
+
+				max_vec=triangles_get_max(self.triangles.data)
+				max_vec.x=max_vec.x/self.dx
+				max_vec.y=max_vec.y/self.dy
+				max_vec.z=max_vec.z/self.dz
+
+				triangles_div_vec(self.triangles.data,max_vec)
+				v=vec()
+				v.x=1.0
+				v.y=-1.0
+				v.z=1.0
+				triangles_mul_vec(self.triangles.data,v)
+				min_vec=triangles_get_min(self.triangles.data)
+
+				v=vec()
+				v.x=0.0
+				v.y=min_vec.y
+				v.z=0.0
+
+				triangles_sub_vec(self.triangles.data,v)
 		try:
-			self.dx=float(inp_search_token_value(lines, "#shape_dx"))
-			self.dy=float(inp_search_token_value(lines, "#shape_dy"))
-			self.dz=float(inp_search_token_value(lines, "#shape_dz"))
 
-			shape_path=os.path.join(get_shape_path(),self.type,"shape.inp")
-			if os.path.isfile(shape_path)==True:
-				self.triangles=dat_file()
-				self.triangles.load(shape_path)
-
+					
 			self.dx_padding=float(inp_search_token_value(lines, "#shape_padding_dx"))
 			self.dy_padding=float(inp_search_token_value(lines, "#shape_padding_dy"))
 			self.dz_padding=float(inp_search_token_value(lines, "#shape_padding_dz"))

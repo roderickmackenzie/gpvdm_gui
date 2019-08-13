@@ -123,19 +123,14 @@ class gl_objects():
 
 	def gl_objects_render(self):
 		for o in self.objects:
-			if o.type=="box":
-				#box(o.x,o.y,o.z,o.dx,o.dy,o.dz,o.r,o.g,o.b,0.5,name=o.id)
-				paint_from_array(o)
-			elif o.type=="plane":
+			if o.type=="plane":
 				plane(o.x,o.y,o.z,o.dx,o.dy,o.dz,o.r,o.g,o.b)
 			elif o.type=="ray":
 				raw_ray(o.x,o.y,o.z,o.dx,o.dy,o.dz,o.r,o.g,o.b)
 			elif o.type=="open_triangles":
 				paint_open_triangles_from_array(o)
-			elif o.type=="dome":
+			else:
 				paint_from_array(o)
-			elif o.type=="pyrmid":
-				pyrmid(o)
 			if o.selected==True:
 				if o.selectable==True:
 					box_lines(o.x,o.y,o.z,o.dx,o.dy,o.dz)

@@ -47,6 +47,10 @@ from gl_scale import scale_m2screen_x
 from gl_scale import scale_m2screen_y
 from gl_scale import scale_m2screen_z
 
+from gl_scale import scale_get_xmul
+from gl_scale import scale_get_ymul
+from gl_scale import scale_get_zmul
+
 def pyrmid(o):
 	x=o.x
 	y=o.y
@@ -99,10 +103,9 @@ def paint_from_array(o):
 
 	for t in o.triangles.data:
 		glBegin(GL_TRIANGLES)
-		glVertex3f(scale_m2screen_x(t.xyz0.x),scale_m2screen_y(t.xyz0.y),scale_m2screen_z(t.xyz0.z))
-		glVertex3f(scale_m2screen_x(t.xyz1.x),scale_m2screen_y(t.xyz1.y),scale_m2screen_z(t.xyz1.z))
-		glVertex3f(scale_m2screen_x(t.xyz2.x),scale_m2screen_y(t.xyz2.y),scale_m2screen_z(t.xyz2.z))
-		print(t)
+		glVertex3f(o.x+t.xyz0.x*scale_get_xmul(),o.y+t.xyz0.y*scale_get_ymul(),o.z+t.xyz0.z*scale_get_zmul())
+		glVertex3f(o.x+t.xyz1.x*scale_get_xmul(),o.y+t.xyz1.y*scale_get_ymul(),o.z+t.xyz1.z*scale_get_zmul())
+		glVertex3f(o.x+t.xyz2.x*scale_get_xmul(),o.y+t.xyz2.y*scale_get_ymul(),o.z+t.xyz2.z*scale_get_zmul())
 		glEnd()
 
 def paint_open_triangles_from_array(o):
@@ -120,18 +123,18 @@ def paint_open_triangles_from_array(o):
 
 	for t in o.triangles.data:
 		glBegin(GL_LINES)
-		glVertex3f(scale_m2screen_x(t.xyz0.x),scale_m2screen_y(t.xyz0.y),scale_m2screen_z(t.xyz0.z))
-		glVertex3f(scale_m2screen_x(t.xyz1.x),scale_m2screen_y(t.xyz1.y),scale_m2screen_z(t.xyz1.z))
+		glVertex3f(o.x+scale_m2screen_x(t.xyz0.x),o.y+scale_m2screen_y(t.xyz0.y),o.z+scale_m2screen_z(t.xyz0.z))
+		glVertex3f(o.x+scale_m2screen_x(t.xyz1.x),o.y+scale_m2screen_y(t.xyz1.y),o.z+scale_m2screen_z(t.xyz1.z))
 		glEnd()
 
 		glBegin(GL_LINES)
-		glVertex3f(scale_m2screen_x(t.xyz1.x),scale_m2screen_y(t.xyz1.y),scale_m2screen_z(t.xyz1.z))
-		glVertex3f(scale_m2screen_x(t.xyz2.x),scale_m2screen_y(t.xyz2.y),scale_m2screen_z(t.xyz2.z))
+		glVertex3f(o.x+scale_m2screen_x(t.xyz1.x),o.y+scale_m2screen_y(t.xyz1.y),o.z+scale_m2screen_z(t.xyz1.z))
+		glVertex3f(o.x+scale_m2screen_x(t.xyz2.x),o.y+scale_m2screen_y(t.xyz2.y),o.z+scale_m2screen_z(t.xyz2.z))
 		glEnd()
 
 		glBegin(GL_LINES)
-		glVertex3f(scale_m2screen_x(t.xyz2.x),scale_m2screen_y(t.xyz2.y),scale_m2screen_z(t.xyz2.z))
-		glVertex3f(scale_m2screen_x(t.xyz0.x),scale_m2screen_y(t.xyz0.y),scale_m2screen_z(t.xyz0.z))
+		glVertex3f(o.x+scale_m2screen_x(t.xyz2.x),o.y+scale_m2screen_y(t.xyz2.y),o.z+scale_m2screen_z(t.xyz2.z))
+		glVertex3f(o.x+scale_m2screen_x(t.xyz0.x),o.y+scale_m2screen_y(t.xyz0.y),o.z+scale_m2screen_z(t.xyz0.z))
 		glEnd()
 
 

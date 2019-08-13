@@ -37,6 +37,27 @@ class vec():
 	def __str__(self):
 		return "("+str(self.x)+","+str(self.y)+","+str(self.z)+")"
 
+	def __sub__(self,data):
+		a=vec()
+		a.x=self.x-data.x
+		a.y=self.y-data.y
+		a.z=self.z-data.z
+		return a
+
+	def __truediv__(self,data):
+		a=vec()
+		a.x=self.x/data.x
+		a.y=self.y/data.y
+		a.z=self.z/data.z
+		return a
+
+	def __mul__(self,data):
+		a=vec()
+		a.x=self.x*data.x
+		a.y=self.y*data.y
+		a.z=self.z*data.z
+		return a
+
 class triangle():
 	def __init__(self):
 		self.xyz0=vec()
@@ -111,3 +132,28 @@ class triangle():
 			z=self.xyz2.z
 
 		return z
+
+	def __sub__(self,data):
+		if type(data)==vec:
+			a=triangle()
+			a.xyz0=self.xyz0-data
+			a.xyz1=self.xyz1-data
+			a.xyz2=self.xyz2-data
+			return a
+
+	def __truediv__(self,data):
+		if type(data)==vec:
+			a=triangle()
+			a.xyz0=self.xyz0/data
+			a.xyz1=self.xyz1/data
+			a.xyz2=self.xyz2/data
+			return a
+
+	def __mul__(self,data):
+		if type(data)==vec:
+			a=triangle()
+			a.xyz0=self.xyz0*data
+			a.xyz1=self.xyz1*data
+			a.xyz2=self.xyz2*data
+			return a
+

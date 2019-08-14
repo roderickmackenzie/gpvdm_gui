@@ -44,6 +44,7 @@ from triangle_io import triangles_sub_vec
 from triangle_io import triangles_div_vec
 from triangle_io import triangles_mul_vec
 from triangle import vec
+from triangle_io import triangles_print 
 
 class shape():
 	def __init__(self):
@@ -99,24 +100,29 @@ class shape():
 				triangles_sub_vec(self.triangles.data,min_vec)
 
 				max_vec=triangles_get_max(self.triangles.data)
-				max_vec.x=max_vec.x/self.dx
-				max_vec.y=max_vec.y/self.dy
-				max_vec.z=max_vec.z/self.dz
 
-				triangles_div_vec(self.triangles.data,max_vec)
+				triangles_print(self.triangles.data)
+
+				self.triangles.data=triangles_div_vec(self.triangles.data,max_vec)
+
+				triangles_print(self.triangles.data)
+				#print(max_vec)
+				#print("bing")
 				v=vec()
 				v.x=1.0
 				v.y=-1.0
 				v.z=1.0
-				triangles_mul_vec(self.triangles.data,v)
-				min_vec=triangles_get_min(self.triangles.data)
 
-				v=vec()
-				v.x=0.0
-				v.y=min_vec.y
-				v.z=0.0
+				self.triangles.data=triangles_mul_vec(self.triangles.data,v)
 
-				triangles_sub_vec(self.triangles.data,v)
+				#min_vec=triangles_get_min(self.triangles.data)
+
+				#v=vec()
+				#v.x=0.0
+				#v.y=min_vec.y
+				#v.z=0.0
+
+				#triangles_sub_vec(self.triangles.data,v)
 		try:
 
 					

@@ -92,20 +92,16 @@ def pyrmid(o):
 
 def paint_from_array(o):
 	set_color(o.r,o.g,o.b,o.id,alpha=o.alpha)
-
-	dx=o.dx/2
-	dy=o.dy/2
-	dz=o.dz/2
 	
 	x=o.x
 	y=o.y
 	z=o.z
 
-	for t in o.triangles.data:
+	for t in o.triangles:
 		glBegin(GL_TRIANGLES)
-		glVertex3f(o.x+t.xyz0.x*scale_get_xmul(),o.y+t.xyz0.y*scale_get_ymul(),o.z+t.xyz0.z*scale_get_zmul())
-		glVertex3f(o.x+t.xyz1.x*scale_get_xmul(),o.y+t.xyz1.y*scale_get_ymul(),o.z+t.xyz1.z*scale_get_zmul())
-		glVertex3f(o.x+t.xyz2.x*scale_get_xmul(),o.y+t.xyz2.y*scale_get_ymul(),o.z+t.xyz2.z*scale_get_zmul())
+		glVertex3f(o.x+t.xyz0.x,o.y+t.xyz0.y,o.z+t.xyz0.z)
+		glVertex3f(o.x+t.xyz1.x,o.y+t.xyz1.y,o.z+t.xyz1.z)
+		glVertex3f(o.x+t.xyz2.x,o.y+t.xyz2.y,o.z+t.xyz2.z)
 		glEnd()
 
 def paint_open_triangles_from_array(o):

@@ -51,13 +51,13 @@ from gl_scale import scale_get_ymul
 from gl_scale import scale_get_zmul
 
 from gl_list import gl_base_object
+from triangle import vec
+from triangle_io import triangles_mul_vec
+from triangle_io import triangles_print
 
 class shape_layer():
 	def shape_layer(self,obj,s,ix,iy,iz, name="name"):
 		self.gl_objects_remove_regex(name)
-		x_pos=ix+s.x0*scale_get_xmul()#+s.shape_x0*scale_get_xmul()
-		y_pos=iy+s.y0*scale_get_ymul()
-		z_pos=iz+s.z0*scale_get_zmul()#+s.shape_z0*scale_get_zmul()
 
 		height=1.0
 		dx=s.dx*scale_get_xmul()
@@ -69,21 +69,29 @@ class shape_layer():
 		dy_tot=(s.dy+s.dy_padding)*scale_get_ymul()
 
 		for x in range(0,s.shape_nx):
-			z_pos=iz+s.z0*scale_get_zmul()
 			for z in range(0,s.shape_nz):
+				x_pos=ix+(s.x0+(s.dx+s.dx_padding)*x)*scale_get_xmul()
+				y_pos=iy+(s.y0+s.dy+s.dy_padding)*scale_get_ymul()
+				z_pos=iz+(s.z0+(s.dz+s.dz_padding)*z)+s.z0*scale_get_zmul()
+
+				#print("a",x_pos)
+
 				a=gl_base_object()
 				a.id=name
 				a.type=s.type
 				a.x=x_pos
 				a.y=y_pos
 				a.z=z_pos
-				a.dx=dx
-				a.dy=dy
-				a.dz=dz
 				a.r=s.r
 				a.g=s.g
 				a.b=s.b
-				a.triangles=s.triangles
+
+				v=vec()
+				v.x=s.dx*scale_get_xmul()
+				v.y=s.dy*scale_get_ymul()
+				v.z=s.dz*scale_get_zmul()
+				triangles_print(s.triangles.data)
+				a.triangles=triangles_mul_vec(s.triangles.data,v)
 				self.gl_objects_add(a)
 
 				z_pos=z_pos+dz_tot

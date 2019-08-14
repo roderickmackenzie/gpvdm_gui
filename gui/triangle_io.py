@@ -62,14 +62,14 @@ def triangles_get_max(data):
 	z=data[0].max_z()
 
 	for t in data:
-		if t.min_x()>x:
-			x=t.min_x()
+		if t.max_x()>x:
+			x=t.max_x()
 
-		if t.min_y()>y:
-			y=t.min_y()
+		if t.max_y()>y:
+			y=t.max_y()
 
-		if t.min_z()>z:
-			z=t.min_z()
+		if t.max_z()>z:
+			z=t.max_z()
 
 	ret=vec()
 	ret.x=x
@@ -89,13 +89,27 @@ def triangles_div_vec(data,vec):
 	if len(data)==0:
 		return None
 
+	ret=[]
 	for i in range(0,len(data)):
-		data[i]=data[i]/vec
+		ret.append(data[i]/vec)
+
+	return ret
 
 def triangles_mul_vec(data,vec):
 	if len(data)==0:
 		return None
+	ret=[]
 
 	for i in range(0,len(data)):
-		data[i]=data[i]*vec
+		ret.append(data[i]*vec)
+
+	return ret
+
+def triangles_print(data):
+	if len(data)==0:
+		return None
+
+	for i in range(0,len(data)):
+		print(data[i])
+
 

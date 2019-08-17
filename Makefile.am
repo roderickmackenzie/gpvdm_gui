@@ -7,6 +7,12 @@ htmlsrcdir = $(pkgdatadir)/html
 htmlsrc_DATA = html/*.html
 endif
 
+
+if INCLUDE_VIDEO
+videosrcdir = $(pkgdatadir)/mp4
+videosrc_DATA = video/*.mp4
+endif
+
 if INCLUDE_IMAGES
 imagedir = $(pkgdatadir)/images
 image_DATA = images/*.jpg images/*.png  images/*.ico

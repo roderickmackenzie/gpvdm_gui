@@ -53,6 +53,7 @@ materials_base_path=None
 emission_base_path=None
 shape_base_path=None
 html_path=None
+video_path=None
 cluster_path=None
 cluster_libs_path=None
 home_path=None
@@ -239,6 +240,7 @@ def calculate_paths():
 	global emission_base_path
 	global shape_base_path
 	global html_path
+	global video_path
 	global cluster_path
 	global cluster_libs_path
 
@@ -266,6 +268,8 @@ def calculate_paths():
 
 
 	html_path=search_known_paths("html",[""],"info0.html",True)
+	video_path=search_known_paths("video",[""],"welcome.mp4",True)
+
 
 def get_license_path():
 	return get_exe_path()
@@ -458,6 +462,10 @@ def get_videos_path():
 	if os.path.isdir(path):
 		return path
 	return False
+
+def get_video_path():
+	global video_path
+	return video_path
 
 def get_downloads_path():
 	path=os.path.join(get_home_path(),"Downloads")

@@ -64,7 +64,8 @@ class epi_layer():
 		self.alpha=1.0
 		self.lumo_file="none"
 		self.homo_file="none"
-
+		self.start=0.0
+		self.end=0.0
 
 	def set_width(self,data):
 		if type(data)==float or type(data)==int:
@@ -490,7 +491,7 @@ class epitaxy():
 
 		lines=inp_load_file(os.path.join(path,"epitaxy.inp"))
 
-
+		y_pos=0.0
 		if lines!=False:
 			#compat layer for 
 			ver=float(inp_search_token_value(lines,"#ver"))
@@ -542,6 +543,11 @@ class epitaxy():
 				pos=pos+1
 				a.homo_file=lines[pos]		#value
 
+				a.start=y_pos
+
+				y_pos=y_pos+a.width
+
+				a.end=y_pos
 				epi.layers.append(a)
 
 	def find_layer_index_from_file_name(self,input_file):

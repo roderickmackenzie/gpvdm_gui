@@ -327,7 +327,7 @@ if open_gl_ok==True:
 				alpha=obj.alpha
 				if len(obj.shapes)>0:
 					for s in obj.shapes:
-						self.shape_layer(obj,s,x,y+dy_shrink/2, z, name=layer_name)
+						self.shape_layer(obj,s, y_padding=dy_shrink/2, name=layer_name)
 
 		def draw_device(self,x,z):
 
@@ -527,7 +527,6 @@ if open_gl_ok==True:
 			x=scale_m2screen_x(0)
 			z=scale_m2screen_z(0)
 
-			print("here------->>",self.enable_draw_rays)
 			if self.enable_draw_rays==True:
 				self.draw_rays(self.ray_file)
 

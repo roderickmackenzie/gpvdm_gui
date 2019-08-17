@@ -228,10 +228,8 @@ class plot_widget(QWidget):
 			if self.data[0].logy==True:
 				self.ax[i].set_xscale("log")
 
-			print(">>>>>>>>",self.data[0].logdata)
 			if self.data[0].logdata==True:
 				self.ax[i].set_yscale("log")
-
 
 		all_plots=[]
 		files=[]
@@ -330,15 +328,15 @@ class plot_widget(QWidget):
 				self.fig.legend(all_plots, files, self.data[0].legend_pos)
 
 		if get_lock().is_trial()==True:
-			x=0
-			y=0
-			while(x<1.0):
-				y=0
-				while(y<1.0):
-					self.fig.text(x, y, 'gpvdm trial', fontsize=20, color='gray', ha='right', va='bottom', alpha=self.watermark_alpha)
+			x=0.25
+			y=0.25
+			#while(x<1.0):
+			#	y=0
+			#	while(y<1.0):
+			self.fig.text(x, y, 'gpvdm trial', fontsize=20, color='gray', ha='right', va='bottom', alpha=self.watermark_alpha)
 
-					y=y+0.1
-				x=x+0.25
+			#		y=y+0.1
+			#	x=x+0.25
 
 		self.fig.canvas.draw()
 

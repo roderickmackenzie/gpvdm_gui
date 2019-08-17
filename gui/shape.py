@@ -97,23 +97,23 @@ class shape():
 			if self.triangles.data!=None:
 				min_vec=triangles_get_min(self.triangles.data)
 
-				triangles_sub_vec(self.triangles.data,min_vec)
+				self.triangles.data=triangles_sub_vec(self.triangles.data,min_vec)
 
 				max_vec=triangles_get_max(self.triangles.data)
 
-				triangles_print(self.triangles.data)
+				#triangles_print(self.triangles.data)
 
 				self.triangles.data=triangles_div_vec(self.triangles.data,max_vec)
 
-				triangles_print(self.triangles.data)
+				#triangles_print(self.triangles.data)
 				#print(max_vec)
 				#print("bing")
-				v=vec()
-				v.x=1.0
-				v.y=-1.0
-				v.z=1.0
+				#v=vec()
+				#v.x=1.0
+				#v.y=-1.0
+				#v.z=1.0
 
-				self.triangles.data=triangles_mul_vec(self.triangles.data,v)
+				#self.triangles.data=triangles_mul_vec(self.triangles.data,v)
 
 				#min_vec=triangles_get_min(self.triangles.data)
 
@@ -122,7 +122,7 @@ class shape():
 				#v.y=min_vec.y
 				#v.z=0.0
 
-				#triangles_sub_vec(self.triangles.data,v)
+				#self.triangles.data=triangles_sub_vec(self.triangles.data,v)
 		try:
 
 					

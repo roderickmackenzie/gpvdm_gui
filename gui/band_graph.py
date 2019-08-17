@@ -110,7 +110,7 @@ class band_graph(QWidget):
 	def save_image(self):
 		response=save_as_filter(self,"png (*.png);;jpg (*.jpg);;svg (*.svg)")
 		if response != None:
-			print(response)
+			#print(response)
 			self.my_figure.savefig(response)
 
 	def set_data_file(self,file):
@@ -122,7 +122,7 @@ class band_graph(QWidget):
 		self.layer_end=[]
 		self.layer_name=[]
 		self.optical_mode_file=os.path.join(get_sim_path(),"optical_output",self.data_file)
-
+		#print(self.optical_mode_file)
 		self.my_figure.clf()
 		ax1 = self.my_figure.add_subplot(111)
 		ax2 = ax1.twinx()
@@ -218,6 +218,7 @@ class band_graph(QWidget):
 
 		state=dat_file()
 		if state.load(self.optical_mode_file)==True:
+			#print(state.data)
 			ax1.set_ylabel(state.data_label+" ("+state.data_units+")")
 			ax1.set_xlabel(_("Position")+" (nm)")
 			ax2.set_ylabel(_("Energy")+" (eV)")

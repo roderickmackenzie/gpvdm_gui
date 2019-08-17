@@ -32,6 +32,11 @@ AC_ARG_ENABLE(nohtml, "used to disable compilation of html",
 [AM_CONDITIONAL([INCLUDE_HTML],[true])]
 )
 
+AC_ARG_ENABLE(novideo, "used to disable compilation of video",
+[AM_CONDITIONAL([INCLUDE_VIDEO],[false])],
+[AM_CONDITIONAL([INCLUDE_VIDEO],[true])]
+)
+ 
 AC_SUBST(INSTALL_LANG,"")
 AC_SUBST(WIN_ICON, "" )
 AC_SUBST(WIN_RES_FILE, "" )

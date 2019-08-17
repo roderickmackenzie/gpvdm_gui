@@ -47,6 +47,7 @@ from util import isnumber
 from gl_scale import scale_m2screen_x
 from gl_scale import scale_m2screen_y
 from gl_scale import scale_m2screen_z
+from gl_scale import scale_trianges_m2screen
 
 from gl_list import gl_base_object
 
@@ -65,30 +66,29 @@ class gl_lib_ray():
 		b=0.0
 		if self.ray_data.load(ray_file)==True:
 			self.gl_objects_remove_regex("ray_trace_results")
-			for l in self.ray_data.data:
-				if len(l)==2:
-					z=scale_m2screen_z(l[0][0])
-					dz=scale_m2screen_z(l[1][0])-scale_m2screen_x(l[0][0])
+			for t in self.ray_data.data:
+				z=scale_m2screen_z(t.xyz0.z)
+				dz=scale_m2screen_z(t.xyz1.z)-scale_m2screen_z(t.xyz0.z)
 
-					x=scale_m2screen_x(l[0][1])
-					dx=scale_m2screen_x(l[1][1])-scale_m2screen_x(l[0][1])
+				x=scale_m2screen_x(t.xyz0.x)
+				dx=scale_m2screen_x(t.xyz1.x)-scale_m2screen_x(t.xyz0.x)
 
-					y=scale_m2screen_y(l[0][2])
-					dy=scale_m2screen_y(l[1][2])-scale_m2screen_y(l[0][2])
+				y=scale_m2screen_y(t.xyz0.y)
+				dy=scale_m2screen_y(t.xyz1.y)-scale_m2screen_y(t.xyz0.y)
 
-					a=gl_base_object()
-					a.id="ray_trace_results"
-					a.type="ray"
-					a.x=x
-					a.y=y
-					a.z=z
-					a.dx=dx
-					a.dy=dy
-					a.dz=dz
-					a.r=self.ray_data.r
-					a.g=self.ray_data.g
-					a.b=self.ray_data.b
-					self.gl_objects_add(a)
+				a=gl_base_object()
+				a.id="ray_trace_results"
+				a.type="ray"
+				a.x=x
+				a.y=y
+				a.z=z
+				a.dx=dx
+				a.dy=dy
+				a.dz=dz
+				a.r=self.ray_data.r
+				a.g=self.ray_data.g
+				a.b=self.ray_data.b
+				self.gl_objects_add(a)
 
 	def draw_ray_mesh(self):
 		r=1.0
@@ -103,7 +103,7 @@ class gl_lib_ray():
 				a.r=r
 				a.g=g
 				a.b=b
-				a.triangles=self.ray_mesh_data
+				a.triangles=scale_trianges_m2screen(self.ray_mesh_data.data)
 				self.gl_objects_add(a)
 
 

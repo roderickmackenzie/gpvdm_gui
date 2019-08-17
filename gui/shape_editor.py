@@ -55,6 +55,17 @@ from ref_io import ref
 
 from gl import glWidget
 from shape_import import shape_import
+from dat_file import dat_file
+
+from gl_list import gl_base_object
+from gl_scale import scale_trianges_m2screen
+from triangle_io import triangles_get_min
+from triangle_io import triangles_sub_vec
+from triangle_io import triangles_get_max
+from triangle_io import triangles_div_vec
+from triangle_io import triangles_flip
+from triangle_io import triangles_scale_for_gl
+from triangle import vec
 
 articles = []
 mesh_articles = []
@@ -107,13 +118,26 @@ class shape_editor(QWidgetSavePos):
 
 
 		self.three_d_shape=glWidget(self)
-		self.three_d_shape.triangle_file=os.path.join(self.path,"shape.inp")
+		self.three_d_shape.triangle_file=""
 
 		self.three_d_shape.draw_electrical_mesh=False
 		self.three_d_shape.enable_draw_device=False
 		self.three_d_shape.enable_draw_ray_mesh=True
 		self.three_d_shape.enable_draw_light_source=False
 		self.three_d_shape.enable_draw_rays=False
+
+		data=dat_file()
+
+		if data.load(os.path.join(self.path,"shape.inp"))==True:
+			a=gl_base_object()
+			a.id="bing"
+			a.type="open_triangles"
+			a.r=data.r
+			a.g=data.g
+			a.b=data.b
+			a.triangles=triangles_scale_for_gl(data.data)
+			self.three_d_shape.gl_objects_add(a)
+
 		self.notebook.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
 		self.ribbon.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Minimum)
 		#self.alpha.init(enable_toolbar=False)

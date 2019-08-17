@@ -344,6 +344,14 @@ def build_token_lib():
 
 	lib.append(my_data("ray.inp","#ray_escape_bins","au",_("Escape bins"),"e",1.0,"QLineEdit"))
 
+	lib.append(my_data("ray.inp","#ray_auto_wavelength_range",_("True/False"),_("Automatic wavelength range"),"e",1.0,"gtkswitch"))
+	lib.append(my_data("ray.inp","#ray_lambda_start","nm",_("Start wavelength"),"e",1.0,"QLineEdit",hide_on_true_token="#ray_auto_wavelength_range"))
+	lib.append(my_data("ray.inp","#ray_lambda_stop","nm",_("Stop wavelength"),"e",1.0,"QLineEdit",hide_on_true_token="#ray_auto_wavelength_range"))
+
+
+
+
+
 
 	#led.inp
 	lib.append(my_data("","#led_extract_eff","0.0-1.0",_("LED extraction efficiency"),"e",1.0,"QLineEdit"))

@@ -29,7 +29,6 @@ import sys
 import glob
 
 from gl_shapes import box
-from gl_shapes import dome
 from gl_shapes import paint_from_array
 from gl_shapes import paint_open_triangles_from_array
 from gl_shapes import pyrmid
@@ -122,6 +121,35 @@ class gl_objects():
 				self.objects[i].selected =False
 
 	def gl_objects_render(self):
+		if 1==0:
+			from triangle_io import triangles_mul_vec
+			from dat_file import dat_file
+			from triangle import vec
+			a=dat_file()
+			from triangle_shapes import dome
+			a.data=dome()
+			v=vec()
+			v.x=1.0
+			v.y=-1.0
+			v.z=1.0
+
+			#a.data=triangles_mul_vec(a.data,v)
+
+			a.type="poly"
+			#a.save("a.inp")
+
+			from triangle_shapes import btm
+			a.data.extend(btm())
+			v=vec()
+			v.x=1.0
+			v.y=-1.0
+			v.z=1.0
+
+			a.data=triangles_mul_vec(a.data,v)
+
+			a.type="poly"
+			a.save("a.inp")
+			return
 		for o in self.objects:
 			if o.type=="plane":
 				plane(o.x,o.y,o.z,o.dx,o.dy,o.dz,o.r,o.g,o.b)
@@ -131,6 +159,7 @@ class gl_objects():
 				paint_open_triangles_from_array(o)
 			else:
 				paint_from_array(o)
+				paint_open_triangles_from_array(o)
 			if o.selected==True:
 				if o.selectable==True:
 					box_lines(o.x,o.y,o.z,o.dx,o.dy,o.dz)

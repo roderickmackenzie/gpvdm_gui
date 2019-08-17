@@ -476,7 +476,11 @@ class gpvdm_viewer(QListWidget):
 
 						if (ext==".dat"):
 							text=peek_data(file_name)
-							if text.startswith(b"#gpvdm"):
+							if fl in ["theta_small_x.dat","theta_small_z.dat","theta_Y.dat", "theta_small_y.dat","theta_X.dat", "theta_Z.dat", "theta_RGB.dat"]:
+
+								itm.file_name=fl
+								itm.icon="color"
+							elif text.startswith(b"#gpvdm"):
 								itm.file_name=fl
 								itm.icon="dat_file"
 
@@ -507,7 +511,7 @@ class gpvdm_viewer(QListWidget):
 								if lines!=False:
 
 									itm.file_name=fl
-									itm.display_name=inp_get_token_value_from_list(lines, "#info_name")+" ("+fl+")"
+									itm.display_name=inp_get_token_value_from_list(lines, "#info_name")
 									icon_name=inp_get_token_value_from_list(lines, "#info_icon")
 									itm.icon=icon_name
 									itm.hidden=str2bool(inp_get_token_value_from_list(lines, "#info_hidden"))
@@ -548,6 +552,9 @@ class gpvdm_viewer(QListWidget):
 
 				if self.file_list[i].file_name=="ofet.gpvdm":
 					self.file_list.insert(2, self.file_list.pop(i))
+
+				if self.file_list[i].file_name=="oled.gpvdm":
+					self.file_list.insert(3, self.file_list.pop(i))
 		self.paint()
 
 	def paint(self):

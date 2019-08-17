@@ -45,7 +45,7 @@ from icon_lib import icon_get
 
 from about import about_dlg
 
-from fx_selector import fx_selector
+from mode_selector import mode_selector
 from tb_optical_model import tb_optical_model
 from tb_spectrum import tb_spectrum
 
@@ -64,10 +64,8 @@ class optics_ribbon(ribbon_base):
 		self.run = play(self,run_text=wrap_text(_("Run optical simulation"),5))
 		toolbar.addAction(self.run)
 
-		self.fx_box=fx_selector()
+		self.fx_box=mode_selector()
 		self.fx_box.show_all=True
-		self.fx_box.file_name_set_start("light_1d_") 
-		self.fx_box.file_name_set_end("_photons_abs.dat")
 		self.fx_box.update()
 		toolbar.addWidget(self.fx_box)
 		

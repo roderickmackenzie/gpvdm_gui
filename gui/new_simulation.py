@@ -35,7 +35,7 @@ _ = i18n.language.gettext
 
 #qt
 from PyQt5.QtCore import QSize, Qt 
-from PyQt5.QtWidgets import QPushButton,QCheckBox,QHBoxLayout,QLabel,QWidget,QDialog,QVBoxLayout,QToolBar,QSizePolicy,QAction,QTabWidget,QSystemTrayIcon,QMenu,QListWidget,QListWidgetItem
+from PyQt5.QtWidgets import QPushButton,QCheckBox,QHBoxLayout, QListView, QLabel,QWidget,QDialog,QVBoxLayout,QToolBar,QSizePolicy,QAction,QTabWidget,QSystemTrayIcon,QMenu,QListWidget,QListWidgetItem
 from PyQt5.QtGui import QIcon
 from PyQt5.uic import loadUi
 
@@ -160,7 +160,7 @@ class new_simulation(QDialog):
 	def __init__(self):
 		QDialog.__init__(self)
 		self.main_vbox=QVBoxLayout()
-		self.setFixedSize(450,580) 
+		self.setMinimumSize(900,580) 
 		self.setWindowTitle(_("New simulation")+" (https://www.gpvdm.com)")
 		self.setWindowIcon(icon_get("si"))
 		self.title=QLabel("<big><b>"+_("Which type of device would you like to simulate?")+"</b></big>")
@@ -169,6 +169,19 @@ class new_simulation(QDialog):
 		self.viewer.open_own_files=False
 		self.viewer.set_back_arrow(True)
 		self.viewer.set_enable_menu(False)
+		self.viewer.setViewMode(QListView.IconMode)
+		self.viewer.setSpacing(8)
+		self.viewer.setWordWrap(True)
+		gridsize=self.size()
+		gridsize.setWidth(100)
+		gridsize.setHeight(140)
+		self.viewer.setGridSize(gridsize)
+
+		self.viewer.setTextElideMode ( Qt.ElideNone)
+		#gridsize=self.size()
+		#gridsize.setWidth(100)
+		#gridsize.setHeight(90)
+		#self.setGridSize(gridsize)
 		self.main_vbox.addWidget(self.title)
 		self.main_vbox.addWidget(self.viewer)
 

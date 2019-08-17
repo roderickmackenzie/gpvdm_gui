@@ -44,11 +44,25 @@ class vec():
 		a.z=self.z-data.z
 		return a
 
-	def __truediv__(self,data):
+	def __add__(self,data):
 		a=vec()
-		a.x=self.x/data.x
-		a.y=self.y/data.y
-		a.z=self.z/data.z
+		a.x=self.x+data.x
+		a.y=self.y+data.y
+		a.z=self.z+data.z
+		return a
+
+	def __truediv__(self,data):
+		if type(data)==vec:
+			a=vec()
+			a.x=self.x/data.x
+			a.y=self.y/data.y
+			a.z=self.z/data.z
+		if type(data)==float:
+			a=vec()
+			a.x=self.x/data
+			a.y=self.y/data
+			a.z=self.z/data
+
 		return a
 
 	def __mul__(self,data):
@@ -57,12 +71,14 @@ class vec():
 		a.y=self.y*data.y
 		a.z=self.z*data.z
 		return a
+		
 
 class triangle():
 	def __init__(self):
 		self.xyz0=vec()
 		self.xyz1=vec()
 		self.xyz2=vec()
+		self.points=3
 
 	def __str__(self):
 		return str(self.xyz0)+"\n"+str(self.xyz1)+"\n"+str(self.xyz2)+"\n"
@@ -139,6 +155,14 @@ class triangle():
 			a.xyz0=self.xyz0-data
 			a.xyz1=self.xyz1-data
 			a.xyz2=self.xyz2-data
+			return a
+
+	def __add__(self,data):
+		if type(data)==vec:
+			a=triangle()
+			a.xyz0=self.xyz0+data
+			a.xyz1=self.xyz1+data
+			a.xyz2=self.xyz2+data
 			return a
 
 	def __truediv__(self,data):

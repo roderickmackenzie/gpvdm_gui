@@ -474,6 +474,19 @@ class dat_file():
 					t.xyz2.y=build[2][2]
 					self.data.append(t)
 
+				elif len(build)==2 and len(build[0])==3:
+					t=triangle()
+					t.points=2
+
+					t.xyz0.z=build[0][0]
+					t.xyz0.x=build[0][1]
+					t.xyz0.y=build[0][2]
+
+					t.xyz1.z=build[1][0]
+					t.xyz1.x=build[1][1]
+					t.xyz1.y=build[1][2]
+
+					self.data.append(t)
 				else:
 					self.data.append(build)
 				build=[]
@@ -743,10 +756,11 @@ class dat_file():
 
 		if self.type=="poly":
 			for d in self.data:
-				lines.append(str(d[0][0])+" "+str(d[0][1])+" "+str(d[0][2]))
-				lines.append(str(d[1][0])+" "+str(d[1][1])+" "+str(d[1][2]))
-				lines.append(str(d[2][0])+" "+str(d[2][1])+" "+str(d[2][2]))
-				lines.append(str(d[0][0])+" "+str(d[0][1])+" "+str(d[0][2]))
+				lines.append(str(d.xyz0.z)+" "+str(d.xyz0.x)+" "+str(d.xyz0.y))
+				lines.append(str(d.xyz1.z)+" "+str(d.xyz1.x)+" "+str(d.xyz1.y))
+				lines.append(str(d.xyz2.z)+" "+str(d.xyz2.x)+" "+str(d.xyz2.y))
+				lines.append(str(d.xyz0.z)+" "+str(d.xyz0.x)+" "+str(d.xyz0.y))
+
 				lines.append("")
 		else:
 			for i in range(0,self.y_len):

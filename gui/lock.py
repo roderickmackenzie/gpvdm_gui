@@ -183,7 +183,7 @@ class lock():
 	def html(self):
 		text=""
 		text=text+"UID:"+self.uid+"<br>"
-
+		text=text+"count:"+str(self.use_count)+"<br>"
 		return text
 
 	def get_license(self,key="none"):

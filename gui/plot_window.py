@@ -35,6 +35,9 @@ from PyQt5.QtWidgets import QWidget,QVBoxLayout
 from dat_file import dat_file
 from icon_lib import icon_get
 
+from gl_list import gl_base_object
+from gl_scale import scale_trianges_m2screen
+
 class plot_window(QWidget):
 	def __init__(self):
 		QWidget.__init__(self)
@@ -91,13 +94,24 @@ class plot_window(QWidget):
 			self.main_vbox.addWidget(self.plot)
 			self.setLayout(self.main_vbox)
 
-			self.plot.triangle_file=input_files[0]
+			#self.plot.triangle_file=input_files[0]
 
 			self.plot.draw_electrical_mesh=False
 			self.plot.enable_draw_device=False
 			self.plot.enable_draw_ray_mesh=True
 			self.plot.enable_draw_light_source=False
 			self.plot.enable_draw_rays=False
+			data=dat_file()
+
+			if data.load(input_files[0])==True:
+				a=gl_base_object()
+				a.id="bing"
+				a.type="open_triangles"
+				a.r=data.r
+				a.g=data.g
+				a.b=data.b
+				a.triangles=scale_trianges_m2screen(data.data)
+				self.plot.gl_objects_add(a)
 			self.show()
 
 

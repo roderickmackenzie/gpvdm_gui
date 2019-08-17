@@ -63,14 +63,17 @@ class lock_gui(QWidget):
 			if ret==QDialog.Accepted:
 				get_lock().debug_tx_info()
 				image_file=""
-				text="Thank you for registering gpvdm."
+				from video import video
+				self.v=video()
+				self.v.show()
+				#text="Thank you for registering gpvdm."
 
-				msgBox = msg_dlg()
+				#msgBox = msg_dlg()
 
-				msgBox.setText(text)
+				#msgBox.setText(text)
 
 
-				msgBox.exec_()
+				#msgBox.exec_()
 				#self.enable_all.emit()
 			else:
 				return

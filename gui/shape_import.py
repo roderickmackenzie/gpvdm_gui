@@ -60,20 +60,9 @@ from open_save_dlg import open_as_filter
 from shutil import copyfile
 from dat_file import dat_file
 
-class tri():
-	def __init__(self):
-		self.x0=0.0
-		self.y0=0.0
-		self.z0=0.0
-
-
-		self.x1=0.0
-		self.y1=0.0
-		self.z1=0.0
-
-		self.x2=0.0
-		self.y2=0.0
-		self.z2=0.0
+from triangle import triangle
+from triangle_io import triangles_get_min
+from triangle_io import triangles_get_max
 
 class image_widget(QWidget):
 	def __init__(self,path):
@@ -94,8 +83,8 @@ class image_widget(QWidget):
 			return self.im.width()-1
 		return int(ret)
 
-	def m2px_y(self,y):
-		ret=self.im.height()*(y/self.len_y)
+	def m2px_z(self,z):
+		ret=self.im.height()*(z/self.len_z)
 
 		if ret>=self.im.height():
 			return self.im.height()-1
@@ -111,18 +100,27 @@ class image_widget(QWidget):
 		d.title="title Ray trace triange file"
 		d.type="poly"
 		d.x_label="Position"
-		d.y_label="Position"
+		d.z_label="Position"
 		d.data_label="Position"
 		d.x_units="m"
-		d.y_units="m"
+		d.z_units="m"
 		d.data_units="m"
+
+		d.x_len=3
+		d.y_len=len(self.triangles)
+		d.z_len=0
 
 		d.data=[]
 
 		for t in self.triangles:
-			d.data.append([[t.x0,t.y0,t.z0],[t.x1,t.y1,t.z1],[t.x2,t.y2,t.z2]])
+			d.data.append(t)
 
 		d.save(os.path.join(self.path,"shape.inp"))
+
+	def get_color(self,x,z):
+		c = self.im.pixel(self.m2px_x(x),self.m2px_z(z))
+		colors = QColor(c).getRgbF()
+		return (colors[0]+colors[1]+colors[2])/3.0
 
 	def build_mesh(self):
 		if os.path.isfile(self.image_path)==False:
@@ -133,44 +131,93 @@ class image_widget(QWidget):
 		self.im=pixmap.toImage()
 		print(os.path.join(self.path,"shape_import.inp"))
 		x_segs=int(inp_get_token_value(os.path.join(self.path,"shape_import.inp"),"#x_trianges"))
-		y_segs=int(inp_get_token_value(os.path.join(self.path,"shape_import.inp"),"#y_trianges"))
+		z_segs=int(inp_get_token_value(os.path.join(self.path,"shape_import.inp"),"#y_trianges"))
 		dx=self.len_x/x_segs
-		dy=self.len_y/y_segs
+		dz=self.len_z/z_segs
 
 		x=0
+		z=0
 		self.triangles=[]
+		ix=0
+		iz=0
+		for ix in range(0,x_segs):
+			z=0
+			for iz in range(0,z_segs):
+				t0=triangle()
 
-		while(x<self.len_x):
-			y=0
-			while(y<self.len_y):
-				t=tri()
-
-				c = self.im.pixel(self.m2px_x(x),self.m2px_y(y))
-				colors = QColor(c).getRgbF()
-
-				t.x0=x
-				t.y0=y
-				t.z0=self.len_z*(colors[0]+colors[1]+colors[2])/3.0
+				t0.xyz0.x=x
+				t0.xyz0.y=self.len_y*self.get_color(x,z)
+				t0.xyz0.z=z
 				
+				t0.xyz1.x=x
+				t0.xyz1.y=self.len_y*self.get_color(x,z+dz)
+				t0.xyz1.z=z+dz
 
-				c = self.im.pixel(self.m2px_x(x),self.m2px_y(y+dy))
-				colors = QColor(c).getRgbF()
+				t0.xyz2.x=x+dx
+				t0.xyz2.y=self.len_y*self.get_color(x+dx,z)
+				t0.xyz2.z=z
 
-				t.x1=x
-				t.y1=y+dy
-				t.z1=self.len_z*(colors[0]+colors[1]+colors[2])/3.0
+				t1=triangle()
 
-				c = self.im.pixel(self.m2px_x(x+dx),self.m2px_y(y+dy))
-				colors = QColor(c).getRgbF()
+				t1.xyz0.x=x
+				t1.xyz0.y=self.len_y*self.get_color(x,z+dz)
+				t1.xyz0.z=z+dz
 
-				t.x2=x+dx
-				t.y2=y+dy
-				t.z2=self.len_z*(colors[0]+colors[1]+colors[2])/3.0
+				t1.xyz1.x=x+dx
+				t1.xyz1.y=self.len_y*self.get_color(x+dx,z+dz)
+				t1.xyz1.z=z+dz
 
-				self.triangles.append(t)
+				t1.xyz2.x=x+dx
+				t1.xyz2.y=self.len_y*self.get_color(x+dx,z)
+				t1.xyz2.z=z
 
-				y=y+dy
+
+
+				self.triangles.append(t0)
+				self.triangles.append(t1)
+
+				z=z+dz
 			x=x+dx
+
+		min=triangles_get_min(self.triangles)
+		max=triangles_get_max(self.triangles)
+
+		for t in self.triangles:
+			if t.xyz0.x==min.x:
+				t.xyz0.y=0
+
+			if t.xyz1.x==min.x:
+				t.xyz1.y=0
+
+			if t.xyz2.x==min.x:
+				t.xyz2.y=0
+
+			if t.xyz0.x==max.x:
+				t.xyz0.y=0
+
+			if t.xyz1.x==max.x:
+				t.xyz1.y=0
+
+			if t.xyz2.x==max.x:
+				t.xyz2.y=0
+
+			if t.xyz0.z==min.z:
+				t.xyz0.y=0
+
+			if t.xyz1.z==min.z:
+				t.xyz1.y=0
+
+			if t.xyz2.z==min.z:
+				t.xyz2.y=0
+
+			if t.xyz0.z==max.z:
+				t.xyz0.y=0
+
+			if t.xyz1.z==max.z:
+				t.xyz1.y=0
+
+			if t.xyz2.z==max.z:
+				t.xyz2.y=0
 
 	def paintEvent(self, event):
 		painter = QPainter(self)
@@ -181,22 +228,16 @@ class image_widget(QWidget):
 		pixmap = QPixmap(self.image_path)
 		self.im=pixmap.toImage()
 		x_mul=self.width()/pixmap.width()
-		y_mul=self.height()/pixmap.height()
+		z_mul=self.height()/pixmap.height()
 
 		painter.drawPixmap(self.rect(), pixmap)
 		pen = QPen(Qt.red, 3)
 		painter.setPen(pen)
-		x_segs=40
-		y_segs=40
-		dx=self.len_x/x_segs
-		dy=self.len_y/y_segs
-
-		x=0
 
 		for b in self.triangles:
-			painter.drawLine(self.m2px_x(b.x0)*x_mul, self.m2px_y(b.y0)*y_mul, self.m2px_x(b.x1)*x_mul, self.m2px_y(b.y1)*y_mul)
-			painter.drawLine(self.m2px_x(b.x1)*x_mul, self.m2px_y(b.y1)*y_mul, self.m2px_x(b.x2)*x_mul, self.m2px_y(b.y2)*y_mul)
-			painter.drawLine(self.m2px_x(b.x2)*x_mul, self.m2px_y(b.y2)*y_mul, self.m2px_x(b.x0)*x_mul, self.m2px_y(b.y0)*y_mul)
+			painter.drawLine(self.m2px_x(b.xyz0.x)*x_mul, self.m2px_z(b.xyz0.z)*z_mul, self.m2px_x(b.xyz1.x)*x_mul, self.m2px_z(b.xyz1.z)*z_mul)
+			painter.drawLine(self.m2px_x(b.xyz1.x)*x_mul, self.m2px_z(b.xyz1.z)*z_mul, self.m2px_x(b.xyz2.x)*x_mul, self.m2px_z(b.xyz2.z)*z_mul)
+			painter.drawLine(self.m2px_x(b.xyz2.x)*x_mul, self.m2px_z(b.xyz2.z)*z_mul, self.m2px_x(b.xyz0.x)*x_mul, self.m2px_z(b.xyz0.z)*z_mul)
 
 
 class shape_import(QWidgetSavePos):

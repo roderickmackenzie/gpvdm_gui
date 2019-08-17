@@ -61,6 +61,7 @@ from util import wrap_text
 from fdtd import fdtd
 from global_objects import global_object_run
 from PyQt5.QtCore import pyqtSignal
+from QAction_lock import QAction_lock
 
 class ribbon_simulations(QToolBar):
 	experiments_changed = pyqtSignal()
@@ -113,8 +114,8 @@ class ribbon_simulations(QToolBar):
 		self.diode.triggered.connect(self.callback_diode_window)
 		self.addAction(self.diode)
 
-		self.ray_trace = QAction(icon_get("ray"), wrap_text(_("Ray tracing\neditor"),8), self)
-		self.ray_trace.triggered.connect(self.callback_ray_tracing_window)
+		self.ray_trace = QAction_lock("ray", wrap_text(_("Ray tracing\neditor"),8), self,locked=False)
+		self.ray_trace.secure_click.connect(self.callback_ray_tracing_window)
 		self.addAction(self.ray_trace)
 
 		self.pl = QAction(icon_get("pl"), _("PL\neditor"), self)

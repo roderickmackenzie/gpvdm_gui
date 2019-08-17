@@ -54,46 +54,46 @@ from gl_list import gl_base_object
 from triangle import vec
 from triangle_io import triangles_mul_vec
 from triangle_io import triangles_print
+from triangle_io import triangles_add_vec
+from gl_scale import scale_trianges_m2screen
+from triangle_io import triangles_flip
 
 class shape_layer():
-	def shape_layer(self,obj,s,ix,iy,iz, name="name"):
+	def shape_layer(self,epi_layer,s,y_padding=0.0, name="name"):
 		self.gl_objects_remove_regex(name)
-
-		height=1.0
-		dx=s.dx*scale_get_xmul()
-		dz=s.dz*scale_get_zmul()
-		dy=s.dy*scale_get_ymul()
-
-		dx_tot=(s.dx+s.dx_padding)*scale_get_xmul()
-		dz_tot=(s.dz+s.dz_padding)*scale_get_zmul()
-		dy_tot=(s.dy+s.dy_padding)*scale_get_ymul()
 
 		for x in range(0,s.shape_nx):
 			for z in range(0,s.shape_nz):
-				x_pos=ix+(s.x0+(s.dx+s.dx_padding)*x)*scale_get_xmul()
-				y_pos=iy+(s.y0+s.dy+s.dy_padding)*scale_get_ymul()
-				z_pos=iz+(s.z0+(s.dz+s.dz_padding)*z)+s.z0*scale_get_zmul()
-
-				#print("a",x_pos)
+				pos=vec()
+				
+				pos.x=(s.x0+(s.dx+s.dx_padding)*x)
+				pos.y=epi_layer.end+(s.y0+s.dy_padding)
+				pos.z=(s.z0+(s.dz+s.dz_padding)*z)
 
 				a=gl_base_object()
 				a.id=name
 				a.type=s.type
-				a.x=x_pos
-				a.y=y_pos
-				a.z=z_pos
+				a.x=pos.x
+				a.y=pos.y
+				a.z=pos.z
 				a.r=s.r
 				a.g=s.g
 				a.b=s.b
-
 				v=vec()
-				v.x=s.dx*scale_get_xmul()
-				v.y=s.dy*scale_get_ymul()
-				v.z=s.dz*scale_get_zmul()
-				triangles_print(s.triangles.data)
+				v.x=s.dx
+				v.y=s.dy
+				v.z=s.dz
+				#resize the shape to the mesh
 				a.triangles=triangles_mul_vec(s.triangles.data,v)
+
+				#flip
+				a.triangles=triangles_flip(a.triangles)
+
+				#move to correct place
+				a.triangles=triangles_add_vec(a.triangles,pos)
+
+				#scale to the screen
+				a.triangles=scale_trianges_m2screen(a.triangles)
 				self.gl_objects_add(a)
 
-				z_pos=z_pos+dz_tot
-			x_pos=x_pos+dx_tot
 

@@ -117,82 +117,23 @@ def paint_open_triangles_from_array(o):
 
 	glLineWidth(5)
 
-	for t in o.triangles.data:
+	for t in o.triangles:
 		glBegin(GL_LINES)
-		glVertex3f(o.x+scale_m2screen_x(t.xyz0.x),o.y+scale_m2screen_y(t.xyz0.y),o.z+scale_m2screen_z(t.xyz0.z))
-		glVertex3f(o.x+scale_m2screen_x(t.xyz1.x),o.y+scale_m2screen_y(t.xyz1.y),o.z+scale_m2screen_z(t.xyz1.z))
+		glVertex3f(o.x+t.xyz0.x,o.y+t.xyz0.y,o.z+t.xyz0.z)
+		glVertex3f(o.x+t.xyz1.x,o.y+t.xyz1.y,o.z+t.xyz1.z)
 		glEnd()
 
-		glBegin(GL_LINES)
-		glVertex3f(o.x+scale_m2screen_x(t.xyz1.x),o.y+scale_m2screen_y(t.xyz1.y),o.z+scale_m2screen_z(t.xyz1.z))
-		glVertex3f(o.x+scale_m2screen_x(t.xyz2.x),o.y+scale_m2screen_y(t.xyz2.y),o.z+scale_m2screen_z(t.xyz2.z))
-		glEnd()
-
-		glBegin(GL_LINES)
-		glVertex3f(o.x+scale_m2screen_x(t.xyz2.x),o.y+scale_m2screen_y(t.xyz2.y),o.z+scale_m2screen_z(t.xyz2.z))
-		glVertex3f(o.x+scale_m2screen_x(t.xyz0.x),o.y+scale_m2screen_y(t.xyz0.y),o.z+scale_m2screen_z(t.xyz0.z))
-		glEnd()
-
-
-def dome(o):
-	set_color(o.r,o.g,o.b,o.id,alpha=o.alpha)
-
-	dx0=o.dx/2
-	dy0=o.dy/2
-	dz0=o.dz/2
-	
-	x=o.x+dx0
-	y=o.y
-	z=o.z+dz0
-
-	#top
-	theta=0.0
-	theta_max=2.0*3.1415
-	dtheta=theta_max/10.0
-
-	phi=0.0
-	phi_max=3.1415/2.0
-	dphi=phi_max/10.0
-
-	while(phi<phi_max):
-		theta=0
-		while (theta<theta_max):
-			glBegin(GL_QUADS)
-
-			dx=dx0*cos(theta)*cos(phi)
-			dz=dz0*sin(theta)*cos(phi)
-			dy=dy0*sin(phi)
-
-			#print(dx,dy,dz)
-			glVertex3f(x+dx,y+dy,z+dz)
-
-			dx=dx0*cos(theta)*cos(phi+dphi)
-			dz=dz0*sin(theta)*cos(phi+dphi)
-			dy=dy0*sin(phi+dphi)
-
-			#print(dx,dy,dz)
-			glVertex3f(x+dx,y+dy,z+dz)
-
-			dx=dx0*cos(theta+dtheta)*cos(phi+dphi)
-			dz=dz0*sin(theta+dtheta)*cos(phi+dphi)
-			dy=dy0*sin(phi+dphi)
-
-			#print(dx,dy,dz)
-			glVertex3f(x+dx,y+dy,z+dz)
-
-			dx=dx0*cos(theta+dtheta)*cos(phi)
-			dz=dz0*sin(theta+dtheta)*cos(phi)
-			dy=dy0*sin(phi)
-
-			#print(dx,dy,dz)
-			glVertex3f(x+dx,y+dy,z+dz)
-
-
-			theta=theta+dtheta
-
+		if t.points==3:
+			glBegin(GL_LINES)
+			glVertex3f(o.x+t.xyz1.x,o.y+t.xyz1.y,o.z+t.xyz1.z)
+			glVertex3f(o.x+t.xyz2.x,o.y+t.xyz2.y,o.z+t.xyz2.z)
 			glEnd()
 
-		phi=phi+dphi
+			glBegin(GL_LINES)
+			glVertex3f(o.x+t.xyz2.x,o.y+t.xyz2.y,o.z+t.xyz2.z)
+			glVertex3f(o.x+t.xyz0.x,o.y+t.xyz0.y,o.z+t.xyz0.z)
+			glEnd()
+
 
 def half_cyl(x0,y0,z0,dx,dy0,dz,name="name"):
 	r=dx/2

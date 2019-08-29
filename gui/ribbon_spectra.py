@@ -80,7 +80,7 @@ class ribbon_spectra(ribbon_base):
 		self.main_toolbar.setToolButtonStyle( Qt.ToolButtonTextUnderIcon)
 		self.main_toolbar.setIconSize(QSize(42, 42))
 
-		self.import_data= QAction_lock("import", _("From\nFile"), self,locked=True)
+		self.import_data= QAction_lock("import", _("From\nFile"), self,"ribbon_spectra_import")
 		self.main_toolbar.addAction(self.import_data)
 
 

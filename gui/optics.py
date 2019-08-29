@@ -99,7 +99,7 @@ class class_optical(QWidgetSavePos):
 
 		self.ribbon.help.triggered.connect(self.callback_help)
 
-		self.ribbon.tb_save.secure_click.connect(self.callback_save)
+		self.ribbon.tb_save.clicked.connect(self.callback_save)
 
 		self.ribbon.configwindow.triggered.connect(self.callback_configwindow)
 

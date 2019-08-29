@@ -109,8 +109,8 @@ class materials_main(QWidgetSavePos):
 		
 		self.ribbon.cost.triggered.connect(self.callback_cost)
 		self.ribbon.folder_open.triggered.connect(self.callback_dir_open)
-		self.ribbon.import_data.secure_click.connect(self.import_data)
-		self.ribbon.equation.secure_click.connect(self.callback_equation_editor)
+		self.ribbon.import_data.clicked.connect(self.import_data)
+		self.ribbon.equation.clicked.connect(self.callback_equation_editor)
 
 		self.ribbon.tb_ref.triggered.connect(self.callback_ref)
 

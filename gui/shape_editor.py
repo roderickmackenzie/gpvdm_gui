@@ -86,6 +86,26 @@ class shape_editor(QWidgetSavePos):
 	def callback_import_image(self):
 		self.shape_import=shape_import(self.path)
 		self.shape_import.show()
+		self.shape_import.image_widget.changed.connect(self.reload)
+
+	def reload(self):
+		self.load_data()
+		self.three_d_shape.do_draw()
+
+	def load_data(self):
+		data=dat_file()
+
+		if data.load(os.path.join(self.path,"shape.inp"))==True:
+			print(">>>>>>>>>>>>>>")
+			self.three_d_shape.gl_objects_remove_regex("bing")
+			a=gl_base_object()
+			a.id="bing"
+			a.type="open_triangles"
+			a.r=data.r
+			a.g=data.g
+			a.b=data.b
+			a.triangles=triangles_scale_for_gl(data.data)
+			self.three_d_shape.gl_objects_add(a)
 
 	def __init__(self,path):
 		QWidgetSavePos.__init__(self,"spectra_main")
@@ -101,7 +121,7 @@ class shape_editor(QWidgetSavePos):
 		self.ribbon=ribbon_shape()
 		
 
-		#self.ribbon.import_data.secure_click.connect(self.callback_import)
+		#self.ribbon.import_data.clicked.connect(self.callback_import)
 		#self.ribbon.tb_ref.triggered.connect(self.callback_ref)
 		self.ribbon.tb_import.triggered.connect(self.callback_import_image)
 
@@ -126,17 +146,7 @@ class shape_editor(QWidgetSavePos):
 		self.three_d_shape.enable_draw_light_source=False
 		self.three_d_shape.enable_draw_rays=False
 
-		data=dat_file()
-
-		if data.load(os.path.join(self.path,"shape.inp"))==True:
-			a=gl_base_object()
-			a.id="bing"
-			a.type="open_triangles"
-			a.r=data.r
-			a.g=data.g
-			a.b=data.b
-			a.triangles=triangles_scale_for_gl(data.data)
-			self.three_d_shape.gl_objects_add(a)
+		self.load_data()
 
 		self.notebook.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
 		self.ribbon.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Minimum)

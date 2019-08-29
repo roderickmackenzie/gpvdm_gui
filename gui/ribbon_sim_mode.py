@@ -103,8 +103,8 @@ class gQAction(QAction_lock):
 		self.module=module
 
 
-		QAction_lock.__init__(self,self.icon_name, self.text, s,locked=trial_lock)
-		self.secure_click.connect(self.callback_click)
+		QAction_lock.__init__(self,self.icon_name, self.text, s,self.module)
+		self.clicked.connect(self.callback_click)
 
 	def callback_click(self):
 		inp_update_token_value(os.path.join(get_sim_path(),"sim.inp"), "#simmode", self.command+"@"+self.module)

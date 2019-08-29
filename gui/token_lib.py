@@ -34,11 +34,11 @@ class my_data():
 	token=""
 	units=""
 	info=""
-	def __init__(self,file_name,a,b,c,e,f,widget,defaults=None,units_widget="QLabel",min=None,max=None,hidden=False,hide_on_true_token="none",hide_on_false_token="none"):
+	def __init__(self,file_name,a,b,info,e,f,widget,defaults=None,units_widget="QLabel",min=None,max=None,hidden=False,hide_on_true_token="none",hide_on_false_token="none",data_type=None):
 		self.file_name=file_name
 		self.token=a
 		self.units=b
-		self.info=c
+		self.info=info
 		self.defaults=defaults
 		self.number_type=e
 		self.number_mul=f
@@ -47,7 +47,7 @@ class my_data():
 		self.hidden=hidden
 		self.hide_on_true_token=hide_on_true_token
 		self.hide_on_false_token=hide_on_false_token
-
+		self.data_type=data_type
 		self.min=min
 		self.max=max
 
@@ -105,9 +105,9 @@ def build_token_lib():
 
 	#shape?.inp
 	lib.append(my_data("","#shape_type","au",_("Shape type"),"s",1.0,"QComboBoxShape"))
-	lib.append(my_data("","#shape_dx","m",_("dx of the object"),"e",1.0,"QLineEdit"))
-	lib.append(my_data("","#shape_dy","m",_("dy of the object"),"e",1.0,"QLineEdit"))
-	lib.append(my_data("","#shape_dz","m",_("dz of the object"),"e",1.0,"QLineEdit"))
+	lib.append(my_data("","#shape_dx","m",_("dx of the object"),"e",1.0,"QLineEdit",data_type="float"))
+	lib.append(my_data("","#shape_dy","m",_("dy of the object"),"e",1.0,"QLineEdit",data_type="float"))
+	lib.append(my_data("","#shape_dz","m",_("dz of the object"),"e",1.0,"QLineEdit",data_type="float"))
 
 	lib.append(my_data("","#shape_padding_dx","m",_("dx padding"),"e",1.0,"QLineEdit"))
 	lib.append(my_data("","#shape_padding_dy","m",_("dy padding"),"e",1.0,"QLineEdit"))

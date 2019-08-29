@@ -65,22 +65,17 @@ class plot_ribbon(ribbon_base):
 		self.file_toolbar.setToolButtonStyle( Qt.ToolButtonTextUnderIcon)
 		self.file_toolbar.setIconSize(QSize(42, 42))
 
-		self.tb_export_as_jpg = QAction_lock("export_image", _("Export\nimage"), self,locked=True)
+		self.tb_export_as_jpg = QAction_lock("export_image", _("Export\nimage"), self,"plot_export_image")
 		self.file_toolbar.addAction(self.tb_export_as_jpg)
 
-		self.tb_export_as_csv = QAction_lock("export_csv", _("Export\ncsv"), self,locked=True)
+		self.tb_export_as_csv = QAction_lock("export_csv", _("Export\ncsv"), self,"plot_export_csv")
 		self.file_toolbar.addAction(self.tb_export_as_csv)
 
-		self.tb_export_as_txt = QAction_lock("export_xls", _("Export\nxls"), self,locked=True)
+		self.tb_export_as_txt = QAction_lock("export_xls", _("Export\nxls"), self,"plot_export_xls")
 		self.file_toolbar.addAction(self.tb_export_as_txt)
 
-		self.tb_export_as_txt = QAction_lock("export_xls", _("Export\ntxt"), self,locked=True)
-		self.file_toolbar.addAction(self.tb_export_as_txt)
 
-		#self.tb_view_data = QAction_lock("dat_file", _("View\ndata"), self,locked=True)
-		#self.file_toolbar.addAction(self.tb_view_data)
-
-		self.tb_copy = QAction_lock("edit-copy", _("Copy to\nclipboard"), self,locked=True)
+		self.tb_copy = QAction_lock("edit-copy", _("Copy to\nclipboard"), self,"plot_copy_to_clipboard")
 		self.file_toolbar.addAction(self.tb_copy)
 
 		return self.file_toolbar

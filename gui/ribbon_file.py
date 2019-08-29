@@ -57,14 +57,14 @@ class ribbon_file(QToolBar):
 		self.setToolButtonStyle( Qt.ToolButtonTextUnderIcon)
 		self.setIconSize(QSize(42, 42))
 		
-		self.home_new = QAction(icon_get("document-new"), _("New simulation").replace(" ","\n"), self)
+		self.home_new = QAction_lock("document-new", _("New simulation").replace(" ","\n"), self,"main_new")
 		#self.home_new.setText(_("New\nsimulation"))
 		self.addAction(self.home_new)
 
 		self.old = QAction(icon_get("document-new"), _("New simulation").replace(" ","\n"), self)
 
 
-		self.home_open = QAction(icon_get("document-open"), _("Open\nsimulation"), self)
+		self.home_open = QAction_lock("document-open", _("Open\nsimulation"), self,"main_open")
 
 		self.used_files_menu = QMenu(self)
 		self.populate_used_file_menu()
@@ -73,14 +73,14 @@ class ribbon_file(QToolBar):
 
 		self.addAction(self.home_open)
 
-		self.home_export = QAction(icon_get("document-export"), _("Export\ndata"), self)
+		self.home_export = QAction_lock("document-export", _("Export\ndata"), self,"main_export")
 		#self.addAction(self.home_export)
 
-		self.home_export_xls = QAction_lock("export_xls", _("Export\nto Excel"), self,locked=True)
+		self.home_export_xls = QAction_lock("export_xls", _("Export\nto Excel"), self,"main_export_xls")
 		#self.home_export_xls = QAction(icon_get("export_xls"), _("Export\nto Excel"), self)
 		self.addAction(self.home_export_xls)
 
-		self.home_export_xls.secure_click.connect(self.callback_export_xls)
+		self.home_export_xls.clicked.connect(self.callback_export_xls)
 
 
 		spacer = QWidget()

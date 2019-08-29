@@ -64,7 +64,11 @@ from triangle import triangle
 from triangle_io import triangles_get_min
 from triangle_io import triangles_get_max
 
+from PyQt5.QtCore import pyqtSignal
+
 class image_widget(QWidget):
+	changed = pyqtSignal()
+
 	def __init__(self,path):
 		super().__init__()
 		self.path=path
@@ -117,6 +121,8 @@ class image_widget(QWidget):
 
 		d.save(os.path.join(self.path,"shape.inp"))
 
+		self.changed.emit()
+
 	def get_color(self,x,z):
 		c = self.im.pixel(self.m2px_x(x),self.m2px_z(z))
 		colors = QColor(c).getRgbF()
@@ -127,7 +133,7 @@ class image_widget(QWidget):
 			return
 
 		pixmap = QPixmap(self.image_path)
-
+		print(">>>>>>>>>>",pixmap)
 		self.im=pixmap.toImage()
 		print(os.path.join(self.path,"shape_import.inp"))
 		x_segs=int(inp_get_token_value(os.path.join(self.path,"shape_import.inp"),"#x_trianges"))
@@ -181,6 +187,36 @@ class image_widget(QWidget):
 
 		min=triangles_get_min(self.triangles)
 		max=triangles_get_max(self.triangles)
+
+		delta=max-min
+
+		a=triangle()
+		a.xyz0.x=min.x
+		a.xyz0.y=0
+		a.xyz0.z=min.z
+
+		a.xyz1.x=min.x
+		a.xyz1.y=0
+		a.xyz1.z=max.z
+
+		a.xyz2.x=max.x
+		a.xyz2.y=0
+		a.xyz2.z=max.z
+		self.triangles.append(a)
+
+		a=triangle()
+		a.xyz0.x=min.x
+		a.xyz0.y=0
+		a.xyz0.z=min.z
+
+		a.xyz1.x=max.x
+		a.xyz1.y=0
+		a.xyz1.z=min.z
+
+		a.xyz2.x=max.x
+		a.xyz2.y=0
+		a.xyz2.z=max.z
+		self.triangles.append(a)
 
 		for t in self.triangles:
 			if t.xyz0.x==min.x:
@@ -255,8 +291,9 @@ class shape_import(QWidgetSavePos):
 
 	def callback_open_image(self):
 		file_name=open_as_filter(self,"png (*.png)",path=self.path)
-		copyfile(file_name, os.path.join(self.path,"image.png"))
-		self.image_widget.self.build_mesh()
+		if file_name!=None:
+			copyfile(file_name, os.path.join(self.path,"image.png"))
+			self.image_widget.build_mesh()
 
 	def __init__(self,path):
 		QWidgetSavePos.__init__(self,"shape_import")
@@ -273,9 +310,9 @@ class shape_import(QWidgetSavePos):
 
 		self.ribbon=ribbon_shape_import()
 
-		self.ribbon.xy_triangles.triggered.connect(self.callback_xy_triangles)
-		self.ribbon.import_image.triggered.connect(self.callback_open_image)
-		self.ribbon.save_data.triggered.connect(self.callback_import)
+		self.ribbon.xy_triangles.clicked.connect(self.callback_xy_triangles)
+		self.ribbon.import_image.clicked.connect(self.callback_open_image)
+		self.ribbon.save_data.clicked.connect(self.callback_import)
 
 
 		#self.ribbon.help.triggered.connect(self.callback_help)

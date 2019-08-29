@@ -50,8 +50,15 @@ from inp import inp_update_token_value
 
 from util import is_numbered_file
 
+from gui_enable import gui_get
+if gui_get()==True:
+	from file_watch import get_watch
+	from PyQt5.QtCore import pyqtSignal
+	from PyQt5.QtWidgets import QWidget
+
 class epi_layer():
 	def __init__(self):
+
 		self.width=0
 		self.mat_file=""
 		self.name=""
@@ -103,7 +110,9 @@ class epi_layer():
 class epitaxy():
 
 	def __init__(self):
+		#QWidget.__init__(self)
 		self.layers=[]
+		self.callbacks=[]
 
 	def dump(self):
 		lines=self.gen_output()
@@ -484,6 +493,15 @@ class epitaxy():
 				print(s.file_name)
 				s.load(s.file_name)
 
+	def add_callback(self,fn):
+		self.callbacks.append(fn)
+
+	def callback_changed(self):
+		print("callback_changed",len(self.callbacks))
+		for f in self.callbacks:
+			print("bing")
+			f()
+
 	def load(self,path):
 		self.layers=[]
 
@@ -531,7 +549,7 @@ class epitaxy():
 				else:
 					files=temp.split(",")
 					for s in files:
-						my_shape=shape()
+						my_shape=shape(callback=self.callback_changed)
 						my_shape.load(s)
 						a.shapes.append(my_shape)
 

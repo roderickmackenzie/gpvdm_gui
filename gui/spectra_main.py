@@ -97,7 +97,7 @@ class spectra_main(QWidgetSavePos):
 		self.ribbon=ribbon_spectra()
 		
 
-		self.ribbon.import_data.secure_click.connect(self.callback_import)
+		self.ribbon.import_data.clicked.connect(self.callback_import)
 		self.ribbon.tb_ref.triggered.connect(self.callback_ref)
 
 		self.ribbon.help.triggered.connect(self.callback_help)

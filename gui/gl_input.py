@@ -57,6 +57,15 @@ from mesh import mesh_get_xlen
 from mesh import mesh_get_zlen
 from epitaxy import get_epi
 
+class mouse_event():
+	def __init__(self):
+		self.time=0
+		self.x=0
+		self.y=0
+
+	def delta_time(self):
+		return time.time()-self.time
+
 class gl_input():
 
 	def keyPressEvent(self, event):
@@ -141,16 +150,19 @@ class gl_input():
 
 	def mousePressEvent(self,event):
 		self.lastPos=None
-		self.mouse_click_time=time.time()
-
-		self.obj=self.event_to_3d_obj(event)
+		self.mouse_click_event=mouse_event()
+		self.mouse_click_event.time=time.time()
+		self.mouse_click_event.x=event.x()
+		self.mouse_click_event.y=event.y()
 		
+		if event.buttons()==Qt.LeftButton:
+			self.obj=self.event_to_3d_obj(event)
 
-		if self.obj.startswith("layer")==True:
-			self.selected_layer=self.obj
-			#self.enable_render_text=False
-			self.update()
-			#self.enable_render_text=True
+			if self.obj.startswith("layer")==True:
+				self.selected_layer=self.obj
+				#self.enable_render_text=False
+				self.update()
+				#self.enable_render_text=True
 		return
 
 		if event.buttons()==Qt.LeftButton:
@@ -179,10 +191,13 @@ class gl_input():
 
 
 	def mouseReleaseEvent(self,event):
+		delta=time.time() - self.mouse_click_event.time
+
 		self.obj=self.event_to_3d_obj(event)
 
+		print(self.mouse_click_event.y,self.mouse_click_event.delta_time())
 		if event.button()==Qt.RightButton:
-			delta=time.time() - self.mouse_click_time
+			
 			if (delta)<0.5:
 				if self.obj!="none":
 					if self.obj.startswith("layer")==True:

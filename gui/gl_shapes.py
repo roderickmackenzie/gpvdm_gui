@@ -96,13 +96,16 @@ def paint_from_array(o):
 	x=o.x
 	y=o.y
 	z=o.z
+	i=0;
+	glBegin(GL_TRIANGLES)
+	#for t in o.triangles:
 
 	for t in o.triangles:
-		glBegin(GL_TRIANGLES)
 		glVertex3f(o.x+t.xyz0.x,o.y+t.xyz0.y,o.z+t.xyz0.z)
 		glVertex3f(o.x+t.xyz1.x,o.y+t.xyz1.y,o.z+t.xyz1.z)
 		glVertex3f(o.x+t.xyz2.x,o.y+t.xyz2.y,o.z+t.xyz2.z)
-		glEnd()
+
+	glEnd()
 
 def paint_open_triangles_from_array(o):
 	set_color(o.r,o.g,o.b,o.id,alpha=o.alpha)
@@ -116,23 +119,21 @@ def paint_open_triangles_from_array(o):
 	z=o.z
 
 	glLineWidth(5)
+	glBegin(GL_LINES)
 
 	for t in o.triangles:
-		glBegin(GL_LINES)
+
 		glVertex3f(o.x+t.xyz0.x,o.y+t.xyz0.y,o.z+t.xyz0.z)
 		glVertex3f(o.x+t.xyz1.x,o.y+t.xyz1.y,o.z+t.xyz1.z)
-		glEnd()
+
 
 		if t.points==3:
-			glBegin(GL_LINES)
 			glVertex3f(o.x+t.xyz1.x,o.y+t.xyz1.y,o.z+t.xyz1.z)
 			glVertex3f(o.x+t.xyz2.x,o.y+t.xyz2.y,o.z+t.xyz2.z)
-			glEnd()
 
-			glBegin(GL_LINES)
 			glVertex3f(o.x+t.xyz2.x,o.y+t.xyz2.y,o.z+t.xyz2.z)
 			glVertex3f(o.x+t.xyz0.x,o.y+t.xyz0.y,o.z+t.xyz0.z)
-			glEnd()
+	glEnd()
 
 
 def half_cyl(x0,y0,z0,dx,dy0,dz,name="name"):
@@ -231,53 +232,45 @@ def box(x,y,z,w,h,d,r,g,b,alpha,name="box"):
 	#btm
 	set_color(red,green,blue,name,alpha=alpha)
 	glBegin(GL_QUADS)
+
 	glVertex3f(x+0.0,y+0.0,z+0.0)
 	glVertex3f(x+w,y+ 0.0,z+0.0)
 	glVertex3f(x+w,y+ 0.0,z+d)
 	glVertex3f(x+ 0.0, y+0.0,z+ d) 
-	glEnd()
 	
 	#top
-	glBegin(GL_QUADS)
 	glVertex3f(x+0.0,y+h,z+0.0)
 	glVertex3f(x+w,y+ h,z+0.0)
 	glVertex3f(x+w,y+ h,z+d)
 	glVertex3f(x+ 0.0, y+h,z+ d) 
-	glEnd()
 
 	#right
 
-	glBegin(GL_QUADS)
 	glVertex3f(x+w,y,z)
 	glVertex3f(x+w,y+ h,z)
 	glVertex3f(x+w,y+ h,z+d)
 	glVertex3f(x+w, y,z+d) 
-	glEnd()
 
 	#left
 
-	glBegin(GL_QUADS)
 	glVertex3f(x,y,z)
 	glVertex3f(x,y+ h,z)
 	glVertex3f(x,y+ h,z+d)
 	glVertex3f(x, y,z+d) 
-	glEnd()
 	
 	#front
 	
-	glBegin(GL_QUADS)
 	glVertex3f(x,y,z+d)
 	glVertex3f(x+w,y,z+d)
 	glVertex3f(x+w,y+h,z+d)
 	glVertex3f(x, y+h,z+d) 
-	glEnd()
 
 	#back
 
-	glBegin(GL_QUADS)
 	glVertex3f(x,y,z)
 	glVertex3f(x,y+ h,z)
 	glVertex3f(x+w,y+ h,z)
-	glVertex3f(x+w, y,z) 
+	glVertex3f(x+w, y,z)
+
 	glEnd()
 

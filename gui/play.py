@@ -71,7 +71,6 @@ class play(QAction_lock):
 	def do_emit(self):
 		value=False
 
-		get_lock().debug_action("sim_run")
 		value=get_lock().can_i_run_a_simulation()
 
 		if value==True:
@@ -84,12 +83,12 @@ class play(QAction_lock):
 			self.lock=lock_gui()
 			self.lock.bing()
 
-	def __init__(self,parent,play_icon="media-playback-start",run_text=_("Run simulation"),locked=False):
+	def __init__(self,parent,id,play_icon="media-playback-start",run_text=_("Run simulation")):
 		self.play_icon=play_icon
 		self.run_text=run_text
 		self.running=False
-		QAction_lock.__init__(self,self.play_icon,self.run_text,parent,locked=locked)
-		self.secure_click.connect(self.do_emit)
+		QAction_lock.__init__(self,self.play_icon,self.run_text,parent,id)
+		self.clicked.connect(self.do_emit)
 		server_get().sim_started.connect(self.start)
 		server_get().sim_finished.connect(self.stop)
 

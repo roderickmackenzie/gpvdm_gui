@@ -56,6 +56,7 @@ class lock_gui(QWidget):
 
 	def bing(self):
 		self.timer.stop()
+
 		if get_lock().get_next_gui_action()=="register":
 			#self.disable_all.emit()
 			self.register=register()
@@ -77,9 +78,9 @@ class lock_gui(QWidget):
 				#self.enable_all.emit()
 			else:
 				return
-		
+
 		if get_lock().status=="expired":
-			self.trial=trial(override_text="<br><br>Please renew your gpvdm license it has expired.<br>")
+			self.trial=trial(override_text="<br><br>Thank you for using gpvdm.  Gpvdm can only continue to exist if users support it by buying licenses.  Your license has expired, please purchase a new one.  Thank you for using gpvdm.<br>",title_font_size=14)
 			ret=self.trial.run()
 			if ret==QDialog.Accepted:
 				msgBox = msg_dlg()

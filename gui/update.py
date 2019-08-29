@@ -91,8 +91,8 @@ class update_window(QWidget):
 		toolbar.setToolButtonStyle( Qt.ToolButtonTextUnderIcon)
 		toolbar.setIconSize(QSize(42, 42))
 
-		self.tb_update = QAction_lock("update", _("Download extra\nmaterials"), self,locked=True)
-		self.tb_update.secure_click.connect(self.download_updates)
+		self.tb_update = QAction_lock("update", _("Download extra\nmaterials"), self,"update")
+		self.tb_update.clicked.connect(self.download_updates)
 		toolbar.addAction(self.tb_update)
 
 		spacer = QWidget()

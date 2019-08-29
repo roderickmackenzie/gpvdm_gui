@@ -60,6 +60,7 @@ from cal_path import get_sim_path
 from util import wrap_text
 
 from ribbon_base import ribbon_base
+from QAction_lock import QAction_lock
 
 class ribbon_shape_import(ribbon_base):
 	def main_toolbar(self):
@@ -67,13 +68,13 @@ class ribbon_shape_import(ribbon_base):
 		toolbar.setToolButtonStyle( Qt.ToolButtonTextUnderIcon)
 		toolbar.setIconSize(QSize(42, 42))
 
-		self.import_image= QAction(icon_get("import_image"), wrap_text(_("Load image"),4), self)
+		self.import_image= QAction_lock("import_image", wrap_text(_("Load new image"),7), self,"ribbon_shape_import_import_image")
 		toolbar.addAction(self.import_image)
 
-		self.save_data= QAction(icon_get("document-save-as"), wrap_text(_("Import data"),4), self)
+		self.save_data= QAction_lock("document-save-as", wrap_text(_("Import data"),4), self)
 		toolbar.addAction(self.save_data)
 
-		self.xy_triangles= QAction(icon_get("shape"), wrap_text(_("xy triangles"),2), self)
+		self.xy_triangles= QAction_lock("shape", wrap_text(_("xy triangles"),2), self)
 		toolbar.addAction(self.xy_triangles)
 
 		spacer = QWidget()

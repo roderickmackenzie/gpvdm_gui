@@ -97,7 +97,7 @@ class fit_ribbon(ribbon_base):
 
 		toolbar.addAction(self.play_one)
 		
-		self.play= play(self,play_icon="forward",run_text=wrap_text(_("Run fit"),2),locked=True)
+		self.play= play(self,"fit_ribbon_run",play_icon="forward",run_text=wrap_text(_("Run fit"),2))
 
 		toolbar.addAction(self.play)
 

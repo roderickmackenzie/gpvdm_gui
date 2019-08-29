@@ -26,7 +26,6 @@
 #  Registration window
 #
 
-
 import os
 
 from icon_lib import icon_get
@@ -77,7 +76,7 @@ class lock():
 		self.uid=""
 		self.renew_date=0
 		self.register_date=0
-		self.lver="2.0"
+		self.lver="2.1"
 		self.error=""
 		self.disabled=False
 		self.use_count=False
@@ -85,8 +84,10 @@ class lock():
 		self.open_gl_working=True
 		self.reg_client_ver="ver"
 		self.client_ver_from_lock=""
-		self.status="trial"
-		self.use_count_check_web=5
+		self.status="no_key"
+		self.use_count_check_web=3
+		self.locked=[]
+		self.not_locked=[]
 		if am_i_rod()==True:
 			print("I'm running on Rods pc")
 			self.website="127.0.0.1"
@@ -110,7 +111,8 @@ class lock():
 		if self.load()==True:
 			if self.client_ver_from_lock!=self.reg_client_ver:
 				self.get_license()
-	
+
+
 	def can_i_run_a_simulation(self):
 		if self.disabled==True:
 			return False
@@ -128,18 +130,6 @@ class lock():
 		tx_string="http://"+self.website+self.port+"/debug?"+urllib.parse.urlencode(params)
 		lines=a.get(tx_string)
 
-	def debug_action_worker(self,data):
-		a=http_get()
-		params = {'action':"action",'uid': self.get_uid(),'data': data.replace("\n"," ")}
-		tx_string="http://"+self.website+self.port+"/debug?"+urllib.parse.urlencode(params)
-		lines=a.get(tx_string)
-
-	def debug_action(self,data):
-		if self.ping_server==True:
-			p = Thread(target=self.debug_action_worker,args=(data,))
-			p.daemon = True
-			p.start()
-
 	def debug(self):
 		self.server_check_user()
 		#Transmit debug info
@@ -148,13 +138,11 @@ class lock():
 		tx_string="http://"+self.website+self.port+"/debug?"+urllib.parse.urlencode(params)
 		lines=a.get(tx_string)
 
-
 	def debug_tx_info(self):
-		if self.ping_server==True:
-			p = Thread(target=self.debug)
-			p.daemon = True
-			p.start()	
-
+		#if self.ping_server==True:
+		p = Thread(target=self.debug)
+		p.daemon = True
+		p.start()	
 
 
 	def register(self,email="",name="",company=""):
@@ -186,10 +174,12 @@ class lock():
 		text=text+"count:"+str(self.use_count)+"<br>"
 		return text
 
-	def get_license(self,key="none"):
+	def get_license(self,key="none",uid=None):
 
+		if uid==None:
+			uid=self.uid
 		a=http_get()
-		params = {"uid": self.uid, "key": key,"lver":self.lver, "win_id":self.get_win_id(),"win_id":self.get_mac()}
+		params = {"uid": uid, "key": key,"lver":self.lver, "win_id":self.get_win_id(),"mac_id":self.get_mac()}
 		lines=a.get("http://"+self.website+self.port+"/license?"+urllib.parse.urlencode(params))
 	
 		if lines==False:
@@ -202,6 +192,10 @@ class lock():
 
 		if lines[0]=="tooold":
 			self.error="too_old"
+			return False
+
+		if lines[0]=="error":
+			self.error="uid_not_found"
 			return False
 
 		
@@ -226,6 +220,18 @@ class lock():
 
 		return "ok"
 
+
+	def is_function_locked(self,id):
+
+		if id in self.locked:
+			return True
+		return False
+
+	def is_function_not_locked(self,id):
+		if id in self.not_locked:
+			return True
+		return False
+
 	def load_new(self):
 
 		if self.get_reg_key("new_install")=="true":
@@ -235,7 +241,7 @@ class lock():
 		lines=[]
 
 		lines=lock_load(self.data_path)
-		#print(lines)
+#		print(lines)
 
 		self.reg_client_ver=self.get_gpvdm_ver_from_reg()
 
@@ -254,12 +260,16 @@ class lock():
 		self.win_id=inp_search_token_value(lines, "#win_id")
 		self.mac=inp_search_token_value(lines, "#mac")
 		self.use_count=inp_search_token_value(lines, "#use_count")
+		self.locked=inp_search_token_value(lines, "#locked").split(";")
+		self.not_locked=inp_search_token_value(lines, "#not_locked").split(";")
 
 		self.client_ver_from_lock=inp_search_token_value(lines, "#client_ver")
 
 		self.status=inp_search_token_value(lines, "#status")
 
 		val=inp_search_token_value(lines, "#ping_server")
+		#if self.tx_debug_info==True:
+			
 		if val!=False:
 			self.ping_server=str2bool(val)
 
@@ -267,12 +277,11 @@ class lock():
 			self.ping_server=False
 
 
-
 		#print(lines,self.ping_server)
 
 		#print(lines)
 
-		if self.use_count!=False and self.ping_server==True:
+		if self.use_count!=False:# and self.ping_server==True:
 			self.use_count=int(self.use_count)
 			lock_update_token(self.data_path,"#use_count",str(self.use_count+1))
 		else:
@@ -293,6 +302,10 @@ class lock():
 			if self.get_reg_key("uid")==False:
 				self.write_reg_key("uid",self.uid)
 			return
+		else:
+			value=self.get_reg_key("uid")
+			if value!=False:
+				self.get_license(uid=value)
 
 		#check if old file exists
 		if running_on_linux()==True:
@@ -411,7 +424,15 @@ class lock():
 		lock_update_token(self.data_path,"#disabled","false")
 		self.disabled=False
 
+	def is_expired(self):
+		if self.status=="expired":
+			return True
+		return False
+
 	def is_trial(self):
+		if self.status=="no_key":
+			return False
+
 		if self.status=="full_version":
 			return False
 

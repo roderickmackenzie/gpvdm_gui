@@ -9,8 +9,8 @@ endif
 
 
 if INCLUDE_VIDEO
-videosrcdir = $(pkgdatadir)/mp4
-videosrc_DATA = video/*.mp4
+videosrcdir = $(pkgdatadir)/video
+videosrc_DATA = video/*.wmv
 endif
 
 if INCLUDE_IMAGES

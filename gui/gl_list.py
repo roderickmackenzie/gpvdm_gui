@@ -59,6 +59,7 @@ class gl_base_object():
 		self.selected=False
 		self.selectable=False
 		self.moveable=False
+		self.triangles=[]
 
 class gl_objects():
 
@@ -150,6 +151,7 @@ class gl_objects():
 			a.type="poly"
 			a.save("a.inp")
 			return
+
 		for o in self.objects:
 			if o.type=="plane":
 				plane(o.x,o.y,o.z,o.dx,o.dy,o.dz,o.r,o.g,o.b)

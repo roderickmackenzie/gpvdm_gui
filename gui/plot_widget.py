@@ -596,11 +596,11 @@ class plot_widget(QWidget):
 			self.plot_ribbon=plot_ribbon()
 			self.plot_ribbon.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Minimum)
 
-			self.plot_ribbon.tb_export_as_jpg.secure_click.connect(self.callback_save_image)
-			self.plot_ribbon.tb_export_as_csv.secure_click.connect(self.callback_save_csv)
-			self.plot_ribbon.tb_export_as_txt.secure_click.connect(self.callback_save_txt)
+			self.plot_ribbon.tb_export_as_jpg.clicked.connect(self.callback_save_image)
+			self.plot_ribbon.tb_export_as_csv.clicked.connect(self.callback_save_csv)
+			self.plot_ribbon.tb_export_as_txt.clicked.connect(self.callback_save_txt)
 
-			self.plot_ribbon.tb_copy.secure_click.connect(self.callback_do_clip)
+			self.plot_ribbon.tb_copy.clicked.connect(self.callback_do_clip)
 
 			#self.plot_ribbon.tb_export_as_jpg.triggered.connect(self.save_image)
 

@@ -97,7 +97,6 @@ from window_list import resize_window_to_be_sane
 
 
 from gpvdm_notebook import gpvdm_notebook
-from epitaxy import get_epi
 
 #server
 from server import server
@@ -132,6 +131,7 @@ from used_files import used_files_add
 from lock_gui import lock_gui
 
 from contacts_io import get_contactsio
+from epitaxy import get_epi
 
 def do_import():
 	global new_simulation
@@ -607,8 +607,8 @@ class gpvdm_main_window(QMainWindow):
 
 		self.ribbon.file.home_export.triggered.connect(self.callback_export)
 
-		self.ribbon.file.home_new.triggered.connect(self.callback_new)
-		self.ribbon.file.home_open.triggered.connect(self.callback_open)
+		self.ribbon.file.home_new.clicked.connect(self.callback_new)
+		self.ribbon.file.home_open.clicked.connect(self.callback_open)
 		self.ribbon.file.used_files_click.connect(self.load_sim)
 		self.ribbon.home.undo.triggered.connect(self.callback_undo)
 		self.ribbon.home.run.start_sim.connect(self.callback_simulate)

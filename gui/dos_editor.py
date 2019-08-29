@@ -35,7 +35,7 @@ from open_save_dlg import save_as_image
 
 #qt
 from PyQt5.QtCore import QSize, Qt 
-from PyQt5.QtWidgets import QWidget,QVBoxLayout,QToolBar,QSizePolicy,QAction,QTabWidget,QTableWidget,QAbstractItemView, QMenuBar,QGroupBox,QHBoxLayout
+from PyQt5.QtWidgets import QWidget,QVBoxLayout,QToolBar,QSizePolicy,QAction,QTabWidget,QTableWidget,QAbstractItemView, QMenuBar,QGroupBox,QHBoxLayout, QTableWidgetItem
 from PyQt5.QtGui import QPainter,QIcon
 
 from PyQt5.QtCore import pyqtSignal
@@ -55,6 +55,8 @@ from dat_file import dat_file
 from plot_widget import plot_widget
 
 from file_watch import get_watch
+
+from QComboBoxLang import QComboBoxLang
 
 class equation_editor(QGroupBox):
 
@@ -109,11 +111,7 @@ class equation_editor(QGroupBox):
 			if (row+1)>self.tab.rowCount():
 				tab_insert_row(self.tab)
 
-			self.tab.set_value(row,0,str(function))
-			self.tab.set_value(row,1,str(enabled))
-			self.tab.set_value(row,2,str(a))
-			self.tab.set_value(row,3,str(b))
-			self.tab.set_value(row,4,str(c))
+			self.add_row(row,function,enabled,a,b,c)
 
 			row=row+1
 
@@ -155,6 +153,38 @@ class equation_editor(QGroupBox):
 	def tab_changed(self):
 		self.save()
 		self.changed.emit()
+
+	def add_row(self,i,function,enabled,a,b,c):
+
+		self.tab.blockSignals(True)
+
+		function_combo = QComboBoxLang()
+
+		function_combo.addItemLang("exp",_("Exponential"))
+		function_combo.addItemLang("gaus",_("Gaussian"))
+		self.tab.setCellWidget(i,0, function_combo)
+		function_combo.setValue_using_english(str(function).lower())
+		function_combo.currentIndexChanged.connect(self.tab_changed)
+
+		enabled_combo = QComboBoxLang()
+
+		enabled_combo.addItemLang("true",_("True"))
+		enabled_combo.addItemLang("false",_("False"))
+
+		self.tab.setCellWidget(i,1, enabled_combo)
+		enabled_combo.setValue_using_english(str(enabled).lower())
+		enabled_combo.currentIndexChanged.connect(self.tab_changed)
+
+		item1 = QTableWidgetItem(str(a))
+		self.tab.setItem(i,2,item1)
+
+		item2 = QTableWidgetItem(str(b))
+		self.tab.setItem(i,3,item2)
+
+		item3= QTableWidgetItem(str(c))
+		self.tab.setItem(i,4,item3)
+
+		self.tab.blockSignals(False)
 		
 	def add_item_clicked(self):
 		self.tab.add([ "exp", "true", "a", "b", "c"])
@@ -302,38 +332,43 @@ class dos_editor(QWidget):
 			homo_y=0
 
 			for i in range(0,self.lumo.tab.rowCount()):
-				
-				try:
-					a=float(self.lumo.tab.get_value(i,2))
-					b=float(self.lumo.tab.get_value(i,3))
-					c=float(self.lumo.tab.get_value(i,4))
-				except:
-					a=0.0
-					b=0.0
-					c=0.0
+				if self.lumo.tab.get_value(i,1)=="true":
+					try:
+						a=float(self.lumo.tab.get_value(i,2))
+						b=float(self.lumo.tab.get_value(i,3))
+						c=float(self.lumo.tab.get_value(i,4))
+					except:
+						a=0.0
+						b=0.0
+						c=0.0
 
-				if self.lumo.tab.get_value(i,0)=="exp":
-					y = y+ a*exp((x-Xi)/b)
+					if self.lumo.tab.get_value(i,0)=="exp":
+						if b!=0:
+							y = y+ a*exp((x-Xi)/b)
 
-				if self.lumo.tab.get_value(i,0)=="gaus":
-					y = y+ a*exp(-pow(((b+(x-Xi))/(sqrt(2.0)*c*1.0)),2.0))
+					if self.lumo.tab.get_value(i,0)=="gaus":
+						if c!=0:
+							y = y+ a*exp(-pow(((b+(x-Xi))/(sqrt(2.0)*c*1.0)),2.0))
 
 			for i in range(0,self.homo.tab.rowCount()):
-				
-				try:
-					a=float(self.homo.tab.get_value(i,2))
-					b=float(self.homo.tab.get_value(i,3))
-					c=float(self.homo.tab.get_value(i,4))
-				except:
-					a=0.0
-					b=0.0
-					c=0.0
+				if self.homo.tab.get_value(i,1)=="true":
+		
+					try:
+						a=float(self.homo.tab.get_value(i,2))
+						b=float(self.homo.tab.get_value(i,3))
+						c=float(self.homo.tab.get_value(i,4))
+					except:
+						a=0.0
+						b=0.0
+						c=0.0
 
-				if self.homo.tab.get_value(i,0)=="exp":
-					homo_y = homo_y+ a*exp((Xi-Eg-x)/b)
+					if self.homo.tab.get_value(i,0)=="exp":
+						if b!=0:
+							homo_y = homo_y+ a*exp((Xi-Eg-x)/b)
 
-				if self.homo.tab.get_value(i,0)=="gaus":
-					homo_y = homo_y+ a*exp(-pow((((Xi-Eg-b)+x)/(sqrt(2.0)*c*1.0)),2.0))
+					if self.homo.tab.get_value(i,0)=="gaus":
+						if c!=0:
+							homo_y = homo_y+ a*exp(-pow(((Xi-Eg-x+b)/(sqrt(2.0)*c*1.0)),2.0))
 
 			self.data_numerical_lumo.y_scale[iy]=x
 			self.data_numerical_homo.y_scale[iy]=x
@@ -342,6 +377,7 @@ class dos_editor(QWidget):
 			self.data_lumo.data[0][0][iy]=y
 
 			self.data_homo.y_scale[iy]=x
+			print(x,homo_y)
 			self.data_homo.data[0][0][iy]=homo_y
 
 		if bands!=0:
@@ -474,7 +510,6 @@ class dos_editor(QWidget):
 		self.homo.changed.connect(self.update_graph)
 
 		get_watch().add_call_back(self.dos_file,self.update_graph)
-		print(">>>>>>>>>",self.lumo_file)
 		get_watch().add_call_back(self.lumo_file,self.lumo.load)
 		get_watch().add_call_back(self.homo_file,self.homo.load)
 

@@ -88,42 +88,42 @@ class ribbon_simulations(QToolBar):
 		self.setToolButtonStyle( Qt.ToolButtonTextUnderIcon)
 		self.setIconSize(QSize(42, 42))
 
-		self.time = QAction(icon_get("time"), _("Time domain\nsimulation editor."), self)
-		self.time.triggered.connect(self.callback_edit_experiment_window)
+		self.time = QAction_lock("time", _("Time domain\nsimulation editor."), self,"ribbon_simulations_time")
+		self.time.clicked.connect(self.callback_edit_experiment_window)
 		self.addAction(self.time )
 
 
-		self.fx = QAction(icon_get("spectrum"), _("Frequency domain\nsimulation editor"), self)
-		self.fx.triggered.connect(self.callback_fxexperiment_window)
+		self.fx = QAction_lock("spectrum", _("Frequency domain\nsimulation editor"), self,"ribbon_simulations_spectrum")
+		self.fx.clicked.connect(self.callback_fxexperiment_window)
 		self.addAction(self.fx)
 
 
-		self.jv = QAction(icon_get("jv"), _("Steady state\nsimulation editor"), self)
-		self.jv.triggered.connect(self.callback_jv_window)
+		self.jv = QAction_lock("jv", _("Steady state\nsimulation editor"), self,"ribbon_simulations_jv")
+		self.jv.clicked.connect(self.callback_jv_window)
 		self.addAction(self.jv)
 
-		self.sunsvoc = QAction(icon_get("sunsvoc"), _("Suns Voc\nsimulation editor"), self)
-		self.sunsvoc.triggered.connect(self.callback_sunsvoc_window)
+		self.sunsvoc = QAction_lock("sunsvoc", _("Suns Voc\nsimulation editor"), self,"ribbon_simulations_sunsvoc")
+		self.sunsvoc.clicked.connect(self.callback_sunsvoc_window)
 		self.addAction(self.sunsvoc)
 
-		self.sunsjsc = QAction(icon_get("sunsjsc"), _("Suns Jsc\neditor"), self)
-		self.sunsjsc.triggered.connect(self.callback_sunsjsc_window)
+		self.sunsjsc = QAction_lock("sunsjsc", _("Suns Jsc\neditor"), self,"ribbon_simulations_sunsjsc")
+		self.sunsjsc.clicked.connect(self.callback_sunsjsc_window)
 		self.addAction(self.sunsjsc)
 
-		self.diode = QAction(icon_get("diode"), wrap_text(_("Simple diode model"),8), self)
-		self.diode.triggered.connect(self.callback_diode_window)
+		self.diode = QAction_lock("diode", wrap_text(_("Simple diode model"),8), self,"ribbon_simulations_diode")
+		self.diode.clicked.connect(self.callback_diode_window)
 		self.addAction(self.diode)
 
-		self.ray_trace = QAction_lock("ray", wrap_text(_("Ray tracing\neditor"),8), self,locked=False)
-		self.ray_trace.secure_click.connect(self.callback_ray_tracing_window)
+		self.ray_trace = QAction_lock("ray", wrap_text(_("Ray tracing\neditor"),8), self,"ribbon_simulations_ray")
+		self.ray_trace.clicked.connect(self.callback_ray_tracing_window)
 		self.addAction(self.ray_trace)
 
-		self.pl = QAction(icon_get("pl"), _("PL\neditor"), self)
-		self.pl.triggered.connect(self.callback_pl_window)
+		self.pl = QAction_lock("pl", _("PL\neditor"), self,"ribbon_simulations_pl")
+		self.pl.clicked.connect(self.callback_pl_window)
 		self.addAction(self.pl)
 
-		self.qe = QAction(icon_get("qe"), _("Quantum\nefficiency"), self)
-		self.qe.triggered.connect(self.callback_qe_window)
+		self.qe = QAction_lock("qe", _("Quantum\nefficiency"), self,"ribbon_simulations_qe")
+		self.qe.clicked.connect(self.callback_qe_window)
 		self.addAction(self.qe)
 		self.qe.setVisible(False)
 
@@ -132,16 +132,16 @@ class ribbon_simulations(QToolBar):
 		#self.addWidget(self.mode)
 		#self.addSeparator()
 
-		self.fdtd = QAction(icon_get("fdtd"), _("FDTD\nSimulation"), self)
-		self.fdtd.triggered.connect(self.callback_fdtd)
+		self.fdtd = QAction_lock("fdtd", _("FDTD\nSimulation"), self,"ribbon_simulations_fdtd")
+		self.fdtd.clicked.connect(self.callback_fdtd)
 		self.addAction(self.fdtd)
 
-		self.measure = QAction(icon_get("measure"), _("Measure"), self)
-		self.measure.triggered.connect(self.callback_configure_measure)
+		self.measure = QAction_lock("measure", _("Measure"), self,"ribbon_simulations_measure")
+		self.measure.clicked.connect(self.callback_configure_measure)
 		self.addAction(self.measure)
 
-		self.tb_cost = QAction(icon_get("cost"), _("Calculate\nthe cost"), self)
-		self.tb_cost.triggered.connect(self.callback_cost)
+		self.tb_cost = QAction_lock("cost", _("Calculate\nthe cost"), self,"ribbon_simulations_cost")
+		self.tb_cost.clicked.connect(self.callback_cost)
 		self.addAction(self.tb_cost)
 
 	def callback_experiments_changed(self):

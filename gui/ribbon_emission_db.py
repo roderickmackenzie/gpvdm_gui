@@ -74,10 +74,10 @@ class ribbon_emission_db(ribbon_base):
 		toolbar.setToolButtonStyle( Qt.ToolButtonTextUnderIcon)
 		toolbar.setIconSize(QSize(42, 42))
 
-		self.import_data= QAction_lock("import", _("From file"), self,locked=True)
+		self.import_data= QAction_lock("import", _("From file"), self,"ribbon_emission_db_import")
 		toolbar.addAction(self.import_data)
 
-		self.equation= QAction_lock("vars", _("From\nEquation"), self,locked=True)
+		self.equation= QAction_lock("vars", _("From\nEquation"), self,"ribbon_emission_db_vars")
 		toolbar.addAction(self.equation)
 
 
@@ -88,7 +88,7 @@ class ribbon_emission_db(ribbon_base):
 		toolbar.setToolButtonStyle( Qt.ToolButtonTextUnderIcon)
 		toolbar.setIconSize(QSize(42, 42))
 
-		self.tb_save = QAction_lock("export_image", _("Export\nimage"), self,locked=True)
+		self.tb_save = QAction_lock("export_image", _("Export\nimage"), self,"ribbon_emission_db_export_image")
 		toolbar.addAction(self.tb_save)
 
 

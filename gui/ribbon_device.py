@@ -63,6 +63,7 @@ from dim_editor import dim_editor
 from dos_main import dos_main
 from global_objects import global_object_register
 from pl_main import pl_main
+from QAction_lock import QAction_lock
 
 class ribbon_device(QToolBar):
 	def __init__(self):
@@ -82,33 +83,33 @@ class ribbon_device(QToolBar):
 		self.setOrientation(Qt.Vertical);
 		self.setIconSize(QSize(42, 42))
 
-		self.tb_layer_editor = QAction(icon_get("layers"), _("Layer\neditor"), self)
-		self.tb_layer_editor.triggered.connect(self.callback_layer_editor)
+		self.tb_layer_editor = QAction_lock("layers", _("Layer\neditor"), self,"ribbon_device_layers")
+		self.tb_layer_editor.clicked.connect(self.callback_layer_editor)
 		self.addAction(self.tb_layer_editor)
 		global_object_register("show_layer_editor",self.callback_layer_editor)
 		
-		self.contacts = QAction(icon_get("contact"), _("Contacts"), self)
-		self.contacts.triggered.connect(self.callback_contacts)
+		self.contacts = QAction_lock("contact", _("Contacts"), self,"ribbon_device_contacts")
+		self.contacts.clicked.connect(self.callback_contacts)
 		self.addAction(self.contacts)
 		
-		self.doping = QAction(icon_get("doping"), _("Doping/\nIons"), self)
-		self.doping.triggered.connect(self.callback_doping)
+		self.doping = QAction_lock("doping", _("Doping/\nIons"), self,"ribbon_device_doping")
+		self.doping.clicked.connect(self.callback_doping)
 		self.addAction(self.doping)
 
-		self.parasitic = QAction(icon_get("parasitic"), _("Parasitic\n components"), self)
-		self.parasitic.triggered.connect(self.callback_parasitic)
+		self.parasitic = QAction_lock("parasitic", _("Parasitic\n components"), self,"ribbon_device_parasitic")
+		self.parasitic.clicked.connect(self.callback_parasitic)
 		self.addAction(self.parasitic)
 
-		self.tb_electrical_editor = QAction(icon_get("electrical"), _("Electrical\nparameters"), self)
-		self.tb_electrical_editor.triggered.connect(self.callback_electrical_editor)
+		self.tb_electrical_editor = QAction_lock("electrical", _("Electrical\nparameters"), self,"ribbon_device_electrical")
+		self.tb_electrical_editor.clicked.connect(self.callback_electrical_editor)
 		self.addAction(self.tb_electrical_editor)
 
-		self.tb_emission_editor = QAction(icon_get("emission"), _("Emission\nparameters"), self)
-		self.tb_emission_editor.triggered.connect(self.callback_emission_editor)
+		self.tb_emission_editor = QAction_lock("emission", _("Emission\nparameters"), self,"ribbon_device_emission")
+		self.tb_emission_editor.clicked.connect(self.callback_emission_editor)
 		self.addAction(self.tb_emission_editor)
 
-		self.tb_dimension_editor = QAction(icon_get("dimensions"), _("xz-size"), self)
-		self.tb_dimension_editor.triggered.connect(self.callback_dimension_editor)
+		self.tb_dimension_editor = QAction_lock("dimensions", _("xz-size"), self,"ribbon_device_dim")
+		self.tb_dimension_editor.clicked.connect(self.callback_dimension_editor)
 		self.addAction(self.tb_dimension_editor)
 
 	def update(self):

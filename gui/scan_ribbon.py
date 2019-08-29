@@ -86,7 +86,7 @@ class scan_ribbon(ribbon_base):
 		toolbar.setToolButtonStyle( Qt.ToolButtonTextUnderIcon)
 		toolbar.setIconSize(QSize(42, 42))
 
-		self.tb_simulate = play(self,play_icon="build_play2",run_text=wrap_text(_("Run scan"),5))#QAction(icon_get("build_play2"), wrap_text(_("Run scan"),2), self)
+		self.tb_simulate = play(self,"scan_play",play_icon="build_play2",run_text=wrap_text(_("Run scan"),5))#QAction(icon_get("build_play2"), wrap_text(_("Run scan"),2), self)
 		toolbar.addAction(self.tb_simulate)
 
 

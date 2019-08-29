@@ -268,7 +268,7 @@ def calculate_paths():
 
 
 	html_path=search_known_paths("html",[""],"info0.html",True)
-	video_path=search_known_paths("video",[""],"welcome.mp4",True)
+	video_path=search_known_paths("video",[""],"welcome.wmv",True)
 
 
 def get_license_path():

@@ -362,6 +362,9 @@ class tab_time_mesh(QWidget):
 			laser=float(tab_get_value(self.tab,i, 6))
 			#print("VOLTAGE=",line[SEG_VOLTAGE],end_time,pos)
 
+			if (length/dt)>100:
+				dt=length/100
+
 			if dt!=0.0 and mul!=0.0:
 				voltage=voltage_start
 				while(pos<end_time):

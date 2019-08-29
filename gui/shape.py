@@ -47,7 +47,9 @@ from triangle import vec
 from triangle_io import triangles_print 
 
 class shape():
-	def __init__(self):
+
+	def __init__(self,callback=None):
+		self.callback=callback
 		self.type="none"
 		self.triangles=None
 		self.dx=1e-9
@@ -75,10 +77,11 @@ class shape():
 		self.g=0.8
 		self.b=0.8
 
+		self.shape_path=""
+
 
 
 	def do_load(self):
-		print("load...")
 		lines=inp_load_file(self.file_name+".inp")
 
 		if lines==False:
@@ -86,14 +89,14 @@ class shape():
 			return
 		self.type=inp_search_token_value(lines, "#shape_type")
 
-		shape_path=os.path.join(get_shape_path(),self.type,"shape.inp")
+		self.shape_path=os.path.join(get_shape_path(),self.type,"shape.inp")
 		self.dx=float(inp_search_token_value(lines, "#shape_dx"))
 		self.dy=float(inp_search_token_value(lines, "#shape_dy"))
 		self.dz=float(inp_search_token_value(lines, "#shape_dz"))
 
-		if os.path.isfile(shape_path)==True:
+		if os.path.isfile(self.shape_path)==True:
 			self.triangles=dat_file()
-			self.triangles.load(shape_path)
+			self.triangles.load(self.shape_path)
 			if self.triangles.data!=None:
 				min_vec=triangles_get_min(self.triangles.data)
 
@@ -149,6 +152,12 @@ class shape():
 		except:
 			pass
 
+	def on_change(self):
+		self.do_load()
+		print("oh")
+		if self.callback!=None:
+			self.callback()
+
 	def load(self,file_name):
 		if file_name=="none":
 			return
@@ -159,7 +168,9 @@ class shape():
 		self.file_name=file_name
 		self.do_load()
 		if gui_get()==True:
-			get_watch().add_call_back(self.file_name+".inp",self.do_load)
+			get_watch().add_call_back(self.file_name+".inp",self.on_change)
+			#get_watch().add_call_back(self.shape_path,self.do_load)
+
 		
 
 	def dump(self):

@@ -85,37 +85,37 @@ class ribbon_database(QToolBar):
 		self.setToolButtonStyle( Qt.ToolButtonTextUnderIcon)
 		self.setIconSize(QSize(42, 42))
 		
-		self.materials = QAction(icon_get("organic_material"), _("Materials\ndatabase"), self)
-		self.materials.triggered.connect(self.callback_view_materials)
+		self.materials = QAction_lock("organic_material", _("Materials\ndatabase"), self,"ribbion_db_materials")
+		self.materials.clicked.connect(self.callback_view_materials)
 		self.addAction(self.materials)
 
-		self.spectra_file = QAction(icon_get("spectra_file"), _("Optical\ndatabase"), self)
+		self.spectra_file = QAction_lock("spectra_file", _("Optical\ndatabase"), self,"ribbion_db_spectra")
 		self.spectra_file.triggered.connect(self.callback_view_optical)
 		self.addAction(self.spectra_file)
 
 		if enable_betafeatures()==True:
-			self.tb_import_pvlighthouse = QAction(icon_get("sync"), _("Update materials\nfrom PVLighthouse"), self)
-			self.tb_import_pvlighthouse.triggered.connect(self.callback_pvlighthouse)
+			self.tb_import_pvlighthouse = QAction_lock("sync", _("Update materials\nfrom PVLighthouse"), self,"ribbion_db_sync")
+			self.tb_import_pvlighthouse.clicked.connect(self.callback_pvlighthouse)
 			self.addAction(self.tb_import_pvlighthouse)
 
-			self.tb_import_refractiveindex = QAction(icon_get("sync"), _("Update materials\nfrom refractiveindex.info"), self)
-			self.tb_import_refractiveindex.triggered.connect(self.callback_refractiveindex)
+			self.tb_import_refractiveindex = QAction_lock("sync", _("Update materials\nfrom refractiveindex.info"), self,"ribbion_db_sync")
+			self.tb_import_refractiveindex.clicked.connect(self.callback_refractiveindex)
 			self.addAction(self.tb_import_refractiveindex)
 
-		self.tb_update = QAction(icon_get("update"), _("Download extra\nmaterials"), self)
-		self.tb_update.triggered.connect(self.callback_update_window)
+		self.tb_update = QAction_lock("update", _("Download extra\nmaterials"), self,"ribbion_db_update")
+		self.tb_update.clicked.connect(self.callback_update_window)
 		self.addAction(self.tb_update)
 
-		self.lasers = QAction(icon_get("lasers"), _("Laser\ndatabase"), self)
-		self.lasers.triggered.connect(self.callback_configure_lasers)
+		self.lasers = QAction_lock("lasers", _("Laser\ndatabase"), self,"ribbion_db_lasers")
+		self.lasers.clicked.connect(self.callback_configure_lasers)
 		self.addAction(self.lasers)
 
-		self.emission = QAction(icon_get("pl"), _("Emission\ndatabase"), self)
-		self.emission.triggered.connect(self.callback_configure_emission)
+		self.emission = QAction_lock("pl", _("Emission\ndatabase"), self,"ribbion_db_emission")
+		self.emission.clicked.connect(self.callback_configure_emission)
 		self.addAction(self.emission)
 
-		self.shape = QAction(icon_get("shape"), _("Shape\ndatabase"), self)
-		self.shape.triggered.connect(self.callback_configure_shape)
+		self.shape = QAction_lock("shape", _("Shape\ndatabase"), self,"ribbion_db_shape")
+		self.shape.clicked.connect(self.callback_configure_shape)
 		self.addAction(self.shape)
 
 		self.lasers_window=None
@@ -166,10 +166,20 @@ class ribbon_database(QToolBar):
 				error_dlg(self,_("I cant write to:")+new_emission+" "+_("This means either the disk is full or your system administrator has not given you write permissions to that location."))
 			self.dialog.viewer.fill_store()
 
+	def on_new_shape_clicked(self):
+		new_sim_name=dlg_get_text( _("New shape name:"), _("New shape name"),"add_shape")
+		new_sim_name=new_sim_name.ret
+		if new_sim_name!=None:
+			new_shape=os.path.join(self.dialog.viewer.path,new_sim_name)
+			ret=clone_material(new_shape,os.path.join(get_base_shape_path(),"box"))
+			if ret==False:
+				error_dlg(self,_("I cant write to:")+new_shape+" "+_("This means either the disk is full or your system administrator has not given you write permissions to that location."))
+			self.dialog.viewer.fill_store()
+
 	def callback_view_materials(self):
 		self.dialog=gpvdm_open(get_materials_path(),big_toolbar=True)
-		self.new_materials = QAction_lock("add_material", wrap_text(_("Add Material"),8), self,locked=True)
-		self.new_materials.secure_click.connect(self.on_new_materials_clicked)
+		self.new_materials = QAction_lock("add_material", wrap_text(_("Add Material"),8), self,"add_material")
+		self.new_materials.clicked.connect(self.on_new_materials_clicked)
 		self.dialog.toolbar.addAction(self.new_materials)
 
 		self.dialog.show_inp_files=False
@@ -178,8 +188,8 @@ class ribbon_database(QToolBar):
 
 	def callback_view_optical(self):
 		self.dialog=gpvdm_open(get_spectra_path(),big_toolbar=True)
-		self.new_materials = QAction_lock("add_spectra", wrap_text(_("Add Spectra"),8), self,locked=True)
-		self.new_materials.secure_click.connect(self.on_new_spectra_clicked)
+		self.new_materials = QAction_lock("add_spectra", wrap_text(_("Add Spectra"),8), self,"add_spectra")
+		self.new_materials.clicked.connect(self.on_new_spectra_clicked)
 		self.dialog.toolbar.addAction(self.new_materials)
 		self.dialog.show_inp_files=False
 		ret=self.dialog.exec_()
@@ -210,16 +220,16 @@ class ribbon_database(QToolBar):
 
 	def callback_configure_emission(self):
 		self.dialog=gpvdm_open(get_emission_path(),big_toolbar=True)
-		self.new_emission = QAction_lock("add_emission", wrap_text(_("Add Spectra"),8), self,locked=True)
-		self.new_emission.secure_click.connect(self.on_new_emission_clicked)
+		self.new_emission = QAction_lock("add_emission", wrap_text(_("Add Spectra"),8), self,"add_emission")
+		self.new_emission.clicked.connect(self.on_new_emission_clicked)
 		self.dialog.toolbar.addAction(self.new_emission)
 		self.dialog.show_inp_files=False
 		ret=self.dialog.exec_()
 
 	def callback_configure_shape(self):
 		self.dialog=gpvdm_open(get_shape_path(),big_toolbar=True)
-		self.new_shape = QAction_lock("add_shape", wrap_text(_("Add Shape"),8), self,locked=True)
-		#self.new_emission.secure_click.connect(self.on_new_emission_clicked)
+		self.new_shape = QAction_lock("add_shape", wrap_text(_("Add Shape"),8), self,"add_shape")
+		self.new_shape.clicked.connect(self.on_new_shape_clicked)
 		self.dialog.toolbar.addAction(self.new_shape)
 		self.dialog.show_inp_files=False
 		ret=self.dialog.exec_()

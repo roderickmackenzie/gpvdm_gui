@@ -61,13 +61,12 @@ from triangle_io import triangles_flip
 class shape_layer():
 	def shape_layer(self,epi_layer,s,y_padding=0.0, name="name"):
 		self.gl_objects_remove_regex(name)
-
 		for x in range(0,s.shape_nx):
 			for z in range(0,s.shape_nz):
 				pos=vec()
 				
 				pos.x=(s.x0+(s.dx+s.dx_padding)*x)
-				pos.y=epi_layer.end+(s.y0+s.dy_padding)
+				pos.y=epi_layer.end+(s.y0-s.dy_padding)
 				pos.z=(s.z0+(s.dz+s.dz_padding)*z)
 
 				a=gl_base_object()
@@ -84,16 +83,17 @@ class shape_layer():
 				v.y=s.dy
 				v.z=s.dz
 				#resize the shape to the mesh
-				a.triangles=triangles_mul_vec(s.triangles.data,v)
+				if s.triangles!=None:
+					a.triangles=triangles_mul_vec(s.triangles.data,v)
 
-				#flip
-				a.triangles=triangles_flip(a.triangles)
+					#flip
+					a.triangles=triangles_flip(a.triangles)
 
-				#move to correct place
-				a.triangles=triangles_add_vec(a.triangles,pos)
+					#move to correct place
+					a.triangles=triangles_add_vec(a.triangles,pos)
 
-				#scale to the screen
-				a.triangles=scale_trianges_m2screen(a.triangles)
+					#scale to the screen
+					a.triangles=scale_trianges_m2screen(a.triangles)
 				self.gl_objects_add(a)
 
 

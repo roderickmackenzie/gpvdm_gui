@@ -61,7 +61,7 @@ class optics_ribbon(ribbon_base):
 		toolbar.setToolButtonStyle( Qt.ToolButtonTextUnderIcon)
 		toolbar.setIconSize(QSize(42, 42))
 		
-		self.run = play(self,run_text=wrap_text(_("Run optical simulation"),5))
+		self.run = play(self,"optics_ribbon_run",run_text=wrap_text(_("Run optical simulation"),5))
 		toolbar.addAction(self.run)
 
 		self.fx_box=mode_selector()
@@ -99,7 +99,7 @@ class optics_ribbon(ribbon_base):
 		toolbar.setToolButtonStyle( Qt.ToolButtonTextUnderIcon)
 		toolbar.setIconSize(QSize(42, 42))
 		
-		self.tb_save = QAction_lock("export_image", _("Save graph"), self,locked=True)
+		self.tb_save = QAction_lock("export_image", _("Save graph"), self,"optics_ribbon_export_image")
 		toolbar.addAction(self.tb_save)
 
 		return toolbar

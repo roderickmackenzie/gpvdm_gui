@@ -149,7 +149,7 @@ class tab_class(QWidget,tab_base):
 							w.units.setVisible(True)
 							w.label.setVisible(True)
 
-	def callback_edit(self,token,widget,unit):
+	def callback_edit(self,token,widget,unit,token_class):
 		if token=="#dos_photon_generation":
 			inp_update_token_value(self.file_name, token, widget.get_value())
 
@@ -160,9 +160,17 @@ class tab_class(QWidget,tab_base):
 			return
 
 		if type(widget)==QLineEdit:
+			print(token_class.data_type,widget.text())
+			if token_class.data_type=="float":
+				try:
+					float(widget.text())
+				except:
+					return
+
 			a=undo_list_class()
 			a.add([self.file_name, token, inp_get_token_value(self.file_name, token),widget])
 			inp_update_token_value(self.file_name, token, widget.text())
+
 		elif type(widget)==gtkswitch:
 			inp_update_token_value(self.file_name, token, widget.get_value())
 		elif type(widget)==leftright:
@@ -337,28 +345,28 @@ class tab_class(QWidget,tab_base):
 						edit_box=gtkswitch()
 						edit_box.setFixedSize(300, 25)
 						edit_box.set_value(str2bool(value))
-						edit_box.changed.connect(functools.partial(self.callback_edit,token,edit_box,unit))
+						edit_box.changed.connect(functools.partial(self.callback_edit,token,edit_box,unit,result))
 					elif result.widget=="leftright":
 						edit_box=leftright()
 						edit_box.setFixedSize(300, 25)
 						edit_box.set_value(str2bool(value))
-						edit_box.changed.connect(functools.partial(self.callback_edit,token,edit_box,unit))
+						edit_box.changed.connect(functools.partial(self.callback_edit,token,edit_box,unit,result))
 					elif result.widget=="gpvdm_select":
 						edit_box=gpvdm_select(file_box=True)
 						edit_box.setFixedSize(300, 25)
 						edit_box.setText(value)
-						edit_box.edit.textChanged.connect(functools.partial(self.callback_edit,token,edit_box,unit))
+						edit_box.edit.textChanged.connect(functools.partial(self.callback_edit,token,edit_box,unit,result))
 					elif result.widget=="gpvdm_select_material":
 						edit_box=gpvdm_select_material(file_box=False)
 						edit_box.setFixedSize(300, 25)
 						edit_box.setText(value)
-						edit_box.edit.textChanged.connect(functools.partial(self.callback_edit,token,edit_box,unit))
+						edit_box.edit.textChanged.connect(functools.partial(self.callback_edit,token,edit_box,unit,result))
 
 					elif result.widget=="gpvdm_select_emission":
 						edit_box=gpvdm_select_emission(file_box=False)
 						edit_box.setFixedSize(300, 25)
 						edit_box.setText(value)
-						edit_box.edit.textChanged.connect(functools.partial(self.callback_edit,token,edit_box,unit))
+						edit_box.edit.textChanged.connect(functools.partial(self.callback_edit,token,edit_box,unit,result))
 
 					elif result.widget=="QLineEdit":
 						edit_box=QLineEdit()
@@ -367,7 +375,7 @@ class tab_class(QWidget,tab_base):
 							edit_box.setReadOnly(True)
 						edit_box.setText(value)
 						#edit_box.set_text(lines[pos]);
-						edit_box.textChanged.connect(functools.partial(self.callback_edit,token,edit_box,unit))
+						edit_box.textChanged.connect(functools.partial(self.callback_edit,token,edit_box,unit,result))
 						#edit_box.show()
 					elif result.widget=="QColorPicker":
 						r=float(ret[1])
@@ -375,7 +383,7 @@ class tab_class(QWidget,tab_base):
 						b=float(ret[3])
 						edit_box=QColorPicker(r,g,b)
 						edit_box.setFixedSize(300, 25)
-						edit_box.changed.connect(functools.partial(self.callback_edit,token,edit_box,unit))
+						edit_box.changed.connect(functools.partial(self.callback_edit,token,edit_box,unit,result))
 					elif result.widget=="QComboBoxLang":
 						edit_box=QComboBoxLang()
 						edit_box.setFixedSize(300, 25)
@@ -384,7 +392,7 @@ class tab_class(QWidget,tab_base):
 
 						edit_box.setValue_using_english(value)
 								
-						edit_box.currentIndexChanged.connect(functools.partial(self.callback_edit,token,edit_box,unit))
+						edit_box.currentIndexChanged.connect(functools.partial(self.callback_edit,token,edit_box,unit,result))
 					elif result.widget=="QComboBoxNewtonSelect":
 						edit_box=QComboBoxNewtonSelect()
 						edit_box.setFixedSize(300, 25)
@@ -392,18 +400,18 @@ class tab_class(QWidget,tab_base):
 							edit_box.addItem(result.defaults[i])
 						edit_box.setValue(value)
 								
-						edit_box.currentIndexChanged.connect(functools.partial(self.callback_edit,token,edit_box,unit))
+						edit_box.currentIndexChanged.connect(functools.partial(self.callback_edit,token,edit_box,unit,result))
 					elif result.widget=="QComboBoxShape":
 						edit_box=QComboBoxShape()
 						edit_box.setFixedSize(300, 25)
 						edit_box.setValue(value)
-						edit_box.currentIndexChanged.connect(functools.partial(self.callback_edit,token,edit_box,unit))
+						edit_box.currentIndexChanged.connect(functools.partial(self.callback_edit,token,edit_box,unit,result))
 
 					elif result.widget=="QParasitic":
 						edit_box=QParasitic()
 						edit_box.setFixedSize(300, 25)
 						edit_box.setValue(value)
-						edit_box.textChanged.connect(functools.partial(self.callback_edit,token,edit_box,unit))
+						edit_box.textChanged.connect(functools.partial(self.callback_edit,token,edit_box,unit,result))
 
 					elif result.widget=="QChangeLog":
 						edit_box=QChangeLog()
@@ -411,20 +419,20 @@ class tab_class(QWidget,tab_base):
 						if self.editable==False:
 							edit_box.setReadOnly(True)
 						edit_box.setText(value)
-						edit_box.textChanged.connect(functools.partial(self.callback_edit,token,edit_box,unit))
+						edit_box.textChanged.connect(functools.partial(self.callback_edit,token,edit_box,unit,result))
 					elif result.widget=="dos_complex_switch":
 						edit_box=dos_complex_switch()
 						edit_box.setFixedSize(300, 25)
 						edit_box.set_value(value)
 						if value=="exponential":
 							unit.setEnabled(False)
-						edit_box.changed.connect(functools.partial(self.callback_edit,token,edit_box,unit))
+						edit_box.changed.connect(functools.partial(self.callback_edit,token,edit_box,unit,result))
 					elif result.widget=="shape_dos_switch":
 						edit_box=shape_dos_switch()
 						edit_box.shape_file=self.file_name
 						edit_box.setFixedSize(300, 25)
 						edit_box.set_value(value)
-						edit_box.changed.connect(functools.partial(self.callback_edit,token,edit_box,unit))
+						edit_box.changed.connect(functools.partial(self.callback_edit,token,edit_box,unit,result))
 						if str2bool(value)==False:
 							unit.setEnabled(False)
 
@@ -440,7 +448,7 @@ class tab_class(QWidget,tab_base):
 								edit_box.setCurrentIndex(i)
 								break
 								
-						edit_box.currentIndexChanged.connect(functools.partial(self.callback_edit,token,edit_box,unit))
+						edit_box.currentIndexChanged.connect(functools.partial(self.callback_edit,token,edit_box,unit,result))
 
 					if type(unit)==QPushButton:
 						unit.clicked.connect(functools.partial(self.callback_unit_click,token,edit_box,unit))

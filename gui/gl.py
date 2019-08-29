@@ -592,60 +592,63 @@ if open_gl_ok==True:
 
 		def initializeGL(self):
 			self.load_data()
-			try:
-				glClearDepth(1.0)              
-				glDepthFunc(GL_LESS)
-				glEnable(GL_DEPTH_TEST)
-				glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-				glEnable(GL_BLEND);
-				#glEnable(GL_PROGRAM_POINT_SIZE_EXT);
-				glShadeModel(GL_SMOOTH)
+			#try:
+			glClearDepth(1.0)              
+			glDepthFunc(GL_LESS)
+			glEnable(GL_DEPTH_TEST)
+			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+			glEnable(GL_BLEND);
+			#glEnable(GL_PROGRAM_POINT_SIZE_EXT);
+			glShadeModel(GL_SMOOTH)
 
-				#glEnable(GL_COLOR_MATERIAL)
-				#glEnable(GL_CULL_FACE)
-				#glEnable(GL_DEPTH_TEST)
-				#glEnable(GL_LIGHTING)
-				#lightZeroPosition = [3,-3,3,1.0]
-				#lightZeroColor = [1.0,1.0,1.0,1.0] #green tinged
-				#glLightfv(GL_LIGHT0, GL_POSITION, lightZeroPosition)
-				#glLightfv(GL_LIGHT0, GL_DIFFUSE, lightZeroColor)
-				#glLightf(GL_LIGHT0, GL_CONSTANT_ATTENUATION, 0.01)
-				#glLightf(GL_LIGHT0, GL_LINEAR_ATTENUATION, 0.01)
-				#glEnable(GL_LIGHT0)
+			#glEnable(GL_COLOR_MATERIAL)
+			#glEnable(GL_CULL_FACE)
+			#glEnable(GL_DEPTH_TEST)
+			#glEnable(GL_LIGHTING)
+			#lightZeroPosition = [3,-3,3,1.0]
+			#lightZeroColor = [1.0,1.0,1.0,1.0] #green tinged
+			#glLightfv(GL_LIGHT0, GL_POSITION, lightZeroPosition)
+			#glLightfv(GL_LIGHT0, GL_DIFFUSE, lightZeroColor)
+			#glLightf(GL_LIGHT0, GL_CONSTANT_ATTENUATION, 0.01)
+			#glLightf(GL_LIGHT0, GL_LINEAR_ATTENUATION, 0.01)
+			#glEnable(GL_LIGHT0)
 
-				#lightZeroColor = [0.7,0.7,0.7,0.7] #green tinged
-				#glLightfv(GL_LIGHT1, GL_POSITION, lightZeroPosition)
-				#glLightfv(GL_LIGHT1, GL_AMBIENT, lightZeroColor)
-				#glLightf(GL_LIGHT1, GL_CONSTANT_ATTENUATION, 0.01)
-				#glLightf(GL_LIGHT1, GL_LINEAR_ATTENUATION, 0.01)
-				#glEnable(GL_LIGHT1)
+			#lightZeroColor = [0.7,0.7,0.7,0.7] #green tinged
+			#glLightfv(GL_LIGHT1, GL_POSITION, lightZeroPosition)
+			#glLightfv(GL_LIGHT1, GL_AMBIENT, lightZeroColor)
+			#glLightf(GL_LIGHT1, GL_CONSTANT_ATTENUATION, 0.01)
+			#glLightf(GL_LIGHT1, GL_LINEAR_ATTENUATION, 0.01)
+			#glEnable(GL_LIGHT1)
 
-				#glEnable(GL_FOG);
-				#fogColor = [0.5, 0.5, 0.5, 1.0];
+			#glEnable(GL_FOG);
+			#fogColor = [0.5, 0.5, 0.5, 1.0];
 
-				#glFogi (GL_FOG_MODE, GL_EXP);
-				#glFogfv (GL_FOG_COLOR, fogColor);
-				#glFogf (GL_FOG_DENSITY, 0.35);
-				#glHint (GL_FOG_HINT, GL_DONT_CARE);
-				#glFogf (GL_FOG_START, 1.0);
-				#glFogf (GL_FOG_END, 5.0);
+			#glFogi (GL_FOG_MODE, GL_EXP);
+			#glFogfv (GL_FOG_COLOR, fogColor);
+			#glFogf (GL_FOG_DENSITY, 0.35);
+			#glHint (GL_FOG_HINT, GL_DONT_CARE);
+			#glFogf (GL_FOG_START, 1.0);
+			#glFogf (GL_FOG_END, 5.0);
 
-				glViewport(0, 0, self.width(), self.height()+100)
-				glMatrixMode(GL_PROJECTION)
-				glLoadIdentity()
-				#glScalef(1.0, 1.0, -1.0)                  
-				gluPerspective(45.0,float(self.width()) / float(self.height()+100),0.1, 1000.0) 
-				glMatrixMode(GL_MODELVIEW)
-				#self.resizeEvent.connect(self.resize)
-			
-				self.failed=False
-				global_object_register("gl_force_redraw",self.force_redraw)
-				get_watch().add_call_back("light.inp",self.force_redraw)
-				get_watch().add_call_back("shape[0-9]+.inp",self.force_redraw)
+			glViewport(0, 0, self.width(), self.height()+100)
+			glMatrixMode(GL_PROJECTION)
+			glLoadIdentity()
+			#glScalef(1.0, 1.0, -1.0)                  
+			gluPerspective(45.0,float(self.width()) / float(self.height()+100),0.1, 1000.0) 
+			glMatrixMode(GL_MODELVIEW)
+			#self.resizeEvent.connect(self.resize)
+		
+			self.failed=False
+			global_object_register("gl_force_redraw",self.force_redraw)
+			get_watch().add_call_back("light.inp",self.force_redraw)
+			get_epi().add_callback(self.force_redraw)
+			#get_watch().add_call_back("shape[0-9]+.inp",self.force_redraw)
+			#get_epi().changed.connect(self.boom)
+			#except:
+			#	print("OpenGL failed to load falling back to 2D rendering.",sys.exc_info()[0])
 
-			except:
-				print("OpenGL failed to load falling back to 2D rendering.",sys.exc_info()[0])
-
+		def boom(self):
+			print("cum")
 else:
 	class glWidget(QWidget):
 

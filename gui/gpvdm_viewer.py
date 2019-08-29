@@ -249,7 +249,8 @@ class gpvdm_viewer(QListWidget):
 		if action == pack_action:
 			archive_compress(full_file_name)
 		elif action == unpack_action:
-			archive_decompress(full_file_name,remove_gpvdm_file=True)
+			archive_decompress(full_file_name,remove_gpvdm_file=False)
+			
 		elif action == newdirAction:
 			new_sim_name=dlg_get_text( _("New directory name:"), _("New directory"),"document-new")
 			new_sim_name=new_sim_name.ret
@@ -602,6 +603,7 @@ class gpvdm_viewer(QListWidget):
 			return
 
 		decode=self.decode_name(text)
+
 		if decode.startswith("http"):
 			webbrowser.open(decode)
 			return

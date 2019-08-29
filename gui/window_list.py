@@ -49,7 +49,6 @@ class window_item:
 wlist=[]
 
 def wpos_set_window(window,name):
-	print("set!!!!!!!!!!!!!!!",name)
 	global wlist
 	for i in range(0,len(wlist)):
 		if wlist[i].name==name:

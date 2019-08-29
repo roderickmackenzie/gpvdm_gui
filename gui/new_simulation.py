@@ -80,6 +80,7 @@ class new_simulation(QDialog):
 
 	def callback_next(self):
 		help_window().help_set_help(["document-save-as.png",_("<big><b>Now save the simulation</b></big><br>Now select where you would like to save the simulation directory.")])
+
 		if len(self.viewer.selectedItems())>0:
 			device_lib_sim_file=self.viewer.file_path
 			decrypted_file=os.path.join(get_tmp_path(),"tmp.gpvdm")

@@ -57,6 +57,8 @@ from gui_util import dlg_get_text
 from inp import inp_get_token_value
 from inp import inp_update_token_value
 
+from QAction_lock import QAction_lock
+
 class ribbon_configure(QToolBar):
 	def __init__(self):
 		QToolBar.__init__(self)
@@ -65,7 +67,7 @@ class ribbon_configure(QToolBar):
 		self.setToolButtonStyle( Qt.ToolButtonTextUnderIcon)
 		self.setIconSize(QSize(42, 42))
 
-		self.configwindow = QAction(icon_get("preferences-system"), _("Configure"), self)
+		self.configwindow = QAction_lock("preferences-system", _("Configure"), self,"ribbon_config_config")
 		self.configwindow.triggered.connect(self.callback_config_window)
 		self.addAction(self.configwindow)
 		
@@ -73,12 +75,12 @@ class ribbon_configure(QToolBar):
 		global_object_register("ribbon_configure_dump_refresh",self.dump.refresh)
 		self.addAction(self.dump)
 
-		self.mesh = QAction(icon_get("mesh"), _("Electrical\nmesh"), self)
+		self.mesh = QAction_lock("mesh", _("Electrical\nmesh"), self,"ribbon_config_mesh")
 		self.mesh.triggered.connect(self.callback_edit_mesh)		
 		self.addAction(self.mesh)
 
-		self.pl = QAction_lock("thermal", _("Temperature"), self,locked=True)
-		self.pl.secure_click.connect(self.callback_thermal)
+		self.pl = QAction_lock("thermal", _("Temperature"), self,"ribbon_config_temperature")
+		self.pl.clicked.connect(self.callback_thermal)
 		self.addAction(self.pl)
 
 	def callback_thermal(self):

@@ -49,14 +49,20 @@ from lock import get_lock
 from trial import trial
 
 class QAction_lock(QAction):
-	secure_click=pyqtSignal(QAction)
+	clicked=pyqtSignal(QAction)
 
-	def __init__(self,icon_name,text,s,locked=False):
+	def __init__(self,icon_name,text,s,id):
 		sub_icon=None
 		self.locked=False
 		self.text=text
 		if get_lock().is_trial()==True:
 			self.locked=locked
+		
+		if get_lock().is_function_locked(id)==True:
+			self.locked=True
+
+		if get_lock().is_function_not_locked(id)==True:
+			self.locked=False
 
 		if self.locked==True:
 			sub_icon="lock"
@@ -64,9 +70,8 @@ class QAction_lock(QAction):
 		self.triggered.connect(self.callback_secure_click)
 
 	def callback_secure_click(self):
-		get_lock().debug_action("QAction_lock:"+self.text)
 		if self.locked==False:
-			self.secure_click.emit(self)
+			self.clicked.emit(self)
 		else:
 			self.setChecked(False)
 

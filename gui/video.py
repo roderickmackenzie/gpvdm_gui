@@ -86,7 +86,8 @@ class video(QWidget):
 
 
 	def openFile(self):
-		fileName=os.path.join(get_video_path(),"welcome.mp4")
+		fileName=os.path.join(get_video_path(),"welcome.wmv")
+		print(QUrl.fromLocalFile(fileName))
 		self.mediaPlayer.setMedia(QMediaContent(QUrl.fromLocalFile(fileName)))
 		self.playButton.setEnabled(True)
 

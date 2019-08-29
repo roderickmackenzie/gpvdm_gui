@@ -66,6 +66,7 @@ import webbrowser
 from global_objects import global_object_register
 
 from lock import get_lock
+from QAction_lock import QAction_lock
 
 class ribbon_home(QToolBar):
 
@@ -88,7 +89,7 @@ class ribbon_home(QToolBar):
 
 		self.addSeparator()
 
-		self.run = play(self,run_text=wrap_text(_("Run\nsimulation"),2))#QAction(icon_get("media-playback-start"), _("Run simulation"), self)
+		self.run = play(self,"main_play_button",run_text=wrap_text(_("Run\nsimulation"),2))#QAction(icon_get("media-playback-start"), _("Run simulation"), self)
 		server_get().sim_finished.connect(self.run.stop)
 		server_get().sim_started.connect(self.run.start)
 
@@ -100,27 +101,27 @@ class ribbon_home(QToolBar):
 
 		self.addSeparator()
 		
-		self.scan = QAction(icon_get("scan"), _("Parameter\nscan"), self)
-		self.scan.triggered.connect(self.callback_scan)
+		self.scan = QAction_lock("scan", _("Parameter\nscan"), self,"ribbon_home_scan")
+		self.scan.clicked.connect(self.callback_scan)
 		self.addAction(self.scan)
 
 
 		self.addSeparator()
 
-		self.fit = QAction(icon_get("fit"), _("Fit to\nexperimental data"), self)
-		self.fit.triggered.connect(self.callback_run_fit)
+		self.fit = QAction_lock("fit", _("Fit to\nexperimental data"), self,"ribbon_home_fit")
+		self.fit.clicked.connect(self.callback_run_fit)
 		self.addAction(self.fit)
 
 		self.addSeparator()
 		
-		self.plot = QAction(icon_get("plot"), _("Plot\nFile"), self)
-		self.plot.triggered.connect(self.callback_plot_select)
+		self.plot = QAction_lock("plot", _("Plot\nFile"), self,"ribbon_home_plot")
+		self.plot.clicked.connect(self.callback_plot_select)
 		self.addAction(self.plot)
 
 		self.addSeparator()
 
-		self.optics = QAction(icon_get("optics"), _("Optical\nSimulation"), self)
-		self.optics.triggered.connect(self.callback_optics_sim)
+		self.optics = QAction_lock("optics", _("Optical\nSimulation"), self,"ribbon_home_optics")
+		self.optics.clicked.connect(self.callback_optics_sim)
 		self.addAction(self.optics)
 
 		self.sun=tb_item_sun()

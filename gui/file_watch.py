@@ -68,6 +68,7 @@ class file_watch():
 		self.files=[]
 		self.hooks=[]
 		self.disabled=True
+		self.running=False
 
 	def reset(self):
 		#print("watches clear")
@@ -87,14 +88,21 @@ class file_watch():
 			print(f)
 
 	def check_callbacks(self,changed_file):
-		for h in self.hooks:
-			#print(h.file_name,changed_file)
+		#print("Start hook search due to",changed_file)
+		for i in range(0,len(self.hooks)):
+			h=self.hooks[i]
+			#print(">>>",i,h.file_name)
 			try:
 				if  bool(re.match(h.file_name,changed_file))==True:
+					#print("aaaaaa",h.file_name)
+
 					for c in h.call_backs:
 						c()
+						print("a")
+					#print("bbbbb")
 			except:
 				pass
+		#print("End hook search")
 
 	def check_zip_file(self,f):
 		zip_file=os.path.join(get_sim_path(),f)
@@ -141,13 +149,16 @@ class file_watch():
 
 
 	def check_dir(self):
-		if os.path.isdir(get_sim_path())==True:
-			my_list=os.listdir(get_sim_path())
-			self.check_files(my_list)
+		if self.running==False:
+			self.running=True
+			if os.path.isdir(get_sim_path())==True:
+				my_list=os.listdir(get_sim_path())
+				self.check_files(my_list)
 
+		self.running=False
 
 	def rebase(self):
-		print("rebase>>")
+		#print("rebase>>")
 		self.disabled=False
 		self.check_dir()
 

@@ -429,6 +429,16 @@ def get_sim_path():
 		return os.getcwd()
 	return sim_path
 
+def get_backup_path():
+	global sim_path
+	path=os.getcwd()
+	if sim_path!=None:
+		path=sim_path
+
+	backup_path=os.path.join(path,"backup")
+
+	return backup_path
+
 def get_exe_args():
 	if gui_get()==True:
 		return "--gui --html" #--english

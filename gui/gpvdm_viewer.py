@@ -456,6 +456,12 @@ class gpvdm_viewer(QListWidget):
 						elif dir_type=="emission":
 							itm.file_name=fl
 							itm.icon="emission"
+						elif dir_type=="backup_main":
+							itm.file_name=fl
+							itm.icon="backup"
+						elif dir_type=="backup":
+							itm.file_name=fl
+							itm.icon="backup"
 						else:
 							show_dir=True
 
@@ -488,10 +494,13 @@ class gpvdm_viewer(QListWidget):
 						if (ext==".chk"):
 							itm.hidden=True
 
-						elif (ext==".inp") and self.show_inp_files==True:
-							itm.file_name=fl
-							itm.icon="text-x-generic"
-					
+						elif (ext==".inp"):
+							if self.show_inp_files==True:
+								itm.file_name=fl
+								itm.icon="text-x-generic"
+							else:
+								itm.hidden=True
+
 						elif (ext==".gmat"):
 							itm.file_name=fl
 							itm.icon="gmat"
@@ -752,6 +761,12 @@ class gpvdm_viewer(QListWidget):
 				#print("snapshots!!")
 				return
 
+			if dir_type=="backup":
+				ret=yes_no_dlg(self,_("Are you sure you want restore this file from the backup, it will overwrite all files in the simulation directory?")+"\n\n"+full_path)
+				if ret==True:
+					from backup import backup_restore
+					backup_restore(get_sim_path(),full_path)
+
 			if dir_type=="file":
 				self.file_path=full_path
 				if os.path.basename(full_path)=="sim_info.dat":
@@ -769,7 +784,7 @@ class gpvdm_viewer(QListWidget):
 				return
 #self.reject.emit()
 		
-		if dir_type=="dir":
+		if dir_type=="dir" or dir_type=="backup_main":
 			self.file_path=full_path
 			self.set_path(full_path)
 			self.fill_store()

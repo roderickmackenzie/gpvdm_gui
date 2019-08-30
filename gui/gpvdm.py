@@ -605,8 +605,6 @@ class gpvdm_main_window(QMainWindow):
 		self.show_tabs = True
 		self.show_border = True
 
-		self.ribbon.file.home_export.triggered.connect(self.callback_export)
-
 		self.ribbon.file.home_new.clicked.connect(self.callback_new)
 		self.ribbon.file.home_open.clicked.connect(self.callback_open)
 		self.ribbon.file.used_files_click.connect(self.load_sim)

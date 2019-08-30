@@ -49,6 +49,16 @@ from QAction_lock import QAction_lock
 from used_files import used_files_load
 from PyQt5.QtCore import pyqtSignal
 
+from gpvdm_open import gpvdm_open
+from cal_path import get_backup_path
+from cal_path import get_sim_path
+
+from util import wrap_text
+
+from util_zip import write_lines_to_archive
+from gui_util import dlg_get_text
+from backup import backup
+
 class ribbon_file(QToolBar):
 	used_files_click= pyqtSignal(str)
 	def __init__(self):
@@ -73,8 +83,9 @@ class ribbon_file(QToolBar):
 
 		self.addAction(self.home_open)
 
-		self.home_export = QAction_lock("document-export", _("Export\ndata"), self,"main_export")
-		#self.addAction(self.home_export)
+		self.home_backup = QAction_lock("backup", _("Backup\nSimulaion"), self,"ribbion_db_backup")
+		self.home_backup.clicked.connect(self.callback_home_backup)
+		self.addAction(self.home_backup)
 
 		self.home_export_xls = QAction_lock("export_xls", _("Export\nto Excel"), self,"main_export_xls")
 		#self.home_export_xls = QAction(icon_get("export_xls"), _("Export\nto Excel"), self)
@@ -120,10 +131,39 @@ class ribbon_file(QToolBar):
 	def setEnabled(self,val,do_all=False):
 		self.home_new.setEnabled(val)
 		self.home_open.setEnabled(val)
-		self.home_export.setEnabled(val)
+		self.home_backup.setEnabled(val)
 		self.home_export_xls.setEnabled(val)
 
 
 	def setEnabled_other(self,val):
-		self.home_export.setEnabled(val)
+		self.home_backup.setEnabled(val)
 		self.home_export_xls.setEnabled(val)
+
+	def on_new_backup(self):
+		new_backup_name=dlg_get_text( _("New backup:"), _("New backup name"),"add_backup")
+		new_backup_name=new_backup_name.ret
+		if new_backup_name!=None:
+			new_backup=os.path.join(self.dialog.viewer.path,new_backup_name)
+			backup(new_backup,get_sim_path())
+			self.dialog.viewer.fill_store()
+
+	def callback_home_backup(self):
+		backup_path=get_backup_path()
+		if os.path.isdir(backup_path)==False:
+			os.makedirs(backup_path)
+
+		lines=[]
+		lines.append("#gpvdm_file_type")
+		lines.append("backup_main")
+		lines.append("#end")
+
+		write_lines_to_archive(os.path.join(backup_path,"sim.gpvdm"),"mat.inp",lines,mode="l",dest="file")
+
+		self.dialog=gpvdm_open(backup_path,big_toolbar=True)
+		self.new_backup = QAction_lock("add_backup", wrap_text(_("New backup"),2), self,"add_backup")
+		self.new_backup.clicked.connect(self.on_new_backup)
+		self.dialog.toolbar.addAction(self.new_backup)
+
+		self.dialog.viewer.show_inp_files=False
+		ret=self.dialog.exec_()
+

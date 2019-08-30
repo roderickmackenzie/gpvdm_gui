@@ -85,7 +85,7 @@ class lock():
 		self.reg_client_ver="ver"
 		self.client_ver_from_lock=""
 		self.status="no_key"
-		self.use_count_check_web=3
+		self.use_count_check_web=5
 		self.locked=[]
 		self.not_locked=[]
 		if am_i_rod()==True:
@@ -175,7 +175,6 @@ class lock():
 		return text
 
 	def get_license(self,key="none",uid=None):
-
 		if uid==None:
 			uid=self.uid
 		a=http_get()
@@ -302,10 +301,10 @@ class lock():
 			if self.get_reg_key("uid")==False:
 				self.write_reg_key("uid",self.uid)
 			return
-		else:
-			value=self.get_reg_key("uid")
-			if value!=False:
-				self.get_license(uid=value)
+		#else:
+		#	value=self.get_reg_key("uid")
+		#	if value!=False:
+		#		self.get_license(uid=value)
 
 		#check if old file exists
 		if running_on_linux()==True:

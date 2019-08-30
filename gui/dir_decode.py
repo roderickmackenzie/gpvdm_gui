@@ -58,5 +58,9 @@ def get_dir_type(path):
 			return "shape"
 		elif token=="emission":
 			return "emission"
+		elif token=="backup_main":
+			return "backup_main"
+		elif token=="backup":
+			return "backup"
 		else:
 			return "dir"

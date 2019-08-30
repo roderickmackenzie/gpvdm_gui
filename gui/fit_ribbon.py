@@ -93,7 +93,7 @@ class fit_ribbon(ribbon_base):
 
 		toolbar.addSeparator()
 
-		self.play_one= play(self,run_text=wrap_text(_("One itteration"),2),locked=True)
+		self.play_one= play(self,"fit_ribbon_one",run_text=wrap_text(_("One itteration"),2))
 
 		toolbar.addAction(self.play_one)
 		

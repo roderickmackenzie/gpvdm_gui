@@ -90,7 +90,7 @@ class ribbon_database(QToolBar):
 		self.addAction(self.materials)
 
 		self.spectra_file = QAction_lock("spectra_file", _("Optical\ndatabase"), self,"ribbion_db_spectra")
-		self.spectra_file.triggered.connect(self.callback_view_optical)
+		self.spectra_file.clicked.connect(self.callback_view_optical)
 		self.addAction(self.spectra_file)
 
 		if enable_betafeatures()==True:

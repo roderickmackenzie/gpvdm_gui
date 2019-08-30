@@ -127,7 +127,6 @@ from cal_path import get_spectra_path
 from clone import clone_spectras
 from file_watch import get_watch
 from used_files import used_files_add
-
 from lock_gui import lock_gui
 
 from contacts_io import get_contactsio
@@ -543,6 +542,7 @@ class gpvdm_main_window(QMainWindow):
 		self.setWindowTitle("General-purpose Photovoltaic Device Model (https://www.gpvdm.com)")
 
 		self.l=lock_gui()
+
 		#self.l.disable_all.connect(self.disable_interface)
 		#self.l.enable_all.connect(self.enable_disable_buttons)
 

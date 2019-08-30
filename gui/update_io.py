@@ -82,6 +82,7 @@ class http_get_u(http_get):
 		self.data=self.get(file_name)
 
 		return self.data
+		return False
 
 
 

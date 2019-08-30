@@ -73,6 +73,7 @@ from i18n import get_full_language
 class lock():
 	def __init__(self):
 		self.registered=False
+
 		self.uid=""
 		self.renew_date=0
 		self.register_date=0
@@ -112,12 +113,12 @@ class lock():
 			if self.client_ver_from_lock!=self.reg_client_ver:
 				self.get_license()
 
-
 	def can_i_run_a_simulation(self):
 		if self.disabled==True:
 			return False
 		else:
 			return True
+		return True
 
 	def server_check_user(self):
 		if self.use_count>self.use_count_check_web:
@@ -216,12 +217,10 @@ class lock():
 		if self.is_registered()==False:
 			return "register"
 
-
 		return "ok"
 
 
 	def is_function_locked(self,id):
-
 		if id in self.locked:
 			return True
 		return False
@@ -230,9 +229,9 @@ class lock():
 		if id in self.not_locked:
 			return True
 		return False
+		return True
 
 	def load_new(self):
-
 		if self.get_reg_key("new_install")=="true":
 			print("fresh install.....")
 			return False
@@ -294,6 +293,7 @@ class lock():
 			return True
 
 		return False
+		return True
 
 	def load(self):
 
@@ -328,6 +328,7 @@ class lock():
 		if value!=False:
 			self.uid=value
 			#print("I found a uid in the registry.")
+		return
 
 	def get_reg_key(self,token):
 		if running_on_linux()==False:
@@ -338,7 +339,6 @@ class lock():
 				return value
 			except WindowsError:
 				pass
-
 		return False
 
 	def get_gpvdm_ver_from_reg(self):
@@ -351,7 +351,6 @@ class lock():
 			except WindowsError:
 				print("data search")
 				pass
-
 		return "linux_ver"
 
 	def get_win_id(self):
@@ -366,6 +365,7 @@ class lock():
 				pass
 		else:
 			return "undefined"
+		return "undefined"
 
 	def get_mac(self):
 		if running_on_linux()==True:
@@ -379,6 +379,7 @@ class lock():
 			return ':'.join('%02x' % b for b in info[18:24])
 		else:
 			return "undefined"
+		return "undefined"
 
 	def write_reg_key(self,token,value):
 		if running_on_linux()==False:
@@ -393,14 +394,15 @@ class lock():
 
 	def is_registered(self):
 		return self.registered
+		return True
 
 	def over_use_count_limit(self):
 		return self.use_count>self.use_count_check_web+5
+		return 0
 
 	#is the GUI disabled
 	def is_disabled(self):
-		#print("disabled",self.disabled)
-		#return True
+
 		if self.disabled==True:
 			return True
 
@@ -414,6 +416,7 @@ class lock():
 
 		self.disable_now()
 		return True
+		return False
 
 	def disable_now(self):
 		lock_update_token(self.data_path,"#disabled","true")
@@ -442,6 +445,7 @@ class lock():
 			return False
 
 		return True
+		return False
 
 	def validate_key(self,key):
 		a=http_get()

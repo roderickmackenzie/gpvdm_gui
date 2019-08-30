@@ -59,6 +59,8 @@ def lock_load(file_name):
 
 	return ret
 
+	return
+
 def lock_update_token(file_name,token,value):
 	if os.path.isfile(file_name)==False:
 		return False
@@ -75,10 +77,9 @@ def lock_update_token(file_name,token,value):
 
 	if updated==True:
 		lock_save(file_name,lines)
-
+	return 
 
 def lock_save(file_name,lines):
-	
 	data=bytearray("gpvdm"+"\n".join(lines),"utf-8")
 
 	key=bytearray("roderickmackenzie","utf-8")
@@ -97,7 +98,6 @@ def lock_save(file_name,lines):
 	f = open(file_name, mode='wb')
 	f.write(data)
 	f.close()
-
 	return True
 
 

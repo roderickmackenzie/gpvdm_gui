@@ -65,6 +65,7 @@ from triangle_io import triangles_get_min
 from triangle_io import triangles_get_max
 
 from PyQt5.QtCore import pyqtSignal
+from PIL import Image
 
 class image_widget(QWidget):
 	changed = pyqtSignal()
@@ -290,15 +291,16 @@ class shape_import(QWidgetSavePos):
 		self.xy_triangles.changed.connect(self.image_widget.force_update)
 
 	def callback_open_image(self):
-		file_name=open_as_filter(self,"png (*.png)",path=self.path)
+		file_name=open_as_filter(self,"png (*.png);;jpg (*.jpg)",path=self.path)
 		if file_name!=None:
-			copyfile(file_name, os.path.join(self.path,"image.png"))
+			im = Image.open(file_name)
+			im.save(os.path.join(self.path,"image.png"))
 			self.image_widget.build_mesh()
 
 	def __init__(self,path):
 		QWidgetSavePos.__init__(self,"shape_import")
 		self.path=path
-		self.setMinimumSize(900, 600)
+		self.setMinimumSize(900, 900)
 		self.setWindowIcon(icon_get("shape"))
 
 		self.setWindowTitle(_("Import microscope image")+" (https://www.gpvdm.com)") 

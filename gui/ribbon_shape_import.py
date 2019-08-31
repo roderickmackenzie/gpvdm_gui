@@ -71,10 +71,10 @@ class ribbon_shape_import(ribbon_base):
 		self.import_image= QAction_lock("import_image", wrap_text(_("Load new image"),7), self,"ribbon_shape_import_import_image")
 		toolbar.addAction(self.import_image)
 
-		self.save_data= QAction_lock("document-save-as", wrap_text(_("Import data"),4), self)
+		self.save_data= QAction_lock("document-save-as", wrap_text(_("Import data"),4), self,"ribbon_shape_import_save")
 		toolbar.addAction(self.save_data)
 
-		self.xy_triangles= QAction_lock("shape", wrap_text(_("xy triangles"),2), self)
+		self.xy_triangles= QAction_lock("shape", wrap_text(_("xy triangles"),2), self,"ribbon_shape_xy_tri")
 		toolbar.addAction(self.xy_triangles)
 
 		spacer = QWidget()

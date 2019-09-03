@@ -62,5 +62,7 @@ def get_dir_type(path):
 			return "backup_main"
 		elif token=="backup":
 			return "backup"
+		elif token=="cache":
+			return "cache"
 		else:
 			return "dir"

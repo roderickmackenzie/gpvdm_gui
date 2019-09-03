@@ -462,6 +462,8 @@ class gpvdm_viewer(QListWidget):
 						elif dir_type=="backup":
 							itm.file_name=fl
 							itm.icon="backup"
+						elif dir_type=="cache":
+							itm.hidden=True
 						else:
 							show_dir=True
 
@@ -490,6 +492,8 @@ class gpvdm_viewer(QListWidget):
 							elif text.startswith(b"#gpvdm"):
 								itm.file_name=fl
 								itm.icon="dat_file"
+							else:
+								itm.hidden=True
 
 						if (ext==".chk"):
 							itm.hidden=True

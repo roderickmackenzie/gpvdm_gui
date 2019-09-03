@@ -99,12 +99,12 @@ class update_window(QWidget):
 		spacer.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
 		toolbar.addWidget(spacer)
 
-		self.progress=progress_class()
-		self.progress.spinner.stop()
-		self.progress.spinner.hide()
-		self.progress.set_text(_("Connecting to server"))
-		self.progress.hide_time()
-		toolbar.addWidget(self.progress)
+		#self.progress=progress_class()
+		#self.progress.spinner.stop()
+		#self.progress.spinner.hide()
+		#self.progress.set_text(_("Connecting to server"))
+		#self.progress.hide_time()
+		#toolbar.addWidget(self.progress)
 
 	
 		self.vbox.addWidget(toolbar)
@@ -154,8 +154,8 @@ class update_window(QWidget):
 				self.tab.setItem(line,4,QTableWidgetItem(str(self.update.file_list[line].md5_disk)))
 				self.tab.selectRow( line );
 
-		self.progress.set_fraction(percent)
-		self.progress.set_text(self.update.get_progress_text())
+		#self.progress.set_fraction(percent)
+		#self.progress.set_text(self.update.get_progress_text())
 		process_events()
 
 	def update_ui(self):

@@ -473,9 +473,13 @@ class lock():
 		self.error=data
 		return False
 
+	
 
 my_lock=lock()
 
 def get_lock():
 	global my_lock
 	return my_lock
+
+def get_email():
+	return "roderick.mackenzie@nottingham.ac.uk"

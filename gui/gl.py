@@ -361,8 +361,8 @@ if open_gl_ok==True:
 								xstart=x+scale_get_xmul()*c.start
 								xwidth=scale_get_xmul()*c.width
 								#print(c.position,xstart,xwidth)
-								if (c.start+c.width)>self.x_len:
-									xwidth=scale_get_device_x()
+								#if (c.start+c.width)>self.x_len:
+								#	xwidth=scale_get_device_x()-xstart
 							#lens_layer(xstart,y+dy_shrink/2,z,xwidth,scale_get_device_z(),y_len-dy_shrink,scale_get_device_x()/10)
 							if name!="air":
 								box(xstart,y+dy_shrink/2,z,xwidth,y_len-dy_shrink, scale_get_device_z(), obj.r,obj.g, obj.b,alpha, name=layer_name)

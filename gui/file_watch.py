@@ -69,6 +69,7 @@ class file_watch():
 		self.hooks=[]
 		self.disabled=True
 		self.running=False
+		self.last_run=-1
 
 	def reset(self):
 		#print("watches clear")
@@ -77,7 +78,7 @@ class file_watch():
 		self.disabled=True
 		self.timer=QTimer()		
 		self.timer.timeout.connect(self.check_dir)
-		self.timer.start(250)
+		self.timer.start(300)
 
 	
 	def dump(self):

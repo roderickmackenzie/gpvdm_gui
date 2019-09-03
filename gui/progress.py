@@ -169,9 +169,12 @@ if gui_get()==True:
 			y=0
 			self.move(x,y)
 			self.show()
+			self.spinner.start()
 
 		def stop(self):
 			self.hide()
+			self.spinner.stop()
+
 			#self.spin.stop()
 			#my_help_class.help_show()
 

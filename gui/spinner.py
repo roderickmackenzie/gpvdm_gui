@@ -43,19 +43,23 @@ class spinner(QWidget):
 		#self.setGeometry(300, 300, 300, 220)
 		#self.setWindowTitle('Icon')
 		#self.setWindowIcon(QIcon('web.png'))        
-		self.start()
-		
+		#self.start()
+		self.timer=None
+
 	def start(self):
-		self.timer=QTimer()
-		self.timer.timeout.connect(self.update)
-		self.timer.start(10);
-		self.blue_target=255.0
-		self.green_target=0.0
-		self.red_target=0.0
+		if self.timer==None:
+			self.timer=QTimer()
+			self.timer.timeout.connect(self.update)
+			self.timer.start(10);
+			self.blue_target=255.0
+			self.green_target=0.0
+			self.red_target=0.0
 		
 	def stop(self):
-		self.timer.stop()
-		
+		if self.timer!=None:
+			self.timer.stop()
+		self.timer=None
+
 	def update(self):
 		self.delta=self.delta+5
 		if self.delta>360:

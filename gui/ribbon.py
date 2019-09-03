@@ -69,6 +69,7 @@ from PyQt5.QtCore import pyqtSignal
 import webbrowser
 
 from help import help_window
+from lock import get_email
 
 class QLabel_click(QLabel):
 	clicked=pyqtSignal()
@@ -95,7 +96,7 @@ class ribbon(ribbon_base):
 		dlg.exec_()
 
 	def callback_questions(self):
-		webbrowser.open("https://www.gpvdm.com/questions.html")
+		webbrowser.open("https://www.gpvdm.com/contact.html")
 
 	def __init__(self):
 		ribbon_base.__init__(self)
@@ -112,7 +113,7 @@ class ribbon(ribbon_base):
 		self.toolbar=QToolBar()
 		self.toolbar.setIconSize(QSize(32, 32))
 
-		self.help_message=QLabel_click(_("Questions? Contact <a href=\"info@gpvdm.com\">info@gpvdm.com</a>"))
+		self.help_message=QLabel_click(_("Questions? Contact <a href=\""+get_email()+"\">"+get_email()+"</a>"))
 		self.help_message.clicked.connect(self.callback_questions)
 		self.about = QToolButton(self)
 		self.about.setText(_("About"))

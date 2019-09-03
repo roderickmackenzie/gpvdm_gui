@@ -79,19 +79,13 @@ from QAction_lock import QAction_lock
 from str2bool import str2bool
 
 class gQAction(QAction_lock):
-	clicked=pyqtSignal(QAction_lock)
+	selected=pyqtSignal(QAction_lock)
 
 	def __init__(self,s,file_name,command,module):
 		self.icon=False
 		self.text=command
 		self.icon_name=inp_get_token_value(file_name, "#icon")
 		self.done=False
-
-		trial_lock=inp_get_token_value(file_name, "#trial_lock")
-		if trial_lock==None:
-			trial_lock=False
-		else:
-			trial_lock=str2bool(trial_lock)
 
 		if self.icon_name==None:
 			self.icon_name="plot"
@@ -108,7 +102,7 @@ class gQAction(QAction_lock):
 
 	def callback_click(self):
 		inp_update_token_value(os.path.join(get_sim_path(),"sim.inp"), "#simmode", self.command+"@"+self.module)
-		self.clicked.emit(self)
+		self.selected.emit(self)
 
 class ribbon_sim_mode(QToolBar):
 
@@ -142,7 +136,7 @@ class ribbon_sim_mode(QToolBar):
 							if command not in self.dont_show:
 								a = gQAction(self, files[i],command, module)
 								a.setCheckable( True);
-								a.clicked.connect(self.callback_click)
+								a.selected.connect(self.callback_click)
 								self.actions.append(a)
 
 							#temp.append(value)

@@ -35,7 +35,6 @@ from tab_base import tab_base
 from epitaxy import epitaxy_get_layers
 from epitaxy import epitaxy_get_width
 from epitaxy import epitaxy_get_mat_file
-from epitaxy import epitaxy_get_electrical_layer
 from help import help_window
 from epitaxy import epitaxy_get_pl_file
 from epitaxy import epitaxy_get_name

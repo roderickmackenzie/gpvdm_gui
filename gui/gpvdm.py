@@ -131,6 +131,7 @@ from lock_gui import lock_gui
 
 from contacts_io import get_contactsio
 from epitaxy import get_epi
+from cache import cache
 
 def do_import():
 	global new_simulation
@@ -191,14 +192,7 @@ def do_import():
 	from plot_dlg import plot_dlg_class
 	from gui_util import yes_no_dlg
 	from util import isfiletype
-	if running_on_linux()==True:
-		import dbus
-		from dbus.mainloop.pyqt5 import DBusQtMainLoop
 
-		if os.geteuid() == 0:
-			exit(_("Don't run me as root!!"))
-	else:
-		from windows_pipe import win_pipe
 
 
 	#gobject.threads_init()
@@ -223,6 +217,18 @@ from cal_path import get_emission_path
 
 from cal_path import get_base_shape_path
 from cal_path import get_shape_path
+
+if running_on_linux()==True:
+	import dbus
+	from dbus.mainloop.glib import DBusGMainLoop
+	DBusGMainLoop(set_as_default=True)
+	#from dbus.mainloop.pyqt5 import DBusQtMainLoop
+	#DBusQtMainLoop(set_as_default=True)
+
+	if os.geteuid() == 0:
+		exit(_("Don't run me as root!!"))
+else:
+	from windows_pipe import win_pipe
 
 #encrypt_file("encode.dat","one.txt","hello")
 #decrypt_file("decode.dat","encode.dat","hello")
@@ -565,7 +571,6 @@ class gpvdm_main_window(QMainWindow):
 		#self.show()
 
 		if running_on_linux()==True:
-			DBusQtMainLoop(set_as_default=True)
 			self.bus = dbus.SessionBus()
 			self.bus.add_match_string_non_blocking("type='signal',interface='org.my.gpvdm'")
 			self.bus.add_message_filter(self.adbus)
@@ -650,6 +655,11 @@ class gpvdm_main_window(QMainWindow):
 			if os.path.isdir(get_spectra_path())==False:
 				clone_spectras(get_spectra_path())
 
+		self.cache=cache(only_open_if_full=True)
+
+		from solar_main import solar_main
+		#a= solar_main()
+		#a.show()
 	def dragEnterEvent(self, event):
 		if event.mimeData().hasUrls:
 			event.accept()

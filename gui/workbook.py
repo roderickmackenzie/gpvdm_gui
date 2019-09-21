@@ -46,7 +46,7 @@ from token_lib import tokens
 
 from epitaxy import epitaxy_get_dos_files
 from epitaxy import epitaxy_get_layers
-from epitaxy import epitaxy_get_electrical_layer
+from epitaxy import epitaxy_get_dos_file
 from epitaxy import epitaxy_get_name
 
 def title_truncate(title):
@@ -123,7 +123,7 @@ def gen_workbook(input_file_or_dir,output_file):
 	ws = wb.active
 	pos=1
 	for i in range(0,epitaxy_get_layers()):
-		dos_layer=epitaxy_get_electrical_layer(i)
+		dos_layer=epitaxy_get_dos_file(i)
 		if dos_layer.startswith("dos")==True:
 			pos=workbook_from_inp(ws,pos,dos_layer+".inp",title=epitaxy_get_name(i))
 

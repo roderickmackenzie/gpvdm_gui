@@ -135,67 +135,66 @@ class epitaxy():
 
 		return name
 
-	def get_all_dos_files(self):
+	def get_all_electrical_files(self):
 		tab=[]
 		for l in self.layers:
 			if l.electrical_layer.startswith("dos"):
-				tab.append(l.electrical_layer)
+				tab.append(l.electrical_layer+".inp")
+				tab.append("electrical"+l.electrical_layer[3:]+".inp")
 
-		for l in self.layers:
 			if len(l.shapes)!=0:
 				for s in l.shapes:
 					if s.shape_dos!="none":
-						tab.append(s.shape_dos)
+						tab.append(s.shape_dos+".inp")
+
+					if s.file_name!="none":
+						tab.append(s.file_name+".inp")
+
+			#pl files
+			if l.pl_file!="none":
+				tab.append(l.pl_file+".inp")
+
+			#lumo files
+			if l.lumo_file!="none":
+				tab.append(l.lumo_file+".inp")
+
+			if l.homo_file!="none":
+				tab.append(l.homo_file+".inp")
+
 		return tab
 
 	def clean_unused_files(self):
 		files=inp_lsdir("sim.gpvdm")
-		tab=self.get_all_dos_files()
-
-		#dos files
-
+		tab=self.get_all_electrical_files()
 
 		for i in range(0,len(files)):
-			if is_numbered_file(files[i],"dos")==True:
-				disk_file=files[i][:-4]
+			disk_file=files[i]
+			#dos
+			if is_numbered_file(disk_file,"dos")==True:
 				if disk_file not in tab:
 					inp_remove_file(disk_file)
 
-		#pl files
-		for l in self.layers:
-			tab.append(l.pl_file+".inp")
-
-		for i in range(0,len(files)):
-			if is_numbered_file(files[i],"pl")==True:
-				disk_file=files[i]
+			#electrical
+			if is_numbered_file(disk_file,"electrical")==True:
 				if disk_file not in tab:
 					inp_remove_file(disk_file)
 
-		#shape files
-		for l in self.layers:
-			for s in l.shapes:
-				tab.append(s.file_name+".inp")
-
-		for i in range(0,len(files)):
-			if is_numbered_file(files[i],"shape")==True:
-				disk_file=files[i]
+			#pl
+			if is_numbered_file(disk_file,"pl")==True:
 				if disk_file not in tab:
 					inp_remove_file(disk_file)
 
-		#lumo files
-		for l in self.layers:
-			tab.append(l.lumo_file+".inp")
-
-		for i in range(0,len(files)):
-			if is_numbered_file(files[i],"lumo")==True:
-				disk_file=files[i]
+			#shape files
+			if is_numbered_file(disk_file,"shape")==True:
 				if disk_file not in tab:
-					print("delete!!!!!!!!!!!!",files[i],tab,files)
+					inp_remove_file(disk_file)
+
+
+			if is_numbered_file(disk_file,"lumo")==True:
+				if disk_file not in tab:
 					inp_remove_file(disk_file)
 
 		#homo files
-		for l in self.layers:
-			tab.append(l.homo_file+".inp")
 
 		for i in range(0,len(files)):
 			if is_numbered_file(files[i],"homo")==True:
@@ -313,11 +312,13 @@ class epitaxy():
 
 		if data=="active layer" and l.electrical_layer.startswith("dos")==False:
 
-			l.electrical_layer=self.new_dos_file()
+			l.electrical_layer=self.new_electrical_file("dos")
 
 			mat_dir=os.path.join(get_materials_path(),l.mat_file)
 
 			new_dos_file=l.electrical_layer+".inp"
+			new_electrical_file="electrical"+l.electrical_layer[3:]+".inp"
+
 			
 			if inp_isfile(new_dos_file)==False:
 				dos_path_generic=os.path.join(get_default_material_path(),"dos.inp")
@@ -327,10 +328,12 @@ class epitaxy():
 				if os.path.isfile(dos_path_material)==True:
 					archive_merge_file(os.path.join(get_sim_path(),"sim.gpvdm"),os.path.join(mat_dir,"sim.gpvdm"),new_dos_file,"dos.inp")
 
+				electrical_path_generic=os.path.join(get_default_material_path(),"electrical.inp")
+				inp_copy_file(new_electrical_file,electrical_path_generic)
 
 		if data=="active layer" and l.pl_file.startswith("pl")==False:
 
-			l.pl_file=self.new_pl_file()
+			l.pl_file=self.new_electrical_file("pl")
 
 			mat_dir=os.path.join(get_materials_path(),l.pl_file)
 
@@ -345,7 +348,7 @@ class epitaxy():
 
 
 		if data=="active layer" and l.lumo_file.startswith("lumo")==False:
-			l.lumo_file=self.new_lumo_file()
+			l.lumo_file=self.new_electrical_file("lumo")
 
 			new_lumo_file=l.lumo_file+".inp"
 			if inp_isfile(new_lumo_file)==False:
@@ -357,7 +360,7 @@ class epitaxy():
 
 		if data=="active layer" and l.homo_file.startswith("homo")==False:
 
-			l.homo_file=self.new_homo_file()
+			l.homo_file=self.new_electrical_file("homo")
 
 			new_homo_file=l.homo_file+".inp"
 			if inp_isfile(new_homo_file)==False:
@@ -399,7 +402,7 @@ class epitaxy():
 		if s.shape_dos!="none":
 			return s.shape_dos
 
-		new_file=self.new_dos_file()
+		new_file=self.new_electrical_file("dos")
 
 		s.shape_dos=new_file
 
@@ -413,61 +416,14 @@ class epitaxy():
 
 		return new_file
 
-	def new_dos_file(self):
-		files=self.get_all_dos_files()
+	def new_electrical_file(self,prefix):
+		files=self.get_all_electrical_files()
 
 		for i in range(0,20):
-			name="dos"+str(i)
+			name=prefix+str(i)+".inp"
 
 			if name not in files:
-				return "dos"+str(i)
-
-	def new_pl_file(self):
-		global epi
-		for i in range(0,20):
-			name="pl"+str(i)
-			found=False
-			for a in epi.layers:
-				if a.pl_file==name:
-					found=True
-
-			if found==False:
-				return name
-
-	def new_lumo_file(self):
-		global epi
-		for i in range(0,20):
-			name="lumo"+str(i)
-			found=False
-			for a in epi.layers:
-				if a.lumo_file==name:
-					found=True
-
-			if found==False:
-				return name
-
-	def new_homo_file(self):
-		global epi
-		for i in range(0,20):
-			name="homo"+str(i)
-			found=False
-			for a in epi.layers:
-				if a.homo_file==name:
-					found=True
-
-			if found==False:
-				return name
-
-	def new_shape_file(self):
-		all_shape_files=[]
-		for l in self.layers:
-			for s in l.shapes:
-				all_shape_files.append(s.file_name)
-		for i in range(0,20):
-			name="shape"+str(i)
-			found=False
-			if name not in all_shape_files:
-				return name
+				return prefix+str(i)
 				
 	def get_shapes(self,layer):
 		return epi.layers[layer].shapes
@@ -650,10 +606,6 @@ def epitaxy_get_width(i):
 	global epi
 	return epi.layers[i].width
 
-def epitaxy_get_electrical_layer(i):
-	global epi
-	return epi.layers[i].electrical_layer
-
 def epitaxy_get_mat_file(i):
 	global epi
 	return epi.layers[i].mat_file
@@ -665,6 +617,10 @@ def epitaxy_get_pl_file(i):
 def epitaxy_get_dos_file(i):
 	global epi
 	return epi.layers[i].electrical_layer
+
+def epitaxy_get_electrical_file(i):
+	global epi
+	return "electrical"+epi.layers[i].electrical_layer[3:]
 
 def epitaxy_get_name(i):
 	global epi

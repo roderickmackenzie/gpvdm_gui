@@ -39,11 +39,7 @@ from inp import inp_update_token_value
 from epitaxy import epitaxy_get_layers
 
 #windows
-from gui_util import tab_move_up
-from gui_util import tab_remove
-from gui_util import tab_get_value
 from gpvdm_tab import gpvdm_tab
-from gui_util import tab_insert_row
 from error_dlg import error_dlg
 
 #qt
@@ -87,9 +83,9 @@ class layer_widget(QWidgetSavePos):
 		epi=get_epi()
 
 		if x==0:
-			epi.layers[y].name=tab_get_value(self.tab,y,x)
+			epi.layers[y].name=self.tab.get_value(y,x)
 		elif x==1:
-			ret=epi.layers[y].set_width(tab_get_value(self.tab,y,x))
+			ret=epi.layers[y].set_width(self.tab.get_value(y,x))
 			if ret==False:
 				error_dlg(self,_("You have entered a non numeric value."))
 		self.save_model()
@@ -108,7 +104,7 @@ class layer_widget(QWidgetSavePos):
 
 		epi=get_epi()
 		for i in range(0,self.tab.rowCount()):
-			epi.update_layer_type(i,tab_get_value(self.tab,i,3).lower())
+			epi.update_layer_type(i,self.tab.get_value(i,3).lower())
 			self.tab.set_value(i,4,epi.layers[i].electrical_layer)
 			self.tab.set_value(i,5,epi.layers[i].pl_file)
 			self.tab.set_value(i,6,epi.layers[i].homo_file)
@@ -131,7 +127,7 @@ class layer_widget(QWidgetSavePos):
 		self.emit_structure_changed()
 
 	def on_move_up(self):
-		layer=tab_move_up(self.tab)
+		layer=self.tab.move_up()
 		epi=get_epi()
 		epi.move_up(layer)
 		self.save_model()
@@ -260,7 +256,7 @@ class layer_widget(QWidgetSavePos):
 		#self.emit_change()
 
 	def on_remove_item_clicked(self):
-		pos=tab_remove(self.tab)
+		pos=self.tab.remove()
 		if pos>0:
 			epi=get_epi()
 			epi.remove_layer(pos)
@@ -269,7 +265,7 @@ class layer_widget(QWidgetSavePos):
 			#self.emit_change()
 
 	def on_add_item_clicked(self):
-		row=tab_insert_row(self.tab)
+		row=self.tab.insert_row()
 		print(row)
 		epi=get_epi()
 		a=epi.add_layer(pos=row)
@@ -289,7 +285,7 @@ class layer_widget(QWidgetSavePos):
 
 		if len(a)>0:
 			y=a[0].row()
-			y="layer:"+str(tab_get_value(self.tab,y, 0))
+			y="layer:"+str(self.tab.get_value(y, 0))
 		else:
 			y=-1
 		

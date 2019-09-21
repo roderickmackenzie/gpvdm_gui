@@ -70,7 +70,7 @@ def save_as_filter(parent,my_filter):
 			s=s.split("(*")[1]
 			s=s[:-1]
 
-			if filename.endswith(s)==False:
+			if filename.endswith(s)==False and s!=".":
 				filename=filename+s
 			else:
 				filename=filename

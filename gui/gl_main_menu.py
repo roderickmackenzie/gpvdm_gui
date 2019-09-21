@@ -47,7 +47,7 @@ except:
 from PyQt5.QtCore import QTimer
 from inp import inp_update_token_value
 from cal_path import get_sim_path
-from PyQt5.QtWidgets import QDialog
+from PyQt5.QtWidgets import QDialog, QFontDialog
 from dat_file_math import dat_file_max_min
 from open_save_dlg import save_as_filter
 
@@ -77,6 +77,9 @@ class gl_main_menu():
 		action.triggered.connect(self.menu_toggle_view)
 
 		action=view.addAction(_("Rays"))
+		action.triggered.connect(self.menu_toggle_view)
+
+		action=view.addAction(_("Font"))
 		action.triggered.connect(self.menu_toggle_view)
 
 		plot=menu.addMenu(_("Plot"))
@@ -134,6 +137,12 @@ class gl_main_menu():
 			self.enable_draw_light_source = not self.enable_draw_light_source
 		if text==_("Rays"):
 			self.enable_draw_rays = not self.enable_draw_rays
+		if text==_("Font"):
+			diag=QFontDialog()
+			font, ok = QFontDialog.getFont(self.font)
+			if ok:
+				self.font = font
+
 		self.force_redraw()
 
 	def menu_toggle_grid(self):

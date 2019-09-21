@@ -39,6 +39,8 @@ from gpvdm_select import gpvdm_select
 from gtkswitch import gtkswitch
 from leftright import leftright
 from gpvdm_select_material import gpvdm_select_material
+from PyQt5.QtCore import QPersistentModelIndex
+
 
 class gpvdm_tab(QTableWidget):
 
@@ -58,6 +60,7 @@ class gpvdm_tab(QTableWidget):
 
 			self.tb_up= QAction(icon_get("go-up"), _("Move up"), self)
 			self.toolbar.addAction(self.tb_up)
+
 
 	def set_value(self,y,x,value):
 		if type(self.cellWidget(y, x))==QComboBox:
@@ -132,6 +135,7 @@ class gpvdm_tab(QTableWidget):
 		else:
 			return self.item(y, x).text()
 
+
 	def add(self,data):
 		self.blockSignals(True)
 		index = self.selectionModel().selectedRows()
@@ -156,3 +160,88 @@ class gpvdm_tab(QTableWidget):
 					
 		self.blockSignals(False)
 
+	def insert_row(self):
+		self.blockSignals(True)
+		index = self.selectionModel().selectedRows()
+
+		if len(index)>0:
+			pos=index[0].row()+1
+		else:
+			pos = self.rowCount()
+
+		self.insertRow(pos)
+		self.blockSignals(False)
+		return pos
+
+	def move_up(self):
+		ret=-1
+		if self.rowCount()==0:
+			return ret
+
+		self.blockSignals(True)
+		a=self.selectionModel().selectedRows()
+
+		if len(a)==1:
+			a=a[0].row()	
+
+			b=a-1
+			if b<0:
+				return -1
+				#b=tab.rowCount()-1
+
+			ret=a
+
+			av=[]
+			for i in range(0,self.columnCount()):
+				av.append(str(self.get_value(a,i)))
+
+			bv=[]
+			for i in range(0,self.columnCount()):
+				bv.append(str(self.get_value(b,i)))
+
+			for i in range(0,self.columnCount()):
+				self.set_value(b,i,str(av[i]))
+				self.set_value(a,i,str(bv[i]))
+
+			self.selectRow(b)
+			self.blockSignals(False)
+			return ret
+
+		else:
+			return ret
+
+	def get_selected(self):
+		a=self.selectionModel().selectedRows()
+
+		if len(a)<=0:
+			return False
+
+		ret=[]
+		
+		for ii in range(0,len(a)):
+			y=a[ii].row()
+			for i in range(0,self.columnCount()):
+				ret.append(str(self.get_value(y,i)))
+
+		return ret
+
+	def remove(self):
+		self.blockSignals(True)
+		ret=-1
+		index = self.selectionModel().selectedRows()
+
+		if len(index)>0:
+		#	for i in range(0,len(index)):
+			ret=index[0].row()
+		#		self.removeRow(pos)
+		index_list = []                                                          
+		for model_index in self.selectionModel().selectedRows():       
+			index = QPersistentModelIndex(model_index)         
+			index_list.append(index)                                             
+
+		for index in index_list:                                      
+			self.removeRow(index.row()) 
+			
+		self.blockSignals(False)
+
+		return ret

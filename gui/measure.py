@@ -41,7 +41,6 @@ from scan_item import scan_items_get_token
 from str2bool import str2bool
 
 from scan_item import scan_items_lookup_item
-from gui_util import tab_move_up
 
 import i18n
 _ = i18n.language.gettext
@@ -50,9 +49,6 @@ _ = i18n.language.gettext
 from PyQt5.QtCore import QSize, Qt 
 from PyQt5.QtWidgets import QWidget,QVBoxLayout,QToolBar,QSizePolicy,QAction,QTabWidget,QTableWidget,QAbstractItemView, QMenuBar,QTableWidgetItem
 from PyQt5.QtGui import QPainter,QIcon
-
-from gui_util import tab_remove
-from gui_util import tab_get_value
 
 from inp import inp_save_lines_to_file
 from inp import inp_load_file

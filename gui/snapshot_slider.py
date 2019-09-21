@@ -29,7 +29,7 @@ from tab import tab_class
 
 #qt
 from PyQt5.QtCore import QSize, Qt 
-from PyQt5.QtWidgets import QWidget,QVBoxLayout,QToolBar,QSizePolicy,QAction,QTabWidget,QSlider,QHBoxLayout,QLabel,QComboBox
+from PyQt5.QtWidgets import QWidget,QVBoxLayout,QToolBar,QSizePolicy,QAction,QTabWidget,QSlider,QHBoxLayout,QLabel,QComboBox,QAbstractItemView,QSizePolicy
 from PyQt5.QtGui import QPainter,QIcon
 from PyQt5.QtCore import pyqtSignal
 
@@ -40,6 +40,8 @@ from dat_file_math import dat_file_max_min
 from PyQt5.QtCore import QTimer
 from icon_lib import icon_get
 from util import wrap_text
+
+from gpvdm_tab import gpvdm_tab
 
 class snapshot_slider(QWidget):
 
@@ -66,28 +68,6 @@ class snapshot_slider(QWidget):
 		if val>self.slider0.maximum():
 			val=0
 		self.slider0.setValue(val)
-
-	def cal_min_max(self):
-
-		self.z_max=-1e40
-		self.z_min=1e40
-		
-		for i in range(0,len(self.dirs)):
-			fname=os.path.join(self.dirs[i],self.files_combo.currentText())
-
-			my_data=dat_file()
-			if my_data.load(fname) == True:
-				#print(z)
-				temp_max,temp_min=dat_file_max_min(my_data)
-
-				if temp_max>self.z_max:
-					self.z_max=temp_max
-
-				if temp_min<self.z_min:
-					self.z_min=temp_min
-
-				if my_data.data_max!=None and my_data.data_min!=None:
-					return
 		
 	def update(self):
 		self.dirs=[]
@@ -105,7 +85,16 @@ class snapshot_slider(QWidget):
 
 		self.slider_max=len(self.dirs)-1
 		self.slider0.setMaximum(self.slider_max)
-		self.update_file_combo()
+
+		self.tab.clear()
+		self.tab.setColumnCount(1)
+		self.tab.setSelectionBehavior(QAbstractItemView.SelectRows)
+		self.tab.setHorizontalHeaderLabels([ _("File to plot")])
+
+		self.tab.setColumnWidth(0, 400)
+		pos=self.tab.insert_row()
+		self.tab.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+		self.insert_row(pos)
 
 	def slider0_change(self):
 		value = self.slider0.value()
@@ -113,23 +102,21 @@ class snapshot_slider(QWidget):
 		self.changed.emit()
 
 	def get_file_name(self):
-		if self.slider_dir_exists()==False:
-			return None
-
-		file_path=None
+		ret=[]
 		val=self.slider0.value()
+		if self.slider_dir_exists()==False:
+			return ret
 
-		file_path=os.path.join(self.path,self.dirs[val],self.files_combo.currentText())
-		if os.path.isfile(file_path)==False:
-			file_path=None
+		for i in range(0,self.tab.rowCount()):
+			file_path=os.path.join(self.path,self.dirs[val],self.tab.get_value(i,0))
+			if os.path.isfile(file_path)==True:
+				ret.append(file_path)
 
-		return file_path
+		return ret
 
 	def set_path(self,path):
 		self.path=path
 		self.update()
-		print("a")
-		self.cal_min_max()
 
 		
 	def __init__(self):
@@ -171,24 +158,15 @@ class snapshot_slider(QWidget):
 
 		self.main_vbox.addWidget(self.widget0)
 
+		self.toolbar=QToolBar()
+		self.main_vbox.addWidget(self.toolbar)
 
-################
-		self.slider_hbox1= QHBoxLayout()
-		self.label1 = QLabel()
-		self.label1.setText(_("File"))
-		self.slider_hbox1.addWidget(self.label1)
+		self.tab=gpvdm_tab(toolbar=self.toolbar)
 
-		self.files_combo=QComboBox()
-		self.slider_hbox1.addWidget(self.files_combo)
+		self.main_vbox.addWidget(self.tab)
+		self.tab.tb_add.triggered.connect(self.callback_insert_row)
+		self.tab.tb_remove.triggered.connect(self.callback_remove_row)
 
-		self.files_combo.currentIndexChanged.connect(self.files_combo_changed)
-
-		self.widget1=QWidget()
-		self.widget1.setLayout(self.slider_hbox1)
-
-		self.main_vbox.addWidget(self.widget1)
-
-###############
 
 		self.setLayout(self.main_vbox)
 
@@ -200,11 +178,11 @@ class snapshot_slider(QWidget):
 		
 		return True
 
-	def update_file_combo(self):
+	def update_files_combo(self,combo):
 		if self.slider_dir_exists()==False:
 			return False
-		self.files_combo.blockSignals(True)
-		self.files_combo.clear()
+		combo.blockSignals(True)
+		combo.clear()
 		path=os.path.join(self.path,self.dirs[self.slider0.value()])
 
 		all_files=[]
@@ -216,20 +194,43 @@ class snapshot_slider(QWidget):
 						all_files.append(name)
 
 		all_files.sort()
+		
 		for a in all_files:
-			self.files_combo.addItem(a)
+			combo.addItem(a)
 
-		all_items  = [self.files_combo.itemText(i) for i in range(self.files_combo.count())]
+		all_items  = [combo.itemText(i) for i in range(combo.count())]
 
 		for i in range(0,len(all_items)):
 			if all_items[i] == "Jn.dat":
-				self.files_combo.setCurrentIndex(i)
-		self.files_combo.blockSignals(False)
+				combo.setCurrentIndex(i)
+
+		combo.blockSignals(False)
 		return True
 
 		
 	def files_combo_changed(self):
-		self.cal_min_max()
+		self.changed.emit()
+
+	def insert_row(self,i):
+		self.tab.blockSignals(True)
+
+		self.item = QComboBox()
+		self.update_files_combo(self.item)
+		self.item.currentIndexChanged.connect(self.files_combo_changed)
+		#self.item.setText(v2)
+		#self.item.button.clicked.connect(self.callback_show_list)
+
+		self.tab.setCellWidget(i,0,self.item)
+
+		self.tab.blockSignals(False)
+
+	def callback_insert_row(self):
+		pos=self.tab.insert_row()
+		self.insert_row(pos)
+		self.changed.emit()
+
+	def callback_remove_row(self):
+		self.tab.remove()
 		self.changed.emit()
 
 

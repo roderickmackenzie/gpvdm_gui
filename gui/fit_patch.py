@@ -40,7 +40,6 @@ from scan_item import scan_items_get_token
 from str2bool import str2bool
 
 from scan_item import scan_items_lookup_item
-from gui_util import tab_move_up
 
 import i18n
 _ = i18n.language.gettext
@@ -49,9 +48,6 @@ _ = i18n.language.gettext
 from PyQt5.QtCore import QSize, Qt 
 from PyQt5.QtWidgets import QWidget,QVBoxLayout,QToolBar,QSizePolicy,QAction,QTabWidget,QTableWidget,QAbstractItemView, QMenuBar,QTableWidgetItem
 from PyQt5.QtGui import QPainter,QIcon
-
-from gui_util import tab_remove
-from gui_util import tab_get_value
 
 from inp import inp_save_lines_to_file
 from inp import inp_load_file
@@ -95,16 +91,16 @@ class fit_patch(QWidget):
 		self.save_combo()
 
 	def callback_delete_item(self):
-		tab_remove(self.tab)
+		self.tab.remove()
 		self.save_combo()
 
 	def save_combo(self):
 		lines=[]
 		for i in range(0,self.tab.rowCount()):
-			lines.append(str(tab_get_value(self.tab,i, 1)))
-			lines.append(str(tab_get_value(self.tab,i, 0)))
-			lines.append(str(tab_get_value(self.tab,i, 2)))
-			lines.append(str(tab_get_value(self.tab,i, 3)))
+			lines.append(str(self.tab.get_value(i, 1)))
+			lines.append(str(self.tab.get_value(i, 0)))
+			lines.append(str(self.tab.get_value(i, 2)))
+			lines.append(str(self.tab.get_value(i, 3)))
 
 		lines.append("#end")
 		print("save as",self.file_name)
@@ -205,4 +201,4 @@ class fit_patch(QWidget):
 		self.tab.move_down()
 
 	def callback_move_up(self):
-		tab_move_up(self.tab)
+		self.tab.move_up()

@@ -56,11 +56,12 @@ from util import distance_with_units
 
 from leftright import leftright
 from str2bool import str2bool
-from gui_util import tab_get_value
 
 from file_watch import get_watch
 
 from cal_path import get_sim_path
+
+from gpvdm_tab import gpvdm_tab
 
 class electrical_mesh_editor(QGroupBox):
 
@@ -118,7 +119,7 @@ class electrical_mesh_editor(QGroupBox):
 		self.mesh.clear()
 
 		for i in range(0,self.tab.rowCount()):
-			self.mesh.add_layer(float(self.tab.item(i, 0).text()),float(self.tab.item(i, 1).text()),float(self.tab.item(i, 2).text()),tab_get_value(self.tab,i, 3))
+			self.mesh.add_layer(float(self.tab.item(i, 0).text()),float(self.tab.item(i, 1).text()),float(self.tab.item(i, 2).text()),self.tab.get_value(i, 3))
 		
 		self.mesh.save()
 
@@ -216,7 +217,7 @@ class electrical_mesh_editor(QGroupBox):
 
 		vbox.addWidget(toolbar)
 
-		self.tab = QTableWidget()
+		self.tab = gpvdm_tab()
 
 		self.tab.resizeColumnsToContents()
 

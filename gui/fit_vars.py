@@ -36,7 +36,6 @@ from cal_path import get_exe_command
 from icon_lib import icon_get
 from scan_item import scan_items_get_file
 from scan_item import scan_items_get_token
-from gui_util import tab_insert_row
 
 from str2bool import str2bool
 
@@ -48,9 +47,6 @@ from PyQt5.QtCore import QSize, Qt
 from PyQt5.QtWidgets import QWidget,QVBoxLayout,QToolBar,QSizePolicy,QAction,QTabWidget,QAbstractItemView, QMenuBar, QTableWidgetItem
 from PyQt5.QtGui import QPainter,QIcon
 
-from gui_util import tab_remove
-from gui_util import tab_get_value
-
 from inp import inp_load_file
 from inp import inp_save_lines_to_file
 from gpvdm_select import gpvdm_select
@@ -60,8 +56,6 @@ from error_dlg import error_dlg
 from cal_path import get_sim_path
 from gtkswitch import gtkswitch
 from str2bool import str2bool
-
-from gui_util import tab_move_up
 
 from gpvdm_tab import gpvdm_tab
 
@@ -100,7 +94,7 @@ class fit_vars(QWidget):
 		self.tab.blockSignals(False)
 		
 	def callback_add_item(self):
-		pos=tab_insert_row(self.tab)
+		pos=self.tab.insert_row()
 		self.insert_row(pos,"true",_("File"),_("token"),_("path"),_("min"),_("max"),"100")
 		self.save_combo()
 		
@@ -133,20 +127,20 @@ class fit_vars(QWidget):
 		self.select_param_window.show()
 
 	def callback_delete_item(self):
-		tab_remove(self.tab)
+		self.tab.remove()
 		self.save_combo()
 
 	def save_combo(self):
 		lines=[]
 
 		for i in range(0,self.tab.rowCount()):
-			lines.append(str(tab_get_value(self.tab,i, 2)))
-			lines.append(str(tab_get_value(self.tab,i, 1)))
-			lines.append(str(tab_get_value(self.tab,i, 3)))
-			lines.append(str(tab_get_value(self.tab,i, 0)))			
-			lines.append(str(tab_get_value(self.tab,i, 4)))
-			lines.append(str(tab_get_value(self.tab,i, 5)))
-			lines.append(str(tab_get_value(self.tab,i, 6)))
+			lines.append(str(self.tab.get_value(i, 2)))
+			lines.append(str(self.tab.get_value(i, 1)))
+			lines.append(str(self.tab.get_value(i, 3)))
+			lines.append(str(self.tab.get_value(i, 0)))			
+			lines.append(str(self.tab.get_value(i, 4)))
+			lines.append(str(self.tab.get_value(i, 5)))
+			lines.append(str(self.tab.get_value(i, 6)))
 
 
 		lines.append("#ver")
@@ -222,7 +216,7 @@ class fit_vars(QWidget):
 		self.save_combo()
 		
 	def on_move_up(self):
-		tab_move_up(self.tab)
+		self.tab.move_up()
 		self.save_combo()
 
 	def __init__(self):

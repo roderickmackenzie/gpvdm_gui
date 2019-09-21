@@ -74,6 +74,8 @@ class plot_ribbon(ribbon_base):
 		self.tb_export_as_txt = QAction_lock("export_xls", _("Export\nxls"), self,"plot_export_xls")
 		self.file_toolbar.addAction(self.tb_export_as_txt)
 
+		self.tb_export_as_gnuplot = QAction_lock("export_gnuplot", _("Export\ngnuplot"), self,"plot_export_gnuplot")
+		self.file_toolbar.addAction(self.tb_export_as_gnuplot)
 
 		self.tb_copy = QAction_lock("edit-copy", _("Copy to\nclipboard"), self,"plot_copy_to_clipboard")
 		self.file_toolbar.addAction(self.tb_copy)
@@ -98,7 +100,13 @@ class plot_ribbon(ribbon_base):
 		toolbar.setToolButtonStyle( Qt.ToolButtonTextUnderIcon)
 		toolbar.setIconSize(QSize(42, 42))
 
+		#self.action = QAction(icon_get("plot_log_x"),"Fix scales", None)
+		#self.action.triggered.connect(self.callback_fix_scales)
+		#self.action.setCheckable(True)
+
 		self.tb_scale_autoscale = QAction(icon_get("plot_log_x"), _("Autoscale"), self)
+		self.tb_scale_autoscale.setCheckable(True)
+		self.tb_scale_autoscale.setChecked(True)
 		toolbar.addAction(self.tb_scale_autoscale)
 
 		self.tb_scale_log_y = QAction(icon_get("plot_log_x"), _("Set log scale y"), self)
@@ -154,8 +162,8 @@ class plot_ribbon(ribbon_base):
 		w=self.color()
 		self.addTab(w,_("Color"))
 
-		w=self.scale()
-		self.addTab(w,_("Scale"))
+		self.scale_toolbar=self.scale()
+		self.addTab(self.scale_toolbar,_("Scale"))
 
 		w=self.math()
 		self.addTab(w,_("Math"))

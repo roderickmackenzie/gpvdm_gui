@@ -34,8 +34,9 @@ from util_zip import write_lines_to_archive
 from shutil import copyfile
 from inp import inp_search_token_value
 
+import datetime
 
-def backup(dest,src):
+def backup(dest,src,notes=""):
 
 	if os.path.isdir(dest)==False:
 		os.makedirs(dest)
@@ -43,6 +44,10 @@ def backup(dest,src):
 	lines=[]
 	lines.append("#gpvdm_file_type")
 	lines.append("backup")
+	lines.append("#date")
+	lines.append(str(datetime.datetime.now()))
+	lines.append("#notes")
+	lines.append(notes)
 	lines.append("#end")
 
 	write_lines_to_archive(os.path.join(dest,"sim.gpvdm"),"mat.inp",lines,mode="l",dest="file")

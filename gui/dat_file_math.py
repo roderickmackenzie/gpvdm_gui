@@ -31,7 +31,7 @@ import re
 from dat_file import dat_file
 
 
-def dat_file_max_min(my_data):
+def dat_file_max_min(my_data,cur_min=None,cur_max=None):
 	my_max=False
 	my_min=False
 	
@@ -51,6 +51,13 @@ def dat_file_max_min(my_data):
 
 					if my_data.data[z][x][y]<my_min:
 						my_min=my_data.data[z][x][y]
+	if cur_min!=None:
+		if cur_min<my_min:
+			my_min=cur_min
+
+	if cur_max!=None:
+		if cur_max>my_max:
+			my_max=cur_max
 
 	return [my_max,my_min]
 

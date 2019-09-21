@@ -52,9 +52,6 @@ from PyQt5.QtCore import QSize, Qt
 from PyQt5.QtWidgets import QWidget,QDialog,QVBoxLayout,QToolBar,QSizePolicy,QAction,QTabWidget,QTableWidget,QAbstractItemView
 
 #windows
-from gui_util import tab_move_up
-from gui_util import tab_remove
-from gui_util import tab_get_value
 from open_save_dlg import save_as_filter
 
 from error_dlg import error_dlg
@@ -64,7 +61,6 @@ from tb_item_mat_file import tb_item_mat_file
 from import_data import import_data
 from fit_poly import fit_poly
 
-from gui_util import tab_get_selected
 #window
 
 from help import help_window
@@ -74,6 +70,7 @@ from gui_util import yes_no_dlg
 from PyQt5.QtCore import pyqtSignal
 from dat_file import dat_file
 
+from gpvdm_tab import gpvdm_tab
 mesh_articles = []
 
 class equation_editor(QWidgetSavePos):
@@ -89,13 +86,13 @@ class equation_editor(QWidgetSavePos):
 
 		for i in range(0,self.tab.rowCount()):
 			out_text.append("#start"+str(i))
-			out_text.append(str(tab_get_value(self.tab,i, 0)))
+			out_text.append(str(self.tab.get_value(i, 0)))
 
 			out_text.append("#stop"+str(i))
-			out_text.append(str(tab_get_value(self.tab,i, 1)))
+			out_text.append(str(self.tab.get_value(i, 1)))
 
 			out_text.append("#equation"+str(i))
-			out_text.append(str(tab_get_value(self.tab,i, 2)))
+			out_text.append(str(self.tab.get_value(i, 2)))
 
 		out_text.append("#ver")
 		out_text.append("1.0")
@@ -122,7 +119,7 @@ class equation_editor(QWidgetSavePos):
 		self.save_data()
 
 	def callback_remove_item(self):
-		tab_remove(self.tab)
+		self.tab.remove()
 
 		self.build_mesh()
 
@@ -140,7 +137,7 @@ class equation_editor(QWidgetSavePos):
 
 	def callback_move_up(self):
 
-		tab_move_up(self.tab)
+		self.tab.move_up()
 
 		self.build_mesh()
 		self.draw_graph()
@@ -196,14 +193,14 @@ class equation_editor(QWidgetSavePos):
 		data_min=100.0
 		if self.tab.rowCount()!=0:
 			for i in range(0,self.tab.rowCount()):
-				val=float(tab_get_value(self.tab,i, 0))
+				val=float(self.tab.get_value(i, 0))
 				if val<data_min:
 					data_min=val
 
 			#find max
 			data_max=0.0
 			for i in range(0,self.tab.rowCount()):
-				val=float(tab_get_value(self.tab,i, 1))
+				val=float(self.tab.get_value(i, 1))
 				if val>data_max:
 					data_max=val
 
@@ -213,9 +210,9 @@ class equation_editor(QWidgetSavePos):
 			for i in range(0,self.data.y_len):
 				val=0.0
 				for ii in range(0,self.tab.rowCount()):
-					range_min=float(tab_get_value(self.tab,ii, 0))
-					range_max=float(tab_get_value(self.tab,ii, 1))
-					command=tab_get_value(self.tab,ii, 2)
+					range_min=float(self.tab.get_value(ii, 0))
+					range_max=float(self.tab.get_value(ii, 1))
+					command=self.tab.get_value(self.tab,ii, 2)
 					try:
 						equ=eval(command)
 					except:
@@ -336,7 +333,7 @@ class equation_editor(QWidgetSavePos):
 
 		self.main_vbox.addWidget(toolbar2)
 
-		self.tab = QTableWidget()
+		self.tab = gpvdm_tab()
 		self.tab.resizeColumnsToContents()
 
 		self.tab.verticalHeader().setVisible(False)

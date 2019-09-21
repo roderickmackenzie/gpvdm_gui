@@ -79,8 +79,8 @@ class plot_window(QWidget):
 						plot_labels[i]=plot_labels[i][1:]
 				plot_labels[i].replace("\\","/")
 
-			self.plot.set_labels(plot_labels)
 			self.plot.load_data(input_files)
+			self.plot.set_labels(plot_labels)
 
 			self.plot.do_plot()
 			self.plot.show()

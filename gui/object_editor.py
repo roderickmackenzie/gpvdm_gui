@@ -127,7 +127,7 @@ class object_editor(QWidgetSavePos):
 			self.notebook.addTab(my_tab,shape_name)	
 
 	def callback_add_shape(self):
-		new_filename=get_epi().new_shape_file()+".inp"
+		new_filename=get_epi().new_electrical_file("shape")+".inp"
 		orig_filename=os.path.join(get_default_material_path(),"shape.inp")
 		inp_copy_file(os.path.join(get_sim_path(),new_filename),os.path.join(get_sim_path(),orig_filename))
 

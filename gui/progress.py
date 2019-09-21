@@ -170,6 +170,7 @@ if gui_get()==True:
 			self.move(x,y)
 			self.show()
 			self.spinner.start()
+			self.enable_pulse(False)
 
 		def stop(self):
 			self.hide()

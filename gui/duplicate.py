@@ -50,14 +50,10 @@ from PyQt5.QtCore import QSize, Qt
 from PyQt5.QtWidgets import QWidget,QVBoxLayout,QToolBar,QSizePolicy,QAction,QTabWidget,QAbstractItemView, QMenuBar, QTableWidgetItem
 from PyQt5.QtGui import QPainter,QIcon
 
-from gui_util import tab_remove
-from gui_util import tab_get_value
-
 from inp import inp_save_lines_to_file
 from inp import inp_load_file
 from gtkswitch import gtkswitch
 
-from gui_util import tab_move_up
 from gpvdm_tab import gpvdm_tab
 
 class duplicate(QWidget):
@@ -108,20 +104,20 @@ class duplicate(QWidget):
 		self.save_combo()
 
 	def callback_delete_item(self):
-		tab_remove(self.tab)
+		self.tab.remove()
 		self.save_combo()
 
 	def save_combo(self):
 		lines=[]
 		for i in range(0,self.tab.rowCount()):
 			lines.append("#duplicate_section"+str(i))
-			lines.append(str(tab_get_value(self.tab,i, 1)))
-			lines.append(str(tab_get_value(self.tab,i, 2)))
-			lines.append(str(tab_get_value(self.tab,i, 3)))
-			lines.append(str(tab_get_value(self.tab,i, 4)))
-			lines.append(str(tab_get_value(self.tab,i, 5)))
-			lines.append(str(tab_get_value(self.tab,i, 6)))
-			lines.append(str(tab_get_value(self.tab,i, 0)))
+			lines.append(str(self.tab.get_value(i, 1)))
+			lines.append(str(self.tab.get_value(i, 2)))
+			lines.append(str(self.tab.get_value(i, 3)))
+			lines.append(str(self.tab.get_value(i, 4)))
+			lines.append(str(self.tab.get_value(i, 5)))
+			lines.append(str(self.tab.get_value(i, 6)))
+			lines.append(str(self.tab.get_value(i, 0)))
 
 		lines.append("#ver")
 		lines.append("1.0")
@@ -138,7 +134,7 @@ class duplicate(QWidget):
 		self.save_combo()
 		
 	def on_move_up(self):
-		tab_move_up(self.tab)
+		self.tab.move_up()
 		self.save_combo()
 
 	def create_model(self):

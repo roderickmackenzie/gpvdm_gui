@@ -42,10 +42,6 @@ from PyQt5.QtCore import pyqtSignal
 
 from icon_lib import icon_get
 
-from gui_util import tab_remove
-from gui_util import tab_get_value
-from gui_util import tab_insert_row
-
 from ribbon_complex_dos import ribbon_complex_dos 
 from gpvdm_tab import gpvdm_tab
 from inp import inp_get_token_value
@@ -109,7 +105,7 @@ class equation_editor(QGroupBox):
 			pos=pos+1
 
 			if (row+1)>self.tab.rowCount():
-				tab_insert_row(self.tab)
+				self.tab.insert_row()
 
 			self.add_row(row,function,enabled,a,b,c)
 
@@ -192,7 +188,7 @@ class equation_editor(QGroupBox):
 		self.changed.emit()
 
 	def on_remove_click(self):
-		tab_remove(self.tab)
+		self.tab.remove()
 		self.save()
 		self.changed.emit()
 		
@@ -200,15 +196,15 @@ class equation_editor(QGroupBox):
 		lines=[]
 		for i in range(0,self.tab.rowCount()):
 			lines.append("#function_"+str(i))
-			lines.append(tab_get_value(self.tab,i, 0))
+			lines.append(self.tab.get_value(i, 0))
 			lines.append("#function_enable_"+str(i))
-			lines.append(tab_get_value(self.tab,i, 1))
+			lines.append(self.tab.get_value(i, 1))
 			lines.append("#function_a_"+str(i))
-			lines.append(tab_get_value(self.tab,i, 2))
+			lines.append(self.tab.get_value(i, 2))
 			lines.append("#function_b_"+str(i))
-			lines.append(tab_get_value(self.tab,i, 3))
+			lines.append(self.tab.get_value(i, 3))
 			lines.append("#function_c_"+str(i))
-			lines.append(tab_get_value(self.tab,i, 4))
+			lines.append(self.tab.get_value(i, 4))
 		lines.append("#ver")
 		lines.append("#1.0")
 		lines.append("#end")

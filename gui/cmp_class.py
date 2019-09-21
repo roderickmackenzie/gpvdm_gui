@@ -53,105 +53,28 @@ from help import help_window
 from QWidgetSavePos import QWidgetSavePos
 from cal_path import get_sim_path
 
+from dat_file_math import dat_file_max_min
+
 class cmp_class(QWidgetSavePos):
-	mix_y=None
-	max_y=None
-	max_z=1e24
-
-	def check_2d_file(self,name):
-		mapfiles=["pt_map","nt_map"]
-		filename=os.path.basename(name)
-		for i in range(len(filename)-1,0,-1):
-			if filename[i]=="_":
-				break
-		data=filename[:i]
-		count=mapfiles.count(data)
-		if count==1:
-			return True
-		else:
-			return False
-
-
-	def do_clip(self):
-
-		snap = self.canvas.get_snapshot()
-		pixbuf = gtk.gdk.pixbuf_get_from_drawable(None, snap, snap.get_colormap(),0,0,0,0,snap.get_size()[0], snap.get_size()[1])
-		clip = gtk.Clipboard()
-		clip.set_image(pixbuf)
-
-
-	def on_key_press_event(self,widget, event):
-		#keyname = gtk.gdk.keyval_name(event.keyval)
-		if gtk.gdk.keyval_name(event.keyval) == "c":
-			if event.state == gtk.gdk.CONTROL_MASK:
-				self.do_clip()
 
 	def update(self):
-		file_name=self.slider.get_file_name()
-		if file_name!=None:
-			self.plot.set_labels(["data"])
-			config_file=os.path.splitext(file_name)[0]+".oplot"
-			self.plot.load_data([file_name])
+		files=[]
+		key=[]
+		file_names=self.slider.get_file_name()
+		for f in file_names:
+			if f!=None:
+				files.append(f)
+				key.append("data")
+
+		if len(files)!=0:
+			self.plot.set_labels(key)
+			self.plot.load_data(files)
 			self.plot.do_plot()
-
-
-	def callback_scale(self, adj):
-		self.update(self.adj1.value)
-
-		if plot_load_info(self.plot_token,self.file_names[0])==True:
-			self.plot.do_plot()
-
-
-	def callback_edit(self,data):
-		lines=[]
-		lines.append("#entry0")
-		lines.append(self.entry0.get_active_text())
-		lines.append("#entry1")
-		lines.append(self.entry1.get_active_text())
-		lines.append("#entry2")
-		lines.append(self.entry2.get_text())
-		lines.append("#entry3")
-		lines.append(self.entry3.get_text())
-		inp_save("gui_cmp_config.inp",lines)
-		self.plot.gen_colors(2)
-		self.count_dumps()
-
-	def config_load(self):
-		lines=inp_load_file("gui_cmp_config.inp")
-		if lines!=False:
-
-			if self.snapshot_list.count(inp_search_token_value(lines, "#entry0"))!=0:
-				self.entry0.set_active(self.snapshot_list.index(inp_search_token_value(lines, "#entry0")))
-			else:
-				self.entry0.set_active(0)
-
-			if self.snapshot_list.count(inp_search_token_value(lines, "#entry1"))!=0:
-				self.entry1.set_active(self.snapshot_list.index(inp_search_token_value(lines, "#entry1")))
-			else:
-				self.entry1.set_active(0)
-
-			self.entry2.set_text(inp_search_token_value(lines, "#entry2"))
-			self.entry3.set_text(inp_search_token_value(lines, "#entry3"))
-
-		else:
-			self.entry0.set_active(0)
-			self.entry1.set_active(0)
-			self.entry2.set_text("n p")
-			self.entry3.set_text("")
 
 	def save_image(self,file_name):
-		file_ext="jpg"
-		types=self.plot.fig.canvas.get_supported_filetypes()
-		if "jpg" in types:
-			file_ext="jpg"
-		elif "png" in  types:
-			file_ext="png"
-
 		dir_name, ext = os.path.splitext(file_name)
 
-		if (ext=="."+file_ext):
-			self.plot.fig.savefig(file_name)
-		elif ext==".avi":
+		if ext==".avi":
 
 			if os.path.isdir(dir_name)==False:
 				os.mkdir(dir_name)
@@ -162,12 +85,12 @@ class cmp_class(QWidgetSavePos):
 				QApplication.processEvents()
 				self.update()
 				self.plot.do_plot()
-				image_name=os.path.join(dir_name,"image_"+str(i)+"."+file_ext)
+				image_name=os.path.join(dir_name,"image_"+str(i)+".jpg")
 				print(image_name)
 				self.plot.fig.savefig(image_name)
 				jpgs=jpgs+" mf://"+image_name
 
-			os.system("mencoder "+jpgs+" -mf type="+file_ext+":fps=1.0 -o "+file_name+" -ovc lavc -lavcopts vcodec=mpeg1video:vbitrate=800")
+			os.system("mencoder "+jpgs+" -mf type=jpg:fps=1.0 -o "+file_name+" -ovc lavc -lavcopts vcodec=mpeg1video:vbitrate=800")
 			#msmpeg4v2
 		else:
 			print("Unknown file extension")
@@ -208,7 +131,8 @@ class cmp_class(QWidgetSavePos):
 
 	def callback_snapshots_combobox(self):
 		self.slider.set_path(self.snapshots_combobox.currentText())
-		
+
+
 	def __init__(self,path=None):
 		QWidgetSavePos.__init__(self,"cmpclass")
 		self.snapshots_widget=None
@@ -246,12 +170,13 @@ class cmp_class(QWidgetSavePos):
 		self.plot=plot_widget()
 		self.plot.init()
 
-
-
 		self.tb_video = QAction(icon_get("video"), _("Save video"), self)
 		self.tb_video.triggered.connect(self.callback_save)
 		self.plot.plot_ribbon.file_toolbar.addAction(self.tb_video)
 		self.plot.plot_ribbon.plot_toolbar.addAction(self.slider.tb_play)
+
+
+
 
 		self.main_vbox.addWidget(self.plot)
 

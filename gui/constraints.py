@@ -51,8 +51,6 @@ from PyQt5.QtCore import QSize, Qt
 from PyQt5.QtWidgets import QWidget,QVBoxLayout,QToolBar,QSizePolicy,QAction,QTabWidget,QAbstractItemView, QMenuBar, QTableWidgetItem
 from PyQt5.QtGui import QPainter,QIcon
 
-from gui_util import tab_remove
-from gui_util import tab_get_value
 
 from inp import inp_save_lines_to_file
 from inp import inp_load_file
@@ -60,8 +58,6 @@ from inp import inp_load_file
 from scan_item import scan_items_lookup_item
 from cal_path import get_sim_path
 
-from gui_util import tab_move_up
-from gui_util import tab_insert_row
 from gpvdm_tab import gpvdm_tab
 
 class constraints(QWidget):
@@ -143,12 +139,12 @@ class constraints(QWidget):
 	#	self.select_param_window_dest.show()
 		
 	def callback_add_item_mm(self):
-		pos=tab_insert_row(self.tab_mm)
+		pos=self.tab_mm.insert_row()
 		self.insert_row_mm(pos,_("File"),_("Token"),_("Path"),_("Function"),_("Max"),_("Min"),_("Error"))
 		self.save_combo()
 
 	def callback_delete_item_mm(self):
-		tab_remove(self.tab_mm)
+		self.tab_mm.remove()
 		self.save_combo()
 
 	def callback_add_item_math(self):
@@ -156,17 +152,17 @@ class constraints(QWidget):
 		self.save_combo()
 
 	def callback_delete_item_math(self):
-		tab_remove(self.tab_math)
+		self.tab_math.remove()
 		self.save_combo()
 
 	def save_combo(self):
 		lines=[]
 		for i in range(0,self.tab_mm.rowCount()):
-			line="mm "+str(tab_get_value(self.tab_mm,i, 0))+" "+str(tab_get_value(self.tab_mm,i, 1))+" "+str(tab_get_value(self.tab_mm,i, 3))+" "+str(tab_get_value(self.tab_mm,i, 4))+" "+str(tab_get_value(self.tab_mm,i, 5))+" "+str(tab_get_value(self.tab_mm,i, 6))
+			line="mm "+str(self.tab_mm.get_value(i, 0))+" "+str(self.tab_mm.get_value(i, 1))+" "+str(self.tab_mm.get_value(i, 3))+" "+str(self.tab_math.get_value(i, 4))+" "+str(self.tab_mm.get_value(i, 5))+" "+str(self.tab_mm.get_value(i, 6))
 			lines.append(line)
 			
 		for i in range(0,self.tab_math.rowCount()):
-			line="math "+str(tab_get_value(self.tab_math,i, 0))+" "+str(tab_get_value(self.tab_math,i, 1))+" "+str(tab_get_value(self.tab_math,i, 3))+" "+str(tab_get_value(self.tab_math,i, 4))+" "+str(tab_get_value(self.tab_math,i, 6))
+			line="math "+str(self.tab_math.get_value(i, 0))+" "+str(self.tab_math.get_value(i, 1))+" "+str(self.tab_math.get_value(i, 3))+" "+str(self.tab_math.get_value(i, 4))+" "+str(self.tab_math.get_value(i, 6))
 			lines.append(line)
 
 		lines.append("#end")
@@ -324,5 +320,5 @@ class constraints(QWidget):
 		self.save_combo()
 		
 	def on_move_up(self):
-		tab_move_up(self.tab_mm)
+		self.tab_mm.move_up()
 		self.save_combo()

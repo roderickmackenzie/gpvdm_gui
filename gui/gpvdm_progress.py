@@ -50,6 +50,7 @@ class gpvdm_progress(QWidget):
 		self.enable_pulse=value
 
 	def setValue(self,v):
+		self.enable_pulse=False
 		self.value=v
 		self.repaint()
 

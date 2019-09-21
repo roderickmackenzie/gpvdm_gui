@@ -52,8 +52,8 @@ def plot_gen(input_files,plot_labels,config_file):
 		if window.shown==True:
 			if destroy==True:
 				window.input_files=input_files
-				window.plot.set_labels(plot_labels)
 				window.plot.load_data(input_files)
+				window.plot.set_labels(plot_labels)
 				window.plot.do_plot()
 				window.plot.fig.canvas.draw()
 				window.window.present()

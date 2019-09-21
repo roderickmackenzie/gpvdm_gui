@@ -40,7 +40,6 @@ from scan_item import scan_items_get_token
 from str2bool import str2bool
 
 from scan_item import scan_items_lookup_item
-from gui_util import tab_move_up
 
 import i18n
 _ = i18n.language.gettext
@@ -49,9 +48,6 @@ _ = i18n.language.gettext
 from PyQt5.QtCore import QSize, Qt 
 from PyQt5.QtWidgets import QWidget,QVBoxLayout,QToolBar,QSizePolicy,QAction,QTabWidget,QTableWidget,QAbstractItemView, QMenuBar,QTableWidgetItem
 from PyQt5.QtGui import QPainter,QIcon
-
-from gui_util import tab_remove
-from gui_util import tab_get_value
 
 from inp import inp_save_lines_to_file
 from inp import inp_update_token_value
@@ -66,6 +62,8 @@ from cal_path import get_sim_path
 from QWidgetSavePos import QWidgetSavePos
 from window_list import resize_window_to_be_sane
 from measure_ribbon import measure_ribbon
+
+from gpvdm_tab import gpvdm_tab
 
 class measure_tab(QWidget):
 
@@ -96,7 +94,7 @@ class measure_tab(QWidget):
 		self.save_combo()
 
 	def callback_delete_item(self):
-		tab_remove(self.tab)
+		self.tab.remove()
 		self.save_combo()
 
 	def save_combo(self):
@@ -117,13 +115,13 @@ class measure_tab(QWidget):
 
 		for i in range(0,self.tab.rowCount()):
 			lines.append("#measure_file_"+str(i))
-			lines.append(str(tab_get_value(self.tab,i, 0)))
+			lines.append(str(self.tab.get_value(i, 0)))
 			lines.append("#measure_pos_"+str(i))
-			lines.append(str(tab_get_value(self.tab,i, 1)))
+			lines.append(str(self.tab.get_value(i, 1)))
 			lines.append("#measure_token_"+str(i))
-			lines.append(str(tab_get_value(self.tab,i, 2)))
+			lines.append(str(self.tab.get_value(i, 2)))
 			lines.append("#measure_math_"+str(i))
-			lines.append(str(tab_get_value(self.tab,i, 3)))
+			lines.append(str(self.tab.get_value(i, 3)))
 		lines.append("#ver")
 		lines.append("1.0")
 		lines.append("#end")
@@ -224,7 +222,7 @@ class measure_tab(QWidget):
 	
 		self.vbox.addWidget(toolbar)
 
-		self.tab = QTableWidget()
+		self.tab = gpvdm_tab()
 		self.tab.resizeColumnsToContents()
 
 		self.tab.verticalHeader().setVisible(False)
@@ -245,4 +243,5 @@ class measure_tab(QWidget):
 		self.tab.move_down()
 
 	def callback_move_up(self):
-		tab_move_up(self.tab)
+		self.tab.move_up()
+

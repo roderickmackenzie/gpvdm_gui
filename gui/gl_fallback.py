@@ -36,7 +36,7 @@ from tab_base import tab_base
 from epitaxy import epitaxy_get_layers
 from epitaxy import epitaxy_get_width
 from epitaxy import epitaxy_get_mat_file
-from epitaxy import epitaxy_get_electrical_layer
+from epitaxy import epitaxy_get_dos_file
 from help import my_help_class
 from epitaxy import epitaxy_get_pl_file
 from epitaxy import epitaxy_get_name
@@ -195,7 +195,7 @@ class gl_fallback(QWidget,gl_base_widget):
 		qp.setBrush(QColor(r*255,g*255,b*255))
 		qp.drawRect(x, y, 200,h)
 		
-		if epitaxy_get_electrical_layer(layer).startswith("dos")==True:
+		if epitaxy_get_dos_file(layer).startswith("dos")==True:
 			text=epitaxy_get_name(layer)+" (active)"
 			qp.setBrush(QColor(0,0,0.7*255))
 			qp.drawRect(x+w+5, y, 20,h)

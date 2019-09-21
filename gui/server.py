@@ -103,6 +103,8 @@ class base_server():
 		self.progress_window=progress_class()
 		self.stop_work=False
 		self.cpus=multiprocessing.cpu_count()
+		if self.cpus>4:
+			self.cpus=self.cpus-2
 		self.jobs=[]
 		self.jobs_running=0
 		self.jobs_run=0
@@ -394,7 +396,7 @@ if gui_get()==True:
 				data_in=data_in[3:]
 				data=codecs.decode(data_in, 'hex')
 				data=data.decode('ascii')
-
+				print("!!!!!!!!!!!!!!!!! ",data)
 				if data.startswith("lock"):
 					if len(self.jobs)==0:
 						print(_("I did not think I was running any jobs"))
@@ -413,28 +415,28 @@ if gui_get()==True:
 
 				elif (data=="pulse"):
 					if len(self.jobs)==1:
-						splitup=data.split(":")
+						splitup=data.split(":", 1)
 						if len(splitup)>1:
 							text=data.split(":")[1]
 							self.progress_window.set_text(text)
 						#self.progress_window.progress.set_pulse_step(0.01)
 						self.progress_window.pulse()
 				elif (data.startswith("enable_pulse")):
-					splitup=data.split(":")
+					splitup=data.split(":", 1)
 					if len(splitup)>1:
 						value=str2bool(data.split(":")[1])
 						self.progress_window.enable_pulse(value)
 				elif (data.startswith("percent")):
 					if len(self.jobs)==1:
-						splitup=data.split(":")
+						splitup=data.split(":", 1)
 						if len(splitup)>1:
 							frac=float(data.split(":")[1])
 							self.progress_window.set_fraction(frac)
 				elif (data.startswith("text")):
 					if len(self.jobs)==1:
-						splitup=data.split(":")
+						splitup=data.split(":", 1)
 						if len(splitup)>1:
-							self.progress_window.set_text(data.split(":")[1])
+							self.progress_window.set_text(data.split(":", 1)[1])
 				elif (data.startswith("fit_run")):
 					elapsed_time = time.time() - self.gui_update_time
 					if elapsed_time>5:
@@ -444,6 +446,8 @@ if gui_get()==True:
 						if self.fit_update!=None:
 							self.fit_update()
 							self.terminal.clear()
+			else:
+				print("rx",data_in)
 
 def server_break():
 	global my_server

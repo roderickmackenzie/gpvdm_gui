@@ -380,10 +380,12 @@ class dat_file():
 		self.x_units=""
 		self.y_units=""
 		self.z_units=""
+		self.data_units=""
+
 		self.r=1.0
 		self.g=0.0
 		self.b=0.0
-		self.data_units=""
+
 
 		self.x_mul=1.0
 		self.y_mul=1.0
@@ -395,6 +397,7 @@ class dat_file():
 
 		self.data_mul=1.0
 		self.key_units=""
+		self.key_text=""
 		self.file0=""
 		self.tag0=""
 		self.file1=""
@@ -433,6 +436,7 @@ class dat_file():
 		self.labels=[]
 		self.file_age=0
 		self.new_read=True
+		self.file_name=None
 
 	def rgb(self):
 		return format(int(self.r*255), '02x')+format(int(self.g*255), '02x')+format(int(self.b*255), '02x')
@@ -495,7 +499,8 @@ class dat_file():
 
 	def load(self,file_name,guess=True):
 		self.valid_data=False
-		
+		self.file_name=file_name
+
 		if file_name==None:
 			return False
 

@@ -55,9 +55,6 @@ from PyQt5.QtWidgets import QWidget,QVBoxLayout,QToolBar,QSizePolicy,QAction,QTa
 from PyQt5.QtGui import QPainter,QIcon
 
 #windows
-from gui_util import tab_move_up
-from gui_util import tab_remove
-from gui_util import tab_get_value
 from open_save_dlg import save_as_jpg
 
 from colors import get_color
@@ -86,19 +83,19 @@ class tab_fxmesh(QWidget):
 		for i in range(0,self.tab.rowCount()):
 			out_text.append("#fx_segment"+str(i)+"_start")
 			scan_item_add(file_name,out_text[len(out_text)-1],_("Part ")+str(i)+" "+_("start"),1)
-			out_text.append(str(tab_get_value(self.tab,i, 0)))
+			out_text.append(str(self.tab.get_value(i, 0)))
 
 			out_text.append("#fx_segment"+str(i)+"_stop")
 			scan_item_add(file_name,out_text[len(out_text)-1],_("Part ")+str(i)+" "+_("stop"),1)
-			out_text.append(str(tab_get_value(self.tab,i, 1)))
+			out_text.append(str(self.tab.get_value(i, 1)))
 
 			out_text.append("#fx_segment"+str(i)+"_points")
 			scan_item_add(file_name,out_text[len(out_text)-1],_("Part ")+str(i)+" "+_("points"),1)
-			out_text.append(str(tab_get_value(self.tab,i, 2)))
+			out_text.append(str(self.tab.get_value(i, 2)))
 
 			out_text.append("#fx_segment"+str(i)+"_mul")
 			scan_item_add(file_name,out_text[len(out_text)-1],_("Part ")+str(i)+" "+_("mul"),1)
-			out_text.append(str(tab_get_value(self.tab,i, 3)))
+			out_text.append(str(self.tab.get_value(i, 3)))
 
 		out_text.append("#ver")
 		out_text.append("1.1")
@@ -127,7 +124,7 @@ class tab_fxmesh(QWidget):
 		self.save_data()
 
 	def callback_remove_item(self):
-		tab_remove(self.tab)
+		self.tab.remove()
 
 		self.build_mesh()
 
@@ -146,7 +143,7 @@ class tab_fxmesh(QWidget):
 
 	def callback_move_up(self):
 
-		tab_move_up(self.tab)
+		self.tab.move_up()
 
 		self.build_mesh()
 		self.draw_graph()
@@ -244,11 +241,11 @@ class tab_fxmesh(QWidget):
 		for i in range(0,self.tab.rowCount()):
 			local_mag=[]
 			local_fx=[]
-			start=float(tab_get_value(self.tab,i, 0))
+			start=float(self.tab.get_value(i, 0))
 			pos=start
-			stop=float(tab_get_value(self.tab,i, 1))
-			points=float(tab_get_value(self.tab,i, 2))
-			mul=float(tab_get_value(self.tab,i, 3))
+			stop=float(self.tab.get_value(i, 1))
+			points=float(self.tab.get_value(i, 2))
+			mul=float(self.tab.get_value(i, 3))
 
 			if stop!=0.0 and points!=0.0 and mul!=0.0:
 				dfx=(stop-start)/points

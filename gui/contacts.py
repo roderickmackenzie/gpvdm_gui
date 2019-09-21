@@ -55,9 +55,6 @@ from PyQt5.QtWidgets import QWidget,QSizePolicy,QHBoxLayout,QPushButton,QDialog,
 
 from PyQt5.QtCore import pyqtSignal
 
-from gui_util import tab_get_value
-from gui_util import tab_insert_row
-from gui_util import tab_remove
 
 from str2bool import str2bool
 from error_dlg import error_dlg
@@ -85,16 +82,16 @@ class contacts_window(QWidgetSavePos):
 	def update_contact_db(self):
 		for i in range(0,self.tab.rowCount()):
 			try:
-				float(tab_get_value(self.tab,i, 3))
-				float(tab_get_value(self.tab,i, 4))
-				float(tab_get_value(self.tab,i, 5))
-				float(tab_get_value(self.tab,i, 6))
+				float(self.tab.get_value(i, 3))
+				float(self.tab.get_value(i, 4))
+				float(self.tab.get_value(i, 5))
+				float(self.tab.get_value(i, 6))
 			except:
 				return False
 
 		contacts_clear()
 		for i in range(0,self.tab.rowCount()):
-			contacts_append(tab_get_value(self.tab,i, 0),tab_get_value(self.tab,i, 1),str2bool(tab_get_value(self.tab,i, 2)),float(tab_get_value(self.tab,i, 3)),float(tab_get_value(self.tab,i, 4)),float(tab_get_value(self.tab,i, 5)),float(tab_get_value(self.tab,i, 6)),float(tab_get_value(self.tab,i, 7)),tab_get_value(self.tab,i, 8))
+			contacts_append(self.tab.get_value(i, 0),self.tab.get_value(i, 1),str2bool(self.tab.get_value(i, 2)),float(self.tab.get_value(i, 3)),float(self.tab.get_value(i, 4)),float(self.tab.get_value(i, 5)),float(self.tab.get_value(i, 6)),float(self.tab.get_value(i, 7)),self.tab.get_value(i, 8))
 		return True
 
 
@@ -116,7 +113,7 @@ class contacts_window(QWidgetSavePos):
 
 	def add_row(self):
 
-		pos= tab_insert_row(self.tab)
+		pos= self.tab.insert_row()
 
 		self.tab.blockSignals(True)
 		self.tab.setItem(pos,0,QTableWidgetItem(""))
@@ -163,7 +160,7 @@ class contacts_window(QWidgetSavePos):
 		self.save()
 
 	def on_remove_clicked(self, button):
-		tab_remove(self.tab)
+		self.tab.remove()
 		self.save()
 
 	def save(self):

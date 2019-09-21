@@ -79,6 +79,7 @@ from colors import get_marker
 from dat_file import dat_file_print
 from plot_ribbon import plot_ribbon
 from lock import get_lock
+from dat_files_to_gnuplot import dat_files_to_gnuplot
 
 class plot_widget(QWidget):
 
@@ -156,7 +157,50 @@ class plot_widget(QWidget):
 		self.xdata=event.xdata
 		self.ydata=event.ydata
 
+	def log_3d_workaround(self):
+		if self.done_log==False:
+			my_max,my_min=dat_file_max_min(self.data[0])
+			for i in range(0,len(self.data)):
+				if self.data[i].logdata==True:
+					my_max,my_min=dat_file_max_min(self.data[i],cur_min=my_min,cur_max=my_max)
 
+			zticks=[]
+			zticks_txt=[]
+			pos=pow(10,floor(log10(abs(my_min))))
+
+			if my_min>0:
+				while (pos<my_max):
+					pos=pos*10
+					zticks.append(pos)
+					zticks_txt.append("{:.0e}".format(pos))
+
+			if (len(zticks)>5):
+				delta=int(len(zticks)/5)
+				pos=0
+				rebuild=[]
+				rebuild_txt=[]
+				while(pos<len(zticks)):
+					rebuild.append(zticks[pos])
+					rebuild_txt.append(zticks_txt[pos])
+					pos=pos+delta
+				zticks=rebuild
+				zticks_txt=rebuild_txt
+
+
+			changed=False
+			for i in range(0,len(self.data)):
+				if self.data[i].y_len>1 and self.data[i].x_len>1 and self.data[i].logdata==True:
+						changed=True
+						for x in range(0,self.data[i].x_len):
+							for y in range(0,self.data[i].y_len):
+								for z in range(0,self.data[i].z_len):
+									if self.data[i].data[z][x][y]!=0:
+										self.data[i].data[z][x][y]=log10(abs(self.data[i].data[z][x][y]))
+			
+			if changed==True and self.fix_scales==False:
+				self.ax[0].set_zticks(log10(zticks))
+				self.ax[0].set_zticklabels(zticks_txt)
+		self.done_log=True
 
 	def do_plot(self):
 		if len(self.data)==0:
@@ -165,11 +209,8 @@ class plot_widget(QWidget):
 		if self.data[0].valid_data==False:
 			return
 
-		self.fig.clf()
-		self.fig.subplots_adjust(bottom=0.2)
-		self.fig.subplots_adjust(bottom=0.2)
-		self.fig.subplots_adjust(left=0.1)
-		self.fig.subplots_adjust(hspace = .001)
+		key_text=[]
+
 		dim=""
 		if self.data[0].type=="rgb":
 			dim="rgb"
@@ -198,38 +239,42 @@ class plot_widget(QWidget):
 
 			self.setWindowTitle(title+" - www.gpvdm.com")
 
-		self.ax=[]
+		this_plot=[]
+		for f in self.input_files:
+			this_plot.append(os.path.basename(f))
 
+		if (this_plot==self.last_plot)==False:
 
-		for i in range(0,len(self.input_files)):
+			self.fig.clf()
+			self.fig.subplots_adjust(bottom=0.2)
+			self.fig.subplots_adjust(bottom=0.2)
+			self.fig.subplots_adjust(left=0.1)
+			self.fig.subplots_adjust(hspace = .001)
+
 			if dim=="linegraph":
-				self.ax.append(self.fig.add_subplot(111,facecolor='white'))
+				for i in range(0,len(self.input_files)):
+					self.ax.append(self.fig.add_subplot(111,facecolor='white'))
 			if dim=="rgb":
-				self.ax.append(self.fig.add_subplot(111,facecolor='white'))
+				for i in range(0,len(self.input_files)):
+					self.ax.append(self.fig.add_subplot(111,facecolor='white'))
 			elif dim=="wireframe":
-				self.ax.append(self.fig.add_subplot(111,facecolor='white' ,projection='3d'))
+				self.ax=[self.fig.add_subplot(111,facecolor='white' ,projection='3d')]
 			elif dim=="heat":
-				self.ax.append(self.fig.add_subplot(111,facecolor='white'))
+				for i in range(0,len(self.input_files)):
+					self.ax.append(self.fig.add_subplot(111,facecolor='white'))
 			elif dim=="3d":
-				self.ax.append(self.fig.add_subplot(111,facecolor='white' ,projection='3d'))
-			#Only place label on bottom plot
-			#	if self.data[i].type=="3d":
-			#else:
-			#	self.ax[i].tick_params(axis='x', which='both', bottom='off', top='off',labelbottom='off') # labels along the bottom edge are off
+				for i in range(0,len(self.input_files)):
+					self.ax.append(self.fig.add_subplot(111,facecolor='white' ,projection='3d'))
+		else:
+			for a in self.ax:
+				for c in a.collections:
+					c.remove()#print(c.get_gid())
+				#a.cla()
 
-			#Only place y label on center plot
-			if self.data[0].normalize==True or self.data[0].norm_to_peak_of_all_data==True:
-				y_text="Normalized "+self.data[0].data_label
-				data_units="au"
-			else:
-				data_text=self.data[i].data_label
-				data_units=self.data[i].data_units
+		self.last_plot=[]
+		for f in self.input_files:
+			self.last_plot.append(os.path.basename(f))
 
-			if self.data[0].logy==True:
-				self.ax[i].set_xscale("log")
-
-			if self.data[0].logdata==True:
-				self.ax[i].set_yscale("log")
 
 		all_plots=[]
 		files=[]
@@ -240,6 +285,12 @@ class plot_widget(QWidget):
 			self.ax[0].set_ylabel(self.data[0].data_label+" ("+self.data[0].data_units+")")
 
 			for i in range(0,len(self.input_files)):
+				if self.data[0].logy==True:
+					self.ax[i].set_xscale("log")
+
+				if self.data[0].logdata==True:
+					self.ax[i].set_yscale("log")
+
 				if self.data[i].rgb()!="":
 					col="#"+self.data[i].rgb()
 				else:
@@ -247,8 +298,8 @@ class plot_widget(QWidget):
 
 				cur_plot, = self.ax[i].plot(self.data[i].y_scale,self.data[i].data[0][0], linewidth=3 ,alpha=1.0,color=col,marker=get_marker(i))
 
-				if self.labels[i]!="":
-					files.append("$"+numbers_to_latex(str(self.labels[i]))+" "+pygtk_to_latex_subscript(self.data[0].key_units)+"$")
+				if self.data[i].key_text!="":
+					key_text.append("$"+numbers_to_latex(str(self.data[i].key_text))+ " "+pygtk_to_latex_subscript(self.data[0].key_units) +"$")
 
 				all_plots.append(cur_plot)
 				
@@ -271,18 +322,43 @@ class plot_widget(QWidget):
 
 				#print(self.data[i].labels)
 		elif dim=="wireframe":
+
 			self.ax[0].set_xlabel(self.data[0].x_label+" ("+self.data[0].x_units+")")
 			self.ax[0].set_ylabel(self.data[0].y_label+" ("+self.data[0].y_units+")")
-			my_max,my_min=dat_file_max_min(self.data[0])
+			self.ax[0].set_zlabel(self.data[0].data_label+" ("+self.data[0].data_units+")")
+
+			self.log_3d_workaround()
+
+			if self.force_data_max==False:
+				my_max,my_min=dat_file_max_min(self.data[0])
+				for i in range(0,len(self.input_files)):
+					my_max,my_min=dat_file_max_min(self.data[i],cur_min=my_min,cur_max=my_max)
+			else:
+				my_max=self.force_data_max
+				my_min=self.force_data_min
+
+			self.ax[0].set_zlim(my_min, my_max)
+
 			for i in range(0,len(self.input_files)):
+
+				if self.data[i].logx==True:
+					self.ax[i].set_xscale("log")
+
+				if self.data[i].logy==True:
+					self.ax[v].set_yscale("log")
 
 				X, Y = meshgrid( self.data[i].y_scale,self.data[i].x_scale)
 				Z = self.data[i].data[0]
 
 				# Plot the surface
-				self.ax[i].set_zlim(my_min, my_max)
-				im=self.ax[i].plot_wireframe( Y,X, Z)
+				col=get_color(i)
+				if os.path.basename(self.input_files[i])=="imat.dat":
+					im=self.ax[0].contourf( Y,X, Z,color=col)
+				else:
+					im=self.ax[0].plot_wireframe( Y,X, Z,color=col)
+				#im=self.ax[0].contourf( Y,X, Z,color=col)
 
+#cset = ax.contourf(X, Y, Z, zdir='y', offset=40, cmap=cm.coolwarm)
 		elif dim=="heat":
 			self.ax[0].set_xlabel(self.data[0].x_label+" ("+self.data[0].x_units+")")
 			self.ax[0].set_ylabel(self.data[0].y_label+" ("+self.data[0].y_units+")")
@@ -325,7 +401,7 @@ class plot_widget(QWidget):
 			self.ax[i].legend_ = None
 		else:
 			if len(files)<40:
-				self.fig.legend(all_plots, files, self.data[0].legend_pos)
+				self.fig.legend(all_plots, key_text, self.data[0].legend_pos)
 
 		if get_lock().is_trial()==True:
 			x=0.25
@@ -359,11 +435,24 @@ class plot_widget(QWidget):
 		if file_name != None:
 			self.data[0].save_as_txt(file_name)
 
+	def callback_save_gnuplot(self):
+		file_name=save_as_filter(self,"gnuplot (*.)")
+		if file_name != None:
+			dat_files_to_gnuplot(file_name,self.data)
+
+
 	def set_labels(self,labels):
-		self.labels=labels
+		if len(self.data)!=len(labels):
+			print("oops",len(self.data),len(labels))
+			return
+
+		for i in range(0,len(self.data)):
+			self.data[i].key_text=labels[i]
+
 
 	def reload(self):
 		self.data=[]
+		self.done_log=False
 
 		
 		for i in range(0,len(self.input_files)):
@@ -429,16 +518,6 @@ class plot_widget(QWidget):
 					dat_file_sub_float(self.data[i],my_min)
 
 
-						
-						#if data.data[z][x][y]!=0:
-			#if self.plot_token.normalize==True:
-				#my_max,my_min=dat_file_max_min(self.data[0])
-				#for (i in range(0,len(self.input_files)):
-
-								#data.data[z][x][y]=data.data[z][x][y]/my_max
-							#else:
-								#data.data[z][x][y]=0.0
-
 
 			#if self.plot_token.ymax!=-1:
 				#self.ax[index].set_ylim((self.plot_token.ymin,self.plot_token.ymax))
@@ -488,14 +567,17 @@ class plot_widget(QWidget):
 
 
 	def callback_autoscale_y(self):
-		if len(self.data)>0:
-			if self.data[0].ymax==-1:
-				xmin, xmax, ymin, ymax = self.ax[0].axis()
-				self.data[0].ymax=ymax
-				self.data[0].ymin=ymin
-			else:
-				self.data[0].ymax=-1
-				self.data[0].ymin=-1
+		self.fix_scales=not self.fix_scales
+		if self.fix_scales==True:
+			my_max,my_min=dat_file_max_min(self.data[0])
+			for i in range(0,len(self.input_files)):
+				my_max,my_min=dat_file_max_min(self.data[i],cur_min=my_min,cur_max=my_max)
+			self.force_data_max=my_max
+			self.force_data_min=my_min
+			self.do_plot()
+		else:
+			self.force_data_max=False
+			self.force_data_min=False
 
 	def callback_normtoone_y(self):
 		if len(self.data)>0:
@@ -510,21 +592,19 @@ class plot_widget(QWidget):
 			self.do_plot()
 
 	def callback_toggle_log_scale_y(self):
-		if len(self.data)>0:
-			self.data[0].logy=not self.data[0].logy
-			self.norm_data()
-			self.do_plot()
+		for i in range(0,len(self.data)):
+			self.data[i].logdata=not self.data[i].logdata
+		self.do_plot()
 
 	def callback_toggle_log_scale_x(self):
 		if len(self.data)>0:
-			self.data[0].logx=not self.data[0].logx
-			self.norm_data()
+			self.data[0].logy=not self.data[0].logy
 			self.do_plot()
 
 	def callback_toggle_label_data(self):
-		if len(self.data)>0:
-			self.data[0].label_data=not self.data[0].label_data
-			self.do_plot()
+		for i in range(0,len(self.data)):
+			self.data[i].label_data=not self.data[i].label_data
+		self.do_plot()
 
 	def callback_set_heat_map(self):
 		if len(self.data)>0:
@@ -575,16 +655,23 @@ class plot_widget(QWidget):
 		self.update()
 
 	def __init__(self):
+		QWidget.__init__(self)
+
 		self.watermark_alpha=0.05
 		self.data=[]
 		self.input_files=[]
 		self.hide_title=False
-		QWidget.__init__(self)
+		self.force_data_max=False
+		self.force_data_min=False
+		self.fix_scales=False
+
 		self.setWindowIcon(icon_get("plot"))
+
+		self.ax=[]
+		self.last_plot=[]
 
 	def init(self,enable_toolbar=True):
 		self.main_vbox = QVBoxLayout()
-		self.labels=[]
 		self.fig = Figure(figsize=(2.5,2), dpi=100)
 		self.canvas = FigureCanvas(self.fig)  # a gtk.DrawingArea
 
@@ -599,6 +686,7 @@ class plot_widget(QWidget):
 			self.plot_ribbon.tb_export_as_jpg.clicked.connect(self.callback_save_image)
 			self.plot_ribbon.tb_export_as_csv.clicked.connect(self.callback_save_csv)
 			self.plot_ribbon.tb_export_as_txt.clicked.connect(self.callback_save_txt)
+			self.plot_ribbon.tb_export_as_gnuplot.clicked.connect(self.callback_save_gnuplot)
 
 			self.plot_ribbon.tb_copy.clicked.connect(self.callback_do_clip)
 

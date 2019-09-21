@@ -41,7 +41,6 @@ from PyQt5.QtCore import QSize, Qt
 from PyQt5.QtWidgets import QWidget,QSizePolicy,QHBoxLayout,QPushButton,QDialog, QFileDialog, QToolBar, QMessageBox, QLineEdit,QVBoxLayout, QTableWidget, QAbstractItemView
 
 #gui_util
-from gui_util import tab_get_selected
 
 from gui_util import yes_no_dlg
 
@@ -104,7 +103,7 @@ class device_lib_class(QDialog):
 
 
 	def on_ok_clicked(self):
-		ret=tab_get_selected(self.tab)
+		ret=self.tab.get_selected()
 		if ret==False:
 			error_dlg(self,_("You have not selected anything"))
 		else:

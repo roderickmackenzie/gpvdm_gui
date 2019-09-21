@@ -205,6 +205,8 @@ if open_gl_ok==True:
 			#self.render_text=False
 			#self.tab_active_layers=False
 			#self.dy_layer_offset=0.1
+			self.font = QFont("Arial")
+			self.font.setPointSize(15)
 
 		def optics(self):
 
@@ -226,7 +228,7 @@ if open_gl_ok==True:
 			gluCylinder(quad, 0.1, 0.00, 0.2, 10, 1)
 			set_color(1.0,1.0,1.0,"cordinates",alpha=1.0)
 			if self.view.zoom>-20:
-				self.render_text (0.2,0.0,0.0, "x",font)
+				self.render_text (0.2,0.0,0.0, "x",self.font)
 			glPopMatrix()
 
 			glPushMatrix()
@@ -240,7 +242,7 @@ if open_gl_ok==True:
 			gluCylinder(quad, 0.1, 0.00, 0.2, 10, 1)
 			set_color(1.0,1.0,1.0,"cordinates",alpha=1.0)
 			if self.view.zoom>-20:
-				self.render_text (0.2,0.0,0.0, "y",font)
+				self.render_text (0.2,0.0,0.0, "y",self.font)
 			glPopMatrix()
 
 			glPushMatrix()
@@ -256,7 +258,7 @@ if open_gl_ok==True:
 			gluSphere(quad,0.08,32,32)
 			set_color(1.0,1.0,1.0,"cordinates",alpha=1.0)
 			if self.view.zoom>-20:
-				self.render_text (-0.2,0.0,0.0, "z",font)
+				self.render_text (-0.2,0.0,0.0, "z",self.font)
 			glPopMatrix()
 
 		def draw_photons(self,x0,z0):
@@ -378,11 +380,9 @@ if open_gl_ok==True:
 					box_lines(x,y,z,scale_get_device_x(),y_len,scale_get_device_z())
 
 				if self.view.render_text==True:
-					if self.view.zoom<20:
+					if self.view.zoom<40:
 						set_color(1.0,1.0,1.0,"text")
-						font = QFont("Arial")
-						font.setPointSize(18)
-						self.render_text (x+scale_get_device_x()+0.1,y+y_len/2,z, display_name,font)
+						self.render_text (x+scale_get_device_x()+0.1,y+y_len/2,z, display_name,self.font)
 
 				l=l+1
 

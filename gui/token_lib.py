@@ -77,14 +77,13 @@ def build_token_lib():
 
 
 	#dos?.inp
-	#if get_lock().check_feature("defect_states")!="hide":
 	lib.append(my_data("","#dostype","Edit",_("DoS distribution"),"s",1.0,"dos_complex_switch",units_widget="QPushButton"))
-	lib.append(my_data("","#dos_photon_generation","Edit",_("Photon emission"),"s",1.0,"gtkswitch",units_widget="QPushButton"))
+	lib.append(my_data("","#dos_photon_generation","Edit",_("Photon emission"),"s",1.0,"gtkswitch",units_widget="QPushButton" ))
 
-	lib.append(my_data("","#Nc","m^{-3}",_("Effective density of free electron states"),"e",1.0,"QLineEdit",min=1e10,max=1e27))
-	lib.append(my_data("","#Nv","m^{-3}",_("Effective density of free hole states"),"e",1.0,"QLineEdit",min=1e10,max=1e27))
-	lib.append(my_data("","#mueffe","m^{2}V^{-1}s^{-1}",_("Electron mobility"),"e",1.0,"QLineEdit",min=1.0,max=1e-14))
-	lib.append(my_data("","#mueffh","m^{2}V^{-1}s^{-1}",_("Hole mobility"),"e",1.0,"QLineEdit",min=1.0,max=1e-14))
+	lib.append(my_data("","#Nc","m^{-3}",_("Effective density of free electron states"),"e",1.0,"QLineEdit",min=1e10,max=1e27 ))
+	lib.append(my_data("","#Nv","m^{-3}",_("Effective density of free hole states"),"e",1.0,"QLineEdit",min=1e10,max=1e27 ))
+	lib.append(my_data("","#mueffe","m^{2}V^{-1}s^{-1}",_("Electron mobility"),"e",1.0,"QLineEdit",min=1.0,max=1e-1))
+	lib.append(my_data("","#mueffh","m^{2}V^{-1}s^{-1}",_("Hole mobility"),"e",1.0,"QLineEdit",min=1.0,max=1e-14 ))
 
 	lib.append(my_data("","#ion_density","m^{-3}",_("Perovskite ion density"),"e",1.0,"QLineEdit",min=1e10,max=1e27,hidden=True))
 	#lib.append(my_data("","#ion_mobility","m^{2}V^{-1}s^{-1}",_("Perovskite ion mobility"),"e",1.0,"QLineEdit"))
@@ -92,16 +91,25 @@ def build_token_lib():
 	lib.append(my_data("","#doping_start","m^{-3}",_("Doping density (x=0)"),"e",1.0,"QLineEdit",min=1.0,max=1e27,hidden=True))
 	lib.append(my_data("","#doping_stop","m^{-3}",_("Doping density (x=max)"),"e",1.0,"QLineEdit",min=1.0,max=1e27,hidden=True))
 
-	lib.append(my_data("","#Ntrape","m^{-3} eV^{-1}",_("Electron trap density"),"e",1.0,"QLineEdit",min=1e10,max=1e27))
-	lib.append(my_data("","#Ntraph","m^{-3} eV^{-1}",_("Hole trap density"),"e",1.0,"QLineEdit",min=1e10,max=1e27))
-	lib.append(my_data("","#Etrape","eV",_("Electron tail slope"),"e",1.0,"QLineEdit",min=20e-3,max=150e-3))
-	lib.append(my_data("","#Etraph","eV",_("Hole tail slope"),"e",1.0,"QLineEdit",min=20e-3,max=150e-3))
-	lib.append(my_data("","#epsilonr","au",_("Relative permittivity"),"e",1.0,"QLineEdit",min=1.0,max=10.0))
-	lib.append(my_data("","#srhsigman_e","m^{-2}",_("Free electron to Trapped electron"),"e",1.0,"QLineEdit",min=1e-27,max=1e-15))
-	lib.append(my_data("","#srhsigmap_e","m^{-2}",_("Trapped electron to Free hole"),"e",1.0,"QLineEdit",min=1e-27,max=1e-15))
-	lib.append(my_data("","#srhsigman_h","m^{-2}",_("Trapped hole to Free electron"),"e",1.0,"QLineEdit",min=1e-27,max=1e-15))
+	lib.append(my_data("","#Ntrape","m^{-3} eV^{-1}",_("Electron trap density"),"e",1.0,"QLineEdit",min=1e10,max=1e27 ))
+	lib.append(my_data("","#Ntraph","m^{-3} eV^{-1}",_("Hole trap density"),"e",1.0,"QLineEdit",min=1e10,max=1e27 ))
+	lib.append(my_data("","#Etrape","eV",_("Electron tail slope"),"e",1.0,"QLineEdit",min=20e-3,max=150e-3 ))
+	lib.append(my_data("","#Etraph","eV",_("Hole tail slope"),"e",1.0,"QLineEdit",min=20e-3,max=150e-3 ))
+	lib.append(my_data("","#epsilonr","au",_("Relative permittivity"),"e",1.0,"QLineEdit",min=1.0,max=10.0 ))
+	lib.append(my_data("","#srhsigman_e","m^{-2}",_("Free electron to Trapped electron"),"e",1.0,"QLineEdit",min=1e-27,max=1e-15 ))
+	lib.append(my_data("","#srhsigmap_e","m^{-2}",_("Trapped electron to Free hole"),"e",1.0,"QLineEdit",min=1e-27,max=1e-15 ))
+	lib.append(my_data("","#srhsigman_h","m^{-2}",_("Trapped hole to Free electron"),"e",1.0,"QLineEdit",min=1e-27,max=1e-15 ))
 	lib.append(my_data("","#srhsigmap_h","m^{-2}",_("Free hole to Trapped hole"),"e",1.0,"QLineEdit",min=1e-27,max=1e-15))
-	lib.append(my_data("","#free_to_free_recombination","m^{3}s^{-1}",_("n_{free} to p_{free} Recombination rate constant"),"e",1.0,"QLineEdit",min=1e-27,max=1e-15))
+	lib.append(my_data("","#free_to_free_recombination","m^{3}s^{-1}",_("n_{free} to p_{free} Recombination rate constant"),"e",1.0,"QLineEdit",min=1e-27,max=1e-15 ))
+
+	#electrical?.inp
+	lib.append(my_data("","#electrical_shunt","Ohm",_("Layer shunt resistance"),"e",1.0,"QLineEdit",min=0.1,max=1e20 ))
+	lib.append(my_data("","#electrical_series","Ohm",_("Layer series resistance"),"e",1.0,"QLineEdit",min=0.1,max=1e20 ))
+	lib.append(my_data("","#electrical_C","Ohm",_("Layer capacitance"),"e",1.0,"QLineEdit",min=0.0,max=1.0 ))
+	lib.append(my_data("","#electrical_n","au",_("Layer ideality factor"),"e",1.0,"QLineEdit",min=0.0,max=1.0 ))
+	lib.append(my_data("","#electrical_J0","Ohm",_("Reverse bias current"),"e",1.0,"QLineEdit",min=0.0,max=1e6 ))
+
+
 
 	#shape?.inp
 	lib.append(my_data("","#shape_type","au",_("Shape type"),"s",1.0,"QComboBoxShape"))
@@ -258,7 +266,7 @@ def build_token_lib():
 	lib.append(my_data("math.inp","#newton_min_itt","au",_("Newton minimum iterations"),"e",1.0,"QLineEdit"))
 	lib.append(my_data("math.inp","#solver_name",_("dll name"),_("Matrix solver to use"),"e",1.0,"QLineEdit"))
 
-	lib.append(my_data("math.inp","#newton_name",_("dll name"),_("Newton solver to use"),"e",1.0,"QComboBoxNewtonSelect",defaults=["newton_2d","newton_norm","newton"]))
+	lib.append(my_data("math.inp","#newton_name",_("dll name"),_("Newton solver to use"),"e",1.0,"QComboBoxNewtonSelect",defaults=["newton_2d","newton_simple","newton_norm","newton"]))
 	lib.append(my_data("math.inp","#math_t0","au",_("Slotboom T0"),"e",1.0,"QLineEdit"))
 	lib.append(my_data("math.inp","#math_d0","au",_("Slotboom D0"),"e",1.0,"QLineEdit"))
 	lib.append(my_data("math.inp","#math_n0","au",_("Slotboom n0"),"e",1.0,"QLineEdit"))
@@ -326,6 +334,7 @@ def build_token_lib():
 	lib.append(my_data("dump.inp","#dump_log_level","au",_("Log verbocity"),"s",1.0,"QComboBoxLang",defaults=[[("none"),_("None")],["screen",_("Screen")],["disk",_("Disk")],["screen_and_disk",_("Screen and disk")]]))
 	lib.append(my_data("dump.inp","#dump_dynamic_pl_energy","au",_("PL dump Energy"),"s",1.0,"QLineEdit"))
 	lib.append(my_data("dump.inp","#dump_remove_dos_cache",_("True/False"),_("Clean up DoS cache files"),"e",1.0,"gtkswitch"))
+	lib.append(my_data("dump.inp","#dump_verbose_electrical_solver_results",_("True/False"),_("Dump verbose electrical solver results"),"e",1.0,"gtkswitch"))
 
 	#pl_ss?.inp
 	lib.append(my_data("","#pl_mode","au",_("Device state"),"s",1.0,"QComboBoxLang",defaults=[[("voc"),_("Voc")],["Jsc",_("Jsc")]]))

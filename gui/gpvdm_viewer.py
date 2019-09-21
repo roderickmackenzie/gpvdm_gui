@@ -416,7 +416,11 @@ class gpvdm_viewer(QListWidget):
 			itm.display_name=_("License")
 			self.file_list.append(itm)
 
-
+			itm=file_store()
+			itm.file_name="gpvdm_cache"
+			itm.icon="cache"
+			itm.display_name=_("Cache")
+			self.file_list.append(itm)
 
 		else:
 			path=self.path
@@ -719,8 +723,10 @@ class gpvdm_viewer(QListWidget):
 				msgBox = msg_dlg()
 				msgBox.setText("License updated")
 				reply = msgBox.exec_()
-				#self.enable_all.emit()
-
+		elif decode=="gpvdm_cache":
+			from cache import cache
+			self.c=cache()
+			self.c.show()
 
 		full_path=os.path.join(self.path,decode)
 		dir_type=get_dir_type(full_path)

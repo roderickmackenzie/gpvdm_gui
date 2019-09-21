@@ -208,8 +208,8 @@ class display_widget(QWidget):
 		self.fx_box.update()
 		self.update_ray_file()
 		self.display.graph_path=self.gl_cmp.slider.get_file_name()
-		self.display.graph_z_max=self.gl_cmp.slider.z_max
-		self.display.graph_z_min=self.gl_cmp.slider.z_min
+		#self.display.graph_z_max=self.gl_cmp.slider.z_max
+		#self.display.graph_z_min=self.gl_cmp.slider.z_min
 			
 		self.display.force_redraw()
 		

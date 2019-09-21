@@ -38,14 +38,8 @@ if gui_get()==True:
 	from PyQt5.uic import loadUi
 	from PyQt5.QtGui import QPixmap
 	from PyQt5.QtCore import QSize, Qt, QTimer
-	from PyQt5.QtCore import QPersistentModelIndex
 	from QComboBoxLang import QComboBoxLang
 	from PyQt5.QtGui import QIcon
-
-	from gpvdm_select import gpvdm_select
-	from gtkswitch import gtkswitch
-	from leftright import leftright
-	from gpvdm_select_material import gpvdm_select_material
 
 #windows
 from cal_path import get_ui_path
@@ -71,111 +65,6 @@ class dlg_get_text():
 		else:
 			self.ret=None
 
-
-def tab_get_value(tab,y,x):
-	if type(tab.cellWidget(y, x))==QComboBox:
-		return tab.cellWidget(y, x).currentText()
-	elif type(tab.cellWidget(y, x))==QComboBoxLang:
-		return tab.cellWidget(y, x).currentText_english()
-	elif type(tab.cellWidget(y,x))==gpvdm_select:
-		return tab.cellWidget(y, x).text()
-	elif type(tab.cellWidget(y,x))==leftright:
-		return tab.cellWidget(y, x).get_value()
-	elif type(tab.cellWidget(y,x))==gtkswitch:
-		return tab.cellWidget(y, x).get_value()
-	elif type(tab.cellWidget(y,x))==gpvdm_select_material:
-		return tab.cellWidget(y, x).text()
-	else:
-		return tab.item(y, x).text()
-
-
-def tab_get_selected(tab):
-	a=tab.selectionModel().selectedRows()
-
-	if len(a)<=0:
-		return False
-
-	ret=[]
-	
-	for ii in range(0,len(a)):
-		y=a[ii].row()
-		for i in range(0,tab.columnCount()):
-			ret.append(str(tab_get_value(tab,y,i)))
-
-	return ret
-
-
-def tab_move_up(tab):
-	ret=-1
-	if tab.rowCount()==0:
-		return ret
-
-	tab.blockSignals(True)
-	a=tab.selectionModel().selectedRows()
-
-	if len(a)==1:
-		a=a[0].row()	
-
-		b=a-1
-		if b<0:
-			return -1
-			#b=tab.rowCount()-1
-
-		ret=a
-
-		av=[]
-		for i in range(0,tab.columnCount()):
-			av.append(str(tab_get_value(tab,a,i)))
-
-		bv=[]
-		for i in range(0,tab.columnCount()):
-			bv.append(str(tab_get_value(tab,b,i)))
-
-		for i in range(0,tab.columnCount()):
-			tab.set_value(b,i,str(av[i]))
-			tab.set_value(a,i,str(bv[i]))
-
-		tab.selectRow(b)
-		tab.blockSignals(False)
-		return ret
-
-	else:
-		return ret
-	
-def tab_insert_row(tab):
-	tab.blockSignals(True)
-	index = tab.selectionModel().selectedRows()
-
-	if len(index)>0:
-		pos=index[0].row()+1
-	else:
-		pos = tab.rowCount()
-
-	tab.insertRow(pos)
-	tab.blockSignals(False)
-	return pos
-
-
-def tab_remove(tab):
-	tab.blockSignals(True)
-	ret=-1
-	index = tab.selectionModel().selectedRows()
-
-	if len(index)>0:
-	#	for i in range(0,len(index)):
-		ret=index[0].row()
-	#		tab.removeRow(pos)
-	index_list = []                                                          
-	for model_index in tab.selectionModel().selectedRows():       
-		index = QPersistentModelIndex(model_index)         
-		index_list.append(index)                                             
-
-	for index in index_list:                                      
-		tab.removeRow(index.row()) 
-		
-	tab.blockSignals(False)
-
-	return ret
 
 def yes_no_dlg(parent,text):
 	msgBox = QMessageBox(parent)

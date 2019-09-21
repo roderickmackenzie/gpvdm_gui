@@ -35,7 +35,6 @@ import hashlib
 import glob
 from util_zip import zip_get_data_file
 from util_zip import zip_get_raw_data
-from str2bool import str2bool
 
 from math import pow
 

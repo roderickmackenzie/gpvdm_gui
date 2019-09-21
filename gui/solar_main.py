@@ -41,9 +41,9 @@ class solar_main(QWidget):
 
 	update = pyqtSignal()
 
-	def __init__(self,path):
-		self.path=path
-		self.export_file_name=os.path.join(self.path,"spectra.inp")
+	def __init__(self):
+		#self.path=path
+		self.export_file_name="data.dat"#os.path.join(self.path,"spectra.inp")
 		super().__init__()
 		self.resize(1200,600)
 		self.setWindowIcon(icon_get("weather-few-clouds"))

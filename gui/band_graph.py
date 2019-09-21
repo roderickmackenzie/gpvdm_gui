@@ -53,7 +53,7 @@ from PyQt5.QtGui import QIcon,QPixmap,QImage
 #epitaxy
 from epitaxy import epitaxy_get_layers
 from epitaxy import epitaxy_get_mat_file
-from epitaxy import epitaxy_get_electrical_layer
+from epitaxy import epitaxy_get_dos_file
 from epitaxy import epitaxy_get_width
 from epitaxy import epitaxy_get_name
 from epitaxy import epitaxy_get_device_start
@@ -147,7 +147,7 @@ class band_graph(QWidget):
 			homo=0.0
 			
 			delta=float(layer_ticknes)*1e9
-			#print(epitaxy_get_electrical_layer(i))
+			#print(epitaxy_get_dos_file(i))
 			lines=[]
 			#we could have zipped the file
 			mat_file=os.path.join(get_materials_path(),layer_material,'mat.inp')
@@ -156,7 +156,7 @@ class band_graph(QWidget):
 			material_type=inp_get_token_value(mat_file, "#material_type",archive=archive)
 			unknown_lumo_eg=False
 
-			if epitaxy_get_electrical_layer(i).startswith("dos")==False:
+			if epitaxy_get_dos_file(i).startswith("dos")==False:
 				dos_file=os.path.join(get_materials_path(),layer_material,'dos.inp')
 				if os.path.isfile(dos_file)==False:
 					unknown_lumo_eg=True
@@ -168,7 +168,7 @@ class band_graph(QWidget):
 					lumo=-float(inp_search_token_value(lines, "#Xi"))
 					Eg=float(inp_search_token_value(lines, "#Eg"))
 			else:
-				lines=inp_load_file(os.path.join(get_sim_path(),epitaxy_get_electrical_layer(i)+".inp"))
+				lines=inp_load_file(os.path.join(get_sim_path(),epitaxy_get_dos_file(i)+".inp"))
 				#print(lines)
 				if lines!=False:
 					lumo=-float(inp_search_token_value(lines, "#Xi"))

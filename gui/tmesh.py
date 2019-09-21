@@ -57,9 +57,6 @@ from PyQt5.QtWidgets import QWidget,QVBoxLayout,QToolBar,QSizePolicy,QAction,QTa
 from PyQt5.QtGui import QPainter,QIcon
 
 #windows
-from gui_util import tab_move_up
-from gui_util import tab_remove
-from gui_util import tab_get_value
 from open_save_dlg import save_as_image
 from cal_path import get_sim_path
 from icon_lib import icon_get
@@ -88,25 +85,25 @@ class tab_time_mesh(QWidget):
 
 		for i in range(0,self.tab.rowCount()):
 			out_text.append("#time_segment"+str(i)+"_len")
-			out_text.append(str(tab_get_value(self.tab,i, 0)))
+			out_text.append(str(self.tab.get_value(i, 0)))
 
 			out_text.append("#time_segment"+str(i)+"_dt")
-			out_text.append(str(tab_get_value(self.tab,i, 1)))
+			out_text.append(str(self.tab.get_value(i, 1)))
 
 			out_text.append("#time_segment"+str(i)+"_voltage_start")
-			out_text.append(str(tab_get_value(self.tab,i, 2)))
+			out_text.append(str(self.tab.get_value(i, 2)))
 
 			out_text.append("#time_segment"+str(i)+"_voltage_stop")
-			out_text.append(str(tab_get_value(self.tab,i, 3)))
+			out_text.append(str(self.tab.get_value(i, 3)))
 
 			out_text.append("#time_segment"+str(i)+"_mul")
-			out_text.append(str(tab_get_value(self.tab,i, 4)))
+			out_text.append(str(self.tab.get_value(i, 4)))
 
 			out_text.append("#time_segment"+str(i)+"_sun")
-			out_text.append(str(tab_get_value(self.tab,i, 5)))
+			out_text.append(str(self.tab.get_value(i, 5)))
 
 			out_text.append("#time_segment"+str(i)+"_laser")
-			out_text.append(str(tab_get_value(self.tab,i, 6)))
+			out_text.append(str(self.tab.get_value(i, 6)))
 
 		out_text.append("#ver")
 		out_text.append("1.1")
@@ -137,7 +134,7 @@ class tab_time_mesh(QWidget):
 		self.save_data()
 
 	def callback_remove_item(self):
-		tab_remove(self.tab)
+		self.tab.remove()
 
 		self.build_mesh()
 
@@ -153,7 +150,7 @@ class tab_time_mesh(QWidget):
 		self.save_data()
 
 	def callback_move_up(self):
-		tab_move_up(self.tab)
+		self.tab.move_up()
 		self.build_mesh()
 		self.draw_graph()
 		self.fig.canvas.draw()
@@ -322,13 +319,13 @@ class tab_time_mesh(QWidget):
 	def check_mesh(self):
 		try:
 			for i in range(0,self.tab.rowCount()):
-				length=float(tab_get_value(self.tab,i, 0))
-				dt=float(tab_get_value(self.tab,i, 1))
-				voltage_start=float(tab_get_value(self.tab,i, 2))
-				voltage_stop=float(tab_get_value(self.tab,i, 3))
-				mul=float(tab_get_value(self.tab,i, 4))
-				sun=float(tab_get_value(self.tab,i, 5))
-				laser=float(tab_get_value(self.tab,i, 6))
+				length=float(self.tab.get_value(i, 0))
+				dt=float(self.tab.get_value(i, 1))
+				voltage_start=float(self.tab.get_value(i, 2))
+				voltage_stop=float(self.tab.get_value(i, 3))
+				mul=float(self.tab.get_value(i, 4))
+				sun=float(self.tab.get_value(i, 5))
+				laser=float(self.tab.get_value(i, 6))
 			return True
 		except:
 			return False
@@ -352,14 +349,14 @@ class tab_time_mesh(QWidget):
 
 		seg=0
 		for i in range(0,self.tab.rowCount()):
-			length=float(tab_get_value(self.tab,i, 0))
+			length=float(self.tab.get_value(i, 0))
 			end_time=pos+length
-			dt=float(tab_get_value(self.tab,i, 1))
-			voltage_start=float(tab_get_value(self.tab,i, 2))
-			voltage_stop=float(tab_get_value(self.tab,i, 3))
-			mul=float(tab_get_value(self.tab,i, 4))
-			sun=float(tab_get_value(self.tab,i, 5))
-			laser=float(tab_get_value(self.tab,i, 6))
+			dt=float(self.tab.get_value(i, 1))
+			voltage_start=float(self.tab.get_value(i, 2))
+			voltage_stop=float(self.tab.get_value(i, 3))
+			mul=float(self.tab.get_value(i, 4))
+			sun=float(self.tab.get_value(i, 5))
+			laser=float(self.tab.get_value(i, 6))
 			#print("VOLTAGE=",line[SEG_VOLTAGE],end_time,pos)
 
 			if (length/dt)>100:

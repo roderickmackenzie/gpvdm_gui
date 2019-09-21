@@ -21,8 +21,8 @@
 #
 # 
 
-## @package ideal_diode_editor
-#  An editor for the ideal diode equation.
+## @package ray_trace_editor
+#  An editor for the ray tracer.
 #
 
 import os

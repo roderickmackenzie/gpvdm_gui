@@ -29,15 +29,15 @@ import sys
 from gl_save import gl_save_list
 from gl_save import gl_save_add
 
-try:
-	from OpenGL.GL import *
-	from OpenGL.GLU import *
-	from PyQt5 import QtOpenGL
-	from PyQt5.QtOpenGL import QGLWidget
-	from gl_color import set_color
-	open_gl_ok=True
-except:
-	print("opengl error from gl_lib",sys.exc_info()[0])
+
+from OpenGL.GL import *
+from OpenGL.GLU import *
+from PyQt5 import QtOpenGL
+from PyQt5.QtOpenGL import QGLWidget
+from gl_color import set_color
+open_gl_ok=True
+
+
 	
 import random
 import numpy as np
@@ -50,6 +50,7 @@ from gl_scale import scale_m2screen_z
 from gl_scale import scale_get_xmul
 from gl_scale import scale_get_ymul
 from gl_scale import scale_get_zmul
+
 
 def pyrmid(o):
 	x=o.x

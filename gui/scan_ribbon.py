@@ -86,12 +86,11 @@ class scan_ribbon(ribbon_base):
 		toolbar.setToolButtonStyle( Qt.ToolButtonTextUnderIcon)
 		toolbar.setIconSize(QSize(42, 42))
 
-		self.tb_simulate = play(self,"scan_play",play_icon="build_play2",run_text=wrap_text(_("Run scan"),5))#QAction(icon_get("build_play2"), wrap_text(_("Run scan"),2), self)
+		self.tb_simulate = play(self,"scan_play",play_icon="forward",run_text=wrap_text(_("Run scan"),2))#QAction(icon_get("build_play2"), wrap_text(_("Run scan"),2), self)
 		toolbar.addAction(self.tb_simulate)
 
-
-		#self.tb_stop = QAction(icon_get("media-playback-pause"), wrap_text(_("Stop"),3), self)
-		#toolbar.addAction(self.tb_stop)
+		self.tb_run_all =  play(self,"scan_play_all",play_icon="forward2",run_text=wrap_text(_("Run all scans"),5))#QAction(icon_get("forward2"), wrap_text(_("Run all scans"),3), self)
+		toolbar.addAction(self.tb_run_all)
 
 		toolbar.addSeparator()
 
@@ -125,8 +124,7 @@ class scan_ribbon(ribbon_base):
 		self.tb_clean = QAction(icon_get("clean"), wrap_text(_("Clean simulation"),4), self)
 		self.box_tb1.addAction(self.tb_clean )
 
-		self.tb_run_all = QAction(icon_get("forward2"), wrap_text(_("Run all scans"),3), self)
-		#self.box_tb1.addAction(self.tb_run_all)
+
 
 		self.tb_notes = QAction(icon_get("text-x-generic"), wrap_text(_("Notes"),3), self)
 		toolbar.addAction(self.tb_notes)

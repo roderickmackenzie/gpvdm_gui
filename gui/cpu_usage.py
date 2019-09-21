@@ -92,7 +92,7 @@ class cpu_usage(QWidget):
 		
 		
 		s.wait=int(w_delta)
-		s.color=[255,0,0]
+		s.color=[255*(s.load/100.0),0,0]
 		s.cluster=self.server.get_nodes_load()
 		self.load[len(self.load)-1]=s
 		self.load.pop(0)
@@ -120,6 +120,13 @@ class cpu_usage(QWidget):
 		dy=h/len(self.load)
 
 		for i in range(0,len(self.load)):
+			#cpu
+			qp.setBrush(QColor(self.load[i].color[0],self.load[i].color[1],self.load[i].color[2]))
+			qp.setPen(QColor(self.load[i].color[0],self.load[i].color[1],self.load[i].color[2]))
+		
+			dx=self.load[i].load*w/100.0
+			qp.drawRect(w, h-dy*i, -dx, dy)
+
 			qp.setBrush(QColor(0,100,0))
 			qp.setPen(QColor(0,100,0))
 
@@ -133,10 +140,6 @@ class cpu_usage(QWidget):
 			qp.drawRect(w, h-dy*i, -dx, dy)
 			
 			
-			qp.setBrush(QColor(self.load[i].color[0],self.load[i].color[1],self.load[i].color[2]))
-			qp.setPen(QColor(self.load[i].color[0],self.load[i].color[1],self.load[i].color[2]))
-		
-			dx=self.load[i].load*w/100.0
-			qp.drawRect(w, h-dy*i, -dx, dy)
+
 
 

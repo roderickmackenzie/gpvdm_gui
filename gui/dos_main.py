@@ -25,20 +25,20 @@
 #  The main DoS dialog.
 #
 
+import os
 from tab_base import tab_base
-from epitaxy import epitaxy_get_dos_files
 from tab import tab_class
 from epitaxy import epitaxy_get_layers
-from epitaxy import epitaxy_get_electrical_layer
+from epitaxy import epitaxy_get_dos_file
+from epitaxy import epitaxy_get_electrical_file
 from global_objects import global_object_register
 from epitaxy import epitaxy_get_name
 
 #qt5
-from PyQt5.QtWidgets import QMainWindow, QTextEdit, QAction, QApplication
+from PyQt5.QtWidgets import  QTextEdit, QAction, QApplication
 from PyQt5.QtGui import QIcon
 from PyQt5.QtCore import QSize, Qt 
 from PyQt5.QtWidgets import QWidget,QSizePolicy,QVBoxLayout,QPushButton,QDialog,QFileDialog,QToolBar,QTabWidget
-from about import about_dlg
 
 #windows
 from QHTabBar import QHTabBar
@@ -47,6 +47,8 @@ from icon_lib import icon_get
 
 from css import css_apply
 
+from inp import inp_get_token_value
+from cal_path import get_sim_path
 
 class dos_main(QWidget,tab_base):
 
@@ -94,19 +96,30 @@ class dos_main(QWidget,tab_base):
 
 	def update(self):
 		self.notebook.clear()
+		fulle_sim=True
+		sim_type=inp_get_token_value(os.path.join(get_sim_path(),"math.inp"), "#newton_name")
+		if sim_type=="newton_simple":
+			fulle_sim=False
 
-		files=epitaxy_get_dos_files()
 		for i in range(0,epitaxy_get_layers()):
-			dos_layer=epitaxy_get_electrical_layer(i)
-			if dos_layer.startswith("dos")==True:
-				#add_to_widget=True
+			dos_file=epitaxy_get_dos_file(i)
 
-				name="DoS of "+epitaxy_get_name(i)
+			if dos_file.startswith("dos")==True:
+				if fulle_sim==True:
+					name="DoS of "+epitaxy_get_name(i)
 
-				widget=tab_class()
-				widget.init(dos_layer+".inp",name)
+					widget=tab_class()
+					widget.init(dos_file+".inp",name)
 
-				self.notebook.addTab(widget,name)
+					self.notebook.addTab(widget,name)
+				else:
+					electrical_file=epitaxy_get_electrical_file(i)
+					name="Electrical "+epitaxy_get_name(i)
+
+					widget=tab_class()
+					widget.init(electrical_file+".inp",name)
+
+					self.notebook.addTab(widget,name)
 
 	def help(self):
 		help_window().help_set_help(["tab.png","<big><b>Density of States</b></big>\nThis tab contains the electrical model parameters, such as mobility, tail slope energy, and band gap."])

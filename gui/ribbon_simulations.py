@@ -48,7 +48,6 @@ from fxexperiment import fxexperiment
 from sunsvoc import sunsvoc
 from sunsjsc import sunsjsc
 
-from ideal_diode_editor import ideal_diode_editor
 from ray_trace_editor import ray_trace_editor
 
 from qe import qe_window
@@ -79,7 +78,6 @@ class ribbon_simulations(QToolBar):
 		self.measure_window=None
 		self.solar_spectrum_window=None
 		self.cost_window=None
-		self.diode_window=None
 		self.ray_trace_window=None
 		self.fdtd_window=None
 
@@ -109,10 +107,6 @@ class ribbon_simulations(QToolBar):
 		self.sunsjsc = QAction_lock("sunsjsc", _("Suns Jsc\neditor"), self,"ribbon_simulations_sunsjsc")
 		self.sunsjsc.clicked.connect(self.callback_sunsjsc_window)
 		self.addAction(self.sunsjsc)
-
-		self.diode = QAction_lock("diode", wrap_text(_("Simple diode model"),8), self,"ribbon_simulations_diode")
-		self.diode.clicked.connect(self.callback_diode_window)
-		self.addAction(self.diode)
 
 		self.ray_trace = QAction_lock("ray", wrap_text(_("Ray tracing\neditor"),8), self,"ribbon_simulations_ray")
 		self.ray_trace.clicked.connect(self.callback_ray_tracing_window)
@@ -184,7 +178,6 @@ class ribbon_simulations(QToolBar):
 		self.sunsvoc.setEnabled(val)
 		self.sunsjsc.setEnabled(val)
 		self.measure.setEnabled(val)
-		self.diode.setEnabled(val)
 		self.fdtd.setEnabled(val)
 
 	def callback_edit_experiment_window(self):
@@ -281,16 +274,6 @@ class ribbon_simulations(QToolBar):
 			self.ray_trace_window.show()
 
 
-	def callback_diode_window(self):
-
-		if self.diode_window==None:
-			self.diode_window=ideal_diode_editor()
-
-		help_window().help_set_help(["diode.png",_("<big><b>Ideal diode editor</b></big><br> Use this window to configure the ideal diode model based on the simple diode equation.")])
-		if self.diode_window.isVisible()==True:
-			self.diode_window.hide()
-		else:
-			self.diode_window.show()
 
 	def callback_fdtd(self):
 

@@ -64,7 +64,6 @@ from epitaxy import epitaxy_get_epi
 from epitaxy import epitay_get_next_dos_layer
 from epitaxy import epitaxy_get_layer
 from error_dlg import error_dlg
-from gui_util import tab_get_value
 
 from file_watch import get_watch
 from gpvdm_tab import gpvdm_tab
@@ -235,7 +234,7 @@ class doping_window(QWidgetSavePos):
 
 
 	def tab_changed(self, y,x):
-		val=tab_get_value(self.tab,y,x)
+		val=self.tab.get_value(y,x)
 		try:
 			val=float(val)
 		except:

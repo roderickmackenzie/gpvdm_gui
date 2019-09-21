@@ -210,13 +210,11 @@ class ribbon_device(QToolBar):
 	def callback_electrical_editor(self):
 		help_window().help_set_help(["electrical.png",_("<big><b>Electrical parameters</b></big>\nUse this window to change the electrical parameters of each layer.")])
 
-		if self.electrical_editor==None:
-			self.electrical_editor=dos_main()
+		if self.electrical_editor!=None:
+			del self.electrical_editor
 
-		if self.electrical_editor.isVisible()==True:
-			self.electrical_editor.hide()
-		else:
-			self.electrical_editor.show()
+		self.electrical_editor=dos_main()
+		self.electrical_editor.show()
 
 	def callback_emission_editor(self):
 		help_window().help_set_help(["emission.png",_("<big><b>Emission parameters</b></big>\nUse this window to set if a layer emits light or not.  You can choose between theoretically calculated emission spectra and imported experimental spectra.")])

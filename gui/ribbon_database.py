@@ -77,6 +77,7 @@ from error_dlg import error_dlg
 from lasers import lasers
 
 from QAction_lock import QAction_lock
+from cal_path import get_user_data_path
 
 class ribbon_database(QToolBar):
 	def __init__(self):
@@ -113,6 +114,10 @@ class ribbon_database(QToolBar):
 		self.emission = QAction_lock("pl", _("Emission\ndatabase"), self,"ribbion_db_emission")
 		self.emission.clicked.connect(self.callback_configure_emission)
 		self.addAction(self.emission)
+
+		self.user = QAction_lock("folder", _("User\ndata"), self,"ribbion_db_user_data")
+		self.user.clicked.connect(self.callback_configure_user_data)
+		self.addAction(self.user)
 
 		self.shape = QAction_lock("shape", _("Shape\ndatabase"), self,"ribbion_db_shape")
 		self.shape.clicked.connect(self.callback_configure_shape)
@@ -232,5 +237,9 @@ class ribbon_database(QToolBar):
 		self.new_shape.clicked.connect(self.on_new_shape_clicked)
 		self.dialog.toolbar.addAction(self.new_shape)
 		self.dialog.show_inp_files=False
+		ret=self.dialog.exec_()
+
+	def callback_configure_user_data(self):
+		self.dialog=gpvdm_open(get_user_data_path(),big_toolbar=True)
 		ret=self.dialog.exec_()
 

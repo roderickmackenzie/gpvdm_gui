@@ -361,6 +361,13 @@ def get_emission_path():
 def get_shape_path():
 	return os.path.join(get_user_settings_dir(),"shape")
 
+def get_user_data_path():
+	ret=os.path.join(get_user_settings_dir(),"user_data")
+	if os.path.isdir(ret)==False:
+		os.makedirs(ret)
+	return ret
+
+
 def get_base_material_path():
 	global materials_base_path
 	return materials_base_path

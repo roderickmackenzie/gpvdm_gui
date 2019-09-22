@@ -66,6 +66,8 @@ def build_token_lib():
 	lib.append(my_data("light.inp","#light_file_generation","file_name",_("File containing generation rate"),"e",1.0,"gpvdm_select"))
 
 	lib.append(my_data("light.inp","#Dphotoneff","0-1",_("Photon efficiency"),"e",1.0,"QLineEdit",min=0.001,max=1.2))
+	lib.append(my_data("light.inp","#light_file_qe_spectra","au",_("QE spectra file"),"e",1.0,"QLineEdit"))
+
 
 	#laser?.inp
 	lib.append(my_data("","#laserwavelength","m",_("Laser wavelength"),"e",1.0,"QLineEdit"))

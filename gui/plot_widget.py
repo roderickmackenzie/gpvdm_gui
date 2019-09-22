@@ -417,7 +417,7 @@ class plot_widget(QWidget):
 		self.fig.canvas.draw()
 
 
-	def save_imaeg(self):
+	def save_image(self):
 		self.callback_save_image()
 
 	def callback_save_image(self):

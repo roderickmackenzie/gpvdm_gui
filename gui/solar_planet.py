@@ -45,13 +45,6 @@ import io
 from solar_pref import checkBoxInput
 from solar_model import earthModel
 from solar_info import infoBox
-from solar_model import mercury_calc
-from solar_model import venus_calc
-from solar_model import mars_calc
-from solar_model import ceres_calc
-from solar_model import europa_calc
-from solar_model import halley_calc
-from solar_model import pluto_calc
 from solar_model import earth_calc
 
 from math import pi

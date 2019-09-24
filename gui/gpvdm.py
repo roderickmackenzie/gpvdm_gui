@@ -658,8 +658,9 @@ class gpvdm_main_window(QMainWindow):
 		self.cache=cache(only_open_if_full=True)
 
 		from solar_main import solar_main
-		#a= solar_main()
-		#a.show()
+		a= solar_main()
+		a.show()
+
 	def dragEnterEvent(self, event):
 		if event.mimeData().hasUrls:
 			event.accept()

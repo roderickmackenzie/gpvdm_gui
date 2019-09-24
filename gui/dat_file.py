@@ -441,6 +441,22 @@ class dat_file():
 	def rgb(self):
 		return format(int(self.r*255), '02x')+format(int(self.g*255), '02x')+format(int(self.b*255), '02x')
 
+	def copy(self,in_data):
+		self.x_len=in_data.x_len
+		self.y_len=in_data.y_len
+		self.z_len=in_data.z_len
+
+		self.init_mem()
+
+		for i in range(0,len(self.x_scale)):
+			self.x_scale[i]=in_data.x_scale[i]
+
+		for i in range(0,len(self.y_scale)):
+			self.y_scale[i]=in_data.y_scale[i]
+
+		for i in range(0,len(self.z_scale)):
+			self.z_scale[i]=in_data.z_scale[i]
+
 	def init_mem(self):
 		if self.type=="poly":
 			return
@@ -702,6 +718,9 @@ class dat_file():
 				self.r=float(int(rgb[0:2], 16)/255)
 				self.g=float(int(rgb[2:4], 16)/255)
 				self.b=float(int(rgb[4:6], 16)/255)
+
+	def __str__(self):
+		return "\n".join(self.gen_output_data())
 
 	def gen_output_data(self):
 		lines=[]

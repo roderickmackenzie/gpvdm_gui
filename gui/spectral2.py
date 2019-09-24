@@ -22,8 +22,8 @@
 #
 # 
 
-## @package solar_model
-#  Part of the solar module.
+## @package spectral2
+#  After R. Bird and C. Riordan 1984
 #
 
 import os
@@ -88,6 +88,11 @@ class spectral2():
 		self.Tu.copy(self.etr)
 		self.cal_mixed_gas()
 
+		self.Id=self.etr*self.D*self.Tr*self.Ta*self.Tw*self.To*self.Tu
+		self.Id.save_as_txt("one.dat")
+
+		self.I=self.Id
+
 	def cal_earth_sun_distance(self):
 		# Earth-Sun Correction factor
 		psi = 2 * pi * (self.day - 1) / 365		#eq 2-3
@@ -125,8 +130,8 @@ class spectral2():
 		for y in range(0,self.To.y_len):
 			lam=self.To.y_scale[y]*1e6		#in um
 			ao=self.ao.data[0][0][y]
-			self.To.data[0][0][y] = np.exp(-ao * 0.395 * Mo)
-		print(str(self.To))
+			self.To.data[0][0][y] = exp(-ao * 0.395 * Mo)
+		#print(str(self.To))
 
 	def cal_mixed_gas(self):
 		for y in range(0,self.Tu.y_len):
@@ -157,8 +162,6 @@ def earth_calc(Latitude, Longitude, W, p, Date, Time, AOD, timezone):
 	1 - T_aslam) * F_s * C_s
 
 
-	# Irradiance
-	I_direct = ext_ter_spec * D * T_rlam * T_alam * T_wlam * T_olam * T_ulam
 
 	I_diffuse = I_rlam + I_alam  # +I_glam
 

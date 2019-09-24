@@ -43,33 +43,17 @@ from decimal import Decimal
 import io
 
 from solar_pref import checkBoxInput
-from solar_model import earthModel
 from solar_info import infoBox
 from solar_model import earth_calc
-
+from spectral2 import spectral2
 from math import pi
 
-#unicode indexes
-degree_sign= u'\N{DEGREE SIGN}'
-
-# GUI
 
 class planet(QWidget):
 	def __init__(self,file_name):
 		QWidget.__init__(self)
-		self.lam=[]
-		self.I_total=[]
-		self.export_file_name=file_name
-		self.enable_earthattr = False
-		self.enable_mercuryattr = False
-		self.enable_marsattr = False
-		self.enable_venusattr = False
-		self.enable_halleyattr = False
-		self.enable_ceresattr = False
-		self.enable_europaattr = False
-		self.enable_plutoattr = False
-		self.enable_orbitalpoint = False
-
+		a=spectral2()
+		return
 
 	def export(self):
 		dump="#gpvdm\n"
@@ -90,20 +74,19 @@ class planet(QWidget):
 
 		
 	def init(self):
+		#if self.enable_earthattr==True:
+		#	userInput = earthModel('53', '-1', '1.42', '1013.25', '15/06/2014', '12:00', '0.27', '0')
+		#	london = earthModel('51.5074', '-0.1278', '2.13', '1013', '15/06/2014', '12:00', '0.43', '0')
+		#	beijing = earthModel('39.9042', '116.4074', '2.98', '1013', '15/06/2014', '12:00', '0.97', '+8')
+		#	losangeles = earthModel('34.0522', '-118.2437', '1.54', '1013', '15/06/2014', '12:00', '0.10', '-8')
+		#	newyork = earthModel('40.7128', '-74.0059', '2.74', '1013', '15/06/2014', '12:00', '0.15', '-5')
+		#	freiburg = earthModel('47.9990', '7.8421', '1.91', '1013', '15/06/2014', '12:00', '0.13', '+1')
+		#	sydney = earthModel('-33.8688', '151.2093', '1.72', '1013', '15/06/2014', '12:00', '0.04', '+10')
+		#	self.models = {"User Input": userInput, "London": london, "Beijing": beijing, "Los Angeles": losangeles,
+		#					"New York": newyork, "Freiburg": freiburg, "Sydney": sydney}
+		#	self.selectedModel = userInput
 
-		if self.enable_earthattr==True:
-			userInput = earthModel('53', '-1', '1.42', '1013.25', '15/06/2014', '12:00', '0.27', '0')
-			london = earthModel('51.5074', '-0.1278', '2.13', '1013', '15/06/2014', '12:00', '0.43', '0')
-			beijing = earthModel('39.9042', '116.4074', '2.98', '1013', '15/06/2014', '12:00', '0.97', '+8')
-			losangeles = earthModel('34.0522', '-118.2437', '1.54', '1013', '15/06/2014', '12:00', '0.10', '-8')
-			newyork = earthModel('40.7128', '-74.0059', '2.74', '1013', '15/06/2014', '12:00', '0.15', '-5')
-			freiburg = earthModel('47.9990', '7.8421', '1.91', '1013', '15/06/2014', '12:00', '0.13', '+1')
-			sydney = earthModel('-33.8688', '151.2093', '1.72', '1013', '15/06/2014', '12:00', '0.04', '+10')
-			self.models = {"User Input": userInput, "London": london, "Beijing": beijing, "Los Angeles": losangeles,
-							"New York": newyork, "Freiburg": freiburg, "Sydney": sydney}
-			self.selectedModel = userInput
-
-		self.states = [True, True, True, True, True, True, True]
+		#self.states = [True, True, True, True, True, True, True]
 
 
 		#DEFINING EARTH WIDGETS

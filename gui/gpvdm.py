@@ -657,9 +657,9 @@ class gpvdm_main_window(QMainWindow):
 
 		self.cache=cache(only_open_if_full=True)
 
-		from solar_main import solar_main
-		a= solar_main()
-		a.show()
+		from solar_spectrum_gen_window import solar_spectrum_gen_window
+		self.a= solar_spectrum_gen_window()
+		self.a.show()
 
 	def dragEnterEvent(self, event):
 		if event.mimeData().hasUrls:

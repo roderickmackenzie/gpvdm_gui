@@ -441,6 +441,23 @@ class dat_file():
 	def rgb(self):
 		return format(int(self.r*255), '02x')+format(int(self.g*255), '02x')+format(int(self.b*255), '02x')
 
+	def __mul__(self,in_data):
+		a=dat_file()
+		a.copy(self)
+
+		if type(in_data)==float:
+			for z in range(0,len(self.z_scale)):
+				for x in range(0,len(self.x_scale)):
+					for y in range(0,len(self.y_scale)):
+						a.data[z][x][y]=in_data*self.data[z][x][y]
+		else:
+			for z in range(0,len(self.z_scale)):
+				for x in range(0,len(self.x_scale)):
+					for y in range(0,len(self.y_scale)):
+						a.data[z][x][y]=in_data.data[z][x][y]*self.data[z][x][y]
+
+		return a
+		
 	def copy(self,in_data):
 		self.x_len=in_data.x_len
 		self.y_len=in_data.y_len

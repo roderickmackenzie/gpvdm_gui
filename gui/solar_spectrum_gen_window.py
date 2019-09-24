@@ -37,12 +37,11 @@ from ribbon_solar import ribbon_solar
 from icon_lib import icon_get
 from PyQt5.QtCore import pyqtSignal
 
-class solar_main(QWidget):
+class solar_spectrum_gen_window(QWidget):
 
 	update = pyqtSignal()
 
 	def __init__(self):
-		#self.path=path
 		self.export_file_name="data.dat"#os.path.join(self.path,"spectra.inp")
 		super().__init__()
 		self.resize(1200,600)
@@ -66,51 +65,8 @@ class solar_main(QWidget):
 
 		earth = planet(self.export_file_name)
 		earth.set_earth(True)
-		earth.init()
 		self.notebook.addTab(earth,"Earth")
 
-		#mercury = planet(self.export_file_name)
-		#mercury.set_mercury(True)
-		#mercury.set_orbitalpoint(True)
-		#mercury.init()
-		#self.notebook.addTab(mercury,"Mercury")
-
-		#venus = planet(self.export_file_name)
-		#venus.set_venus(True)
-		#venus.set_orbitalpoint(True)
-		#venus.init()
-		#self.notebook.addTab(venus,"Venus")
-
-		#mars = planet(self.export_file_name)
-		#mars.set_mars(True)
-		#mars.set_orbitalpoint(True)
-		#mars.init()
-		#self.notebook.addTab(mars,"Mars")
-
-		#ceres = planet(self.export_file_name)
-		#ceres.set_ceres(True)
-		#ceres.set_orbitalpoint(True)
-		#ceres.init()
-		#self.notebook.addTab(ceres, "Ceres (Dwarf Planet)")
-
-		#europa = planet(self.export_file_name)
-		#europa.set_europa(True)
-		#europa.set_orbitalpoint(True)
-		#europa.init()
-		#self.notebook.addTab(europa, "Europa (moon of Jupiter)")
-
-		#halley = planet(self.export_file_name)
-		#halley.set_halley(True)
-		#halley.set_orbitalpoint(True)
-		#halley.init()
-		#self.notebook.addTab(halley, "Halley's Comet")
-
-		#pluto = planet(self.export_file_name)
-		#pluto.set_pluto(True)
-		#pluto.set_orbitalpoint(True)
-		#pluto.init()
-		#self.notebook.addTab(pluto, "Pluto")
-		
 		self.setLayout(self.vbox)
 
 
@@ -136,8 +92,3 @@ class solar_main(QWidget):
 		qr.moveCenter(cp)
 		self.move(qr.topLeft())
 
-
-if __name__ == '__main__':
-	app = QApplication(sys.argv)
-	win = spectrum_main()
-	sys.exit(app.exec_())

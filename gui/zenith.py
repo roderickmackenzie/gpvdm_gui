@@ -38,10 +38,12 @@ def zenith(lat, day, hour, minute):
 
 	hour_of_day=(hour+minute/60)
 	hour_ang=(hour_of_day-12)*15.0		#each hour is 15 degrees
+	#print(hour,minute)
+	#print(hour_ang)
 
 	rhs=sin(to_rad(lat))*sin(dec_rad)+cos(to_rad(lat))*cos(dec_rad)*cos(to_rad(hour_ang))
 	zenith=acos(rhs)		#*360/2/pi
-
+	print(zenith*360/2/pi)
 	return zenith
 	
 

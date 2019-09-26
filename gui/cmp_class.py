@@ -168,7 +168,6 @@ class cmp_class(QWidgetSavePos):
 
 		self.slider.changed.connect(self.update)
 		self.plot=plot_widget()
-		self.plot.init()
 
 		self.tb_video = QAction(icon_get("video"), _("Save video"), self)
 		self.tb_video.triggered.connect(self.callback_save)

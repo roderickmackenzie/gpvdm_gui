@@ -34,9 +34,11 @@ from math import *
 from dat_file import dat_file
 from cal_path import get_atmosphere_path
 from zenith import zenith
+from inp import inp_get_token_value
 
 class spectral2():
 	def __init__(self):
+
 		self.day=80		#winter equinox
 		self.lat=51		#london
 		self.hour=12
@@ -45,9 +47,24 @@ class spectral2():
 		self.P=1.0		#Preasure 1bar
 		self.aod=0.27	#AOD
 		self.W= 1.42	#precip water
+		
+		self.lat=float(inp_get_token_value("spectral2.inp","#spectral2_lat"))		#51 london
+
+		self.day=float(inp_get_token_value("spectral2.inp","#spectral2_day"))		#80 winter equinox
+		self.hour=int(inp_get_token_value("spectral2.inp","#spectral2_hour"))
+		self.min=int(inp_get_token_value("spectral2.inp","#spectral2_minute"))
+
+		self.P=float(inp_get_token_value("spectral2.inp","#spectral2_preasure"))		#Preasure 1bar
+		self.aod=float(inp_get_token_value("spectral2.inp","#spectral2_aod"))	#AOD
+		self.W=float(inp_get_token_value("spectral2.inp","#spectral2_water"))	#precip water
 
 		file_name = os.path.join(get_atmosphere_path(), "SPECTRAL2", "etr.inp")
 		self.etr=dat_file()
+		self.etr.y_mul=1e9
+		self.etr.y_units="nm"
+		self.etr.data_mul=1.0
+		self.etr.data_units="W m^{-3} m^{-1}"
+
 		self.etr.load(file_name)
 
 		file_name = os.path.join(get_atmosphere_path(), "SPECTRAL2", "h2o.inp")
@@ -62,11 +79,34 @@ class spectral2():
 		self.au=dat_file()
 		self.au.load(file_name)
 
+	def calc(self):
 		self.cal_earth_sun_distance()
-
+		
 		#zenith
 		self.Z_rad=zenith(self.lat, self.day, self.hour, self.min)
 		self.Z_deg=self.Z_rad*360/2/pi
+
+		if self.Z_deg>90.0:
+			self.Iglobal=dat_file()
+			self.Iglobal.copy(self.etr)
+			self.Iglobal.file_name="Iglobal.dat"
+			self.Iglobal.key_text="Global"
+
+			self.Is=dat_file()
+			self.Is.copy(self.etr)
+			self.Is.file_name="Idiffuse.dat"
+			self.Is.key_text="Diffuse"
+
+			self.Id=dat_file()
+			self.Id.copy(self.etr)
+			self.Id.file_name="Idirect.dat"
+			self.Id.key_text="Direct"
+			return
+
+		#self.D=1.0
+		#se0lf.Z_deg=48.2
+		#self.Z_rad=(self.Z_deg/360.0)*2.0*pi
+		#Direct
 
 		self.Tr=dat_file()
 		self.Tr.copy(self.etr)
@@ -74,6 +114,8 @@ class spectral2():
 
 		self.Ta=dat_file()
 		self.Ta.copy(self.etr)
+		self.tau_a=dat_file()
+		self.tau_a.copy(self.etr)
 		self.cal_arosol()
 
 		self.Tw=dat_file()
@@ -89,9 +131,79 @@ class spectral2():
 		self.cal_mixed_gas()
 
 		self.Id=self.etr*self.D*self.Tr*self.Ta*self.Tw*self.To*self.Tu
-		self.Id.save_as_txt("one.dat")
+		self.Id.file_name="Idirect.dat"
+		self.Id.key_text="Direct"
 
-		self.I=self.Id
+
+		#Diffuse
+		self.omega=dat_file()
+		self.omega.copy(self.etr)
+		self.cal_omega()
+
+		self.Taa=dat_file()
+		self.Taa.copy(self.etr)
+		self.cal_Taa()
+
+		self.Cs=dat_file()
+		self.Cs.copy(self.etr)
+		self.cal_Cs()
+
+		self.Ir=self.etr*self.D*cos(self.Z_rad)*self.To*self.Tu*self.Tw*self.Taa*(1.0-self.Tr.pow(0.95))*self.Cs
+
+		self.Tas=dat_file()
+		self.Tas.copy(self.etr)
+		self.cal_Tas()
+
+		self.Fs=dat_file()
+		self.Fs.copy(self.etr)
+		self.cal_Fs()
+
+		self.Ia=self.etr*self.D*cos(self.Z_rad)*self.To*self.Tu*self.Tw*self.Taa*self.Tr.pow(1.5)*(1.0-self.Tas)*self.Fs*self.Cs
+		#Ig
+
+		self.TuP=dat_file()
+		self.TuP.copy(self.etr)
+		self.cal_mixed_gas_P()
+
+		self.TwP=dat_file()
+		self.TwP.copy(self.etr)
+		self.cal_water_P()
+
+		self.TaaP=dat_file()
+		self.TaaP.copy(self.etr)
+		self.cal_TaaP()
+
+		self.TrP=dat_file()
+		self.TrP.copy(self.etr)
+		self.cal_rayleigh_P()
+
+		self.TasP=dat_file()
+		self.TasP.copy(self.etr)
+		self.cal_TasP()
+
+		FsP=1.0- 0.5*exp((self.AFS + self.BFS/1.8)/ 1.8 )
+		self.r_s=self.TuP*self.TwP*self.TaaP*(0.5*(1.0-self.TrP)+(1-FsP)*self.TrP*(1.0-self.TasP))
+
+		r_g=0.2						#Mohamed
+		self.Ig=(self.Id*cos(self.Z_rad)+self.Ir+self.Ia)*self.r_s*r_g*self.Cs/(1.0-self.r_s*r_g)
+
+
+		self.Is=self.Ir+self.Ia+self.Ig
+		self.Is.file_name="Idiffuse.dat"
+		self.Is.key_text="Diffuse"
+
+		self.Ir.save("Ir.dat")
+		self.Ia.save("Ia.dat")
+		self.Ig.save("Ig.dat")
+
+		self.Is.save("Is.dat")
+		self.Id.save("Id.dat")
+
+		self.Iglobal=self.Is+self.Id
+		self.Iglobal.file_name="Iglobal.dat"
+		self.Iglobal.key_text="Global"
+		self.Iglobal.save("Iglobal.dat")
+
 
 	def cal_earth_sun_distance(self):
 		# Earth-Sun Correction factor
@@ -110,12 +222,19 @@ class spectral2():
 			lam=self.Tr.y_scale[y]*1e6		#in um
 			self.Tr.data[0][0][y] = exp((-self.M_dash) / ((pow(lam, 4.0)) * (115.6406 - (1.3366 / pow(lam,2.0)))))	#(2-4)
 
+	def cal_rayleigh_P(self):
+		for y in range(0,self.Tr.y_len):
+			lam=self.TrP.y_scale[y]*1e6		#in um
+			self.TrP.data[0][0][y] = exp((-1.8) / ((pow(lam, 4.0)) * (115.6406 - (1.3366 / pow(lam,2.0)))))	#(2-4)
+
+
 	def cal_arosol(self):
 		#So this ecpression comes from the origonal source code, and by reading the test in combinaion with the wiki page on the Angstrom exponent
 		alpha=1.140
 		for y in range(0,self.Ta.y_len):
 			lam=self.Ta.y_scale[y]*1e6		#in um
-			self.Ta.data[0][0][y] = exp(-self.aod * self.M * (lam / 0.5) ** (-alpha))
+			self.tau_a.data[0][0][y]=self.aod *pow((lam / 0.5), -alpha)
+			self.Ta.data[0][0][y] = exp(- self.M * self.tau_a.data[0][0][y])
 
 
 	def cal_water(self):
@@ -123,6 +242,12 @@ class spectral2():
 			lam=self.Tw.y_scale[y]*1e6		#in um
 			aw=self.aw.data[0][0][y]
 			self.Tw.data[0][0][y] = exp((-0.2385 * aw * self.W * self.M) / pow(1 + 20.07 * aw * self.W * self.M,  0.45) )
+
+	def cal_water_P(self):
+		for y in range(0,self.TwP.y_len):
+			lam=self.TwP.y_scale[y]*1e6		#in um
+			aw=self.aw.data[0][0][y]
+			self.TwP.data[0][0][y] = exp((-0.2385 * aw * self.W * 1.8) / pow(1 + 20.07 * aw * self.W * 1.8,  0.45) )
 
 	def cal_ozone(self):
 		max_ozone_height=22.0
@@ -139,60 +264,64 @@ class spectral2():
 			au=self.au.data[0][0][y]
 			self.Tu.data[0][0][y] = exp((-1.41 * au * self.M_dash) / pow((1.0 + 118.93 * au * self.M_dash),  0.45))
 
+	def cal_mixed_gas_P(self):
+		for y in range(0,self.TuP.y_len):
+			lam=self.TuP.y_scale[y]*1e6		#in um
+			au=self.au.data[0][0][y]
+			self.TuP.data[0][0][y] = exp((-1.41 * au * 1.8) / pow((1.0 + 118.93 * au * 1.8),  0.45))
 
-def earth_calc(Latitude, Longitude, W, p, Date, Time, AOD, timezone):
-	a=spectral2()
-	asdas
+	def cal_omega(self):
+		omega_04=0.945
+		omega_dash=0.095
+		for y in range(0,self.omega.y_len):
+			lam=self.omega.y_scale[y]*1e6		#in um
+			self.omega.data[0][0][y] = omega_04*exp(-omega_dash*pow(log(lam/0.4),2.0))
 
-	# Diffuse irradiance on a horizontal surface
-	# Rayleigh Scattering Component
-	C_s = vals[0:122, 5]
-	OMEGL = 0.945 * np.exp(-0.095 * (np.log(lam / 0.4)) ** 2)
-	DELA = AOD * ((lam / 0.5) ** -1.14)
-	T_aalam = np.exp(-(1 - OMEGL) * DELA * M)
-	I_rlam = ext_ter_spec * D * math.cos(Z_rad) * T_olam * T_ulam * T_wlam * T_aalam * (1 - T_rlam ** 0.95) * 0.5 * C_s
+	def cal_Taa(self):
+		for y in range(0,self.Taa.y_len):
+			lam=self.Taa.y_scale[y]*1e6		#in um
+			omega=self.omega.data[0][0][y]
+			tau_a=self.tau_a.data[0][0][y]
 
-	# Aerosol Scattering Component
-	ALG = math.log(1 - 0.65)
-	BFS = ALG * (0.0783 + ALG * (-0.3824 - ALG * 0.5874))
-	AFS = ALG * (1.459 + ALG * (0.1595 + ALG * 0.4129))
-	F_s = 1 - 0.5 * math.exp((AFS + BFS * math.cos(Z_rad)) * math.cos(Z_rad))
-	T_aslam = np.exp(-OMEGL * DELA * M)
-	I_alam = ext_ter_spec * D * math.cos(Z_rad) * T_olam * T_ulam * T_wlam * T_aalam * (T_rlam ** 1.5) * (
-	1 - T_aslam) * F_s * C_s
+			self.Taa.data[0][0][y] = exp(-(1-omega)*tau_a*self.M)
 
+	def cal_TaaP(self):
+		for y in range(0,self.TaaP.y_len):
+			lam=self.TaaP.y_scale[y]*1e6		#in um
+			omega=self.omega.data[0][0][y]
+			tau_a=self.tau_a.data[0][0][y]
+
+			self.TaaP.data[0][0][y] = exp(-(1-omega)*tau_a*1.8)
 
 
-	I_diffuse = I_rlam + I_alam  # +I_glam
+	def cal_Cs(self):
+		for y in range(0,self.Cs.y_len):
+			lam=self.Cs.y_scale[y]*1e6		#in um
+			if lam<0.45:			
+				self.Cs.data[0][0][y] = pow(lam+0.55,1.8)
+			else:
+				self.Cs.data[0][0][y] = 1.0				
 
-	I_total = I_direct + I_diffuse
+	def cal_Tas(self):
+		for y in range(0,self.Tas.y_len):
+			lam=self.Tas.y_scale[y]*1e6		#in um
+			omega=self.omega.data[0][0][y]
+			tau_a=self.tau_a.data[0][0][y]
 
-	# Solar Constant Calc (using trapezium rule to integrate I_total over wavelengths)
-	solar_const = 0
+			self.Tas.data[0][0][y] = exp(-omega*tau_a*self.M)
 
-	for i in range(1,len(I_total)):
-		solar_const = solar_const + 0.5*(lam[i]-lam[i-1])*(I_total[i]+I_total[i-1])
+	def cal_TasP(self):
+		for y in range(0,self.TasP.y_len):
+			lam=self.TasP.y_scale[y]*1e6		#in um
+			omega=self.omega.data[0][0][y]
+			tau_a=self.tau_a.data[0][0][y]
 
-	#ETR
-	wb = openpyxl.load_workbook(filename=file_location)
-	sheet_ranges = wb['Sheet1']
-	vals = sheet_ranges['A1:B122']
-	vals_array = []
-	for row in vals:
-		vals_array.append(list(map(lambda cell: float(cell.value), row)))
+			self.TasP.data[0][0][y] = exp(-omega*tau_a*1.8)
 
-	vals1 = np.array(vals_array)
 
-	lumin = vals1[0:122,1]
-
-	#luminosity
-
-	luminosity = 0
-
-	for i in range(0, len(lam)):
-		luminosity = luminosity + 683*10**(-3)*lumin[i]*I_total[i]
-
-	#print(luminosity)
-
-	return lam, I_direct, I_diffuse, I_total, lam_bb, sol, ext_ter_spec, solar_const
+	def cal_Fs(self):
+		self.ALG=log(1.0-0.65)
+		self.AFS=self.ALG*(1.459+self.ALG*(0.1595+self.ALG*0.4129))
+		self.BFS=self.ALG*(0.0783+self.ALG*(-0.3824-self.ALG*0.5874))
+		self.Fs=1.0-0.5*exp((self.AFS+self.BFS*cos(self.Z_rad))*cos(self.Z_rad))
 

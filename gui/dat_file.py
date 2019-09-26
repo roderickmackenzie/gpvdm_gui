@@ -382,9 +382,9 @@ class dat_file():
 		self.z_units=""
 		self.data_units=""
 
-		self.r=1.0
-		self.g=0.0
-		self.b=0.0
+		self.r=None
+		self.g=None
+		self.b=None
 
 
 		self.x_mul=1.0
@@ -439,7 +439,72 @@ class dat_file():
 		self.file_name=None
 
 	def rgb(self):
+		if self.r==None:
+			return None
+
 		return format(int(self.r*255), '02x')+format(int(self.g*255), '02x')+format(int(self.b*255), '02x')
+
+	def pow(self,val):
+		a=dat_file()
+		a.copy(self)
+
+		for z in range(0,len(self.z_scale)):
+			for x in range(0,len(self.x_scale)):
+				for y in range(0,len(self.y_scale)):
+					a.data[z][x][y]=pow(self.data[z][x][y],val)
+		return a		
+
+	def __sub__(self,val):
+		a=dat_file()
+		a.copy(self)
+
+		for z in range(0,len(self.z_scale)):
+			for x in range(0,len(self.x_scale)):
+				for y in range(0,len(self.y_scale)):
+					a.data[z][x][y]=self.data[z][x][y]-val
+		return a
+
+	def __add__(self,val):
+		a=dat_file()
+		a.copy(self)
+		if type(val)==float:
+			for z in range(0,len(self.z_scale)):
+				for x in range(0,len(self.x_scale)):
+					for y in range(0,len(self.y_scale)):
+						a.data[z][x][y]=self.data[z][x][y]+val
+		else:
+			for z in range(0,len(self.z_scale)):
+				for x in range(0,len(self.x_scale)):
+					for y in range(0,len(self.y_scale)):
+						a.data[z][x][y]=self.data[z][x][y]+val.data[z][x][y]
+
+		return a
+
+	def __truediv__(self,in_data):
+		a=dat_file()
+		a.copy(self)
+
+		for z in range(0,len(self.z_scale)):
+			for x in range(0,len(self.x_scale)):
+				for y in range(0,len(self.y_scale)):
+					a.data[z][x][y]=self.data[z][x][y]/in_data.data[z][x][y]
+		return a
+
+	def __rsub__(self,val):
+		a=dat_file()
+		a.copy(self)
+
+		for z in range(0,len(self.z_scale)):
+			for x in range(0,len(self.x_scale)):
+				for y in range(0,len(self.y_scale)):
+					a.data[z][x][y]=val-self.data[z][x][y]
+		return a
+
+	def set_float(self,val):
+		for z in range(0,len(self.z_scale)):
+			for x in range(0,len(self.x_scale)):
+				for y in range(0,len(self.y_scale)):
+					self.data[z][x][y]=val
 
 	def __mul__(self,in_data):
 		a=dat_file()
@@ -457,7 +522,10 @@ class dat_file():
 						a.data[z][x][y]=in_data.data[z][x][y]*self.data[z][x][y]
 
 		return a
-		
+
+	def __rmul__(self, in_data):
+		return self.__mul__(in_data)
+
 	def copy(self,in_data):
 		self.x_len=in_data.x_len
 		self.y_len=in_data.y_len
@@ -474,6 +542,11 @@ class dat_file():
 		for i in range(0,len(self.z_scale)):
 			self.z_scale[i]=in_data.z_scale[i]
 
+		self.y_mul=in_data.y_mul
+		self.y_units=in_data.y_units
+		self.data_mul=in_data.data_mul
+		self.data_units=in_data.data_units
+
 	def init_mem(self):
 		if self.type=="poly":
 			return
@@ -482,6 +555,7 @@ class dat_file():
 		self.x_scale= [0.0]*self.x_len
 		self.y_scale= [0.0]*self.y_len
 		self.z_scale= [0.0]*self.z_len
+		self.valid_data=True
 
 	def decode_poly_lines(self,lines):
 		build=[]
@@ -531,10 +605,10 @@ class dat_file():
 		return True
 
 	def load(self,file_name,guess=True):
-		self.valid_data=False
 		self.file_name=file_name
 
 		if file_name==None:
+			self.valid_data=False
 			return False
 
 		if os.path.isfile(file_name)==True:
@@ -564,6 +638,7 @@ class dat_file():
 			else:
 				return False
 			if self.x_len==False:
+				self.valid_data=False
 				print("No idea what to do with this file!",file_name)
 				return False
 
@@ -678,7 +753,6 @@ class dat_file():
 		if data_started==False:
 			return False
 
-		self.valid_data=True
 		return True
 
 	def save_as_csv(self,file_name):
@@ -769,7 +843,7 @@ class dat_file():
 		if self.z_units!="":
 			lines.append("#y_units "+str(self.z_units))
 
-		if self.rgb!="":
+		if self.rgb()!=None:
 			lines.append("#rgb "+str(self.rgb()))
 
 		if self.data_units!="":

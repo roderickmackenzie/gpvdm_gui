@@ -118,9 +118,8 @@ class class_optical(QWidgetSavePos):
 		self.plot_widgets=[]
 		self.progress_window.start()
 		for i in range(0,len(input_files)):
-			self.plot_widgets.append(plot_widget())
+			self.plot_widgets.append(plot_widget(enable_toolbar=False))
 			self.plot_widgets[i].hide_title=True
-			self.plot_widgets[i].init(enable_toolbar=False)
 			self.plot_widgets[i].set_labels([plot_labels[0]])
 			self.plot_widgets[i].load_data([input_files[i]])
 			#self.plot_widgets[i].watermark_alpha=0.5

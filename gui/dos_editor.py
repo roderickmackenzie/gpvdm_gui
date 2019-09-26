@@ -475,8 +475,7 @@ class dos_editor(QWidget):
 
 		hbox=QHBoxLayout()
 
-		self.plot=plot_widget()
-		self.plot.init(enable_toolbar=False)
+		self.plot=plot_widget(enable_toolbar=False)
 		self.plot.set_labels([_("LUMO"),_("HOMO"),_("LUMO numerical"),_("HOMO numerical")])
 		self.plot.load_data([os.path.join(self.dos_dir,"lumo.dat"),os.path.join(self.dos_dir,"homo.dat"),os.path.join(self.dos_dir,"lumo_numberical.dat"),os.path.join(self.dos_dir,"homo_numberical.dat")])
 

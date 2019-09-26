@@ -202,6 +202,45 @@ class plot_widget(QWidget):
 				self.ax[0].set_zticklabels(zticks_txt)
 		self.done_log=True
 
+	def setup_axis(self):
+		this_plot=[]
+		for d in self.data:
+			this_plot.append(os.path.basename(d.file_name))
+
+		if (this_plot==self.last_plot)==False:
+
+			self.fig.clf()
+			self.fig.subplots_adjust(bottom=0.2)
+			self.fig.subplots_adjust(bottom=0.2)
+			self.fig.subplots_adjust(left=0.1)
+			self.fig.subplots_adjust(hspace = .001)
+
+			if self.plot_type=="linegraph":
+				for i in range(0,len(self.data)):
+					self.ax.append(self.fig.add_subplot(111,facecolor='white'))
+			if self.plot_type=="rgb":
+				for i in range(0,len(self.data)):
+					self.ax.append(self.fig.add_subplot(111,facecolor='white'))
+			elif self.plot_type=="wireframe":
+				self.ax=[self.fig.add_subplot(111,facecolor='white' ,projection='3d')]
+			elif self.plot_type=="heat":
+				for i in range(0,len(self.data)):
+					self.ax.append(self.fig.add_subplot(111,facecolor='white'))
+			elif self.plot_type=="3d":
+				for i in range(0,len(self.data)):
+					self.ax.append(self.fig.add_subplot(111,facecolor='white' ,projection='3d'))
+		else:
+			if self.plot_type=="3d":
+				for a in self.ax:
+					for c in a.collections:
+						c.remove()
+			else:
+				for a in self.ax:
+					a.clear()
+		self.last_plot=[]
+		for d in self.data:
+			self.last_plot.append(os.path.basename(d.file_name))
+
 	def do_plot(self):
 		if len(self.data)==0:
 			return
@@ -211,20 +250,20 @@ class plot_widget(QWidget):
 
 		key_text=[]
 
-		dim=""
+		self.plot_type=""
 		if self.data[0].type=="rgb":
-			dim="rgb"
+			self.plot_type="rgb"
 		else:
 			if self.data[0].x_len==1 and self.data[0].z_len==1:
-				dim="linegraph"
+				self.plot_type="linegraph"
 			elif self.data[0].x_len>1 and self.data[0].y_len>1 and self.data[0].z_len==1:
 				if self.data[0].type=="3d":
-					dim="wireframe"
+					self.plot_type="wireframe"
 				if self.data[0].type=="heat":
-					dim="heat"
+					self.plot_type="heat"
 			elif self.data[0].x_len>1 and self.data[0].y_len>1 and self.data[0].z_len>1:
 				print("ohhh full 3D")
-				dim="3d"
+				self.plot_type="3d"
 			else:
 				print(_("I don't know how to process this type of file!"),self.data[0].x_len, self.data[0].y_len,self.data[0].z_len)
 				return
@@ -239,59 +278,25 @@ class plot_widget(QWidget):
 
 			self.setWindowTitle(title+" - www.gpvdm.com")
 
-		this_plot=[]
-		for f in self.input_files:
-			this_plot.append(os.path.basename(f))
-
-		if (this_plot==self.last_plot)==False:
-
-			self.fig.clf()
-			self.fig.subplots_adjust(bottom=0.2)
-			self.fig.subplots_adjust(bottom=0.2)
-			self.fig.subplots_adjust(left=0.1)
-			self.fig.subplots_adjust(hspace = .001)
-
-			if dim=="linegraph":
-				for i in range(0,len(self.input_files)):
-					self.ax.append(self.fig.add_subplot(111,facecolor='white'))
-			if dim=="rgb":
-				for i in range(0,len(self.input_files)):
-					self.ax.append(self.fig.add_subplot(111,facecolor='white'))
-			elif dim=="wireframe":
-				self.ax=[self.fig.add_subplot(111,facecolor='white' ,projection='3d')]
-			elif dim=="heat":
-				for i in range(0,len(self.input_files)):
-					self.ax.append(self.fig.add_subplot(111,facecolor='white'))
-			elif dim=="3d":
-				for i in range(0,len(self.input_files)):
-					self.ax.append(self.fig.add_subplot(111,facecolor='white' ,projection='3d'))
-		else:
-			for a in self.ax:
-				for c in a.collections:
-					c.remove()#print(c.get_gid())
-				#a.cla()
-
-		self.last_plot=[]
-		for f in self.input_files:
-			self.last_plot.append(os.path.basename(f))
+		self.setup_axis()
 
 
 		all_plots=[]
 		files=[]
 		my_max=1.0
 
-		if dim=="linegraph":		#This is for the 1D graph case
+		if self.plot_type=="linegraph":		#This is for the 1D graph case
 			self.ax[0].set_xlabel(self.data[0].y_label+" ("+str(self.data[0].y_units)+")")
 			self.ax[0].set_ylabel(self.data[0].data_label+" ("+self.data[0].data_units+")")
 
-			for i in range(0,len(self.input_files)):
+			for i in range(0,len(self.data)):
 				if self.data[0].logy==True:
 					self.ax[i].set_xscale("log")
 
 				if self.data[0].logdata==True:
 					self.ax[i].set_yscale("log")
 
-				if self.data[i].rgb()!="":
+				if self.data[i].rgb()!=None:
 					col="#"+self.data[i].rgb()
 				else:
 					col=get_color(i)
@@ -321,7 +326,7 @@ class plot_widget(QWidget):
 
 
 				#print(self.data[i].labels)
-		elif dim=="wireframe":
+		elif self.plot_type=="wireframe":
 
 			self.ax[0].set_xlabel(self.data[0].x_label+" ("+self.data[0].x_units+")")
 			self.ax[0].set_ylabel(self.data[0].y_label+" ("+self.data[0].y_units+")")
@@ -331,7 +336,7 @@ class plot_widget(QWidget):
 
 			if self.force_data_max==False:
 				my_max,my_min=dat_file_max_min(self.data[0])
-				for i in range(0,len(self.input_files)):
+				for i in range(0,len(self.data)):
 					my_max,my_min=dat_file_max_min(self.data[i],cur_min=my_min,cur_max=my_max)
 			else:
 				my_max=self.force_data_max
@@ -339,7 +344,7 @@ class plot_widget(QWidget):
 
 			self.ax[0].set_zlim(my_min, my_max)
 
-			for i in range(0,len(self.input_files)):
+			for i in range(0,len(self.data)):
 
 				if self.data[i].logx==True:
 					self.ax[i].set_xscale("log")
@@ -352,18 +357,18 @@ class plot_widget(QWidget):
 
 				# Plot the surface
 				col=get_color(i)
-				if os.path.basename(self.input_files[i])=="imat.dat":
+				if os.path.basename(self.data[i])=="imat.dat":
 					im=self.ax[0].contourf( Y,X, Z,color=col)
 				else:
 					im=self.ax[0].plot_wireframe( Y,X, Z,color=col)
 				#im=self.ax[0].contourf( Y,X, Z,color=col)
 
 #cset = ax.contourf(X, Y, Z, zdir='y', offset=40, cmap=cm.coolwarm)
-		elif dim=="heat":
+		elif self.plot_type=="heat":
 			self.ax[0].set_xlabel(self.data[0].x_label+" ("+self.data[0].x_units+")")
 			self.ax[0].set_ylabel(self.data[0].y_label+" ("+self.data[0].y_units+")")
 			my_max,my_min=dat_file_max_min(self.data[0])
-			for i in range(0,len(self.input_files)):
+			for i in range(0,len(self.data)):
 				if self.data[i].logdata==True:
 					if my_min==0:
 						my_min=1.0
@@ -373,7 +378,7 @@ class plot_widget(QWidget):
 
 				self.fig.colorbar(im)
 
-		elif dim=="3d":
+		elif self.plot_type=="3d":
 			self.ax[0].set_xlabel(self.data[0].x_label+" ("+self.data[0].x_units+")")
 			self.ax[0].set_ylabel(self.data[0].y_label+" ("+self.data[0].y_units+")")
 			self.ax[0].set_zlabel(self.data[0].z_label+" ("+self.data[0].z_units+")")
@@ -391,7 +396,7 @@ class plot_widget(QWidget):
 				self.ax[i].set_xlim3d(0, self.data[i].x_scale[-1])
 				self.ax[i].set_ylim3d(0, self.data[i].y_scale[-1])
 				self.ax[i].set_zlim3d(0, self.data[i].z_scale[-1])
-		elif dim=="rgb":
+		elif self.plot_type=="rgb":
 			self.ax[0].set_xlabel(self.data[0].y_label+" ("+str(self.data[0].y_units)+")")
 			self.ax[0].set_ylabel(self.data[0].data_label+" ("+self.data[0].data_units+")")
 			self.ax[0].imshow(self.data[0].data[0],extent=[self.data[i].y_scale[0],self.data[i].y_scale[-1],0,20])		#
@@ -482,8 +487,8 @@ class plot_widget(QWidget):
 				return
 
 			if self.zero_frame_enable==True:
-				if len(self.input_files)>1:
-					for i in range(1,len(self.input_files)):
+				if len(self.data)>1:
+					for i in range(1,len(self.data)):
 						dat_file_sub(self.data[i],self.data[0])
 					
 					dat_file_sub(self.data[0],self.data[0])
@@ -503,18 +508,18 @@ class plot_widget(QWidget):
 							self.data[i].data[z][x][y]=self.data[i].data[z][x][y]*self.data[i].data_mul
 
 			if self.data[0].invert_y==True:
-				for i in range(0,len(self.input_files)):
+				for i in range(0,len(self.data)):
 					dat_file_mul(self.data[i],-1)
 
 			if self.data[0].subtract_first_point==True:
 				val=self.data[0].data[0][0][0]
-				for i in range(0,len(self.input_files)):
+				for i in range(0,len(self.data)):
 					dat_file_sub_float(self.data[i],val)
 
 
 			if self.data[0].add_min==True:
 				my_max,my_min=dat_file_max_min(self.data[0])
-				for i in range(0,len(self.input_files)):
+				for i in range(0,len(self.data)):
 					dat_file_sub_float(self.data[i],my_min)
 
 
@@ -529,13 +534,13 @@ class plot_widget(QWidget):
 			#all_max=1.0
 			#if self.plot_token.norm_to_peak_of_all_data==True:
 				#my_max=-1e40
-				#for i in range(0, len(self.input_files)):
+				#for i in range(0, len(self.data)):
 					#local_max,my_min=dat_file_max_min(self.data[i])
 					#if local_max>my_max:
 						#my_max=local_max
 				#all_max=my_max
 
-			#for i in range(0, len(self.input_files)):
+			#for i in range(0, len(self.data)):
 				#if all_max!=1.0:
 					#for x in range(0,data.x_len):
 						#for y in range(0,data.y_len):
@@ -570,7 +575,7 @@ class plot_widget(QWidget):
 		self.fix_scales=not self.fix_scales
 		if self.fix_scales==True:
 			my_max,my_min=dat_file_max_min(self.data[0])
-			for i in range(0,len(self.input_files)):
+			for i in range(0,len(self.data)):
 				my_max,my_min=dat_file_max_min(self.data[i],cur_min=my_min,cur_max=my_max)
 			self.force_data_max=my_max
 			self.force_data_min=my_min
@@ -617,7 +622,7 @@ class plot_widget(QWidget):
 		ret=ret.get_values()
 		if ret!=False:
 			[a,b,c,d,e,f] = ret
-			#print("---------",a,b,c,d,e,f)
+
 			self.data[0].x_start=float(a)
 			self.data[0].x_stop=float(b)
 			self.data[0].x_points=float(c)
@@ -654,7 +659,7 @@ class plot_widget(QWidget):
 	def callback_refresh(self):
 		self.update()
 
-	def __init__(self):
+	def __init__(self,enable_toolbar=True):
 		QWidget.__init__(self)
 
 		self.watermark_alpha=0.05
@@ -670,7 +675,6 @@ class plot_widget(QWidget):
 		self.ax=[]
 		self.last_plot=[]
 
-	def init(self,enable_toolbar=True):
 		self.main_vbox = QVBoxLayout()
 		self.fig = Figure(figsize=(2.5,2), dpi=100)
 		self.canvas = FigureCanvas(self.fig)  # a gtk.DrawingArea

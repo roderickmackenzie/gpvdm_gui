@@ -53,7 +53,7 @@ from tb_spectrum import tb_spectrum
 from util import wrap_text
 
 from ribbon_base import ribbon_base
-
+from play import play
 class ribbon_solar(ribbon_base):
 
 	def optics(self):
@@ -61,7 +61,7 @@ class ribbon_solar(ribbon_base):
 		toolbar.setToolButtonStyle( Qt.ToolButtonTextUnderIcon)
 		toolbar.setIconSize(QSize(42, 42))
 		
-		self.run = QAction(icon_get("media-playback-start"), wrap_text(_("Calculate"),5), self)
+		self.run = play(self,"main_play_button",run_text=wrap_text(_("Calculate"),2))
 		toolbar.addAction(self.run)
 		
 		self.export = QAction(icon_get("document-export"), wrap_text(_("Export spectrum"),5), self)

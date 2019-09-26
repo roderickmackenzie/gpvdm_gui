@@ -118,6 +118,8 @@ file_list.append(file_type(name="laser",dest="archive",copy_opp=file_type().MERG
 file_list.append(file_type(name="jv",dest="archive",copy_opp=file_type().MERGE,base_file="jv0.inp"))
 file_list.append(file_type(name="pl_ss",dest="archive",copy_opp=file_type().MERGE,base_file="pl_ss0.inp"))
 
+file_list.append(file_type(name="spectral2.inp",copy_opp=file_type().MERGE))
+
 file_list.append(file_type(name="ver.inp",copy_opp=file_type().MERGE))
 file_list.append(file_type(name="sim.ref",copy_opp=file_type().JUST_COPY))
 file_list.append(file_type(name="sim.inp",copy_opp=file_type().MERGE))

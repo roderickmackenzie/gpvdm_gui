@@ -31,11 +31,12 @@ from PyQt5.QtGui import QIcon
 
 import os
 
-from solar_planet import planet
 from ribbon_solar import ribbon_solar
 
 from icon_lib import icon_get
 from PyQt5.QtCore import pyqtSignal
+
+from spectral2_gui import spectral2_gui
 
 class solar_spectrum_gen_window(QWidget):
 
@@ -52,32 +53,24 @@ class solar_spectrum_gen_window(QWidget):
 		self.ribbon = ribbon_solar()
 		self.vbox.addWidget(self.ribbon)
 		
-		self.ribbon.run.triggered.connect(self.callback_run)
+		self.ribbon.run.clicked.connect(self.callback_run)
 
-		self.ribbon.export.triggered.connect(self.callback_export)
+		#self.ribbon.export.triggered.connect(self.callback_export)
 		
 		self.setWindowTitle(_("Solar Spectrum Generator")+" (https://www.gpvdm.com)")
-		self.center()
+
 
 		self.notebook = QTabWidget()
 
 		self.vbox.addWidget(self.notebook)
-
-		earth = planet(self.export_file_name)
-		earth.set_earth(True)
-		self.notebook.addTab(earth,"Earth")
-
+		self.spectral2_gui=spectral2_gui()
+		self.notebook.addTab(self.spectral2_gui,"SPECTRAL2")
 		self.setLayout(self.vbox)
 
 
 	def callback_run(self):
 		tab = self.notebook.currentWidget()
-		tab.update()
-
-	def callback_export(self):
-		tab = self.notebook.currentWidget()
-		tab.export()
-		self.update.emit()
+		tab.calculate()
 
 
 	def save(self):
@@ -86,9 +79,4 @@ class solar_spectrum_gen_window(QWidget):
 	def copy(self):
 		self.notebook.currentWidget().copy2clip()
 
-	def center(self):
-		qr = self.frameGeometry()
-		cp = QDesktopWidget().availableGeometry().center()
-		qr.moveCenter(cp)
-		self.move(qr.topLeft())
 

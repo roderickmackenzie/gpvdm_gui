@@ -66,7 +66,6 @@ class plot_window(QWidget):
 			self.shown=True
 
 			self.plot=plot_widget()
-			self.plot.init()
 
 			if len(plot_labels)==0:
 				for i in range(0,len(input_files)):

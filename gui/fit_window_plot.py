@@ -89,8 +89,7 @@ class fit_window_plot(QWidget):
 		self.vbox=QVBoxLayout()
 		self.index=index
 
-		self.plot_widget=plot_widget()
-		self.plot_widget.init(enable_toolbar=False)
+		self.plot_widget=plot_widget(enable_toolbar=False)
 		self.vbox.addWidget(self.plot_widget)
 		
 		self.setLayout(self.vbox)

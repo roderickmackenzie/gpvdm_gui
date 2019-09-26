@@ -58,6 +58,7 @@ from inp import inp_get_token_value
 from inp import inp_update_token_value
 
 from QAction_lock import QAction_lock
+from solar_spectrum_gen_window import solar_spectrum_gen_window
 
 class ribbon_configure(QToolBar):
 	def __init__(self):
@@ -82,6 +83,11 @@ class ribbon_configure(QToolBar):
 		self.pl = QAction_lock("thermal", _("Temperature"), self,"ribbon_config_temperature")
 		self.pl.clicked.connect(self.callback_thermal)
 		self.addAction(self.pl)
+
+		self.solar = QAction_lock("weather-few-clouds", _("Solar spectrum\ngenerator"), self,"solar_spectrum_tool")
+		self.solar.clicked.connect(self.callback_solar)
+		self.addAction(self.solar)
+
 
 	def callback_thermal(self):
 		temp=inp_get_token_value("thermal.inp", "#Tll")
@@ -124,4 +130,11 @@ class ribbon_configure(QToolBar):
 		#self.config_window.changed.connect(self.dump.refresh)
 
 		help_window().help_set_help(["preferences-system.png",_("<big><b>Configuration editor</b></big><br> Use this window to control advanced simulation parameters.")])
+
+			
+	def callback_solar(self):
+
+		self.solar_window=solar_spectrum_gen_window()
+
+		self.solar_window.show()
 

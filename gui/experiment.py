@@ -60,7 +60,7 @@ from experiment_util import experiment_new_filename
 
 from css import css_apply
 
-from progress import progress_class
+from progress_class import progress_class
 from process_events import process_events
 
 from timedomain_ribbon import timedomain_ribbon

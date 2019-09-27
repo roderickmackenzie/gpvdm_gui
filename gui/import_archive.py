@@ -54,7 +54,7 @@ from util_zip import extract_file_from_archive
 from inp_util import inp_merge
 from cal_path import get_default_material_path
 
-from progress import progress_class
+from progress_class import progress_class
 from process_events import process_events
 import re
 

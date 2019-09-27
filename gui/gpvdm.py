@@ -32,6 +32,8 @@ import sys
 
 #paths
 sys.path.append('./gui/')
+sys.path.append('./gui/base')
+sys.path.append('./base')
 sys.path.append('/usr/lib/gpvdm/')
 sys.path.append('/usr/lib64/gpvdm/')
 sys.path.append('/usr/share/gpvdm/gui/')	#debian

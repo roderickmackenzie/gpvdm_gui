@@ -32,7 +32,7 @@ from shutil import copyfile
 from cal_path import get_base_material_path
 from cal_path import subtract_paths
 from materials_io import find_materials
-from progress import progress_class
+from progress_class import progress_class
 from process_events import process_events
 
 def clone_material(dest_material_dir,src_material_dir):

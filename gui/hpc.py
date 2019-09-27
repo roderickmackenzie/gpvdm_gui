@@ -43,7 +43,7 @@ from PyQt5.QtWidgets import QWidget,QSizePolicy,QHBoxLayout,QPushButton,QDialog,
 from about import about_dlg
 from error_dlg import error_dlg
 
-from progress import progress_class
+from progress_class import progress_class
 from server import server_get
 
 class node_indicator(QWidget):

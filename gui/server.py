@@ -27,7 +27,9 @@
 
 import sys
 import os
+
 from str2bool import str2bool
+
 from inp import inp_get_token_value
 import threading
 import multiprocessing
@@ -39,7 +41,7 @@ from time import sleep
 from win_lin import running_on_linux
 import subprocess
 from util import gui_print_path
-from progress import progress_class
+from progress_class import progress_class
 
 from cal_path import get_exe_command
 from sim_warnings import sim_warnings
@@ -111,12 +113,13 @@ class base_server():
 		self.finished_jobs=[]
 		self.start_time=0
 		self.jobs_per_second=0
+		self.pipe_to_null=True
 
 	def base_server_init(self,sim_dir):
 		self.sim_dir=sim_dir
 
 
-		
+
 	def base_server_add_job(self,path,arg):
 		j=job()
 		j.path=path
@@ -166,7 +169,11 @@ class base_server():
 			path,command=self.base_server_get_next_job_to_run(lock_file=True)
 			if path!=False:
 				cmd="cd "+path+";"
-				cmd=cmd+command+" >/dev/null &\n"#" >"+"/fast/p3htpcbm/"+path+"/rod.dat &\n"
+				cmd=cmd+command
+				if self.pipe_to_null==True:
+					cmd=cmd+" >/dev/null &"
+				cmd=cmd+"\n"
+
 				#print(cmd)
 				#aeds
 				os.system(cmd)

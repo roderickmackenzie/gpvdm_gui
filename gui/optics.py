@@ -36,7 +36,7 @@ import glob
 from scan_item import scan_item_add
 from tab import tab_class
 import webbrowser
-from progress import progress_class
+from progress_class import progress_class
 from help import my_help_class
 
 #path

@@ -42,7 +42,7 @@ from math import isnan
 import i18n
 _ = i18n.language.gettext
 
-from progress import progress_class
+from progress_class import progress_class
 from process_events import process_events
 from server import server_break
 from util_zip import zip_lsdir

@@ -493,7 +493,7 @@ class gpvdm_viewer(QListWidget):
 
 								itm.file_name=fl
 								itm.icon="color"
-							elif text.startswith(b"#gpvdm"):
+							elif text.startswith(b"#"):
 								itm.file_name=fl
 								itm.icon="dat_file"
 							else:

@@ -30,7 +30,7 @@ import os
 #import glob
 import zipfile
 #from util_zip import archive_add_file
-from progress import progress_class
+from progress_class import progress_class
 from process_events import process_events
 from cal_path import remove_cwdfrompath
 

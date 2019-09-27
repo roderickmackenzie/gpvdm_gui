@@ -93,7 +93,7 @@ from cal_path import get_sim_path
 
 from scan_ml import scan_ml_build_vector
 
-from progress import progress_class
+from progress_class import progress_class
 from process_events import process_events
 
 from scan_io import scan_archive

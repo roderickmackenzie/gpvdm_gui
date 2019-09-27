@@ -54,7 +54,7 @@ from icon_lib import icon_get
 
 from update_io import update_cache
 
-from progress import progress_class
+from progress_class import progress_class
 from process_events import process_events
 from msg_dlg import msg_dlg
 

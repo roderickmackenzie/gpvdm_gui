@@ -37,7 +37,7 @@ from inp import inp_load_file
 from inp import inp_search_token_value
 
 from disk_speed import disk_test
-from progress import progress_class
+from progress_class import progress_class
 from PyQt5.QtGui import QFont
 from gpvdm_progress import gpvdm_progress
 

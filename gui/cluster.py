@@ -60,7 +60,7 @@ import i18n
 _ = i18n.language.gettext
 import zlib
 from cal_path import get_src_path
-from progress import progress_class
+from progress_class import progress_class
 
 from gui_enable import gui_get
 from process_events import process_events

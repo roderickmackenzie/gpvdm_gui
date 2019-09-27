@@ -63,7 +63,7 @@ from QWidgetSavePos import QWidgetSavePos
 from experiment_util import experiment_new_filename
 from fx_ribbon import fx_ribbon
 
-from progress import progress_class
+from progress_class import progress_class
 from process_events import process_events
 from global_objects import global_object_run
 

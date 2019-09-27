@@ -43,7 +43,7 @@ from scan_tree import tree_save_flat_list
 from server_io import server_find_simulations_to_run
 
 
-from progress import progress_class
+from progress_class import progress_class
 from process_events import process_events
 from server import server_break
 from numpy import std

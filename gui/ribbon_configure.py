@@ -60,6 +60,8 @@ from inp import inp_update_token_value
 from QAction_lock import QAction_lock
 from solar_spectrum_gen_window import solar_spectrum_gen_window
 
+from scripts import scripts
+
 class ribbon_configure(QToolBar):
 	def __init__(self):
 		QToolBar.__init__(self)
@@ -88,6 +90,9 @@ class ribbon_configure(QToolBar):
 		self.solar.clicked.connect(self.callback_solar)
 		self.addAction(self.solar)
 
+		self.solar = QAction_lock("script", _("Script\nEditor"), self,"script_editor")
+		self.solar.clicked.connect(self.callback_script)
+		self.addAction(self.solar)
 
 	def callback_thermal(self):
 		temp=inp_get_token_value("thermal.inp", "#Tll")
@@ -137,4 +142,10 @@ class ribbon_configure(QToolBar):
 		self.solar_window=solar_spectrum_gen_window()
 
 		self.solar_window.show()
+
+	def callback_script(self):
+
+		self.scripts=scripts()
+
+		self.scripts.show()
 

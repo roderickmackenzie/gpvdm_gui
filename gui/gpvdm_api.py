@@ -41,12 +41,13 @@ from cal_path import get_sim_path
 from progress_class import progress_class
 from spectral2 import spectral2
 from inp import inp_update_token_value
+from inp import inp_get_token_value
 
 class gpvdm_api():
 	def __init__(self):
 		self.save_dir=os.getcwd()
 		self.my_server=base_server()
-		self.my_server.pipe_to_null=False
+		self.my_server.pipe_to_null=True
 		self.my_server.base_server_init(get_sim_path())
 
 		print("gpvdm_api")
@@ -57,9 +58,9 @@ class gpvdm_api():
 
 		#inp_update_token_value("dump.inp", "#dump_optics","true")
 		#inp_update_token_value("dump.inp", "#dump_optics_verbose","true")
-		self.my_server.print_jobs()
-		self.my_server.base_server_add_job(get_sim_path(),"")
-		self.my_server.simple_run()
+		#self.my_server.print_jobs()
+		self.my_server.run_now()
+
 
 	def spectral2(self):
 		s=spectral2()
@@ -77,3 +78,5 @@ class gpvdm_api():
 	def edit(self,file_name,token,value):
 		inp_update_token_value(file_name,token,value)
 
+	def get(self,file_name,token):
+		return inp_get_token_value(file_name,token)

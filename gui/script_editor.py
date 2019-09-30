@@ -63,6 +63,7 @@ from PyQt5.QtGui import QFont, QSyntaxHighlighter, QTextCharFormat
 from code_editor import code_editor
 
 from inp import inp_load_file
+from inp import inp_save
 
 class Highlighter(QSyntaxHighlighter):
 	def __init__(self, parent=None):
@@ -153,6 +154,14 @@ class script_editor(code_editor):
 		self.highlighter = Highlighter(self.document())
 
 	def load(self,file_name):
+		self.file_name=file_name
 		lines=inp_load_file(file_name)
 		self.setPlainText("\n".join(lines))
+
+	def save(self):
+		text=self.toPlainText().split("\n")
+		inp_save(self.file_name,text)
+
+	def run(self):
+		os.system("python3 "+self.file_name)
 

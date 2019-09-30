@@ -65,12 +65,12 @@ class mode_button(QAction_lock):
 
 class script_ribbon(ribbon_base):
 
-	def optics(self):
+	def file(self):
 		toolbar = QToolBar()
-		toolbar.setToolButtonStyle( Qt.ToolButtonTextUnderIcon)
-		toolbar.setIconSize(QSize(42, 42))
+		toolbar.setToolButtonStyle( Qt.ToolButtonTextBesideIcon)
+		toolbar.setIconSize(QSize(32, 32))
 		
-		self.run = play(self,"optics_ribbon_run",run_text=wrap_text(_("Run script"),3))
+		self.run = play(self,"scripts_ribbon_run",run_text=wrap_text(_("Run"),3))
 		toolbar.addAction(self.run)
 
 		self.tb_save = QAction_lock("document-save", _("Save"), self,"ribbion_script_save")
@@ -103,8 +103,8 @@ class script_ribbon(ribbon_base):
 
 		self.setCornerWidget(self.about)
 
-		w=self.optics()
-		self.addTab(w,_("Optics"))
+		w=self.file()
+		self.addTab(w,_("File"))
 
 		sheet=self.readStyleSheet(os.path.join(get_css_path(),"style.css"))
 		if sheet!=None:

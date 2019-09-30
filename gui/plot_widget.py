@@ -234,9 +234,12 @@ class plot_widget(QWidget):
 				for a in self.ax:
 					for c in a.collections:
 						c.remove()
+			elif self.plot_type=="heat":
+				self.fig.clf()
 			else:
 				for a in self.ax:
 					a.clear()
+
 		self.last_plot=[]
 		for d in self.data:
 			self.last_plot.append(os.path.basename(d.file_name))

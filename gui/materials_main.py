@@ -126,8 +126,7 @@ class materials_main(QWidgetSavePos):
 		self.main_vbox.addWidget(self.notebook)
 
 		fname=os.path.join(self.path,"alpha.gmat")
-		self.alpha=plot_widget()
-		self.alpha.init(enable_toolbar=False)
+		self.alpha=plot_widget(enable_toolbar=False)
 		self.alpha.set_labels([_("Absorption")])
 		self.alpha.load_data([fname])
 
@@ -135,8 +134,7 @@ class materials_main(QWidgetSavePos):
 		self.notebook.addTab(self.alpha,_("Absorption"))
 
 		fname=os.path.join(self.path,"n.gmat")
-		self.n=plot_widget()
-		self.n.init(enable_toolbar=False)
+		self.n=plot_widget(enable_toolbar=False)
 		self.n.set_labels([_("Refractive index")])
 		self.n.load_data([fname])
 		self.n.do_plot()

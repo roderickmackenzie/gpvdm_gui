@@ -107,6 +107,9 @@ class base_server():
 		self.cpus=multiprocessing.cpu_count()
 		if self.cpus>4:
 			self.cpus=self.cpus-2
+		self.clear_jobs()
+
+	def clear_jobs(self):
 		self.jobs=[]
 		self.jobs_running=0
 		self.jobs_run=0
@@ -118,8 +121,6 @@ class base_server():
 	def base_server_init(self,sim_dir):
 		self.sim_dir=sim_dir
 
-
-
 	def base_server_add_job(self,path,arg):
 		j=job()
 		j.path=path
@@ -128,10 +129,13 @@ class base_server():
 		j.name="job"+str(len(self.jobs))
 		self.jobs.append(j)
 
+	def run_now(self):
+		self.exe_command(os.getcwd(),get_exe_command())
+
 	def check_warnings(self):
 		message=""
 		problem_found=False
-		print(len(self.jobs))
+		#print(len(self.jobs))
 
 		for i in range(0,len(self.jobs)):
 			log_file=os.path.join(self.jobs[i].path,"log.dat")
@@ -162,24 +166,26 @@ class base_server():
 		print("jobs running=",self.jobs_running,"jobs run=",self.jobs_run,"cpus=",self.cpus)
 
 
+	def exe_command(self,path,command):
+		cmd="cd "+path+";"
+		cmd=cmd+command
+		if self.pipe_to_null==True:
+			cmd=cmd+" >/dev/null &"
+		cmd=cmd+"\n"
+		os.system(cmd)
+
 	def base_server_process_jobs(self):
 		path=True
 		while(path!=False):
 			#self.print_jobs()
 			path,command=self.base_server_get_next_job_to_run(lock_file=True)
 			if path!=False:
-				cmd="cd "+path+";"
-				cmd=cmd+command
-				if self.pipe_to_null==True:
-					cmd=cmd+" >/dev/null &"
-				cmd=cmd+"\n"
-
-				#print(cmd)
-				#aeds
-				os.system(cmd)
-				jobs_per_second="%.2f" % self.jobs_per_second
-				self.progress_window.set_text(_("Running job ")+path+" jobs/s="+jobs_per_second)
-				self.progress_window.set_fraction(float(self.jobs_run)/float(len(self.jobs)))
+				self.exe_command(path,command)
+				
+				if len(self.jobs)>1:
+					jobs_per_second="%.2f" % self.jobs_per_second
+					self.progress_window.set_text(_("Running job ")+path+" jobs/s="+jobs_per_second)
+					self.progress_window.set_fraction(float(self.jobs_run)/float(len(self.jobs)))
 
 			else:
 				return
@@ -199,7 +205,7 @@ class base_server():
 		self.remove_lock_files()
 				
 		self.base_server_process_jobs()
-		print(self.sim_dir)
+
 		while(1):
 			ls=os.listdir(self.sim_dir)
 			for i in range(0, len(ls)):

@@ -107,6 +107,15 @@ class spectral2_gui(QWidget):
 		self.water_widget.setLayout(self.water_layout)
 		date_vbox.addWidget(self.water_widget)
 
+		self.no2_widget=QWidget()
+		self.no2_layout=QHBoxLayout()
+		self.no2_label=QLabel("NO2 (cm-1)")
+		self.no2_edit=QLineEdit()
+		self.no2_layout.addWidget(self.no2_label)
+		self.no2_layout.addWidget(self.no2_edit)
+		self.no2_widget.setLayout(self.no2_layout)
+		date_vbox.addWidget(self.no2_widget)
+
 		date_widget.setLayout(date_vbox)
 
 		top_hbox.addWidget(self.plot)
@@ -122,6 +131,8 @@ class spectral2_gui(QWidget):
 		self.aod_edit.setText(inp_get_token_value("spectral2.inp","#spectral2_aod"))
 		self.preasure_edit.setText(inp_get_token_value("spectral2.inp","#spectral2_preasure"))
 		self.lat_edit.setText(inp_get_token_value("spectral2.inp","#spectral2_lat"))
+		self.no2_edit.setText(inp_get_token_value("spectral2.inp","#spectral2_no2"))
+
 
 		self.calculate()
 
@@ -143,6 +154,8 @@ class spectral2_gui(QWidget):
 		inp_update_token_value("spectral2.inp","#spectral2_aod",self.aod_edit.text())
 		inp_update_token_value("spectral2.inp","#spectral2_preasure",self.preasure_edit.text())
 		inp_update_token_value("spectral2.inp","#spectral2_water",self.water_edit.text())
+		inp_update_token_value("spectral2.inp","#spectral2_no2",self.no2_edit.text())
+
 
 		s=spectral2()
 		s.calc()

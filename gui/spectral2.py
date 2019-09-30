@@ -47,7 +47,8 @@ class spectral2():
 		self.P=1.0		#Preasure 1bar
 		self.aod=0.27	#AOD
 		self.W= 1.42	#precip water
-		
+		self.No2_un=0.0
+
 		self.lat=float(inp_get_token_value("spectral2.inp","#spectral2_lat"))		#51 london
 
 		self.day=float(inp_get_token_value("spectral2.inp","#spectral2_day"))		#80 winter equinox
@@ -57,6 +58,7 @@ class spectral2():
 		self.P=float(inp_get_token_value("spectral2.inp","#spectral2_preasure"))		#Preasure 1bar
 		self.aod=float(inp_get_token_value("spectral2.inp","#spectral2_aod"))	#AOD
 		self.W=float(inp_get_token_value("spectral2.inp","#spectral2_water"))	#precip water
+		self.No2_un=float(inp_get_token_value("spectral2.inp","#spectral2_no2"))
 
 		file_name = os.path.join(get_atmosphere_path(), "SPECTRAL2", "etr.inp")
 		self.etr=dat_file()
@@ -79,12 +81,18 @@ class spectral2():
 		self.au=dat_file()
 		self.au.load(file_name)
 
+		file_name = os.path.join(get_atmosphere_path(), "SPECTRAL2", "no2.inp")
+		self.no2_data=dat_file()
+		self.no2_data.load(file_name)
+
 	def calc(self):
+		self.debug=True
 		self.cal_earth_sun_distance()
 		
 		#zenith
 		self.Z_rad=zenith(self.lat, self.day, self.hour, self.min)
 		self.Z_deg=self.Z_rad*360/2/pi
+		print("Zenith",self.Z_deg)
 
 		if self.Z_deg>90.0:
 			self.Iglobal=dat_file()
@@ -111,12 +119,16 @@ class spectral2():
 		self.Tr=dat_file()
 		self.Tr.copy(self.etr)
 		self.cal_rayleigh()
+		if self.debug==True:
+			self.Tr.save("Tr.dat")
 
 		self.Ta=dat_file()
 		self.Ta.copy(self.etr)
 		self.tau_a=dat_file()
 		self.tau_a.copy(self.etr)
 		self.cal_arosol()
+		if self.debug==True:
+			self.Ta.save("Ta.dat")
 
 		self.Tw=dat_file()
 		self.Tw.copy(self.etr)
@@ -125,12 +137,22 @@ class spectral2():
 		self.To=dat_file()
 		self.To.copy(self.etr)
 		self.cal_ozone()
+		if self.debug==True:
+			self.To.save("To.dat")
 
 		self.Tu=dat_file()
 		self.Tu.copy(self.etr)
 		self.cal_mixed_gas()
+		if self.debug==True:
+			self.Tu.save("Tu.dat")
 
-		self.Id=self.etr*self.D*self.Tr*self.Ta*self.Tw*self.To*self.Tu
+		self.Tno2=dat_file()
+		self.Tno2.copy(self.etr)
+		self.cal_Tno2()
+		if self.debug==True:
+			self.Tno2.save("Tno.dat")
+
+		self.Id=self.etr*self.D*self.Tr*self.Ta*self.Tw*self.To*self.Tu*self.Tno2
 		self.Id.file_name="Idirect.dat"
 		self.Id.key_text="Direct"
 
@@ -139,20 +161,30 @@ class spectral2():
 		self.omega=dat_file()
 		self.omega.copy(self.etr)
 		self.cal_omega()
+		if self.debug==True:
+			self.omega.save("omega.dat")
 
 		self.Taa=dat_file()
 		self.Taa.copy(self.etr)
 		self.cal_Taa()
+		if self.debug==True:
+			self.Taa.save("Taa.dat")
 
 		self.Cs=dat_file()
 		self.Cs.copy(self.etr)
 		self.cal_Cs()
+		if self.debug==True:
+			self.Cs.save("Cs.dat")
 
 		self.Ir=self.etr*self.D*cos(self.Z_rad)*self.To*self.Tu*self.Tw*self.Taa*(1.0-self.Tr.pow(0.95))*self.Cs
+		if self.debug==True:
+			self.Ta.save("Ir.dat")
 
 		self.Tas=dat_file()
 		self.Tas.copy(self.etr)
 		self.cal_Tas()
+		if self.debug==True:
+			self.Tas.save("Tas.dat")
 
 		self.Fs=dat_file()
 		self.Fs.copy(self.etr)
@@ -164,28 +196,42 @@ class spectral2():
 		self.TuP=dat_file()
 		self.TuP.copy(self.etr)
 		self.cal_mixed_gas_P()
+		if self.debug==True:
+			self.TuP.save("TuP.dat")
 
 		self.TwP=dat_file()
 		self.TwP.copy(self.etr)
 		self.cal_water_P()
+		if self.debug==True:
+			self.TwP.save("TwP.dat")
 
 		self.TaaP=dat_file()
 		self.TaaP.copy(self.etr)
 		self.cal_TaaP()
+		if self.debug==True:
+			self.TaaP.save("Taap.dat")
 
 		self.TrP=dat_file()
 		self.TrP.copy(self.etr)
 		self.cal_rayleigh_P()
+		if self.debug==True:
+			self.TrP.save("TrP.dat")
 
 		self.TasP=dat_file()
 		self.TasP.copy(self.etr)
 		self.cal_TasP()
+		if self.debug==True:
+			self.TasP.save("TasP.dat")
 
 		FsP=1.0- 0.5*exp((self.AFS + self.BFS/1.8)/ 1.8 )
 		self.r_s=self.TuP*self.TwP*self.TaaP*(0.5*(1.0-self.TrP)+(1-FsP)*self.TrP*(1.0-self.TasP))
+		if self.debug==True:
+			self.r_s.save("r_s.dat")
 
 		r_g=0.2						#Mohamed
 		self.Ig=(self.Id*cos(self.Z_rad)+self.Ir+self.Ia)*self.r_s*r_g*self.Cs/(1.0-self.r_s*r_g)
+		if self.debug==True:
+			self.Ig.save("Ig.dat")
 
 
 		self.Is=self.Ir+self.Ia+self.Ig
@@ -324,4 +370,12 @@ class spectral2():
 		self.AFS=self.ALG*(1.459+self.ALG*(0.1595+self.ALG*0.4129))
 		self.BFS=self.ALG*(0.0783+self.ALG*(-0.3824-self.ALG*0.5874))
 		self.Fs=1.0-0.5*exp((self.AFS+self.BFS*cos(self.Z_rad))*cos(self.Z_rad))
+
+	def cal_Tno2(self):
+		m_n=pow(cos(self.Z_rad)+6.0230e2*pow(self.Z_deg,0.5)*pow(117.960-self.Z_deg,-3.4536),-1.0)
+		for y in range(0,self.Tno2.y_len):
+			lam=self.Tno2.y_scale[y]*1e6		#in um
+			An=self.no2_data.data[0][0][y]
+			self.Tno2.data[0][0][y] = exp(-m_n*self.No2_un*An )
+
 

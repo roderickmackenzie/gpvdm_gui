@@ -121,7 +121,8 @@ class scripts(QWidgetSavePos):
 		event.accept()
 
 	def callback_save(self):
-		print("callback_save")
+		tab = self.notebook.currentWidget()
+		tab.save()
 
 	def optics_sim_finished(self):
 		inp_update_token_value("dump.inp", "#dump_optics",self.dump_optics)
@@ -130,18 +131,7 @@ class scripts(QWidgetSavePos):
 
 	def force_redraw(self):
 
-		#self.fig_photon_density.my_figure.clf()
-		self.fig_photon_density.draw_graph()
-		#self.fig_photon_density.canvas.draw()
-
-		#self.fig_photon_abs.my_figure.clf()
-		#self.fig_photon_abs.draw_graph()
-		#self.fig_photon_abs.canvas.draw()
-
-		#self.fig_gen_rate.my_figure.clf()
 		self.fig_gen_rate.draw_graph()
-		#self.fig_gen_rate.canvas.draw()
-
 
 		for i in range(0,len(self.plot_widgets)):
 			self.plot_widgets[i].update()
@@ -149,22 +139,8 @@ class scripts(QWidgetSavePos):
 		self.ribbon.update()
 		
 	def callback_run(self):
-		self.my_server=server_get()
-		self.dump_optics=inp_get_token_value("dump.inp", "#dump_optics")
-		self.dump_optics_verbose=inp_get_token_value("dump.inp", "#dump_optics_verbose")
-
-		inp_update_token_value("dump.inp", "#dump_optics","true")
-		inp_update_token_value("dump.inp", "#dump_optics_verbose","true")
-		#pwd=os.getcwd()
-		#os.chdir(get_sim_path())
-		#cmd = get_exe_command()+' --simmode opticalmodel@optics'
-		#print(cmd)
-		#ret= os.system(cmd)
-		#os.chdir(pwd)
-		self.my_server.clear_cache()
-		self.my_server.add_job(get_sim_path(),"--simmode opticalmodel@optics")
-		self.my_server.sim_finished.connect(self.optics_sim_finished)
-		self.my_server.start()
+		tab = self.notebook.currentWidget()
+		tab.run()
 
 
 	def callback_help(self, widget, data=None):

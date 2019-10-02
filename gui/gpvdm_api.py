@@ -33,6 +33,8 @@ import shutil
 from shutil import copyfile
 from cal_path import calculate_paths
 from cal_path import calculate_paths_init
+from cal_path import set_sim_path
+
 calculate_paths_init()
 calculate_paths()
 
@@ -62,6 +64,9 @@ class gpvdm_api():
 		self.my_server.run_now()
 
 
+	def set_sim_path(self,path):
+		set_sim_path(path)
+
 	def spectral2(self):
 		s=spectral2()
 		s.calc()
@@ -76,7 +81,7 @@ class gpvdm_api():
 		copyfile(src, os.path.join(self.save_dir,dest))
 
 	def edit(self,file_name,token,value):
-		inp_update_token_value(file_name,token,value)
+		inp_update_token_value(os.path.join(get_sim_path(),file_name),token,value)
 
 	def get(self,file_name,token):
-		return inp_get_token_value(file_name,token)
+		return inp_get_token_value(os.path.join(get_sim_path(),file_name),token)

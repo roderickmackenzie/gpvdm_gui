@@ -130,7 +130,7 @@ class base_server():
 		self.jobs.append(j)
 
 	def run_now(self):
-		self.exe_command(os.getcwd(),get_exe_command())
+		self.exe_command(get_sim_path(),get_exe_command(),background=False)
 
 	def check_warnings(self):
 		message=""
@@ -166,11 +166,14 @@ class base_server():
 		print("jobs running=",self.jobs_running,"jobs run=",self.jobs_run,"cpus=",self.cpus)
 
 
-	def exe_command(self,path,command):
+	def exe_command(self,path,command,background=True):
 		cmd="cd "+path+";"
 		cmd=cmd+command
 		if self.pipe_to_null==True:
-			cmd=cmd+" >/dev/null &"
+			cmd=cmd+" >/dev/null "
+			if background==True:
+				cmd=cmd+" &"
+
 		cmd=cmd+"\n"
 		os.system(cmd)
 

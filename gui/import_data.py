@@ -57,7 +57,6 @@ from mesh import mesh_get_xlen
 from mesh import mesh_get_zlen
 
 from QWidgetSavePos import QWidgetSavePos
-from dat_file import dat_file_import_filter
 
 from util import wrap_text
 from plot_gen import plot_gen
@@ -419,7 +418,7 @@ class import_data(QDialog):
 		self.out_data.setText(text)
 
 	def update(self):
-		ret=dat_file_import_filter(self.data,self.file_name,x_col=self.x_spin.value(),y_col=self.data_spin.value())
+		ret=self.data.import_data(self.file_name,x_col=self.x_spin.value(),y_col=self.data_spin.value())
 		if ret==True:
 			self.populate_boxes()
 		else:

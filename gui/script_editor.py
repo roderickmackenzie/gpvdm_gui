@@ -76,7 +76,7 @@ class Highlighter(QSyntaxHighlighter):
 		keyword.setFontWeight( QFont.Bold )
 		keywords = [ "break", "else", "for", "if", "in"
 					 "next", "repeat", "return", "switch",
-					 "try", "while" ] 
+					 "try", "while","self" ] 
 		for word in keywords:
 			pattern = QRegExp("\\b" + word + "\\b")
 			self.highlightingRules.append( (pattern, keyword) )
@@ -88,20 +88,28 @@ class Highlighter(QSyntaxHighlighter):
 			pattern = QRegExp(word + "\\b")
 			self.highlightingRules.append( (pattern, keyword) )
 
+
+		keywords = [ "import", "from" ] 
+		classFormat = QTextCharFormat()
+		classFormat.setForeground(Qt.red)
+		for k in keywords:
+			self.highlightingRules.append((QRegExp(k+"\\b"),classFormat))
+
+
 		classFormat = QTextCharFormat()
 		classFormat.setFontWeight(QFont.Bold)
 		classFormat.setForeground(Qt.darkMagenta)
 		self.highlightingRules.append((QRegExp("\\bQ[A-Za-z]+\\b"),classFormat))
 
 		singleLineCommentFormat = QTextCharFormat()
-		singleLineCommentFormat.setForeground(Qt.red)
-		self.highlightingRules.append((QRegExp("//[^\n]*"),singleLineCommentFormat))
+		singleLineCommentFormat.setForeground(Qt.darkBlue)
+		self.highlightingRules.append((QRegExp("#[^\n]*"),singleLineCommentFormat))
 
 		self.multiLineCommentFormat = QTextCharFormat()
 		self.multiLineCommentFormat.setForeground(Qt.red)
 
 		quotationFormat = QTextCharFormat()
-		quotationFormat.setForeground(Qt.darkGreen)
+		quotationFormat.setForeground(Qt.darkMagenta)
 		self.highlightingRules.append((QRegExp("\".*\""), quotationFormat))
 
 		functionFormat = QTextCharFormat()

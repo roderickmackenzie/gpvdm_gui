@@ -154,6 +154,17 @@ def guess_dim(lines):
 					return False,False,False
 	return 1,y,1
 
+def col_name_to_pos(lines,col,known_col_sep):
+	if type(col)==float:
+		return col
+
+	for i in range(0, len(lines)):
+		s,label=decode_line(lines[i],known_col_sep=known_col_sep)
+		if col in s:
+			return s.index(col)
+
+	return False
+
 def is_number(data_in):
 	if type(data_in)==str:
 		if len(data_in)>0:
@@ -171,54 +182,16 @@ def is_number(data_in):
 
 	return False
 
-def dat_file_import_filter(out,file_name,x_col=0,y_col=1):
-	"""This is an import filter for xy data"""
-	lines=[]
-	lines=inp_load_file(file_name)
-	if lines==False:
-		return False
 
-	out.x_scale=[]
-	out.y_scale=[]
-	out.z_scale=[]
-	out.data=[]
-	data_started=False
-	out.data=[[[0.0 for k in range(0)] for j in range(1)] for i in range(1)]
-
-	for i in range(0, len(lines)):
-		s,label=decode_line(lines[i])
-		#print(s)
-		l=len(s)
-		if l>0:
-
-			if data_started==False:
-				if is_number(s[0])==True:
-					data_started=True
-
-			if s[0]=="#end":
-				break
-
-			if data_started==True:
-				if max(x_col,y_col)<l:
-					duplicate=False
-					for c in range(0,len(out.y_scale)):
-						if out.y_scale[c]==float(s[x_col]):
-							duplicate=True
-							break
-
-					if duplicate==False:
-						out.y_scale.append(float(s[x_col]))
-						out.data[0][0].append(float(s[y_col]))
-
-	out.x_len=1
-	out.y_len=len(out.data[0][0])
-	out.z_len=1
-
-	return True
-
-def decode_line(line):
+def decode_line(line,known_col_sep=None):
 	label=False
 	line=re.sub(' +',' ',line)
+
+	if known_col_sep!=None:
+		s=line.split(known_col_sep)
+		return s,False
+
+
 	line=re.sub('\t',' ',line)
 
 	#check for labels at the end of the line
@@ -232,7 +205,7 @@ def decode_line(line):
 	line=line.replace(', ', ' ')	#remove comman in csv files
 	line=line.replace(',', '.')		#Remove European commas
 	s=line.split()
-
+		
 	return s,label
 
 			
@@ -437,6 +410,62 @@ class dat_file():
 		self.file_age=0
 		self.new_read=True
 		self.file_name=None
+
+	def import_data(self,file_name,x_col=0,y_col=1,skip_lines=0,known_col_sep=None):
+		"""This is an import filter for xy data"""
+
+		lines=[]
+		lines=inp_load_file(file_name)
+		if lines==False:
+			return False
+
+		if len(lines)<skip_lines:
+			return False
+
+		x_col=col_name_to_pos(lines,x_col,known_col_sep)
+		y_col=col_name_to_pos(lines,y_col,known_col_sep)
+
+		print(x_col,y_col)
+		lines=lines[skip_lines:]
+
+
+		self.x_scale=[]
+		self.y_scale=[]
+		self.z_scale=[]
+		self.data=[]
+		data_started=False
+		self.data=[[[0.0 for k in range(0)] for j in range(1)] for i in range(1)]
+
+		for i in range(0, len(lines)):
+			s,label=decode_line(lines[i],known_col_sep=known_col_sep)
+			#print(s)
+			l=len(s)
+			if l>0:
+
+				if data_started==False:
+					if is_number(s[0])==True:
+						data_started=True
+
+				if s[0]=="#end":
+					break
+
+				if data_started==True:
+					if max(x_col,y_col)<l:
+						duplicate=False
+						for c in range(0,len(self.y_scale)):
+							if self.y_scale[c]==float(s[x_col]):
+								duplicate=True
+								break
+
+						if duplicate==False:
+							self.y_scale.append(float(s[x_col]))
+							self.data[0][0].append(float(s[y_col]))
+
+		self.x_len=1
+		self.y_len=len(self.data[0][0])
+		self.z_len=1
+
+		return True
 
 	def rgb(self):
 		if self.r==None:

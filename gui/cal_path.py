@@ -451,6 +451,10 @@ def get_sim_path():
 		return os.getcwd()
 	return sim_path
 
+def set_sim_path(path):
+	global sim_path
+	sim_path=path
+
 def get_backup_path():
 	global sim_path
 	path=os.getcwd()

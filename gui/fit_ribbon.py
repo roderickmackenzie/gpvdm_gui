@@ -49,6 +49,8 @@ from util import wrap_text
 from ribbon_base import ribbon_base
 
 from play import play
+from tick_cross import tick_cross
+from QAction_lock import QAction_lock
 
 class fit_ribbon(ribbon_base):
 		
@@ -78,7 +80,31 @@ class fit_ribbon(ribbon_base):
 		self.import_data= QAction(icon_get("import"), wrap_text(_("Import experimental data"),8), self)
 		toolbar.addAction(self.import_data)
 
+		toolbar.addSeparator()
+
+		self.enable=tick_cross(enable_text=_("Fit this\ndata set"),disable_text=_("Dont' fit this\ndata set"))
+		toolbar.addAction(self.enable)
+
 		return toolbar
+
+	def export(self):
+		self.export_toolbar = QToolBar()
+		self.export_toolbar.setToolButtonStyle( Qt.ToolButtonTextUnderIcon)
+		self.export_toolbar.setIconSize(QSize(42, 42))
+
+		self.tb_export_as_jpg = QAction_lock("export_image", _("Export\nimage"), self,"fit_export_image")
+		self.export_toolbar.addAction(self.tb_export_as_jpg)
+
+		self.tb_export_as_csv = QAction_lock("export_csv", _("Export\ncsv"), self,"fit_export_csv")
+		self.export_toolbar.addAction(self.tb_export_as_csv)
+
+		self.tb_export_as_xls = QAction_lock("export_xls", _("Export\nxls"), self,"fit_export_xls")
+		#self.export_toolbar.addAction(self.tb_export_as_xls)
+
+		self.tb_export_as_gnuplot = QAction_lock("export_gnuplot", _("Export\ngnuplot"), self,"fit_export_gnuplot")
+		self.export_toolbar.addAction(self.tb_export_as_gnuplot)
+
+		return self.export_toolbar
 
 	def run(self):
 		toolbar = QToolBar()
@@ -131,6 +157,9 @@ class fit_ribbon(ribbon_base):
 		
 		w=self.run()
 		self.addTab(w,_("Run"))
+
+		w=self.export()
+		self.addTab(w,_("Export"))
 
 		sheet=self.readStyleSheet(os.path.join(get_css_path(),"style.css"))
 		if sheet!=None:

@@ -201,8 +201,9 @@ class import_data(QDialog):
 	def callback_tab_changed(self):
 		self.update()
 
-	def __init__(self,out_file,config_file):
+	def __init__(self,out_file,config_file,multi_files=False):
 		QDialog.__init__(self)
+		self.multi_files=multi_files
 		self.out_file=out_file
 		self.config_file_path=config_file
 		self.path=os.path.dirname(self.out_file)
@@ -479,7 +480,7 @@ class import_data(QDialog):
 		self.accept()
 
 	def open_file(self):
-		self.file_name=open_as_filter(self,"dat (*.dat);;csv (*.csv);;txt (*.txt);;tdf (*.tdf)",path=self.path)
+		self.file_name=open_as_filter(self,"dat (*.dat);;csv (*.csv);;txt (*.txt);;tdf (*.tdf)",path=self.path,multi_files=self.multi_files)
 
 		if self.file_name!=None:
 			self.load_file()

@@ -51,46 +51,40 @@ from open_save_dlg import save_as_jpg
 from cal_path import get_sim_path
 
 class fit_window_plot(QWidget):
-	lines=[]
-	edit_list=[]
-
-	line_number=[]
-	save_file_name=""
-
 	file_name=""
-	name=""
-	visible=1
 
 	def update(self):
 		self.draw_graph()
 
 	def draw_graph(self):
 
-		self.plot_widget.set_labels(["Simulation","Experiment","Delta"])
 		error_sim=os.path.join(get_sim_path(),"fit_error_sim"+str(self.index)+".dat")
 		error_exp=os.path.join(get_sim_path(),"fit_error_exp"+str(self.index)+".dat")
 		delta=os.path.join(get_sim_path(),"fit_error_delta"+str(self.index)+".dat")
-		oplot_file=os.path.join(get_sim_path(),"fit_error_sim"+str(self.index)+".oplot")
-		self.plot_widget.load_data([error_sim,error_exp,delta])
+		self.plot.load_data([error_sim,error_exp,delta])
+		self.plot.set_labels(["Simulation","Experiment","Delta"])
 
-		self.plot_widget.do_plot()
+		self.plot.do_plot()
 
+	def export_image(self):
+		self.plot.callback_save_image()
 
-	def save_image(self,file_name):
-		self.fig.savefig(file_name)
+	def export_csv(self):
+		self.plot.callback_save_csv()
 
-	def callback_save(self, widget, data=None):
-		file_name = save_as_jpg(self)
-		if file_name !=None:
-			self.save_image(file_name)
+	def export_xls(self):
+		self.plot.callback_save_xls()
+
+	def export_gnuplot(self):
+		self.plot.callback_save_gnuplot()
 
 	def __init__(self,index):
 		QWidget.__init__(self)
 		self.vbox=QVBoxLayout()
 		self.index=index
 
-		self.plot_widget=plot_widget(enable_toolbar=False)
-		self.vbox.addWidget(self.plot_widget)
+		self.plot=plot_widget(enable_toolbar=False)
+		self.vbox.addWidget(self.plot)
 		
 		self.setLayout(self.vbox)
 		

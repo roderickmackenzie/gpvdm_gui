@@ -597,7 +597,6 @@ def build_token_lib():
 
 
 	#fit
-	lib.append(my_data("","#enabled",_("True/False"),_("Enable fit"),"e",1.0,"gtkswitch"))
 	lib.append(my_data("","#time_shift","s","time shift","e",1.0,"QLineEdit"))
 	lib.append(my_data("","#start","s","start","e",1.0,"QLineEdit"))
 	lib.append(my_data("","#stop","s","stop","e",1.0,"QLineEdit"))

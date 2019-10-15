@@ -77,16 +77,11 @@ from fit_ribbon import fit_ribbon
 class fit_window(QWidgetSavePos):
 
 	def update(self):
-		print("update")
 		for i in range(0,self.notebook.count()):
 			tab = self.notebook.widget(i)
 			tab.update()
 
 		self.fit_progress.update()
-
-	def callback_stop(self):
-		my_server=server_get()
-		my_server.killall()
 
 	def callback_configure(self):
 		if self.fit_configure_window==None:
@@ -103,7 +98,7 @@ class fit_window(QWidgetSavePos):
 
 	def callback_add_page(self,file_name):
 		new_tab=fit_tab(file_name)
-		self.notebook.addTab(new_tab,new_tab.tab_name)
+		self.notebook.addTab(new_tab,new_tab.get_tab_text())
 
 	def remove_invalid(self,input_name):
 		return input_name.replace (" ", "_")
@@ -117,20 +112,11 @@ class fit_window(QWidgetSavePos):
 		#self.toggle_tab_visible(data)
 
 	def load_tabs(self):
-		self.ribbon.order_widget.load_tabs()
 
+		self.ribbon.order_widget.load_tabs()
 		self.fit_progress=fit_progress()
 		self.notebook.addTab(self.fit_progress,"Fit progress")
 
-
-	def add_page(self,index):
-		new_tab=fit_tab(index)
-		self.notebook.addTab(new_tab,new_tab.tab_name)
-
-
-	def rod(self):
-		tab = self.notebook.currentWidget()
-		tab.update()
 
 	def callback_one_fit(self):
 		my_server=server_get()
@@ -143,6 +129,39 @@ class fit_window(QWidgetSavePos):
 		my_server.clear_cache()
 		my_server.add_job(get_sim_path(),"--fit")
 		my_server.start()
+
+	def callback_enable(self):
+		tab = self.notebook.currentWidget()
+		tab.set_enable(self.ribbon.enable.enabled)
+		index=self.notebook.currentIndex()
+		self.notebook.setTabText(index, tab.get_tab_text())
+
+	def changed_click(self):
+		tab = self.notebook.currentWidget()
+		if type(tab)==fit_tab:
+			self.ribbon.enable.setState(tab.is_enabled())
+			self.ribbon.enable.setEnabled(True)
+			self.ribbon.import_data.setEnabled(True)
+
+		if type(tab)==fit_progress:
+			self.ribbon.enable.setEnabled(False)
+			self.ribbon.import_data.setEnabled(False)
+
+	def callback_export_image(self):
+		tab = self.notebook.currentWidget()
+		tab.callback_export_image()
+
+	def callback_export_csv(self):
+		tab = self.notebook.currentWidget()
+		tab.callback_export_csv()
+
+	def callback_export_xls(self):
+		tab = self.notebook.currentWidget()
+		tab.callback_export_xls()
+
+	def callback_export_gnuplot(self):
+		tab = self.notebook.currentWidget()
+		tab.callback_export_gnuplot()
 
 	def __init__(self,name):
 		QWidgetSavePos.__init__(self,name)
@@ -164,7 +183,6 @@ class fit_window(QWidgetSavePos):
 
 		self.ribbon.order_widget.added.connect(self.callback_add_page)
 		self.ribbon.help.triggered.connect(self.callback_help)
-		#self.ribbon.pause.triggered.connect(self.callback_stop)
 		self.ribbon.play.start_sim.connect(self.callback_do_fit)
 
 		self.ribbon.play_one.start_sim.connect(self.callback_one_fit)
@@ -172,11 +190,20 @@ class fit_window(QWidgetSavePos):
 		self.ribbon.import_data.triggered.connect(self.callback_import)
 		self.ribbon.tb_configure.triggered.connect(self.callback_configure)
 
+		self.ribbon.tb_export_as_jpg.clicked.connect(self.callback_export_image)
+
+		self.ribbon.tb_export_as_csv.clicked.connect(self.callback_export_csv)
+
+		self.ribbon.tb_export_as_xls.clicked.connect(self.callback_export_xls)
+
+		self.ribbon.tb_export_as_gnuplot.clicked.connect(self.callback_export_gnuplot)
+
 		self.main_vbox.addWidget(self.ribbon)
 
 		self.notebook = QTabWidget()
 		self.ribbon.order_widget.notebook_pointer=self.notebook
 
+		self.ribbon.enable.changed.connect(self.callback_enable)
 		self.ribbon.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Minimum)
 		self.notebook.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
 
@@ -186,6 +213,8 @@ class fit_window(QWidgetSavePos):
 
 
 		self.notebook.setMovable(True)
+
+		self.notebook.currentChanged.connect(self.changed_click)
 
 		self.load_tabs()
 

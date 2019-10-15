@@ -564,7 +564,7 @@ def archive_merge_file(dest_archive,src_archive,dest_file_name,src_file_name):
 
 ## Zip up an entire directory.
 def archive_zip_dir(path,extentions=[]):
-	print("zipping: ",path)
+	#print("zipping: ",path)
 	all_files=[]
 	for root, dirs, files in os.walk(path):
 		for name in files:

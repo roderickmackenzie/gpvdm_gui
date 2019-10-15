@@ -36,7 +36,6 @@ try:
 	from PyQt5.QtOpenGL import QGLWidget
 	from gl_color import set_color
 	from gl_shapes import pyrmid
-	from gl_shapes import dome
 	from gl_shapes import half_cyl
 	open_gl_ok=True
 except:

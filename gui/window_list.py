@@ -103,6 +103,9 @@ def wpos_load():
 	lines=[]
 	pos=0
 	lines=inp_load_file(os.path.join(get_user_settings_dir(),"window_list.inp"))
+	if len(lines)<2:
+		return
+
 	if lines!=False:
 		while(1):
 			token,name,pos=inp_read_next_item(lines,pos)

@@ -61,6 +61,7 @@ from QAction_lock import QAction_lock
 from solar_spectrum_gen_window import solar_spectrum_gen_window
 
 from scripts import scripts
+from inp import inp_isfile
 
 class ribbon_configure(QToolBar):
 	def __init__(self):
@@ -88,7 +89,8 @@ class ribbon_configure(QToolBar):
 
 		self.solar = QAction_lock("weather-few-clouds", _("Solar spectrum\ngenerator"), self,"solar_spectrum_tool")
 		self.solar.clicked.connect(self.callback_solar)
-		self.addAction(self.solar)
+		if inp_isfile("spectral2.inp")==True:
+			self.addAction(self.solar)
 
 		self.solar = QAction_lock("script", _("Script\nEditor"), self,"script_editor")
 		self.solar.clicked.connect(self.callback_script)

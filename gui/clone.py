@@ -43,7 +43,7 @@ from cal_path import get_spectra_path
 from cal_path import get_base_spectra_path
 
 def gpvdm_clone(path,src_archive="",copy_dirs=False,dest="archive"):
-	print("Cloning from",get_inp_file_path())
+	#print("Cloning from",get_inp_file_path())
 
 	if src_archive=="":
 		src_dir=get_inp_file_path()

@@ -62,6 +62,8 @@ class file_type():
 	JUST_COPY=0
 	CHECK_VER_THEN_COPY=1
 	MERGE=2
+	IGNORE=3
+
 	
 	def __init__(self,name="fit_data",dest="archive",copy_opp=JUST_COPY,base_file=""):
 		self.name=name
@@ -137,6 +139,7 @@ file_list.append(file_type(name="light_exp.inp",copy_opp=file_type().MERGE))
 file_list.append(file_type(name="info.inp",copy_opp=file_type().MERGE))
 file_list.append(file_type(name="config.inp",copy_opp=file_type().MERGE))
 file_list.append(file_type(name="perovskite.inp",copy_opp=file_type().MERGE))
+file_list.append(file_type(name="info.inp",copy_opp=file_type().IGNORE))
 
 def get_file_info(file_name):
 	match = re.match(r"([a-z_]+)([0-9]+)(.inp)", file_name, re.I)

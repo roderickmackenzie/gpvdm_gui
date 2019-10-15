@@ -49,7 +49,7 @@ from cal_path import subtract_paths
 
 from progress_class import progress_class
 from process_events import process_events
-
+import math
 
 def tree_load_flat_list(sim_dir):
 	config=[]
@@ -202,6 +202,17 @@ def tree_apply_constant(directory,program_list):
 			inp_update_token_value(os.path.join(directory,program_list[i][0]), program_list[i][1], program_list[i][2])
 
 	return True
+
+def random_log(in_start,in_stop):
+	start=math.log10(in_start)
+	stop=math.log10(in_stop)
+
+	r=random.uniform(start, stop)
+
+	val=math.pow(10,r)
+
+	ret="{:.8E}".format(val)
+	return ret
 
 def tree_apply_python_script(directory,program_list):
 	for i in range(0, len(program_list)):

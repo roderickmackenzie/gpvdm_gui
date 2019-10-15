@@ -344,17 +344,17 @@ def scan_ml_build_vector(sim_dir):
 						#mul=-10.0
 
 					elif sim_mode.startswith("tpc")==True:
-						file_name="pulse_i.dat"
+						file_name="time_i.dat"
 						vector=[1.1e-6,2e-6,2e-5,1e-4,0.02,0.1]
 						#dolog=True
 						#do_fabs=True
 					elif sim_mode.startswith("celiv")==True:
-						file_name="pulse_i.dat"
+						file_name="time_i.dat"
 						vector=[2e-6,3e-6,4e-6,5e-6,6e-6,7e-6,8e-6]
 						#do_fabs=True
 						#mul=1000.0
 					elif sim_mode.startswith("tpv")==True:
-						file_name="pulse_v.dat"
+						file_name="time_v.dat"
 						vector=[10e-6,20e-6,30e-6,40e-6,50e-6,60e-6,80e-6]
 						#do_fabs=True
 						#mul=10.0

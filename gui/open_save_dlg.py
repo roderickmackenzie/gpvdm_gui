@@ -79,7 +79,7 @@ def save_as_filter(parent,my_filter):
 	else:
 		return None
 
-def open_as_filter(parent,my_filter,path=""):
+def open_as_filter(parent,my_filter,path="",multi_files=False):
 	selected_filter = ""
 	if path=="":
 		open_path=os.getcwd()
@@ -88,22 +88,30 @@ def open_as_filter(parent,my_filter,path=""):
 
 	dialog = QFileDialog(parent,_("Open file"))
 	dialog.setDirectory(open_path)
-	print(">>>>>",open_path)
+
 	dialog.setNameFilter(my_filter)
 	dialog.setAcceptMode(QFileDialog.AcceptOpen)
+	if multi_files==True:
+		dialog.setFileMode(QFileDialog.ExistingFiles)
+
 	if dialog.exec_() == QDialog.Accepted:
-		filename = dialog.selectedFiles()[0]
+		ret_list=[]
 		s=dialog.selectedNameFilter()
 		if s.count("(*")==1:
 			s=s.split("(*")[1]
 			s=s[:-1]
 
-			if filename.endswith(s)==False:
-				filename=filename+s
+		filenames = dialog.selectedFiles()
+		for f in filenames:
+			if f.endswith(s)==False:
+				ret_list.append(f+s)
 			else:
-				filename=filename
+				ret_list.append(f)
 
-		return filename
+		if multi_files==True:
+			return ret_list
+		else:
+			return ret_list[0]
 	else:
 		return None
 	

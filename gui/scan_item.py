@@ -90,7 +90,7 @@ def scan_items_populate_from_files():
 		file_list=zip_lsdir(name)
 	
 		for i in range(0,len(file_list)):
-			print(file_list[i])
+			#print(file_list[i])
 			if is_numbered_file(file_list[i],"dos")==True:
 				name=epitaxy_dos_file_to_layer_name(file_list[i])
 				if name!=False:

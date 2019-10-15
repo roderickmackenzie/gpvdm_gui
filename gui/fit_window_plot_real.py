@@ -52,6 +52,8 @@ mesh_articles = []
 from icon_lib import icon_get
 from cal_path import get_sim_path
 
+from plot_widget import plot_widget
+
 class fit_window_plot_real(QWidget):
 	lines=[]
 	edit_list=[]
@@ -65,34 +67,29 @@ class fit_window_plot_real(QWidget):
 
 	def update(self):
 		self.draw_graph()
-		self.fig.canvas.draw()
 
 	def draw_graph(self):
 
-		x=[]
-		y=[]
-		z=[]
-		if read_xyz_data(x,y,z,os.path.join(get_sim_path(),"fit_data"+str(self.index)+".inp"))==True:
-			self.fig.clf()
-			self.fig.subplots_adjust(bottom=0.2)
-			self.fig.subplots_adjust(left=0.1)
-			self.ax1 = self.fig.add_subplot(111)
-			self.ax1.ticklabel_format(useOffset=False)
+		plot_labels="Experimental data"
+		data_file=os.path.join(get_sim_path(),"fit_data"+str(self.index)+".inp")
 
-			self.ax1.set_xlabel(_("x"))
-			self.ax1.set_ylabel(_("y"))
+		self.plot.load_data([data_file])
+		self.plot.set_labels([plot_labels])
 
-			voltage, = self.ax1.plot(x,y, 'ro-', linewidth=3 ,alpha=1.0)
+		self.plot.do_plot()
 
 
-	def save_image(self,file_name):
-		self.fig.savefig(file_name)
+	def export_image(self):
+		self.plot.callback_save_image()
 
-	def callback_save(self):
-		file_name=save_as_filter(parent,"png (*.png);;jpg (*.jpg)")
+	def export_csv(self):
+		self.plot.callback_save_csv()
 
-		if file_name!=None:
-			self.save_image(file_name)
+	def export_xls(self):
+		self.plot.callback_save_xls()
+
+	def export_gnuplot(self):
+		self.plot.callback_save_gnuplot()
 
 	def __init__(self,index):
 		QWidget.__init__(self)
@@ -107,32 +104,11 @@ class fit_window_plot_real(QWidget):
 		self.line_number=[]
 
 		self.list=[]
-		print("index=",index)
 
-
-		canvas = FigureCanvas(self.fig)  # a gtk.DrawingArea
-		#canvas.set_background('white')
-		#canvas.set_facecolor('white')
-		canvas.figure.patch.set_facecolor('white')
-		#canvas.set_size_request(500, 150)
-
-		#canvas.set_size_request(700,400)
+		self.plot=plot_widget(enable_toolbar=False)
 
 		self.draw_graph()
 
-		#toolbar=QToolBar()
-		#toolbar.setIconSize(QSize(48, 48))
-
-		#self.tb_save = QAction(icon_get("document-save-as"), _("Save graph"), self)
-		#self.tb_save.triggered.connect(self.callback_save)
-		#toolbar.addAction(self.tb_save)
-
-
-		#nav_bar=NavigationToolbar(canvas,self)
-		#toolbar.addWidget(nav_bar)
-
-		#self.hbox.addWidget(toolbar)
-		
-		self.hbox.addWidget(canvas)
+		self.hbox.addWidget(self.plot)
 
 		self.setLayout(self.hbox)

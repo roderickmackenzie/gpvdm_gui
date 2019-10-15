@@ -412,7 +412,7 @@ if gui_get()==True:
 				data_in=data_in[3:]
 				data=codecs.decode(data_in, 'hex')
 				data=data.decode('ascii')
-				print("!!!!!!!!!!!!!!!!! ",data)
+				#print("!!!!!!!!!!!!!!!!! ",data)
 				if data.startswith("lock"):
 					if len(self.jobs)==0:
 						print(_("I did not think I was running any jobs"))

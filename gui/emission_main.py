@@ -100,8 +100,7 @@ class emission_main(QWidgetSavePos):
 		self.main_vbox.addWidget(self.notebook)
 
 		fname=os.path.join(self.path,"spectra.inp")
-		self.emission=plot_widget()
-		self.emission.init(enable_toolbar=False)
+		self.emission=plot_widget(enable_toolbar=False)
 		self.emission.set_labels([_("Emission")])
 		self.emission.load_data([fname])
 

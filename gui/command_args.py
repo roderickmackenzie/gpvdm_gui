@@ -74,8 +74,6 @@ from device_lib_io import device_lib_token_insert
 from device_lib_io import device_lib_token_duplicate
 from device_lib_io import device_lib_fix_ver
 
-from scan_ml import scan_ml_build_vector
-
 from scan_io import scan_archive
 
 from gui_enable import set_gui
@@ -111,7 +109,6 @@ parser.add_argument("--load", help=_("Loads a simulation --load /path/containing
 parser.add_argument("--encrypt", help=_("Encrypt a gpvdm file --file sim.gpvdm"), nargs=1)
 parser.add_argument("--unpack", help=_("Extract the sim.gpvdm archive --unpack"), action='store_true')
 parser.add_argument("--pack", help=_("Extract the sim.gpvdm archive --pack"), action='store_true')
-parser.add_argument("--scanbuildvectors", help=_("Build vectors from scan dir --scanbuildvectors path_to_scan_dir"), nargs=1)
 parser.add_argument("--matcompress", help=_("Compresses the materials dir"), action='store_true')
 parser.add_argument("--list", help=_("List the content of a gpvdm archive"), action='store_true')
 parser.add_argument("--ri_sync", help=_("Sync to ri"), action='store_true')
@@ -205,12 +202,6 @@ def command_args(argc,argv):
 				print("written data to",save_file)
 			else:
 				print("Problem loading oplot file")
-			sys.exit(0)
-
-
-		if args.scanbuildvectors:
-			set_gui(False)
-			scan_ml_build_vector(args.scanbuildvectors[0])
 			sys.exit(0)
 
 

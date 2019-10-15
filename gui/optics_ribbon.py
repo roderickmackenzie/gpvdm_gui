@@ -46,7 +46,6 @@ from icon_lib import icon_get
 from about import about_dlg
 
 from mode_selector import mode_selector
-from tb_optical_model import tb_optical_model
 from tb_spectrum import tb_spectrum
 
 from util import wrap_text

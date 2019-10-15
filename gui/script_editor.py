@@ -29,7 +29,6 @@
 
 import os
 
-from dump_io import dump_io
 
 from code_ctrl import enable_betafeatures
 from cal_path import get_css_path
@@ -45,10 +44,6 @@ from PyQt5.QtGui import QPainter,QColor
 from icon_lib import icon_get
 
 from about import about_dlg
-
-from mode_selector import mode_selector
-from tb_optical_model import tb_optical_model
-from tb_spectrum import tb_spectrum
 
 from util import wrap_text
 from ribbon_base import ribbon_base

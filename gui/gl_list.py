@@ -61,6 +61,27 @@ class gl_base_object():
 		self.moveable=False
 		self.triangles=[]
 
+	def dump(self):
+		print(self.id)
+		print(self.type)
+		print(self.x)
+		print(self.y)
+		print(self.z)
+		print(self.dx)
+		print(self.dy)
+		print(self.dz)
+		print(self.dx)
+		print(self.dy)
+		print(self.dz)
+		print(self.r)
+		print(self.g)
+		print(self.b)
+		print(self.alpha)
+		print(self.selected)
+		print(self.selectable)
+		print(self.moveable)
+		print(self.triangles)
+
 class gl_objects():
 
 	def __init__(self):

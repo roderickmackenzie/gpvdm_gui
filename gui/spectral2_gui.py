@@ -43,6 +43,8 @@ from cal_path import get_spectra_path
 from inp import inp_update_token_value
 from inp import inp_get_token_value
 
+from code_ctrl import am_i_rod
+
 class spectral2_gui(QWidget):
 
 
@@ -114,7 +116,8 @@ class spectral2_gui(QWidget):
 		self.no2_layout.addWidget(self.no2_label)
 		self.no2_layout.addWidget(self.no2_edit)
 		self.no2_widget.setLayout(self.no2_layout)
-		date_vbox.addWidget(self.no2_widget)
+		if am_i_rod()==True:
+			date_vbox.addWidget(self.no2_widget)
 
 		date_widget.setLayout(date_vbox)
 

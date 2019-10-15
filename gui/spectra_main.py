@@ -117,8 +117,7 @@ class spectra_main(QWidgetSavePos):
 
 
 		fname=os.path.join(self.path,"spectra.inp")
-		self.alpha=plot_widget()
-		self.alpha.init(enable_toolbar=False)
+		self.alpha=plot_widget(enable_toolbar=False)
 		self.alpha.set_labels([_("Spectra")])
 		self.alpha.load_data([fname])
 

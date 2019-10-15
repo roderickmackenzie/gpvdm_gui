@@ -56,6 +56,55 @@ try:
 except:
 	pass
 
+class inp():
+	def __init__(self):
+		self.lines=[]
+
+	def load(self,file_path,archive="sim.gpvdm",mode="l"):
+		"""load file"""
+		if file_path==None:
+			return False
+
+		file_name=default_to_sim_path(file_path)
+
+		self.zip_file_path=search_zip_file(file_name,archive)
+
+		self.file_name=os.path.basename(file_name)
+
+		self.lines=read_lines_from_archive(self.zip_file_path,self.file_name,mode=mode)
+		return self.lines
+
+	def get_token(self,token):
+		"""Get the value of a token from a list"""
+		for i in range(0, len(self.lines)):
+			if self.lines[i]==token:
+				return self.lines[i+1]
+
+		return False
+
+	def replace(self,token,replace):
+		if type(replace)==bool:
+			replace=str(replace)
+
+		if type(self.lines)!=list:
+			return False
+
+		replaced=False
+		for i in range(0, len(self.lines)):
+			if self.lines[i]==token:
+				if i+1<len(self.lines):
+					self.lines[i+1]=replace
+					replaced=True
+					break
+
+		return replaced
+
+	def save(self):
+		"""Write save lines to a file"""
+
+		ret= write_lines_to_archive(self.zip_file_path,self.file_name,self.lines)
+		return ret
+
 callbacks=[]
 class callback_data():
 	def __init__(self):
@@ -273,7 +322,7 @@ def inp_insert_token(file_path, token_to_insert_after, token, value, archive="si
 		new_lines.append(value)
 		new_lines.extend(lines)
 		lines_out=new_lines
-		print(lines_out)
+		#print(lines_out)
 	else:
 		count=3
 		for l in lines:

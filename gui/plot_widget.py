@@ -19,7 +19,7 @@
 #   with this program; if not, write to the Free Software Foundation, Inc.,
 #   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
-# 
+#
 
 ## @package plot_widget
 #  The main plot widget.
@@ -80,6 +80,8 @@ from dat_file import dat_file_print
 from plot_ribbon import plot_ribbon
 from lock import get_lock
 from dat_files_to_gnuplot import dat_files_to_gnuplot
+
+from dat_files_to_csv import dat_files_to_csv
 
 class plot_widget(QWidget):
 
@@ -303,7 +305,6 @@ class plot_widget(QWidget):
 					col="#"+self.data[i].rgb()
 				else:
 					col=get_color(i)
-
 				cur_plot, = self.ax[i].plot(self.data[i].y_scale,self.data[i].data[0][0], linewidth=3 ,alpha=1.0,color=col,marker=get_marker(i))
 
 				if self.data[i].key_text!="":
@@ -402,7 +403,7 @@ class plot_widget(QWidget):
 		elif self.plot_type=="rgb":
 			self.ax[0].set_xlabel(self.data[0].y_label+" ("+str(self.data[0].y_units)+")")
 			self.ax[0].set_ylabel(self.data[0].data_label+" ("+self.data[0].data_units+")")
-			self.ax[0].imshow(self.data[0].data[0],extent=[self.data[i].y_scale[0],self.data[i].y_scale[-1],0,20])		#
+			self.ax[0].imshow(self.data[0].data[0],extent=[self.data[0].y_scale[0],self.data[0].y_scale[-1],0,20])		#
 
 		#setup the key
 		if self.data[0].legend_pos=="No key":
@@ -436,12 +437,15 @@ class plot_widget(QWidget):
 	def callback_save_csv(self):
 		file_name=save_as_filter(self,"*.csv")
 		if file_name != None:
-			self.data[0].save_as_csv(file_name)
+			dat_files_to_csv(file_name,self.data)
 
 	def callback_save_txt(self):
 		file_name=save_as_filter(self,"*.txt")
 		if file_name != None:
 			self.data[0].save_as_txt(file_name)
+
+	def callback_save_xls(self):
+		return
 
 	def callback_save_gnuplot(self):
 		file_name=save_as_filter(self,"gnuplot (*.)")
@@ -466,7 +470,8 @@ class plot_widget(QWidget):
 		for i in range(0,len(self.input_files)):
 			dat=dat_file()
 			ret=dat.load(self.input_files[i])
-			self.data.append(dat)
+			if ret!=False:
+				self.data.append(dat)
 
 
 		self.norm_data()

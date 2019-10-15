@@ -29,11 +29,6 @@
 
 import os
 
-from dump_io import dump_io
-from tb_item_sim_mode import tb_item_sim_mode
-from tb_item_sun import tb_item_sun
-
-from code_ctrl import enable_betafeatures
 from cal_path import get_css_path
 
 #qt
@@ -47,13 +42,11 @@ from icon_lib import icon_get
 
 from about import about_dlg
 
-from tb_optical_model import tb_optical_model
-from tb_spectrum import tb_spectrum
-
 from util import wrap_text
 
 from ribbon_base import ribbon_base
 from play import play
+
 class ribbon_solar(ribbon_base):
 
 	def optics(self):

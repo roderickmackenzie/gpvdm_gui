@@ -28,12 +28,7 @@
 import os
 
 from scan_select import select_param
-from token_lib import tokens
-from scan_item import scan_items_get_list
 
-from scan_io import scan_push_to_hpc
-from scan_io import scan_import_from_hpc
-from cal_path import get_exe_command
 from icon_lib import icon_get
 from scan_item import scan_items_get_file
 from scan_item import scan_items_get_token
@@ -53,8 +48,6 @@ from inp import inp_save_lines_to_file
 from inp import inp_load_file
 
 from gpvdm_select import gpvdm_select
-
-from scan_select import select_param
 
 from cal_path import get_sim_path
 from gpvdm_tab import gpvdm_tab
@@ -103,7 +96,7 @@ class fit_patch(QWidget):
 			lines.append(str(self.tab.get_value(i, 3)))
 
 		lines.append("#end")
-		print("save as",self.file_name)
+		#print("save as",self.file_name)
 		inp_save_lines_to_file(self.file_name,lines)
 
 
@@ -184,7 +177,7 @@ class fit_patch(QWidget):
 		self.tab.resizeColumnsToContents()
 
 		self.tab.verticalHeader().setVisible(False)
-		
+
 		self.select_param_window=select_param(self.tab)
 		self.select_param_window.set_save_function(self.save_combo)
 

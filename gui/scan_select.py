@@ -156,7 +156,7 @@ class select_param(QWidget):
 	def tree_apply_click(self):
 		index = self.dest_treeview.selectionModel().selectedRows()
 		if len(index)>0:
-			print("row=",index[0].row(),len(index))
+			#print("row=",index[0].row(),len(index))
 			pos=index[0].row()
 			#print(path,scan_items_get_file(path),scan_items_get_token(path))
 			path=self.cal_path()

@@ -55,13 +55,29 @@ from import_data import import_data
 
 from css import css_apply
 from order_widget import extract_number_from_file_name
+from inp import inp
 
 mesh_articles = []
 
 class fit_tab(QTabWidget):
 
+	def set_enable(self,state):
+		f=inp()
+		f.load(self.get_file_name())
+		f.replace("#enabled",state)
+		f.save()
+		
+
+	def is_enabled(self):
+		f=inp()
+		f.load(self.get_file_name())
+		return str2bool(f.get_token("#enabled"))
+
+	def get_file_name(self):
+		return os.path.join(get_sim_path(),"fit"+str(self.index)+".inp")
+
 	def update(self):
-		lines=inp_load_file(os.path.join(get_sim_path(),"fit"+str(self.index)+".inp"))
+		lines=inp_load_file(self.get_file_name())
 		if lines!=False:
 			enabled=str2bool(inp_search_token_value(lines, "#enabled"))
 			if enabled==True:
@@ -70,9 +86,9 @@ class fit_tab(QTabWidget):
 
 	def __init__(self,file_name):
 		QTabWidget.__init__(self)
+		self.file_name=file_name
 		css_apply(self,"tab_default.css")
 		lines=[]
-		self.file_name=file_name
 		self.index=int(extract_number_from_file_name(file_name))
 		lines=inp_load_file(os.path.join(get_sim_path(),"fit"+str(self.index)+".inp"))
 		if lines!=False:
@@ -93,23 +109,14 @@ class fit_tab(QTabWidget):
 		config.init(os.path.join(get_sim_path(),"fit"+str(self.index)+".inp"),self.tab_name)
 		self.addTab(config,_("Configure fit"))
 
-
 		self.fit_patch = fit_patch(self.index)
 		self.addTab(self.fit_patch, _("Fit patch"))
 
 		self.matlab_editor = matlab_editor(self.index)
 		self.addTab(self.matlab_editor, _("MATLAB code"))
-
 		
 	def init(self,index):
 		return
-
-	def set_tab_caption(self,name):
-		mytext=name
-		if len(mytext)<10:
-			for i in range(len(mytext),10):
-				mytext=mytext+" "
-		self.label.set_text(mytext)
 
 	def import_data(self):
 		target=os.path.join(get_sim_path(),"fit_data"+str(self.index)+".inp")
@@ -118,7 +125,46 @@ class fit_tab(QTabWidget):
 		self.im.run()
 		self.update()
 
+	def get_tab_text(self):
+		enabled=self.is_enabled()
+		if enabled==True:
+			enabled="(\u2705)"
+		else:
+			enabled="(\u274C)"
+
+		return self.tab_name+" "+enabled
+
 	def rename(self,tab_name):
-		self.tab_name=tab_name
+		tab = self.currentWidget()
+
 		inp_update_token_value(os.path.join(get_sim_path(),"fit"+str(self.index)+".inp"), "#fit_name", self.tab_name)
+
+	def callback_export_image(self):
+		tab = self.currentWidget()
+		if (type(tab) != fit_window_plot_real) and (type(tab) != fit_window_plot):
+			return
+
+		tab.plot.callback_save_image()
+
+	def callback_export_csv(self):
+		tab = self.currentWidget()
+		if (type(tab) != fit_window_plot_real) and (type(tab) != fit_window_plot):
+			return
+
+		tab.plot.callback_save_csv()
+
+	def callback_export_xls(self):
+		tab = self.currentWidget()
+		if (type(tab) != fit_window_plot_real) and (type(tab) != fit_window_plot):
+			return
+
+		tab.plot.callback_save_xls()
+
+	def callback_export_gnuplot(self):
+		tab = self.currentWidget()
+		if (type(tab) != fit_window_plot_real) and (type(tab) != fit_window_plot):
+			return
+
+		tab.plot.callback_save_gnuplot()
+
 

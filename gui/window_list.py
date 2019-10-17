@@ -103,28 +103,30 @@ def wpos_load():
 	lines=[]
 	pos=0
 	lines=inp_load_file(os.path.join(get_user_settings_dir(),"window_list.inp"))
+
+	if lines==False:
+		return
+
 	if len(lines)<2:
 		return
 
-	if lines!=False:
-		while(1):
-			token,name,pos=inp_read_next_item(lines,pos)
-			if token=="#end" or token=="#ver":
-				break
+	while(1):
+		token,name,pos=inp_read_next_item(lines,pos)
+		if token=="#end" or token=="#ver":
+			break
 
-			token,x,pos=inp_read_next_item(lines,pos)
+		token,x,pos=inp_read_next_item(lines,pos)
 
-			token,y,pos=inp_read_next_item(lines,pos)
-		
-			a=window_item()
-			a.name=name
-			a.x=float(x)
-			a.y=float(y)
-			wlist.append(a)
+		token,y,pos=inp_read_next_item(lines,pos)
+	
+		a=window_item()
+		a.name=name
+		a.x=float(x)
+		a.y=float(y)
+		wlist.append(a)
 
 
 def wpos_save():
-	#print("save")
 	global wlist
 	lines=[]
 

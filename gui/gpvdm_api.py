@@ -46,10 +46,14 @@ from inp import inp_update_token_value
 from inp import inp_get_token_value
 
 class gpvdm_api():
-	def __init__(self):
+	def __init__(self,verbose=True):
 		self.save_dir=os.getcwd()
 		self.my_server=base_server()
-		self.my_server.pipe_to_null=True
+		if verbose==True:
+			self.my_server.pipe_to_null=False
+		else:
+			self.my_server.pipe_to_null=True
+
 		self.my_server.base_server_init(get_sim_path())
 
 		print("gpvdm_api")

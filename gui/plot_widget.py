@@ -220,6 +220,7 @@ class plot_widget(QWidget):
 			if self.plot_type=="linegraph":
 				for i in range(0,len(self.data)):
 					self.ax.append(self.fig.add_subplot(111,facecolor='white'))
+
 			if self.plot_type=="rgb":
 				for i in range(0,len(self.data)):
 					self.ax.append(self.fig.add_subplot(111,facecolor='white'))
@@ -300,6 +301,9 @@ class plot_widget(QWidget):
 
 				if self.data[0].logdata==True:
 					self.ax[i].set_yscale("log")
+
+				if self.data[i].data_min!=None:
+					self.ax[i].set_ylim([self.data[i].data_min,self.data[i].data_max])
 
 				if self.data[i].rgb()!=None:
 					col="#"+self.data[i].rgb()

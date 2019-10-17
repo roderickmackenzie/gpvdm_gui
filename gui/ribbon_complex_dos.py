@@ -61,6 +61,9 @@ class ribbon_complex_dos(ribbon_base):
 		self.tb_save = QAction(icon_get("document-save-as"), _("Save image"), self)
 		self.main_toolbar.addAction(self.tb_save)
 
+		self.tb_trap_depth = QAction(icon_get("electrical"), _("Max\ntrap depth"), self)
+		self.main_toolbar.addAction(self.tb_trap_depth)
+
 		#self.import_data= QAction(icon_get("import"), _("Import data"), self)
 		#self.main_toolbar.addAction(self.import_data)
 

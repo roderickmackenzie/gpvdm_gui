@@ -79,7 +79,7 @@ class spectra_main(QWidgetSavePos):
 	def callback_import(self):
 		output_file=os.path.join(self.path,"spectra.inp")
 		config_file=os.path.join(self.path,"spectra_import.inp")
-		self.im=import_data(output_file,config_file)
+		self.im=import_data(output_file,config_file,multi_files=True)
 		self.im.run()
 		self.update()
 

@@ -42,6 +42,7 @@ from help import my_help_class
 #path
 from cal_path import get_materials_path
 from cal_path import get_exe_command
+from inp import inp_save_lines_to_file
 
 #qt
 from PyQt5.QtCore import QSize, Qt 
@@ -66,6 +67,7 @@ from css import css_apply
 from gui_util import yes_no_dlg
 from script_editor import script_editor
 from inp import inp_lsdir
+from gui_util import dlg_get_text
 
 class scripts(QWidgetSavePos):
 
@@ -89,6 +91,8 @@ class scripts(QWidgetSavePos):
 		self.ribbon.help.triggered.connect(self.callback_help)
 
 		self.ribbon.tb_save.clicked.connect(self.callback_save)
+		self.ribbon.tb_new.clicked.connect(self.callback_add_page)
+		#self.ribbon.tb_rename.clicked.connect(self.callback_rename_page)
 
 		self.ribbon.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Minimum)
 
@@ -103,8 +107,9 @@ class scripts(QWidgetSavePos):
 
 		for f in inp_lsdir("sim.gpvdm"):
 			if f.endswith(".py"):
+				file_name=os.path.join(get_sim_path(),f)
 				a=script_editor()
-				a.load(f)
+				a.load(file_name)
 				self.notebook.addTab(a,f)
 
 
@@ -114,6 +119,30 @@ class scripts(QWidgetSavePos):
 
 		self.setLayout(self.main_vbox)
 
+	def callback_add_page(self):
+		new_sim_name=dlg_get_text( "Add a new script:", "exampe.py","document-new.png")
+		if new_sim_name.ret!=None:
+			name=os.path.join(get_sim_path(),new_sim_name.ret)
+			data=[]
+			data.append("#!/usr/bin/env python3")
+			data.append("# -*- coding: utf-8 -*-")
+			data.append("import os")
+			data.append("import sys")
+			data.append("")
+			data.append("from gpvdm_api import gpvdm_api")
+			data.append("")
+			data.append("def run()")
+			data.append("	a=gpvdm_api(verbose=True)")
+			data.append("	a.set_save_dir(device_data)")
+			data.append("	a.edit(\"light.inp\",\"#light_model\",\"qe\")")
+			data.append("	a.edit(\"jv0.inp\",\"#Vstop\",\"0.8\")")
+			data.append("	a.run()")
+
+			inp_save_lines_to_file(name,data)
+
+			a=script_editor()
+			a.load(name)
+			self.notebook.addTab(a,os.path.basename(name))
 
 	def closeEvent(self, event):
 		global_object_delete("optics_force_redraw")

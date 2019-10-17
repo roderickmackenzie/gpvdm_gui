@@ -22,13 +22,14 @@
 #
 # 
 
-## @package optics_ribbon
-#  The ribbon for the optics window
+## @package script_editor
+#  A script editor widget
 #
 
 
 import os
-
+import sys
+import importlib
 
 from code_ctrl import enable_betafeatures
 from cal_path import get_css_path
@@ -166,5 +167,12 @@ class script_editor(code_editor):
 		inp_save(self.file_name,text)
 
 	def run(self):
-		os.system("python3 "+self.file_name)
+
+		sys.path.insert(1, os.path.dirname(self.file_name))
+		import_name=os.path.splitext(os.path.basename(self.file_name))[0]
+		module=__import__(import_name)
+		importlib.reload(module)
+		module.run()
+		del module
+		#os.system("python3 "+self.file_name)
 

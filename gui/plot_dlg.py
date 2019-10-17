@@ -48,6 +48,8 @@ class plot_dlg_class(QDialog):
 		lines=[]
 		lines=inp_load_file(os.path.join(self.path,input_file))
 		combobox.clear()
+		if lines==False:
+			return
 
 		for i in range(0, len(lines)):
 			lines[i]=lines[i].rstrip()

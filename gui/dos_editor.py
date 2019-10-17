@@ -54,6 +54,10 @@ from file_watch import get_watch
 
 from QComboBoxLang import QComboBoxLang
 
+from gui_util import dlg_get_text
+from error_dlg import error_dlg
+from inp import inp
+
 class equation_editor(QGroupBox):
 
 	changed = pyqtSignal()
@@ -216,12 +220,28 @@ class dos_editor(QWidget):
 
 	def update_graph(self):
 		self.gen_mesh()
-		self.plot.update()
+		self.plot.do_plot()
 
 	def callback_save(self):
 		file_name=save_as_image(self)
 		if file_name!=False:
 			self.canvas_lumo.figure.savefig(file_name)
+
+	def callback_trap_depth(self):
+		lines=inp()
+		lines.load(os.path.join(get_sim_path(),self.dos_file))
+
+		ret=dlg_get_text( _("Maximum trap depth (eV):"), lines.get_token("#srh_start"),"electrical.png")
+		if ret.ret!=None:
+			depth=0.0
+			try:
+				depth=-abs(float(ret.ret))
+			except:
+				error_dlg(self,_("That's not a number.."))
+		
+			lines.replace("#srh_start",str(depth))
+			lines.save()
+			self.update_graph()
 
 	def gen_mesh(self):
 		self.mesh=[]
@@ -243,6 +263,8 @@ class dos_editor(QWidget):
 			self.mesh.append(pos)
 
 		self.data_lumo=dat_file()
+		self.data_lumo.data_min=1e10
+		self.data_lumo.data_max=1e27
 		self.data_lumo.title="LUMO Density of states"
 
 		self.data_lumo.y_label="Energy"
@@ -265,6 +287,9 @@ class dos_editor(QWidget):
 		self.data_numerical_lumo=dat_file()
 		self.data_numerical_lumo.title="LUMO Numberical DoS"
 
+		self.data_numerical_lumo.data_min=1e10
+		self.data_numerical_lumo.data_max=1e27
+
 		self.data_numerical_lumo.y_label="Energy"
 		self.data_numerical_lumo.data_label="States"
 
@@ -283,7 +308,11 @@ class dos_editor(QWidget):
 		self.data_numerical_lumo.init_mem()
 
 		self.data_homo=dat_file()
+
 		self.data_homo.title="HOMO Density of states"
+
+		self.data_homo.data_min=1e10
+		self.data_homo.data_max=1e27
 
 		self.data_homo.y_label="Energy"
 		self.data_homo.data_label="States"
@@ -304,6 +333,9 @@ class dos_editor(QWidget):
 
 		self.data_numerical_homo=dat_file()
 		self.data_numerical_homo.title="HOMO Numerical DoS"
+
+		self.data_numerical_homo.data_min=1e10
+		self.data_numerical_homo.data_min=1e27
 
 		self.data_numerical_homo.y_label="Energy"
 		self.data_numerical_homo.data_label="States"
@@ -373,7 +405,7 @@ class dos_editor(QWidget):
 			self.data_lumo.data[0][0][iy]=y
 
 			self.data_homo.y_scale[iy]=x
-			print(x,homo_y)
+			#print(x,homo_y)
 			self.data_homo.data[0][0][iy]=homo_y
 
 		if bands!=0:
@@ -437,10 +469,13 @@ class dos_editor(QWidget):
 							self.data_numerical_homo.data[0][0][iy]=srh_homo_avg[i]/srh_homo_count[i]
 						break
 
-		self.data_numerical_lumo.save(os.path.join(self.dos_dir,"lumo_numberical.dat"))
-		self.data_numerical_homo.save(os.path.join(self.dos_dir,"homo_numberical.dat"))
-		self.data_lumo.save(os.path.join(self.dos_dir,"lumo.dat"))
-		self.data_homo.save(os.path.join(self.dos_dir,"homo.dat"))
+		self.data_numerical_lumo.file_name=os.path.join(self.dos_dir,"lumo_numberical.dat")
+		self.data_numerical_homo.file_name=os.path.join(self.dos_dir,"homo_numberical.dat")
+
+		self.data_lumo.file_name=os.path.join(self.dos_dir,"lumo.dat")
+		self.data_homo.file_name=os.path.join(self.dos_dir,"homo.dat")
+
+		self.plot.data=[self.data_numerical_lumo,self.data_numerical_homo,self.data_lumo,self.data_homo]	
 
 	def __init__(self,file_name):
 		QWidget.__init__(self)
@@ -468,18 +503,19 @@ class dos_editor(QWidget):
 		self.homo=equation_editor("homo"+ext,"HOMO")
 		vbox.addWidget(self.homo)
 		
-		
+		self.plot=plot_widget(enable_toolbar=False)
+		self.plot.set_labels([_("LUMO"),_("HOMO"),_("LUMO numerical"),_("HOMO numerical")])
+
+
 		self.gen_mesh()
 
 		edit_boxes.setLayout(vbox)
 
 		hbox=QHBoxLayout()
 
-		self.plot=plot_widget(enable_toolbar=False)
-		self.plot.set_labels([_("LUMO"),_("HOMO"),_("LUMO numerical"),_("HOMO numerical")])
-		self.plot.load_data([os.path.join(self.dos_dir,"lumo.dat"),os.path.join(self.dos_dir,"homo.dat"),os.path.join(self.dos_dir,"lumo_numberical.dat"),os.path.join(self.dos_dir,"homo_numberical.dat")])
-
 		self.plot.do_plot()
+
+		#self.plot.do_plot()
 
 		hbox.addWidget(self.plot)
 
@@ -488,7 +524,7 @@ class dos_editor(QWidget):
 		
 		self.ribbon=ribbon_complex_dos()
 		self.ribbon.tb_save.triggered.connect(self.callback_save)
-
+		self.ribbon.tb_trap_depth.triggered.connect(self.callback_trap_depth)
 		self.main_layout_widget=QWidget()
 		self.main_layout_widget.setLayout(hbox)
 

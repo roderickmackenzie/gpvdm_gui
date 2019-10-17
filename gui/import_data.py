@@ -68,10 +68,10 @@ from inp import inp_get_token_value_from_list
 from ribbon_import import ribbon_import
 
 from str2bool import str2bool
+import shutil
 
 articles = []
 mesh_articles = []
-
 
 class import_data(QDialog):
 
@@ -102,6 +102,9 @@ class import_data(QDialog):
 			box.addItem(self.items[i][0]+" ("+self.items[i][1]+")")
 
 	def callback_edited(self):
+		if self.disable_callbacks==True:
+			return
+
 		self.populate_boxes()
 		self.save_config()
 		self.update()
@@ -118,7 +121,7 @@ class import_data(QDialog):
 	def save_config(self):
 		lines=[]
 		lines.append("#import_file_path")
-		lines.append(self.file_name)
+		lines.append(self.file_names[0])
 		lines.append("#import_x_combo_pos")
 		lines.append(str(self.x_combo.currentIndex()))
 		lines.append("#import_data_combo_pos")
@@ -149,9 +152,11 @@ class import_data(QDialog):
 		lines=[]
 		lines=inp_load_file(self.config_file_path)
 		if lines!=False:
-			self.file_name=inp_get_token_value_from_list(lines,"#import_file_path")
-			if os.path.isfile(self.file_name)==False:
+			self.file_names=[inp_get_token_value_from_list(lines,"#import_file_path")]
+			if os.path.isfile(self.file_names[0])==False:
 				return False
+
+			self.disable_callbacks=True
 			self.x_combo.setCurrentIndex(int(inp_get_token_value_from_list(lines,"#import_x_combo_pos")))
 			self.data_combo.setCurrentIndex(int(inp_get_token_value_from_list(lines,"#import_data_combo_pos")))
 			
@@ -165,6 +170,8 @@ class import_data(QDialog):
 
 			self.x_invert.setChecked(str2bool(inp_get_token_value_from_list(lines,"#import_x_invert")))
 			self.data_invert.setChecked(str2bool(inp_get_token_value_from_list(lines,"#import_data_invert")))
+			self.disable_callbacks=False
+			self.update()
 
 			return True
 		else:
@@ -203,15 +210,14 @@ class import_data(QDialog):
 
 	def __init__(self,out_file,config_file,multi_files=False):
 		QDialog.__init__(self)
+		self.disable_callbacks=False
 		self.multi_files=multi_files
 		self.out_file=out_file
 		self.config_file_path=config_file
 		self.path=os.path.dirname(self.out_file)
-		self.file_name=None
+		self.file_names=None
 		resize_window_to_be_sane(self,0.6,0.7)
-		self.data=dat_file()
 
-		#self.setFixedSize(900, 600)
 		self.setWindowIcon(icon_get("import"))
 
 		self.setWindowTitle(_("Import data")+" (https://www.gpvdm.com)") 
@@ -414,57 +420,55 @@ class import_data(QDialog):
 		self.data_invert.stateChanged.connect(self.callback_edited)
 		self.top_widget.setLayout(self.top_vbox)
 
-	def gen_output(self):
-		text="\n".join(self.data.gen_output_data())
-		self.out_data.setText(text)
-
 	def update(self):
-		ret=self.data.import_data(self.file_name,x_col=self.x_spin.value(),y_col=self.data_spin.value())
+		if self.file_names!=None:
+			file_name=self.file_names[0]
+			data=self.transform(file_name)
+			text="\n".join(data.gen_output_data())
+			self.out_data.setText(text)
+
+	def transform(self,file_name):
+
+		data=dat_file()
+		ret=data.import_data(file_name,x_col=self.x_spin.value(),y_col=self.data_spin.value())
 		if ret==True:
 			self.populate_boxes()
 		else:
 			return False
 
-		self.data.title=self.get_title()
+		data.title=self.get_title()
 
-		self.data.y_label=self.get_xlabel()
-		self.data.data_label=self.get_data_label()
+		data.y_label=self.get_xlabel()
+		data.data_label=self.get_data_label()
 
-		self.data.y_units=self.x_units
-		self.data.data_units=self.data_units
+		data.y_units=self.x_units
+		data.data_units=self.data_units
 		
-		self.data.y_mul=self.x_disp_mul
-		self.data.data_mul=self.data_disp_mul
-
-		self.data.x_len=self.data.x_len
-		self.data.y_len=self.data.y_len
-		self.data.z_len=self.data.z_len
+		data.y_mul=self.x_disp_mul
+		data.data_mul=self.data_disp_mul
 
 
 		#rescale the data
-		for i in range(0,self.data.y_len):
+		for i in range(0,data.y_len):
 			y=0
-			y_command="self.data.y_scale[i]*"+self.x_mul_to_si
+			y_command="data.y_scale[i]*"+self.x_mul_to_si
 			y=eval(y_command)
 
-			data_command="self.data.data[0][0][i]*"+self.data_mul_to_si
-			data=eval(data_command)
+			dat_command="data.data[0][0][i]*"+self.data_mul_to_si
+			dat=eval(dat_command)
 
 			if self.x_invert.isChecked() == True:
 				y=y*-1
 
 			if self.data_invert.isChecked() == True:
-				data=data*-1
+				dat=dat*-1
 
-			self.data.data[0][0][i]=data
-			self.data.y_scale[i]=y
+			data.data[0][0][i]=dat
+			data.y_scale[i]=y
 
-			#y_all.append(y)
-			#data_all.append(data)
+		data.y_scale, data.data[0][0] = zip(*sorted(zip(data.y_scale, data.data[0][0])))
 
-		self.data.y_scale, self.data.data[0][0] = zip(*sorted(zip(self.data.y_scale, self.data.data[0][0])))
-
-		self.gen_output()
+		return data
 
 	def callback_plot(self):
 		file_name=os.path.join(get_sim_path(),"temp.dat")
@@ -474,30 +478,44 @@ class import_data(QDialog):
 		plot_gen([file_name],[],"auto")
 		
 	def callback_import(self):
-		a = open(self.out_file, "w")
-		a.write(self.out_data.toPlainText())
-		a.close()
+		file_name=self.file_names[0]
+		data=self.transform(file_name)
+		data.save(self.out_file)
+
+		if self.multi_files==True:
+			if len(self.file_names)>1:
+				for i in range(1,len(self.file_names)):
+					print(self.file_names[i])
+					data=self.transform(self.file_names[i])
+					new_dir=os.path.join(os.path.dirname(self.path),os.path.basename(os.path.splitext(self.file_names[i])[0]))
+					if os.path.isdir(new_dir)==False:
+						shutil.copytree(self.path, new_dir)
+					data.save(os.path.join(new_dir,os.path.basename(self.out_file)))
+
 		self.accept()
 
 	def open_file(self):
-		self.file_name=open_as_filter(self,"dat (*.dat);;csv (*.csv);;txt (*.txt);;tdf (*.tdf)",path=self.path,multi_files=self.multi_files)
+		self.file_names=open_as_filter(self,"dat (*.dat);;csv (*.csv);;txt (*.txt);;tdf (*.tdf)",path=self.path,multi_files=self.multi_files)
 
-		if self.file_name!=None:
+		if self.file_names!=None:
+			if type(self.file_names)==str:
+				self.file_names=[self.file_names]
+
 			self.load_file()
 			
 	def load_file(self):
-		if self.file_name!=None:
-			if os.path.isfile(self.file_name)==True:
-				f = open(self.file_name, "r")
+		if self.file_names!=None:
+			if os.path.isfile(self.file_names[0])==True:
+				f = open(self.file_names[0], "r")
 				lines = f.readlines()
 				f.close()
 				text=""
 				for l in range(0, len(lines)):
 					text=text+lines[l].rstrip()+"\n"
-				self.raw_data_path.setText(self.file_name)
+				self.raw_data_path.setText(self.file_names[0])
 				self.raw_data.setText(text)
 
-				#got_info=plot_load_info(self.info_token,self.file_name)
+				#got_info=plot_load_info(self.info_token,self.file_names[0])
 				self.ribbon.import_data.setEnabled(True)
 				self.ribbon.plot.setEnabled(True)
 

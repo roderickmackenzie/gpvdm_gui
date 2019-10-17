@@ -69,7 +69,13 @@ class script_ribbon(ribbon_base):
 		toolbar = QToolBar()
 		toolbar.setToolButtonStyle( Qt.ToolButtonTextBesideIcon)
 		toolbar.setIconSize(QSize(32, 32))
-		
+
+		self.tb_new = QAction_lock("document-new", _("New"), self,"ribbion_script_new")
+		toolbar.addAction(self.tb_new)
+
+		self.tb_rename = QAction_lock("rename", _("Rename"), self,"ribbion_script_rename")
+		toolbar.addAction(self.tb_rename)
+
 		self.run = play(self,"scripts_ribbon_run",run_text=wrap_text(_("Run"),3))
 		toolbar.addAction(self.run)
 

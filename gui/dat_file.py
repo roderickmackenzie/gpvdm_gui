@@ -155,6 +155,9 @@ def guess_dim(lines):
 	return 1,y,1
 
 def col_name_to_pos(lines,col,known_col_sep):
+	if known_col_sep==None:
+		return col
+
 	if type(col)==float:
 		return col
 
@@ -425,7 +428,6 @@ class dat_file():
 		x_col=col_name_to_pos(lines,x_col,known_col_sep)
 		y_col=col_name_to_pos(lines,y_col,known_col_sep)
 
-		print(x_col,y_col)
 		lines=lines[skip_lines:]
 
 

@@ -56,7 +56,9 @@ class lock_gui(QWidget):
 
 	def bing(self):
 		self.timer.stop()
-
+		#self.register=register()
+		#ret=self.register.run()
+		
 		if get_lock().get_next_gui_action()=="register":
 			#self.disable_all.emit()
 			self.register=register()

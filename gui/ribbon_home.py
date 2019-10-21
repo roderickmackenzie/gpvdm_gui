@@ -67,6 +67,7 @@ from global_objects import global_object_register
 
 from lock import get_lock
 from QAction_lock import QAction_lock
+from scripts import scripts
 
 class ribbon_home(QToolBar):
 
@@ -105,7 +106,6 @@ class ribbon_home(QToolBar):
 		self.scan.clicked.connect(self.callback_scan)
 		self.addAction(self.scan)
 
-
 		self.addSeparator()
 
 		self.fit = QAction_lock("fit", _("Fit to\nexperimental data"), self,"ribbon_home_fit")
@@ -136,6 +136,10 @@ class ribbon_home(QToolBar):
 			self.home_cart = QAction(icon_get("upgrade"), _("Upgrade to\ngpvdm professional."), self)
 			self.home_cart.triggered.connect(self.callback_buy)
 			self.addAction(self.home_cart)
+
+		self.tb_script_editor = QAction_lock("script", _("Script\nEditor"), self,"script_editor")
+		self.tb_script_editor.clicked.connect(self.callback_script)
+		self.addAction(self.tb_script_editor)
 
 		self.help = QAction(icon_get("internet-web-browser"), _("Help"), self)
 		self.addAction(self.help)
@@ -231,3 +235,9 @@ class ribbon_home(QToolBar):
 		else:
 			global_object_register("optics_force_redraw",self.optics_window.force_redraw)
 			self.optics_window.show()
+
+	def callback_script(self):
+
+		self.scripts=scripts()
+
+		self.scripts.show()

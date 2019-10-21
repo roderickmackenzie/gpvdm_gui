@@ -105,6 +105,21 @@ class inp():
 		ret= write_lines_to_archive(self.zip_file_path,self.file_name,self.lines)
 		return ret
 
+	def append(self,data):
+		self.lines.append(data)
+
+	def save_as(self,file_path,archive="sim.gpvdm"):
+
+		full_path=default_to_sim_path(file_path)
+		self.zip_file_path=os.path.join(os.path.dirname(full_path),archive)
+		self.file_name=os.path.basename(full_path)
+
+		return self.save()
+
+	def delete(self):
+		zip_remove_file(self.zip_file_path,self.file_name)
+
+
 callbacks=[]
 class callback_data():
 	def __init__(self):

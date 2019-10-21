@@ -87,6 +87,7 @@ class register(QDialog):
 		#self.working.show()
 
 		self.register.setEnabled(False)
+
 		ret=get_lock().register(email=self.email0.text(),name=self.title.currentText()+" "+self.first_name.text()+" "+self.surname.text(),company=self.company.text())
 		if ret==False:
 			if get_lock().error=="no_internet":

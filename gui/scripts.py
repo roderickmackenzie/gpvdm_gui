@@ -104,14 +104,20 @@ class scripts(QWidgetSavePos):
 		css_apply(self.notebook,"tab_default.css")
 		self.notebook.setMovable(True)
 
-
+		added=0
 		for f in inp_lsdir("sim.gpvdm"):
 			if f.endswith(".py"):
 				file_name=os.path.join(get_sim_path(),f)
 				a=script_editor()
 				a.load(file_name)
 				self.notebook.addTab(a,f)
-
+				added=added+1
+		if added==0:
+			file_name=os.path.join(get_sim_path(),"example.py")
+			self.new_script(file_name)
+			a=script_editor()
+			a.load(file_name)
+			self.notebook.addTab(a,"example.py")
 
 		self.notebook.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
 		self.main_vbox.addWidget(self.notebook)
@@ -119,27 +125,29 @@ class scripts(QWidgetSavePos):
 
 		self.setLayout(self.main_vbox)
 
+	def new_script(self,file_name):
+		data=[]
+		data.append("#!/usr/bin/env python3")
+		data.append("# -*- coding: utf-8 -*-")
+		data.append("import os")
+		data.append("import sys")
+		data.append("")
+		data.append("from gpvdm_api import gpvdm_api")
+		data.append("")
+		data.append("def run():")
+		data.append("	a=gpvdm_api(verbose=True)")
+		data.append("	a.set_save_dir(device_data)")
+		data.append("	a.edit(\"light.inp\",\"#light_model\",\"qe\")")
+		data.append("	a.edit(\"jv0.inp\",\"#Vstop\",\"0.8\")")
+		data.append("	a.run()")
+
+		inp_save_lines_to_file(file_name,data)
+
 	def callback_add_page(self):
 		new_sim_name=dlg_get_text( "Add a new script:", "exampe.py","document-new.png")
 		if new_sim_name.ret!=None:
 			name=os.path.join(get_sim_path(),new_sim_name.ret)
-			data=[]
-			data.append("#!/usr/bin/env python3")
-			data.append("# -*- coding: utf-8 -*-")
-			data.append("import os")
-			data.append("import sys")
-			data.append("")
-			data.append("from gpvdm_api import gpvdm_api")
-			data.append("")
-			data.append("def run()")
-			data.append("	a=gpvdm_api(verbose=True)")
-			data.append("	a.set_save_dir(device_data)")
-			data.append("	a.edit(\"light.inp\",\"#light_model\",\"qe\")")
-			data.append("	a.edit(\"jv0.inp\",\"#Vstop\",\"0.8\")")
-			data.append("	a.run()")
-
-			inp_save_lines_to_file(name,data)
-
+			self.new_script(name)
 			a=script_editor()
 			a.load(name)
 			self.notebook.addTab(a,os.path.basename(name))

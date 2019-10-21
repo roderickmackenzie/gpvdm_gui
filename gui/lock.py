@@ -49,12 +49,12 @@ from i18n import get_full_language
 from inp import inp_replace_token_value
 
 from lock_util import lock_load
-from lock_util import lock_save
 from lock_util import lock_update_token
 
 from cal_path import get_exe_path
-from code_ctrl import am_i_rod
 from threading import Thread
+
+from cal_path import get_exe_command
 
 if running_on_linux()==False:
 	import winreg
@@ -67,6 +67,9 @@ from disk_speed import get_disk_speed
 import platform
 from i18n import get_full_language
 
+from cal_path import get_tmp_path
+from inp import inp
+
 #firewall-cmd --permanent --add-port=8080/tcp
 #firewall-cmd --reload
 
@@ -77,11 +80,9 @@ class lock():
 		self.uid=""
 		self.renew_date=0
 		self.register_date=0
-		self.lver="2.1"
 		self.error=""
 		self.disabled=False
 		self.use_count=False
-		self.ping_server=True
 		self.open_gl_working=True
 		self.reg_client_ver="ver"
 		self.client_ver_from_lock=""
@@ -89,25 +90,11 @@ class lock():
 		self.use_count_check_web=5
 		self.locked=[]
 		self.not_locked=[]
-		if am_i_rod()==True:
-			print("I'm running on Rods pc")
-			self.website="127.0.0.1"
-			self.port=":8080"
-		else:
-			self.website="www.gpvdm.com"
-			self.port="/api"
-		
-		#self.website="www.gpvdm.com"
 
+		self.website="www.gpvdm.com"
+		self.port="/api"
 
-		if running_on_linux()==True:
-			self.data_path=os.path.join(get_user_settings_dir(),"settings.inp")
-			#self.li_file=os.path.join(get_user_settings_dir(),".gpvdm_li.inp")
-
-		else:
-			self.data_path=os.path.join(get_user_settings_dir(),"settings.inp")
-			#self.li_file=os.path.join(get_user_settings_dir(),"gpvdm_li.inp")
-
+		self.data_path=os.path.join(get_user_settings_dir(),"settings.inp")
 
 		if self.load()==True:
 			if self.client_ver_from_lock!=self.reg_client_ver:
@@ -122,6 +109,7 @@ class lock():
 
 	def server_check_user(self):
 		if self.use_count>self.use_count_check_web:
+		#print("get license!!!!!")
 			self.get_license()
 
 	def report_bug(self,data):
@@ -140,22 +128,38 @@ class lock():
 		lines=a.get(tx_string)
 
 	def debug_tx_info(self):
-		#if self.ping_server==True:
 		p = Thread(target=self.debug)
 		p.daemon = True
-		p.start()	
-
+		p.start()
 
 	def register(self,email="",name="",company=""):
-		a=http_get()
-		params = {'email': email, "ver": ver(), "name": name, "uid": self.uid, "lang": get_full_language() ,"lver":self.lver, "test":"true" , "win_id":self.get_win_id(),"company":company,"client_ver":self.reg_client_ver,"mac":self.get_mac()}
+		l=inp()
+		l.append("#email")
+		l.append(email)
+		l.append("#name")
+		l.append(name)
+		l.append("#company")
+		l.append(company)
+		l.append("#lang")
+		l.append(get_full_language())
+		l.append("#end")
 
-		lines=a.get("http://"+self.website+self.port+"/register?"+urllib.parse.urlencode(params))
+		l.save_as(os.path.join(get_tmp_path(),"reg.txt"))
+
+		command=get_exe_command()+" --register"
+		os.system(command)
+		l.delete()
+
+		l=inp()
+		l.load(os.path.join(get_tmp_path(),"ret.txt"))
+		lines=l.get_token("#ret")
+
 		if lines==False:
-			self.error="no_internet"
 			return False
 
-		lines=lines.decode("utf-8")
+		if lines=="no_internet":
+			self.error="no_internet"
+			return False
 
 		if lines=="tooold":
 			self.error="too_old"
@@ -168,7 +172,6 @@ class lock():
 	def get_term(self):
 		return (self.renew_date-self.register_date)/1000/60/60/24
 
-
 	def html(self):
 		text=""
 		text=text+"UID:"+self.uid+"<br>"
@@ -178,29 +181,24 @@ class lock():
 	def get_license(self,key="none",uid=None):
 		if uid==None:
 			uid=self.uid
-		a=http_get()
-		params = {"uid": uid, "key": key,"lver":self.lver, "win_id":self.get_win_id(),"mac_id":self.get_mac()}
-		lines=a.get("http://"+self.website+self.port+"/license?"+urllib.parse.urlencode(params))
-	
+
+		command=get_exe_command()+" --license"
+		os.system(command)
+
+		l=inp()
+		l.load(os.path.join(get_tmp_path(),"ret.txt"))
+		lines=l.get_token("#ret")
+
 		if lines==False:
-			self.error="no_internet"
 			return False
 
-		lines=lines.decode("utf-8").split("\n")
-
-		inp_replace_token_value(lines,"#client_ver",self.reg_client_ver)
-
-		if lines[0]=="tooold":
+		if lines=="tooold":
 			self.error="too_old"
 			return False
 
-		if lines[0]=="error":
+		if lines=="error":
 			self.error="uid_not_found"
 			return False
-
-		
-		lock_save(self.data_path,lines)
-		self.write_reg_key("new_install","false")
 
 		self.load()
 
@@ -241,7 +239,7 @@ class lock():
 		lines=lock_load(self.data_path)
 #		print(lines)
 
-		self.reg_client_ver=self.get_gpvdm_ver_from_reg()
+		self.reg_client_ver=self.get_reg_key("ver")
 
 		if lines==False:
 			return False
@@ -265,26 +263,11 @@ class lock():
 
 		self.status=inp_search_token_value(lines, "#status")
 
-		val=inp_search_token_value(lines, "#ping_server")
-		#if self.tx_debug_info==True:
-			
-		if val!=False:
-			self.ping_server=str2bool(val)
-
-		if self.status=="cluster":
-			self.ping_server=False
-
-
-		#print(lines,self.ping_server)
-
-		#print(lines)
-
-		if self.use_count!=False:# and self.ping_server==True:
+		if self.use_count!=False:
 			self.use_count=int(self.use_count)
 			lock_update_token(self.data_path,"#use_count",str(self.use_count+1))
 		else:
 			self.use_count=0
-		#print(lines)
 
 		ver=float(inp_search_token_value(lines, "#ver"))
 		
@@ -298,31 +281,7 @@ class lock():
 	def load(self):
 
 		if self.load_new()==True:
-			if self.get_reg_key("uid")==False:
-				self.write_reg_key("uid",self.uid)
 			return
-		#else:
-		#	value=self.get_reg_key("uid")
-		#	if value!=False:
-		#		self.get_license(uid=value)
-
-		#check if old file exists
-		if running_on_linux()==True:
-			path=os.path.join(expanduser("~"),"settings.inp")
-		else:
-			path=os.path.join(get_exe_path(),"uid.inp")
-
-		#test for old users
-		if os.path.isfile(path)==True:
-			try:
-				lines=[]
-				lines=lock_load(path)
-				self.uid=inp_search_token_value(lines, "#uid")
-				#print("old uid found",self.uid)
-				return
-			except:
-				pass
-
 
 		value=self.get_reg_key("uid")
 		if value!=False:
@@ -341,57 +300,6 @@ class lock():
 				pass
 		return False
 
-	def get_gpvdm_ver_from_reg(self):
-		if running_on_linux()==False:
-			try:
-				registry_key = winreg.OpenKey(winreg.HKEY_CURRENT_USER, "Software\\gpvdm", 0, winreg.KEY_READ)
-				value, regtype = winreg.QueryValueEx(registry_key, "ver")
-				winreg.CloseKey(registry_key)
-				return str(value)
-			except WindowsError:
-				print("data search")
-				pass
-		return "linux_ver"
-
-	def get_win_id(self):
-		if running_on_linux()==False:
-			try:
-				registry_key = winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, "SOFTWARE\\Microsoft\\Cryptography", 0, winreg.KEY_READ |winreg.KEY_WOW64_64KEY)
-				value, regtype = winreg.QueryValueEx(registry_key, "MachineGuid")
-				winreg.CloseKey(registry_key)
-				return str(value)
-			except WindowsError:
-				print("data search")
-				pass
-		else:
-			return "undefined"
-		return "undefined"
-
-	def get_mac(self):
-		if running_on_linux()==True:
-			import fcntl
-			import socket
-			import struct
-
-			ifname=os.listdir('/sys/class/net/')[0]
-			s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-			info = fcntl.ioctl(s.fileno(), 0x8927,  struct.pack('256s', bytes(ifname, 'utf-8')[:15]))
-			return ':'.join('%02x' % b for b in info[18:24])
-		else:
-			return "undefined"
-		return "undefined"
-
-	def write_reg_key(self,token,value):
-		if running_on_linux()==False:
-			try:
-				key = winreg.OpenKey(winreg.HKEY_CURRENT_USER, "Software\\gpvdm", sam=winreg.KEY_SET_VALUE | winreg.KEY_WRITE)
-			except:
-				key = winreg.CreateKey(winreg.HKEY_CURRENT_USER, "Software\\gpvdm")
-			try:
-				winreg.SetValueEx(key, token, 0, winreg.REG_SZ, value)
-			finally:
-				key.Close()
-
 	def is_registered(self):
 		return self.registered
 		return True
@@ -399,32 +307,6 @@ class lock():
 	def over_use_count_limit(self):
 		return self.use_count>self.use_count_check_web+5
 		return 0
-
-	#is the GUI disabled
-	def is_disabled(self):
-
-		if self.disabled==True:
-			return True
-
-		if self.over_use_count_limit()==True:
-			return True
-
-		if self.renew_date==-1:
-			return False
-
-
-
-		self.disable_now()
-		return True
-		return False
-
-	def disable_now(self):
-		lock_update_token(self.data_path,"#disabled","true")
-		self.disabled=True
-
-	def enable_now(self):
-		lock_update_token(self.data_path,"#disabled","false")
-		self.disabled=False
 
 	def is_expired(self):
 		if self.status=="expired":
@@ -448,25 +330,21 @@ class lock():
 		return False
 
 	def validate_key(self,key):
-		a=http_get()
+		command=get_exe_command()+" --validate "+key
+		os.system(command)
 
-		win_id=self.get_win_id()
-		if win_id=="undefined":
-			win_id=self.get_mac()
+		l=inp()
+		l.load(os.path.join(get_tmp_path(),"ret.txt"))
+		lines=l.get_token("#ret")
 
-		params = {"key": key, "uid": self.uid,"lver":self.lver, "win_id":win_id}
-
-		data=a.get("http://"+self.website+self.port+"/activate?"+urllib.parse.urlencode(params))
-		if data==False:
+		if lines==False:
 			self.error="no_internet"
 			return False
 
-		data=data.decode("utf-8") 
-		
-		if data=="ok":
-			self.get_license()
+		if lines=="ok":
+			self.load()
 			return True
-		elif data=="tooold":
+		elif lines=="tooold":
 			self.error="too_old"
 			return False
 

@@ -55,8 +55,6 @@ class QAction_lock(QAction):
 		sub_icon=None
 		self.locked=False
 		self.text=text
-		if get_lock().is_trial()==True:
-			self.locked=locked
 		
 		if get_lock().is_function_locked(id)==True:
 			self.locked=True

@@ -49,7 +49,6 @@ from i18n import get_full_language
 from inp import inp_replace_token_value
 
 from lock_util import lock_load
-from lock_util import lock_update_token
 
 from cal_path import get_exe_path
 from threading import Thread
@@ -108,9 +107,8 @@ class lock():
 		return True
 
 	def server_check_user(self):
-		if self.use_count>self.use_count_check_web:
-		#print("get license!!!!!")
-			self.get_license()
+		command=get_exe_command()+" --use"
+		os.system(command)
 
 	def report_bug(self,data):
 		#Transmit debug info
@@ -148,7 +146,7 @@ class lock():
 
 		command=get_exe_command()+" --register"
 		os.system(command)
-		l.delete()
+		#l.delete()
 
 		l=inp()
 		l.load(os.path.join(get_tmp_path(),"ret.txt"))
@@ -240,6 +238,8 @@ class lock():
 #		print(lines)
 
 		self.reg_client_ver=self.get_reg_key("ver")
+		if self.reg_client_ver==False:
+			self.reg_client_ver="linux"
 
 		if lines==False:
 			return False
@@ -252,22 +252,13 @@ class lock():
 		self.disabled=str2bool(inp_search_token_value(lines, "#disabled"))
 		self.renew_date=int(inp_search_token_value(lines, "#renew_date"))
 		self.register_date=int(inp_search_token_value(lines, "#register_date"))
-		self.old_user=inp_search_token_value(lines, "#old_user")
-		self.win_id=inp_search_token_value(lines, "#win_id")
-		self.mac=inp_search_token_value(lines, "#mac")
-		self.use_count=inp_search_token_value(lines, "#use_count")
+		self.use_count=int(inp_search_token_value(lines, "#use_count"))
 		self.locked=inp_search_token_value(lines, "#locked").split(";")
 		self.not_locked=inp_search_token_value(lines, "#not_locked").split(";")
 
 		self.client_ver_from_lock=inp_search_token_value(lines, "#client_ver")
 
 		self.status=inp_search_token_value(lines, "#status")
-
-		if self.use_count!=False:
-			self.use_count=int(self.use_count)
-			lock_update_token(self.data_path,"#use_count",str(self.use_count+1))
-		else:
-			self.use_count=0
 
 		ver=float(inp_search_token_value(lines, "#ver"))
 		
@@ -348,7 +339,7 @@ class lock():
 			self.error="too_old"
 			return False
 
-		self.error=data
+		self.error=lines
 		return False
 
 	

@@ -77,34 +77,22 @@ class lock():
 		self.registered=False
 
 		self.uid=""
-		self.renew_date=0
-		self.register_date=0
 		self.error=""
-		self.disabled=False
-		self.use_count=False
 		self.open_gl_working=True
 		self.reg_client_ver="ver"
 		self.client_ver_from_lock=""
 		self.status="no_key"
-		self.use_count_check_web=5
 		self.locked=[]
 		self.not_locked=[]
 
 		self.website="www.gpvdm.com"
 		self.port="/api"
 
-		self.data_path=os.path.join(get_user_settings_dir(),"settings.inp")
+		self.data_path=os.path.join(get_user_settings_dir(),"info.inp")
 
 		if self.load()==True:
 			if self.client_ver_from_lock!=self.reg_client_ver:
 				self.get_license()
-
-	def can_i_run_a_simulation(self):
-		if self.disabled==True:
-			return False
-		else:
-			return True
-		return True
 
 	def server_check_user(self):
 		command=get_exe_command()+" --use"
@@ -167,13 +155,9 @@ class lock():
 
 		return True
 
-	def get_term(self):
-		return (self.renew_date-self.register_date)/1000/60/60/24
-
 	def html(self):
 		text=""
 		text=text+"UID:"+self.uid+"<br>"
-		text=text+"count:"+str(self.use_count)+"<br>"
 		return text
 
 	def get_license(self,key="none",uid=None):
@@ -207,8 +191,6 @@ class lock():
 		return self.uid
 
 	def get_next_gui_action(self):
-		if self.over_use_count_limit()==True and self.disabled==False:
-			return "no_internet"
 
 		if self.is_registered()==False:
 			return "register"
@@ -249,9 +231,6 @@ class lock():
 			return False
 
 		self.uid=inp_search_token_value(lines, "#uid")
-		self.disabled=str2bool(inp_search_token_value(lines, "#disabled"))
-		self.renew_date=int(inp_search_token_value(lines, "#renew_date"))
-		self.register_date=int(inp_search_token_value(lines, "#register_date"))
 		self.use_count=int(inp_search_token_value(lines, "#use_count"))
 		self.locked=inp_search_token_value(lines, "#locked").split(";")
 		self.not_locked=inp_search_token_value(lines, "#not_locked").split(";")
@@ -295,9 +274,6 @@ class lock():
 		return self.registered
 		return True
 
-	def over_use_count_limit(self):
-		return self.use_count>self.use_count_check_web+5
-		return 0
 
 	def is_expired(self):
 		if self.status=="expired":
@@ -309,12 +285,6 @@ class lock():
 			return False
 
 		if self.status=="full_version":
-			return False
-
-		if self.status=="cluster":
-			if round((self.renew_date/1000-time.time())/24/60/60)<0:
-				return True
-
 			return False
 
 		return True

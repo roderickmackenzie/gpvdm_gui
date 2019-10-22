@@ -155,7 +155,7 @@ class gpvdm_notebook(QTabWidget):
 			self.terminal=tab_terminal()
 			self.terminal.init()
 			self.addTab(self.terminal,_("Terminal"))
-			self.terminal.run(os.getcwd(),get_exe_command()+" --version "+get_exe_args())
+			self.terminal.run(os.getcwd(),get_exe_command()+" --version2 "+get_exe_args())
 			global_object_register("terminal",self.terminal)
 
 			widget=tab_view()

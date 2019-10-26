@@ -152,6 +152,7 @@ class cache(QWidget):
 		inp_update_token_value(self.cache_config_file,"#cache_enabled",str(self.enabled))
 
 	def callback_clear_cache(self):
+		path=os.path.join(get_user_settings_dir(),"cache")
 		gpvdm_delete_file(path)
 		self.close()
 

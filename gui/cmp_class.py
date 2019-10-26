@@ -59,16 +59,20 @@ class cmp_class(QWidgetSavePos):
 
 	def update(self):
 		files=[]
+		types=[]
 		key=[]
-		file_names=self.slider.get_file_name()
-		for f in file_names:
+		file_names,graph_types=self.slider.get_file_name()
+		for i in range(0,len(file_names)):
+			f=file_names[i]
 			if f!=None:
 				files.append(f)
 				key.append("data")
+				types.append(graph_types[i])
 
 		if len(files)!=0:
-			self.plot.set_labels(key)
 			self.plot.load_data(files)
+			self.plot.set_labels(key)
+			self.plot.set_plot_types(types)
 			self.plot.do_plot()
 
 	def save_image(self,file_name):

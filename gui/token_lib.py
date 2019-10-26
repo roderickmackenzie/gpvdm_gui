@@ -185,6 +185,7 @@ def build_token_lib():
 	lib.append(my_data("","#Vstep","V",_("Voltage step"),"e",1.0,"QLineEdit"))
 	lib.append(my_data("","#jv_Rcontact","V",_("Contact resistance"),"e",1.0,"QParasitic"))
 	lib.append(my_data("","#jv_Rshunt","V",_("Shunt resistance"),"e",1.0,"QParasitic"))
+	lib.append(my_data("","#jv_single_point",_("True/False"),_("Single point"),"e",1.0,"gtkswitch"))
 
 	#sim_info.dat (jv plugin)
 	lib.append(my_data("","#voc","V",_("V_{oc}"),"e",1.0,"QLineEdit"))
@@ -272,6 +273,7 @@ def build_token_lib():
 	lib.append(my_data("math.inp","#math_t0","au",_("Slotboom T0"),"e",1.0,"QLineEdit"))
 	lib.append(my_data("math.inp","#math_d0","au",_("Slotboom D0"),"e",1.0,"QLineEdit"))
 	lib.append(my_data("math.inp","#math_n0","au",_("Slotboom n0"),"e",1.0,"QLineEdit"))
+	lib.append(my_data("math.inp","#math_newton_cache","au",_("Use newton cache (experimental)"),"e",1.0,"gtkswitch"))
 
 
 	#fit.inp

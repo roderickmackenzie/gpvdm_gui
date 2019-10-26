@@ -174,7 +174,7 @@ class scan_vbox(QWidget):
 		self.select_param_window.show()
 
 	def callback_delete_item(self):
-		sefl.tab.remove()
+		self.tab.remove()
 		self.rebuild_op_type_widgets()
 		self.save_combo()
 

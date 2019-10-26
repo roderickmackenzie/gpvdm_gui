@@ -76,3 +76,41 @@ def dat_files_to_gnuplot(out_dir,data):
 		plotfile.append(line)
 
 	inp_save_lines_to_file(os.path.join(out_dir,"plot.plot"),plotfile)
+
+def dat_files_to_gnuplot_files(out_dir,data):
+	os.mkdir(out_dir)
+	data_dir=os.path.join(out_dir,"data")
+	os.mkdir(data_dir)
+
+	makefile=[]
+	makefile.append("main:")
+	for i in range(0,len(data)):
+		makefile.append("	gnuplot "+str(i)+".plot >"+str(i)+".eps")
+		makefile.append("	gs -dNOPAUSE -r600 -dEPSCrop -sDEVICE=jpeg -sOutputFile="+str(i)+".jpg "+str(i)+".eps -c quit")
+		makefile.append("")
+
+	inp_save_lines_to_file(os.path.join(out_dir,"makefile"),makefile)
+
+	for i in range(0,len(data)):
+		plotfile=[]
+		plotfile.append("set term postscript eps enhanced color solid \"Helvetica\" 25")
+		plotfile.append("set ylabel '"+data[0].data_label+" ("+data[0].data_units+")'")
+		plotfile.append("set xlabel '"+data[0].y_label+" ("+data[0].y_units+")'")
+		plotfile.append("set key top left")
+		plotfile.append("set colors classic")
+		if data[0].logdata==True:
+			plotfile.append("set logscale y")
+			plotfile.append("set format y \"%2.0t{/Symbol \\264}10^{%L}\"")
+		else:
+			plotfile.append("#set logscale y")
+			plotfile.append("#set format y \"%2.0t{/Symbol \\264}10^{%L}\"")
+
+		d=data[i]
+		d.save_as_txt(os.path.join(data_dir,str(i)+".txt"))
+		file_path=os.path.join("data",str(i)+".txt")
+		file_path=d.file_name
+		line="plot '"+file_path+"' using ($1):($2) with lp title '"+d.key_text+"'"
+
+		plotfile.append(line)
+
+		inp_save_lines_to_file(os.path.join(out_dir,str(i)+".plot"),plotfile)

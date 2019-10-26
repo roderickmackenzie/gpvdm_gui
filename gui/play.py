@@ -71,17 +71,15 @@ class play(QAction_lock):
 	def do_emit(self):
 		value=False
 
-		value=get_lock().can_i_run_a_simulation()
 
-		if value==True:
-			if self.running==False:
-				self.start_sim.emit()
-			else:
-				server_get().killall()
-
+		if self.running==False:
+			self.start_sim.emit()
 		else:
-			self.lock=lock_gui()
-			self.lock.bing()
+			server_get().killall()
+
+		#else:
+		#	self.lock=lock_gui()
+		#	self.lock.bing()
 
 	def __init__(self,parent,id,play_icon="media-playback-start",run_text=_("Run simulation")):
 		self.play_icon=play_icon

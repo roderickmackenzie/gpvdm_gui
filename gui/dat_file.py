@@ -357,6 +357,7 @@ class dat_file():
 		self.y_units=""
 		self.z_units=""
 		self.data_units=""
+		self.plot_type=""		#wireframe/heat etc...
 
 		self.r=None
 		self.g=None

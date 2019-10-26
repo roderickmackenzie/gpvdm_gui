@@ -87,9 +87,9 @@ class snapshot_slider(QWidget):
 		self.slider0.setMaximum(self.slider_max)
 
 		self.tab.clear()
-		self.tab.setColumnCount(1)
+		self.tab.setColumnCount(2)
 		self.tab.setSelectionBehavior(QAbstractItemView.SelectRows)
-		self.tab.setHorizontalHeaderLabels([ _("File to plot")])
+		self.tab.setHorizontalHeaderLabels([ _("File to plot"),_("Plot type")])
 
 		self.tab.setColumnWidth(0, 400)
 		pos=self.tab.insert_row()
@@ -103,6 +103,7 @@ class snapshot_slider(QWidget):
 
 	def get_file_name(self):
 		ret=[]
+		plot_types=[]
 		val=self.slider0.value()
 		if self.slider_dir_exists()==False:
 			return ret
@@ -111,8 +112,9 @@ class snapshot_slider(QWidget):
 			file_path=os.path.join(self.path,self.dirs[val],self.tab.get_value(i,0))
 			if os.path.isfile(file_path)==True:
 				ret.append(file_path)
+				plot_types.append(self.tab.get_value(i,1))
 
-		return ret
+		return ret,plot_types
 
 	def set_path(self,path):
 		self.path=path
@@ -221,6 +223,13 @@ class snapshot_slider(QWidget):
 		#self.item.button.clicked.connect(self.callback_show_list)
 
 		self.tab.setCellWidget(i,0,self.item)
+
+		self.item_type = QComboBox()
+		self.item_type.addItem("wireframe")
+		self.item_type.addItem("heat")
+		self.item_type.currentIndexChanged.connect(self.files_combo_changed)
+
+		self.tab.setCellWidget(i,1,self.item_type)
 
 		self.tab.blockSignals(False)
 

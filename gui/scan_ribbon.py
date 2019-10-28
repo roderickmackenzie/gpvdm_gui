@@ -97,8 +97,8 @@ class scan_ribbon(ribbon_base):
 		self.tb_plot = QAction(icon_get("plot"), wrap_text(_("Plot"),4), self)
 		toolbar.addAction(self.tb_plot)
 	
-		self.tb_plot_time = QAction(icon_get("plot_time"), wrap_text(_("Time domain plot"),6), self)
-		toolbar.addAction(self.tb_plot_time)
+		#self.tb_plot_time = QAction(icon_get("plot_time"), wrap_text(_("Time domain plot"),6), self)
+		#toolbar.addAction(self.tb_plot_time)
 
 
 		self.box_widget=QWidget()

@@ -44,12 +44,15 @@ try:
 except:
 	pass
 
-from PyQt5.QtCore import QTimer
+import io
+from PyQt5.QtCore import QTimer, Qt
 from inp import inp_update_token_value
 from cal_path import get_sim_path
-from PyQt5.QtWidgets import QDialog, QFontDialog
+from PyQt5.QtWidgets import QDialog, QFontDialog, QColorDialog
 from dat_file_math import dat_file_max_min
 from open_save_dlg import save_as_filter
+from PyQt5.QtWidgets import QApplication
+from PyQt5.QtGui import QImage
 
 class gl_main_menu():
 	def menu(self,event):
@@ -58,8 +61,13 @@ class gl_main_menu():
 
 		menu = QMenu(self)
 
-		action=menu.addAction(_("Save image"))
+		export=menu.addMenu(_("Export"))
+
+		action=export.addAction(_("Save image"))
 		action.triggered.connect(self.save_image_as)
+
+		action=export.addAction(_("Clipboard"))
+		action.triggered.connect(self.callback_copy)
 
 
 		view=menu.addMenu(_("View"))
@@ -104,6 +112,13 @@ class gl_main_menu():
 
 		#menu.exec_(self.emailbtn.mapToGlobal(QtCore.QPoint(0,0)))
 		menu.exec_(event.globalPos())
+
+	def callback_copy(self):
+		#buf = io.BytesIO()
+		
+		QApplication.clipboard().setImage(self.grabFrameBuffer())
+		#buf.close()
+
 
 
 	def save_image_as(self):

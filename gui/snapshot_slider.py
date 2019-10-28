@@ -227,6 +227,7 @@ class snapshot_slider(QWidget):
 		self.item_type = QComboBox()
 		self.item_type.addItem("wireframe")
 		self.item_type.addItem("heat")
+		self.item_type.addItem("contour")
 		self.item_type.currentIndexChanged.connect(self.files_combo_changed)
 
 		self.tab.setCellWidget(i,1,self.item_type)

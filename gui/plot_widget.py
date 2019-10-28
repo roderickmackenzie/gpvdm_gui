@@ -210,18 +210,20 @@ class plot_widget(QWidget):
 			this_plot.append(os.path.basename(d.file_name))
 
 		if (this_plot==self.last_plot)==False:
-
+			#print("redoooo!!!!!!!!!!!!!")
 			self.fig.clf()
 			self.fig.subplots_adjust(bottom=0.2)
 			self.fig.subplots_adjust(bottom=0.2)
 			self.fig.subplots_adjust(left=0.1)
 			self.fig.subplots_adjust(hspace = .001)
 
+			self.ax=[]
+
 			if self.plot_type=="linegraph":
 				for i in range(0,len(self.data)):
 					self.ax.append(self.fig.add_subplot(111,facecolor='white'))
 
-			if self.plot_type=="rgb":
+			elif self.plot_type=="rgb":
 				for i in range(0,len(self.data)):
 					self.ax.append(self.fig.add_subplot(111,facecolor='white'))
 			elif self.plot_type=="wireframe":
@@ -237,6 +239,9 @@ class plot_widget(QWidget):
 				for a in self.ax:
 					for c in a.collections:
 						c.remove()
+			elif self.plot_type=="linegraph":
+				for a in self.ax:
+					a.clear()
 			elif self.plot_type=="heat":
 				self.fig.clf()
 			else:
@@ -257,6 +262,7 @@ class plot_widget(QWidget):
 		key_text=[]
 
 		self.plot_type=""
+		#print(self.data[0].x_len,self.data[0].z_len,self.data[0].data)
 		if self.data[0].type=="rgb":
 			self.plot_type="rgb"
 		else:
@@ -294,7 +300,7 @@ class plot_widget(QWidget):
 		if self.plot_type=="linegraph":		#This is for the 1D graph case
 			self.ax[0].set_xlabel(self.data[0].y_label+" ("+str(self.data[0].y_units)+")")
 			self.ax[0].set_ylabel(self.data[0].data_label+" ("+self.data[0].data_units+")")
-
+	
 			for i in range(0,len(self.data)):
 				if self.data[0].logy==True:
 					self.ax[i].set_xscale("log")
@@ -310,7 +316,7 @@ class plot_widget(QWidget):
 				else:
 					col=get_color(i)
 				cur_plot, = self.ax[i].plot(self.data[i].y_scale,self.data[i].data[0][0], linewidth=3 ,alpha=1.0,color=col,marker=get_marker(i))
-
+				#print(self.data[i].y_scale,self.data[i].data[0][0])
 				if self.data[i].key_text!="":
 					key_text.append("$"+numbers_to_latex(str(self.data[i].key_text))+ " "+pygtk_to_latex_subscript(self.data[0].key_units) +"$")
 
@@ -368,10 +374,12 @@ class plot_widget(QWidget):
 				print(self.data[i].plot_type,"here")
 				if self.data[i].plot_type=="wireframe" or self.data[i].plot_type=="":
 					im=self.ax[0].plot_wireframe( Y,X, array(Z),color=col)
+				elif self.data[i].plot_type=="contour":
+					im=self.ax[0].contourf( Y,X, array(Z),color=col)
 				elif self.data[i].plot_type=="heat":
-					#im=self.ax[0].contourf( Y,X, array(Z),color=col)
 					my_max,my_min=dat_file_max_min(self.data[0])
 					im=self.ax[0].plot_surface(Y,X, array(Z), linewidth=0, vmin=my_min, vmax=my_max,cmap="hot", antialiased=False)
+
 				#im=self.ax[0].contourf( Y,X, Z,color=col)
 
 #cset = ax.contourf(X, Y, Z, zdir='y', offset=40, cmap=cm.coolwarm)

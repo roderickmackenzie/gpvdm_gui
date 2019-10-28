@@ -102,6 +102,8 @@ from win_lin import desktop_open
 
 import datetime
 
+from dir_decode import get_dir_type
+
 class scan_vbox(QWidget):
 
 	def rename(self,new_name):
@@ -315,6 +317,14 @@ class scan_vbox(QWidget):
 
 		if ret==QDialog.Accepted:
 			full_file_name=dialog.get_filename()
+
+			dir_type=get_dir_type(full_file_name)
+			if dir_type=="snapshots":
+				from cmp_class import cmp_class
+				self.snapshot_window=cmp_class(full_file_name)
+				self.snapshot_window.show()
+				return
+
 			#dialog.destroy()
 			#print cur_dir=os.getcwd()
 			#print full_file_name

@@ -70,6 +70,7 @@ if gui_get()==True:
 	from process_events import process_events
 
 from server_io import server_find_simulations_to_run
+from inp import inp
 
 import time
 
@@ -104,9 +105,7 @@ class base_server():
 		self.running=False
 		self.progress_window=progress_class()
 		self.stop_work=False
-		self.cpus=multiprocessing.cpu_count()
-		if self.cpus>4:
-			self.cpus=self.cpus-2
+		self.update_cpu_number()
 		self.clear_jobs()
 
 	def clear_jobs(self):
@@ -120,6 +119,22 @@ class base_server():
 
 	def base_server_init(self,sim_dir):
 		self.sim_dir=sim_dir
+
+	def update_cpu_number(self):
+		self.cpus=multiprocessing.cpu_count()
+		if self.cpus>4:
+			self.cpus=self.cpus-2
+
+		data=inp()
+		data.load(os.path.join(get_sim_path(),"server.inp"))
+		max=data.get_token("#max_gpvdm_instances")
+
+		if max=="false" or max=="False" or max== "none":
+			return
+
+		if max!=False:
+			max=int(max)
+			self.cpus=max
 
 	def base_server_add_job(self,path,arg):
 		j=job()
@@ -362,6 +377,7 @@ if gui_get()==True:
 			if self.cluster==True:
 				self.cluster_run_jobs()
 			else:
+				self.update_cpu_number()
 				self.timer_start()
 
 		def process_jobs(self):

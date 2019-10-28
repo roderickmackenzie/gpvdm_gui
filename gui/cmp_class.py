@@ -54,6 +54,9 @@ from QWidgetSavePos import QWidgetSavePos
 from cal_path import get_sim_path
 
 from dat_file_math import dat_file_max_min
+from PIL import Image
+from PyQt5.QtGui import QImage
+import io
 
 class cmp_class(QWidgetSavePos):
 
@@ -75,8 +78,8 @@ class cmp_class(QWidgetSavePos):
 			self.plot.set_plot_types(types)
 			self.plot.do_plot()
 
-	def save_image(self,file_name):
-		dir_name, ext = os.path.splitext(file_name)
+	def save_image(self,out_file_name):
+		dir_name, ext = os.path.splitext(out_file_name)
 
 		if ext==".avi":
 
@@ -84,17 +87,29 @@ class cmp_class(QWidgetSavePos):
 				os.mkdir(dir_name)
 
 			jpgs=""
-			for i in range(0,self.slider.slider_max):
+			fmax=self.slider.slider_max
+			for i in range(0,fmax):
 				self.slider.slider0.setValue(i)
 				QApplication.processEvents()
 				self.update()
-				self.plot.do_plot()
+				#self.plot.do_plot()
 				image_name=os.path.join(dir_name,"image_"+str(i)+".jpg")
 				print(image_name)
 				self.plot.fig.savefig(image_name)
-				jpgs=jpgs+" mf://"+image_name
+				jpgs=jpgs+image_name+"\n"
 
-			os.system("mencoder "+jpgs+" -mf type=jpg:fps=1.0 -o "+file_name+" -ovc lavc -lavcopts vcodec=mpeg1video:vbitrate=800")
+			files_list_path=os.path.join(dir_name,"files.txt")
+			f=open(files_list_path,"w")
+			f.write(jpgs)
+			f.close()
+			
+			fps=int(fmax/60)
+			encode_line="mencoder mf://@"+files_list_path+" -mf type=jpg:fps="+str(fps)+" -o "+out_file_name+" -ovc x264"
+
+			os.system(encode_line)
+			
+			#worked in fedora
+			#os.system("mencoder "+jpgs+" -mf type=jpg:fps=1.0 -o "+file_name+" -ovc lavc -lavcopts vcodec=mpeg1video:vbitrate=800")
 			#msmpeg4v2
 		else:
 			print("Unknown file extension")
@@ -103,6 +118,58 @@ class cmp_class(QWidgetSavePos):
 		file_name=save_as_filter(self,"avi (*.avi)")
 		if file_name!=None:
 			self.save_image(file_name)
+
+	def callback_storyboard(self):
+		#file_name=save_as_filter(self,"jpg (*.jpg)")
+		#if file_name!=None:
+
+			#dir_name, ext = os.path.splitext(file_name)
+
+			#if os.path.isdir(dir_name)==False:
+			#	os.mkdir(dir_name)
+
+			#jpgs=[]
+		number_of_images=4
+		fmax=self.slider.slider_max
+		step=fmax/number_of_images
+		pos=0
+		buf=[]
+		for i in range(0,number_of_images):
+			self.slider.slider0.setValue(pos)
+			QApplication.processEvents()
+			self.update()
+			#image_name=os.path.join(dir_name,"image_"+str(i)+".jpg")
+			#print(image_name)
+			#self.plot.fig.savefig(image_name)
+			buf.append(io.BytesIO())
+			self.plot.fig.savefig(buf[-1])
+			#jpgs.append(image_name)
+			pos=pos+step
+
+		rows=4
+		cols=(int)(number_of_images/rows)
+
+		image = Image.open(buf[0])
+		w,h= image.size
+		new_im = Image.new('RGB', (w*cols, h*rows))
+		x=0
+		y=0
+		for i in range(0,len(buf)):
+			image = Image.open(buf[i])
+			w,h= image.size
+			new_im.paste(image, (x,y))
+			x=x+w
+			print(x,w*cols)
+			if x>=w*cols:
+				x=0
+				y=y+h
+
+		#new_im.save(file_name)
+		buf = io.BytesIO()
+		new_im.save(buf,format="JPEG")
+		#self.fig.savefig(buf)
+		QApplication.clipboard().setImage(QImage.fromData(buf.getvalue()))
+		buf.close()
 
 	def callback_help(self, widget, data=None):
 		webbrowser.open('http://www.gpvdm.com/man/gpvdm.html')
@@ -173,9 +240,15 @@ class cmp_class(QWidgetSavePos):
 		self.slider.changed.connect(self.update)
 		self.plot=plot_widget()
 
-		self.tb_video = QAction(icon_get("video"), _("Save video"), self)
+		self.tb_video = QAction(icon_get("video"), _("Save\nvideo"), self)
 		self.tb_video.triggered.connect(self.callback_save)
 		self.plot.plot_ribbon.file_toolbar.addAction(self.tb_video)
+
+		self.tb_storyboard = QAction(icon_get("storyboard"), _("Storyboard\nto clipboard"), self)
+		self.tb_storyboard.triggered.connect(self.callback_storyboard)
+		self.plot.plot_ribbon.file_toolbar.addAction(self.tb_storyboard)
+
+
 		self.plot.plot_ribbon.plot_toolbar.addAction(self.slider.tb_play)
 
 
@@ -190,8 +263,8 @@ class cmp_class(QWidgetSavePos):
 
 		self.setLayout(self.main_vbox)
 
-		if os.path.isfile(os.path.join(get_sim_path(),"snapshots","0","Ec.dat"))==False:
-			help_window().help_append(["warning.png",_("No electrical slice data has been stored in the snapshots directory.  To turn this on set Simulation->Configure->Dump->Dump 1D Slices to on.  This will dump a lot of data and slow down your simulations.")])
+		#if os.path.isfile(os.path.join(get_sim_path(),"snapshots","0","Ec.dat"))==False:
+		#	help_window().help_append(["warning.png",_("No electrical slice data has been stored in the snapshots directory.  To turn this on set Simulation->Configure->Dump->Dump 1D Slices to on.  This will dump a lot of data and slow down your simulations.")])
 		
 		#self.light.currentIndexChanged.connect(self.call_back_light_changed)
 		self.update()

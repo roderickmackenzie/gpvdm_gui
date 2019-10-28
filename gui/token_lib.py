@@ -175,14 +175,14 @@ def build_token_lib():
 	lib.append(my_data("","#changelog","au",_("Change log"),"e",1.0,"QChangeLog"))
 
 	#jv.inp
-	lib.append(my_data("","#jv_step_mul","0-2.0",_("JV voltage step multiplyer"),"e",1.0,"QLineEdit"))
+	lib.append(my_data("","#jv_step_mul","0-2.0",_("JV voltage step multiplyer"),"e",1.0,"QLineEdit",hide_on_true_token="#jv_single_point"))
 	lib.append(my_data("","#jv_max_j","A m^{-2}",_("Maximum current density"),"e",1.0,"QLineEdit"))
 	lib.append(my_data("","#jv_light_efficiency","au",_("JV curve photon generation efficiency"),"e",1.0,"QLineEdit"))
 	lib.append(my_data("","#jv_pmax_n","m^{-3}",_("Average carrier density at P_{max}"),"e",1.0,"QLineEdit"))
 	lib.append(my_data("","#jv_pmax_tau","m^{-1}",_("Recombination time constant"),"e",1.0,"QLineEdit"))
 	lib.append(my_data("","#Vstart","V",_("Start voltage"),"e",1.0,"QLineEdit"))
-	lib.append(my_data("","#Vstop","V",_("Stop voltage"),"e",1.0,"QLineEdit"))
-	lib.append(my_data("","#Vstep","V",_("Voltage step"),"e",1.0,"QLineEdit"))
+	lib.append(my_data("","#Vstop","V",_("Stop voltage"),"e",1.0,"QLineEdit",hide_on_true_token="#jv_single_point"))
+	lib.append(my_data("","#Vstep","V",_("Voltage step"),"e",1.0,"QLineEdit",hide_on_true_token="#jv_single_point"))
 	lib.append(my_data("","#jv_Rcontact","V",_("Contact resistance"),"e",1.0,"QParasitic"))
 	lib.append(my_data("","#jv_Rshunt","V",_("Shunt resistance"),"e",1.0,"QParasitic"))
 	lib.append(my_data("","#jv_single_point",_("True/False"),_("Single point"),"e",1.0,"gtkswitch"))

@@ -319,7 +319,7 @@ class scan_class(QWidgetSavePos):
 
 		self.ribbon.tb_plot.triggered.connect(self.callback_plot)
 	
-		self.ribbon.tb_plot_time.triggered.connect(self.callback_examine)
+		#self.ribbon.tb_plot_time.triggered.connect(self.callback_examine)
 
 		self.ribbon.tb_ml_build_vectors.triggered.connect(self.callback_mb_build_vectors)
 

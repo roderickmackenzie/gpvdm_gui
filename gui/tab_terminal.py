@@ -46,6 +46,7 @@ from jobs import jobs_view
 from server import server_get
 
 from css import css_apply
+from cal_path import multiplatform_exe_command
 
 class output_box(QTextEdit):
 	def __init__(self,device_type):
@@ -121,12 +122,7 @@ class tab_terminal(QWidget,tab_base):
 				cursor.insertHtml(_("Running: ")+command+"<br>")
 				self.process[i].setWorkingDirectory(path)
 
-				if running_on_linux()==False:
-					if command.count(".exe")>0:
-						command="\""+command
-						command=command.replace(".exe",".exe\"",1)
-
-				print("exe command=",command)
+				command=multiplatform_exe_command(command)
 				self.process[i].start(command)
 				return True
 

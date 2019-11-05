@@ -136,6 +136,9 @@ class ribbon_database(QToolBar):
 		self.spectra_file.setEnabled(val)
 		self.tb_update.setEnabled(val)
 		self.lasers.setEnabled(val)
+		self.emission.setEnabled(val)
+		self.user.setEnabled(val)
+		self.shape.setEnabled(val)
 
 		if enable_betafeatures()==True:
 			self.tb_import_pvlighthouse.setEnabled(val)

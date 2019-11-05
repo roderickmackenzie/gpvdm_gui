@@ -82,9 +82,9 @@ class ribbon_configure(QToolBar):
 		self.mesh.triggered.connect(self.callback_edit_mesh)		
 		self.addAction(self.mesh)
 
-		self.pl = QAction_lock("thermal", _("Temperature"), self,"ribbon_config_temperature")
-		self.pl.clicked.connect(self.callback_thermal)
-		self.addAction(self.pl)
+		self.temperature = QAction_lock("thermal", _("Temperature"), self,"ribbon_config_temperature")
+		self.temperature.clicked.connect(self.callback_thermal)
+		self.addAction(self.temperature)
 
 		self.solar = QAction_lock("weather-few-clouds", _("Solar spectrum\ngenerator"), self,"solar_spectrum_tool")
 		self.solar.clicked.connect(self.callback_solar)
@@ -111,7 +111,7 @@ class ribbon_configure(QToolBar):
 		self.configwindow.setEnabled(val)
 		self.dump.setEnabled(val)
 		self.mesh.setEnabled(val)
-		
+		self.temperature.setEnabled(val)
 		
 	def callback_edit_mesh(self):
 		help_window().help_set_help(["mesh.png",_("<big><b>Mesh editor</b></big>\nUse this window to setup the mesh, the window can also be used to change the dimensionality of the simulation.")])

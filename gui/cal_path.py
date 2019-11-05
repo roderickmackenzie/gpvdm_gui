@@ -531,3 +531,12 @@ def find_light_source(path=None):
 def print_paths():
 	print("get_inp_file_path:",get_inp_file_path())
 
+def multiplatform_exe_command(command):
+	if running_on_linux()==False:
+		if command.count(".exe")>0:
+			command="\""+command
+			command=command.replace(".exe",".exe\"",1)
+
+	print("exe command=",command)
+	return command
+

@@ -126,6 +126,9 @@ class base_server():
 			self.cpus=self.cpus-2
 
 		data=inp()
+		if data==False:
+			return
+
 		data.load(os.path.join(get_sim_path(),"server.inp"))
 		max=data.get_token("#max_gpvdm_instances")
 

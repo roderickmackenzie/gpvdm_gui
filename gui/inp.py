@@ -75,6 +75,9 @@ class inp():
 		return self.lines
 
 	def get_token(self,token):
+		if self.lines==False:
+			return False
+
 		"""Get the value of a token from a list"""
 		for i in range(0, len(self.lines)):
 			if self.lines[i]==token:

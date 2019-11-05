@@ -179,6 +179,8 @@ class ribbon_simulations(QToolBar):
 		self.sunsjsc.setEnabled(val)
 		self.measure.setEnabled(val)
 		self.fdtd.setEnabled(val)
+		self.ray_trace.setEnabled(val)
+		self.pl.setEnabled(val)
 
 	def callback_edit_experiment_window(self):
 

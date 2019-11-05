@@ -68,6 +68,7 @@ from i18n import get_full_language
 
 from cal_path import get_tmp_path
 from inp import inp
+from cal_path import multiplatform_exe_command
 
 #firewall-cmd --permanent --add-port=8080/tcp
 #firewall-cmd --reload
@@ -95,7 +96,7 @@ class lock():
 				self.get_license()
 
 	def server_check_user(self):
-		command=get_exe_command()+" --use"
+		command=multiplatform_exe_command(get_exe_command()+" --use")
 		os.system(command)
 
 	def report_bug(self,data):
@@ -132,7 +133,7 @@ class lock():
 
 		l.save_as(os.path.join(get_tmp_path(),"reg.txt"))
 
-		command=get_exe_command()+" --register"
+		command=multiplatform_exe_command(get_exe_command()+" --register")
 		os.system(command)
 		#l.delete()
 
@@ -164,7 +165,7 @@ class lock():
 		if uid==None:
 			uid=self.uid
 
-		command=get_exe_command()+" --license"
+		command=multiplatform_exe_command(get_exe_command()+" --license")
 		os.system(command)
 
 		l=inp()
@@ -291,7 +292,7 @@ class lock():
 		return False
 
 	def validate_key(self,key):
-		command=get_exe_command()+" --validate "+key
+		command=multiplatform_exe_command(get_exe_command()+" --validate "+key)
 		os.system(command)
 
 		l=inp()

@@ -243,7 +243,11 @@ class plot_widget(QWidget):
 				for a in self.ax:
 					a.clear()
 			elif self.plot_type=="heat":
-				self.fig.clf()
+				for a in self.ax:
+					a.clear()
+				if self.cb!=None:
+					self.cb.remove()
+					self.cb=None
 			else:
 				for a in self.ax:
 					a.clear()
@@ -395,7 +399,7 @@ class plot_widget(QWidget):
 				else:
 					im=self.ax[0].pcolor(self.data[i].y_scale,self.data[i].x_scale,self.data[i].data[0], vmin=my_min, vmax=my_max,cmap="gnuplot")
 
-				self.fig.colorbar(im)
+				self.cb=self.fig.colorbar(im)
 
 		elif self.plot_type=="3d":
 			self.ax[0].set_xlabel(self.data[0].x_label+" ("+self.data[0].x_units+")")
@@ -713,6 +717,7 @@ class plot_widget(QWidget):
 		self.zero_frame_enable=False
 		self.zero_frame_list=[]
 
+		self.cb=None
 
 		if enable_toolbar==True:
 			self.plot_ribbon=plot_ribbon()

@@ -38,7 +38,7 @@ from cal_path import get_css_path
 from PyQt5.QtWidgets import QMainWindow, QTextEdit, QAction, QApplication
 from PyQt5.QtGui import QIcon
 from PyQt5.QtCore import QSize, Qt,QFile,QIODevice
-from PyQt5.QtWidgets import QWidget,QSizePolicy,QVBoxLayout,QHBoxLayout,QPushButton,QDialog,QFileDialog,QToolBar,QMessageBox, QLineEdit, QToolButton
+from PyQt5.QtWidgets import QWidget,QSizePolicy,QVBoxLayout,QHBoxLayout,QPushButton,QDialog,QFileDialog,QToolBar,QMessageBox, QLineEdit, QToolButton, QMenu
 from PyQt5.QtWidgets import QTabWidget
 
 from icon_lib import icon_get
@@ -55,6 +55,7 @@ from QAction_lock import QAction_lock
 from inp import inp_get_token_value
 from inp import inp_update_token_value
 from cal_path import get_sim_path
+from gui_util import dlg_get_text
 
 class mode_button(QAction_lock):
 	def __init__(self,image,text,s,name):
@@ -94,10 +95,35 @@ class ribbon_optical_models(QToolBar):
 		a.clicked.connect(self.callback_click)
 		self.actions.append(a)
 
+		a=mode_button("constant_light", _("Constant\nvalue"), self,"optics_ribbon_mode_constant")
+		a.mode="constant"
+		a.clicked.connect(self.callback_click)
+
+		self.menu_set_constant_value = QMenu(self)
+		#self.populate_used_file_menu()
+		a.setMenu(self.menu_set_constant_value)
+
+		f=QAction(_("Edit constant"), self)
+		f.triggered.connect(self.callback_edit_constant)
+		self.menu_set_constant_value.addAction(f)
+
+
+		self.actions.append(a)
+
 		for a in self.actions:
 			self.addAction(a)
 
 		self.set_mode()
+
+	def callback_edit_constant(self):
+		value=inp_get_token_value(os.path.join(get_sim_path(),"light.inp"), "#light_flat_generation_rate")
+
+		value=dlg_get_text( _("Enter the generation rate to be used (m-3 s-1)"), value,"constant_light.png")
+		value=value.ret
+
+		if value!=None:
+			inp_update_token_value(os.path.join(get_sim_path(),"light.inp"), "#light_flat_generation_rate",value)
+
 
 	def set_mode(self):
 		self.blockSignals(True)	

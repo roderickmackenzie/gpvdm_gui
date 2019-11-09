@@ -27,21 +27,14 @@
 
 import os
 
-from inp import inp_load_file
-from inp import inp_search_token_value
+from inp import inp
 from inp import inp_save
 
 from str2bool import str2bool
 from cal_path import get_sim_path
-
+from shape import shape
 
 from gui_enable import gui_get
-if gui_get()==True:
-	from file_watch import get_watch
-	from PyQt5.QtCore import pyqtSignal
-	from PyQt5.QtWidgets import QWidget
-else:
-	from gui_enable import QWidget
 
 
 class segment():
@@ -49,186 +42,142 @@ class segment():
 		self.name=""
 		self.position=""
 		self.active=False
-		self.start=0.0
-		self.depth=0.0
+		self.resistance_sq=0.0
 		self.voltage=0.0
-		self.width=0.0
 		self.np=1e20
 		self.charge_type="electron"
+		self.shape=None
 
-store=[]
-
-def contacts_print():
-	global store
-	for s in store:
-		print(s.start, s.width,s.depth,s.voltage,s.active)
-
-def contacts_get_contacts():
-	global store
-	return len(store)
-
-def contacts_get_array():
-	global store
-	return store
-
-def contacts_clear():
-	global store
-	store=[]
-
-def contacts_append(name,position,active,start,width,depth,voltage,np,charge_type):
-	global store
-	s=segment()
-	s.name=name
-	s.position=position
-	s.active=active
-	s.start=start
-	s.depth=depth
-	s.voltage=voltage
-	s.width=width
-	s.np=np
-	s.charge_type=charge_type
-	store.append(s)
-
-def gen_file():
-	global store
-	lines=[]
-	lines.append("#contacts")
-	lines.append(str(len(store)))
-	i=0
-	for s in store:
-		lines.append("#contact_name"+str(i))
-		lines.append(str(s.name))
-		lines.append("#contact_position"+str(i))
-		lines.append(str(s.position))
-		lines.append("#contact_active"+str(i))
-		lines.append(str(s.active))
-		lines.append("#contact_start"+str(i))
-		lines.append(str(s.start))
-		lines.append("#contact_width"+str(i))
-		lines.append(str(s.width))
-		lines.append("#contact_depth"+str(i))
-		lines.append(str(s.depth))
-		lines.append("#contact_voltage"+str(i))
-		lines.append(str(s.voltage))
-		lines.append("#contact_charge_density"+str(i))
-		lines.append(str(s.np))
-		lines.append("#contact_charge_type"+str(i))
-		lines.append(str(s.charge_type))
-		i=i+1
-
-	lines.append("#ver")
-	lines.append("1.2")
-	lines.append("#end")
-
-	return lines
-
-
-def contacts_dump():
-	lines=gen_file()
-	for s in lines:
-		print(s)
-
-
-def contacts_save():
-	lines=gen_file()	
-	inp_save(os.path.join(get_sim_path(),"contacts.inp"),lines)
-
-
+	def save(self):
+		self.shape.save()
 
 		#contacts_dump()
-class contacts_io(QWidget):
-	if gui_get()==True:
-		changed = pyqtSignal()
+class contacts_io():
 
-	def init_watch(self):
-		if gui_get()==True:
-			get_watch().add_call_back("contacts.inp",self.em)
+	def __init__(self):
+		self.contacts=[]
+
+	#def init_watch(self):
+	#	if gui_get()==True:
+	#		get_watch().add_call_back("contacts.inp",self.em)
 
 	def em(self):
 		self.load()
 		self.changed.emit()
 
 	def load(self):
-		global store
-		store=[]
-		lines=[]
+		self.contacts=[]
+
 		pos=0
-		lines=inp_load_file(os.path.join(get_sim_path(),"contacts.inp"))
-		if lines!=False:
-			pos=pos+1	#first comment
-			layers=int(lines[pos])
+		contact_file=inp()
+		if contact_file.load(os.path.join(get_sim_path(),"contacts.inp"))!=False:
+			layers=int(contact_file.get_next_val())
 
 			for i in range(0, layers):
-				#name
-				pos=pos+1					#token
-				token=lines[pos]
-				
-				pos=pos+1
-				name=lines[pos]			#read value
+				name=contact_file.get_next_val()
 
-				#position
-				pos=pos+1					#token
-				token=lines[pos]
-				
-				pos=pos+1
-				position=lines[pos]			#read value
-				
-				#active
-				pos=pos+1					#token
-				token=lines[pos]
-				
-				pos=pos+1
-				active=lines[pos]			#read value
-		
-				#start
-				pos=pos+1					#token
-				token=lines[pos]
+				position=contact_file.get_next_val()
 
-				pos=pos+1
-				start=lines[pos]			#read value
+				active=contact_file.get_next_val()
 
-				#width
-				pos=pos+1					#token
-				token=lines[pos]
+				voltage=contact_file.get_next_val()
 
-				pos=pos+1
-				width=lines[pos]			#read value
+				charge_density=contact_file.get_next_val()
 
-				#depth
-				pos=pos+1					#token
-				token=lines[pos]
+				charge_type=contact_file.get_next_val()
 
-				pos=pos+1
-				depth=lines[pos]			#read value
+				shape_file_name=contact_file.get_next_val()
 
-				#voltage
-				pos=pos+1					#token
-				token=lines[pos]
-
-				pos=pos+1
-				voltage=lines[pos]			#read value
-
-				#contact_charge_density
-				pos=pos+1					#token
-				token=lines[pos]
-
-				pos=pos+1
-				charge_density=lines[pos]			#read value
-
-				#contact_charge_type
-				pos=pos+1					#token
-				token=lines[pos]
-
-				pos=pos+1
-				charge_type=lines[pos]			#read value
+				resistance_sq=contact_file.get_next_val()
 
 				#print(depth,voltage,charge_density)
-				contacts_append(name,position,str2bool(active), float(start),float(width), float(depth),float(voltage),float(charge_density), charge_type)
+				self.contact_load(name,position,str2bool(active),float(voltage),float(charge_density), charge_type,shape_file_name)
 
-contacts=None
+	def get_shape_files(self):
+		ret=[]
+		for c in self.contacts:
+			ret.append(c.shape.file_name+".inp")
+		return ret
 
-def get_contactsio():
-	global contacts
-	if contacts==None:
-		contacts=contacts_io()
-	return contacts
+	def print():
+		for s in self.contacts:
+			print(s.shape.x0, s.shape.dx,s.depth,s.voltage,s.active)
+
+	def clear():
+		self.contacts=[]
+
+	def contact_load(self,name,position,active,voltage,np,charge_type,shape_file_name):
+		s=segment()
+		s.name=name
+		s.position=position
+		s.active=active
+		s.voltage=voltage
+		s.np=np
+		s.charge_type=charge_type
+		s.shape=shape()
+		s.shape.load(shape_file_name)
+		self.contacts.append(s)
+
+	def gen_file(self):
+		lines=[]
+		lines.append("#contacts")
+		lines.append(str(len(self.contacts)))
+		i=0
+		for s in self.contacts:
+			lines.append("#contact_name"+str(i))
+			lines.append(str(s.name))
+			lines.append("#contact_position"+str(i))
+			lines.append(str(s.position))
+			lines.append("#contact_active"+str(i))
+			lines.append(str(s.active))
+			lines.append("#contact_voltage"+str(i))
+			lines.append(str(s.voltage))
+			lines.append("#contact_charge_density"+str(i))
+			lines.append(str(s.np))
+			lines.append("#contact_charge_type"+str(i))
+			lines.append(str(s.charge_type))
+			lines.append("#contact_shape_file_name"+str(i))
+			lines.append(s.shape.file_name)
+			lines.append("#contact_resistance_sq"+str(i))
+			lines.append(str(s.resistance_sq))
+
+
+			i=i+1
+
+		lines.append("#ver")
+		lines.append("1.3")
+		lines.append("#end")
+
+		return lines
+
+
+	def dump(self):
+		lines=self.gen_file()
+		for s in lines:
+			print(s)
+
+
+	def save(self):
+		lines=self.gen_file()
+		inp_save(os.path.join(get_sim_path(),"contacts.inp"),lines)
+
+		for c in self.contacts:
+			c.save()
+
+	def remove(self,index):
+		self.contacts.pop(index)
+
+	def insert(self,pos,shape_file_name):
+		s=segment()
+		s.name="new_contact"
+		s.position="top"
+		s.active=False
+		s.voltage=0.0
+		s.np=1e25
+		s.charge_type="electron"
+		s.shape=shape()
+		s.shape.load(shape_file_name)
+		s.shape.type="box"
+		self.contacts.insert(pos,s)
+		return self.contacts[pos]
+

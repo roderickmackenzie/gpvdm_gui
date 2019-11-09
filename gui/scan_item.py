@@ -37,7 +37,6 @@ from inp import inp_get_token_value
 from epitaxy import epitaxy_dos_file_to_layer_name
 from epitaxy import epitaxy_get_epi
 
-from contacts_io import contacts_get_array
 
 from util import is_numbered_file
 from epitaxy import get_epi
@@ -141,7 +140,7 @@ def scan_items_populate_from_files():
 			scan_item_add("epitaxy.inp","#layer_material_file"+str(i),os.path.join("epitaxy",str(epi[i].name),_("Material type")),2)
 			scan_item_add("epitaxy.inp","#layer_width"+str(i),os.path.join("epitaxy",str(epi[i].name),_("Layer width")),1)
 
-	contacts=contacts_get_array()
+	contacts=epitaxy_get_epi().contacts.contacts
 
 	for i in range(0,len(contacts)):
 		scan_item_add("contacts.inp","#contact_charge_density"+str(i),os.path.join("contacts",str(contacts[i].name),_("Charge density")),1)

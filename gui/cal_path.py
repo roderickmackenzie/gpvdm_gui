@@ -537,6 +537,6 @@ def multiplatform_exe_command(command):
 			command="\""+command
 			command=command.replace(".exe",".exe\"",1)
 
-	print("exe command=",command)
+	#print("exe command=",command)
 	return command
 

@@ -52,7 +52,7 @@ def lock_load(file_name):
 		if data.startswith(b"gpvdm")==False:
 			return False
 		data=data[5:]
-		ret=data.decode("utf-8", "strict").split()
+		ret=data.decode("utf-8", "strict").split("\n")
 	else:
 		data=data.decode('utf-8')
 		ret=data.split("\n")

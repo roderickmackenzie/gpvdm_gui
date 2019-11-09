@@ -26,9 +26,6 @@
 #
 
 import os
-from inp import inp_load_file
-from inp import inp_search_token_value
-from inp import inp_search_token_array
 from cal_path import get_sim_path
 from str2bool import str2bool
 from gui_enable import gui_get
@@ -45,6 +42,7 @@ from triangle_io import triangles_div_vec
 from triangle_io import triangles_mul_vec
 from triangle import vec
 from triangle_io import triangles_print 
+from inp import inp
 
 class shape():
 
@@ -82,17 +80,17 @@ class shape():
 
 
 	def do_load(self):
-		lines=inp_load_file(self.file_name+".inp")
-
-		if lines==False:
+		f=inp()
+		
+		if f.load(self.file_name+".inp")==False:
 			print("shape file not found: ",self.file_name)
 			return
-		self.type=inp_search_token_value(lines, "#shape_type")
+		self.type=f.get_token("#shape_type")
 
 		self.shape_path=os.path.join(get_shape_path(),self.type,"shape.inp")
-		self.dx=float(inp_search_token_value(lines, "#shape_dx"))
-		self.dy=float(inp_search_token_value(lines, "#shape_dy"))
-		self.dz=float(inp_search_token_value(lines, "#shape_dz"))
+		self.dx=float(f.get_token("#shape_dx"))
+		self.dy=float(f.get_token("#shape_dy"))
+		self.dz=float(f.get_token("#shape_dz"))
 
 		if os.path.isfile(self.shape_path)==True:
 			self.triangles=dat_file()
@@ -108,47 +106,29 @@ class shape():
 
 				self.triangles.data=triangles_div_vec(self.triangles.data,max_vec)
 
-				#triangles_print(self.triangles.data)
-				#print(max_vec)
-				#print("bing")
-				#v=vec()
-				#v.x=1.0
-				#v.y=-1.0
-				#v.z=1.0
-
-				#self.triangles.data=triangles_mul_vec(self.triangles.data,v)
-
-				#min_vec=triangles_get_min(self.triangles.data)
-
-				#v=vec()
-				#v.x=0.0
-				#v.y=min_vec.y
-				#v.z=0.0
-
-				#self.triangles.data=triangles_sub_vec(self.triangles.data,v)
 		try:
 
 					
-			self.dx_padding=float(inp_search_token_value(lines, "#shape_padding_dx"))
-			self.dy_padding=float(inp_search_token_value(lines, "#shape_padding_dy"))
-			self.dz_padding=float(inp_search_token_value(lines, "#shape_padding_dz"))
+			self.dx_padding=float(f.get_token("#shape_padding_dx"))
+			self.dy_padding=float(f.get_token("#shape_padding_dy"))
+			self.dz_padding=float(f.get_token("#shape_padding_dz"))
 
-			rgb=inp_search_token_array(lines, "#red_green_blue")
+			rgb=f.get_array("#red_green_blue")
 			self.r=float(rgb[0])
 			self.g=float(rgb[1])
 			self.b=float(rgb[2])
 
 
-			self.shape_nx=int(inp_search_token_value(lines, "#shape_nx"))
-			self.shape_nz=int(inp_search_token_value(lines, "#shape_nz"))
-			self.shape_name=inp_search_token_value(lines, "#shape_name")
-			self.shape_dos=inp_search_token_value(lines, "#shape_dos")
-			self.x0=float(inp_search_token_value(lines, "#shape_x0"))
+			self.shape_nx=int(f.get_token("#shape_nx"))
+			self.shape_nz=int(f.get_token("#shape_nz"))
+			self.shape_name=f.get_token("#shape_name")
+			self.shape_dos=f.get_token("#shape_dos")
+			self.x0=float(f.get_token("#shape_x0"))
 
-			self.z0=float(inp_search_token_value(lines, "#shape_z0"))
+			self.z0=float(f.get_token("#shape_z0"))
 			self.y0=0.0
 
-			self.shape_remove_layer=str2bool(inp_search_token_value(lines, "#shape_remove_layer"))
+			self.shape_remove_layer=str2bool(f.get_token("#shape_remove_layer"))
 		except:
 			pass
 
@@ -169,9 +149,51 @@ class shape():
 		self.do_load()
 		if gui_get()==True:
 			get_watch().add_call_back(self.file_name+".inp",self.on_change)
-			#get_watch().add_call_back(self.shape_path,self.do_load)
 
-		
+	def save(self):
+		lines=[]
+		lines.append("#shape_type")
+		lines.append(self.type)
+		lines.append("#shape_dx")
+		lines.append(str(self.dx))
+		lines.append("#shape_dy")
+		lines.append(str(self.dy))
+		lines.append("#shape_dz")
+		lines.append(str(self.dz))
+		lines.append("#shape_padding_dx")
+		lines.append(str(self.dx_padding))
+		lines.append("#shape_padding_dy")
+		lines.append(str(self.dy_padding))
+		lines.append("#shape_padding_dz")
+		lines.append(str(self.dz_padding))
+		lines.append("#shape_nx")
+		lines.append(str(self.shape_nx))
+		lines.append("#shape_nz")
+		lines.append(str(self.shape_nz))
+		lines.append("#shape_name")
+		lines.append(self.shape_name)
+		lines.append("#shape_dos")
+		lines.append(str(self.shape_dos))
+		lines.append("#shape_optical_material")
+		lines.append("none")
+		lines.append("#shape_x0")
+		lines.append(str(self.x0))
+		lines.append("#shape_y0")
+		lines.append(str(self.y0))
+		lines.append("#shape_z0")
+		lines.append(str(self.z0))
+		lines.append("#shape_remove_layer")
+		lines.append(str(self.shape_remove_layer))
+		lines.append("#red_green_blue")
+		lines.append(str(self.r))
+		lines.append(str(self.g))
+		lines.append(str(self.b))
+		lines.append("#ver")
+		lines.append("1.0")
+		lines.append("#end")
+		i=inp()
+		i.lines=lines
+		i.save_as(os.path.join(get_sim_path(),self.file_name+".inp"))
 
 	def dump(self):
 		print(self.file_name,self.type,self.width)

@@ -48,6 +48,7 @@ from msg_dlg import msg_dlg
 
 from code_ctrl import am_i_rod
 from cal_path import get_image_file_path
+from help import help_window
 
 class lock_gui(QWidget):
 	#disable_all=pyqtSignal()
@@ -100,12 +101,15 @@ class lock_gui(QWidget):
 			reply = msgBox.exec_()
 			return
 
+		if get_lock().update_available==True:
+			help_window().help_append(["star.png",_("<big><b>Update available!</b></big><br>Download it now from <a href=\"www.gpvdm.com\">www.gpvdm.com</a>")])
 
 
 	def __init__(self):
 		QWidget.__init__(self)
 		self.timer=QTimer()
 		self.timer.timeout.connect(self.bing)
+		self.update_available=False
 
 	def run(self):
 		#if am_i_rod()==False:

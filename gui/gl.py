@@ -51,10 +51,6 @@ from inp import inp_search_token_value
 from cal_path import get_materials_path
 from cal_path import get_sim_path
 
-#contacts
-from contacts_io import contacts_get_contacts
-from contacts_io import contacts_get_array
-
 
 #epitaxy
 from epitaxy import epitaxy_get_layers
@@ -354,14 +350,14 @@ if open_gl_ok==True:
 
 				if obj.electrical_layer=="contact":
 
-					for c in contacts_get_array():
+					for c in get_epi().contacts.contacts:
 						if (c.position=="top" and l==0) or (c.position=="bottom" and l==btm_layer):
 							if len(self.x_mesh.points)==1 and len(self.z_mesh.points)==1:
 								xstart=x
 								xwidth=scale_get_device_x()
 							else:
-								xstart=x+scale_get_xmul()*c.start
-								xwidth=scale_get_xmul()*c.width
+								xstart=x+scale_get_xmul()*c.shape.x0
+								xwidth=scale_get_xmul()*c.shape.dx
 								#print(c.position,xstart,xwidth)
 								#if (c.start+c.width)>self.x_len:
 								#	xwidth=scale_get_device_x()-xstart

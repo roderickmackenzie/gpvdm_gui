@@ -191,7 +191,7 @@ def build_token_lib():
 	lib.append(my_data("","#voc","V",_("V_{oc}"),"e",1.0,"QLineEdit"))
 	lib.append(my_data("","#pce","Percent",_("Power conversion efficiency"),"e",1.0,"QLineEdit"))
 	lib.append(my_data("","#ff","a.u.",_("Fill factor"),"e",1.0,"QLineEdit"))
-	lib.append(my_data("","#Pmax","Watts",_("Max power"),"e",1.0,"QLineEdit"))
+	lib.append(my_data("","#Pmax","W m^{-2}",_("Max power"),"e",1.0,"QLineEdit"))
 	lib.append(my_data("","#voc_nt","m^{-3}",_("Trapped electrons at Voc"),"e",1.0,"QLineEdit"))
 	lib.append(my_data("","#voc_pt","m^{-3}",_("Trapped holes at Voc"),"e",1.0,"QLineEdit"))
 	lib.append(my_data("","#voc_nf","m^{-3}",_("Free electrons at Voc"),"e",1.0,"QLineEdit"))

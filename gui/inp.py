@@ -59,6 +59,7 @@ except:
 class inp():
 	def __init__(self):
 		self.lines=[]
+		self.pos=-1
 
 	def load(self,file_path,archive="sim.gpvdm",mode="l"):
 		"""load file"""
@@ -122,6 +123,25 @@ class inp():
 	def delete(self):
 		zip_remove_file(self.zip_file_path,self.file_name)
 
+	def get_next_val(self):
+		self.pos=self.pos+1
+		self.pos=self.pos+1
+		return self.lines[self.pos]
+
+	def get_array(self, token):
+		"""Get an array of data assosiated with a token"""
+		ret=[]
+		for i in range(0, len(self.lines)):
+			if self.lines[i]==token:
+				pos=i+1
+				for ii in range(pos,len(self.lines)):
+					if len(self.lines[ii])>0:
+						if self.lines[ii][0]=="#":
+							return ret
+					
+					ret.append(self.lines[ii])
+				return ret
+		return False
 
 callbacks=[]
 class callback_data():

@@ -227,13 +227,12 @@ class gpvdm_tab(QTableWidget):
 
 	def remove(self):
 		self.blockSignals(True)
-		ret=-1
+		ret=[]
 		index = self.selectionModel().selectedRows()
-
 		if len(index)>0:
-		#	for i in range(0,len(index)):
-			ret=index[0].row()
-		#		self.removeRow(pos)
+			for i in range(0,len(index)):
+				ret.append(index[i].row())
+
 		index_list = []                                                          
 		for model_index in self.selectionModel().selectedRows():       
 			index = QPersistentModelIndex(model_index)         
@@ -244,4 +243,5 @@ class gpvdm_tab(QTableWidget):
 			
 		self.blockSignals(False)
 
+		print("index>>",ret)
 		return ret

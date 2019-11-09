@@ -166,6 +166,7 @@ parser.add_argument("--buildnestedscan", help=_("Builds a nested scan, usage --b
 parser.add_argument("--runscan", help=_("Runs a scan, usage --runscan /path/to/scan/dir/ "), nargs=1)
 parser.add_argument("--scanarchive", help=_("Compress a scandir --scanarchive path_to_scan_dir"), nargs=1)
 parser.add_argument("--scanbuildvectors", help=_("Build vectors from scan dir --scanbuildvectors path_to_scan_dir"), nargs=1)
+parser.add_argument("--list", help=_("List the content of a gpvdm archive"), action='store_true')
 
 set_gui(False)
 
@@ -231,6 +232,9 @@ def command_args_tool(argc,argv):
 			build_scan(scan_dir_path,base_dir)
 
 			sys.exit(0)
+		elif args.list:
+			inp_dir_listing(os.path.join(os.getcwd(),"sim.gpvdm"))
+			sys.exit(0)
 
 		if args.buildnestedscan:
 
@@ -243,6 +247,8 @@ def command_args_tool(argc,argv):
 			scan_build_nested_simulation(scan_dir_path,os.path.join(os.getcwd(),sim_to_nest))
 
 			sys.exit(0)
+
+
 		if args.runscan:
 			scan_dir_path=args.runscan[0]	#program file
 			exe_command=get_exe_command()

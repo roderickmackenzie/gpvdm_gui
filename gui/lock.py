@@ -85,10 +85,11 @@ class lock():
 		self.status="no_key"
 		self.locked=[]
 		self.not_locked=[]
-
+		self.update_available=False
 		self.website="www.gpvdm.com"
 		self.port="/api"
-
+		self.my_email=""
+		self.question="Questions? Contact: "
 		self.data_path=os.path.join(get_user_settings_dir(),"info.inp")
 
 		if self.load()==True:
@@ -110,7 +111,8 @@ class lock():
 		self.server_check_user()
 		#Transmit debug info
 		a=http_get()
-		params = {'action':"new_sim",'ver_core': ver_core()+"."+ver_subver()+" "+self.reg_client_ver, 'uid': self.get_uid(),'os': platform.platform(), 'opengl': str(self.open_gl_working), 'lang': get_full_language(),'disk_speed': get_disk_speed()}
+		params = {'action':"new_sim",'ver_core': ver_core()+"."+ver_subver()+" "+self.reg_client_ver, 'uid': self.get_uid(), 'opengl': str(self.open_gl_working)}
+		#'lang': get_full_language(),'disk_speed': get_disk_speed() ,'os': platform.platform()
 		tx_string="http://"+self.website+self.port+"/debug?"+urllib.parse.urlencode(params)
 		lines=a.get(tx_string)
 
@@ -236,12 +238,17 @@ class lock():
 		self.locked=inp_search_token_value(lines, "#locked").split(";")
 		self.not_locked=inp_search_token_value(lines, "#not_locked").split(";")
 
+		self.update_available=str2bool(inp_search_token_value(lines, "#update_available"))
+
 		self.client_ver_from_lock=inp_search_token_value(lines, "#client_ver")
 
 		self.status=inp_search_token_value(lines, "#status")
+		self.my_email=inp_search_token_value(lines, "#my_email")
+
+		self.question=inp_search_token_value(lines, "#question")
 
 		ver=float(inp_search_token_value(lines, "#ver"))
-		
+
 		if ver>1.0:
 			self.registered=True
 			return True

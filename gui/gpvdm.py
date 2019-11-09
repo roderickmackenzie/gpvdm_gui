@@ -39,9 +39,6 @@ sys.path.append('/usr/lib64/gpvdm/')
 sys.path.append('/usr/share/gpvdm/gui/')	#debian
 sys.path.append('/usr/share/sip/PyQt5/')
 
-from notice import notice
-print(notice())
-print("loading.... please wait...")
 
 from gui_enable import gui_test
 gui_test()
@@ -55,6 +52,12 @@ from cal_path import set_sim_path
 
 calculate_paths_init()
 calculate_paths()
+from lock import get_lock
+
+from notice import notice
+print(notice())
+print("loading.... please wait...")
+
 from cal_path import get_lang_path
 
 import i18n
@@ -131,7 +134,6 @@ from file_watch import get_watch
 from used_files import used_files_add
 from lock_gui import lock_gui
 
-from contacts_io import get_contactsio
 from epitaxy import get_epi
 from cache import cache
 
@@ -396,8 +398,6 @@ class gpvdm_main_window(QMainWindow):
 		get_epi().load(get_sim_path())
 		self.splash.inc_value()
 
-
-		get_contactsio().load()
 		self.splash.inc_value()
 
 		if mesh_load_all()==False:
@@ -429,13 +429,11 @@ class gpvdm_main_window(QMainWindow):
 
 		self.ribbon.update()
 		self.splash.inc_value()
-		#help_window().help_append(["star.png",_("<big><b>Update available!</b></big><br>")])
 
 		if self.notebook.is_loaded()==True:
 			self.l.run()
 			self.notebook.tab_main.three_d.update()
 		get_watch().rebase()
-		get_contactsio().init_watch()
 
 
 	def load_sim(self,filename):
@@ -499,7 +497,6 @@ class gpvdm_main_window(QMainWindow):
 
 	def __init__(self):
 		super(gpvdm_main_window,self).__init__()
-
 		self.splash=splash_window()
 
 		self.splash.inc_value()

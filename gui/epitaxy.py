@@ -49,6 +49,7 @@ from shape import shape
 from inp import inp_update_token_value
 
 from util import is_numbered_file
+from contacts_io import contacts_io
 
 from gui_enable import gui_get
 if gui_get()==True:
@@ -113,6 +114,7 @@ class epitaxy():
 		#QWidget.__init__(self)
 		self.layers=[]
 		self.callbacks=[]
+		self.contacts=contacts_io()
 
 	def dump(self):
 		lines=self.gen_output()
@@ -160,6 +162,8 @@ class epitaxy():
 
 			if l.homo_file!="none":
 				tab.append(l.homo_file+".inp")
+
+		tab.extend(self.contacts.get_shape_files())
 
 		return tab
 
@@ -332,43 +336,14 @@ class epitaxy():
 				inp_copy_file(new_electrical_file,electrical_path_generic)
 
 		if data=="active layer" and l.pl_file.startswith("pl")==False:
-
-			l.pl_file=self.new_electrical_file("pl")
-
-			mat_dir=os.path.join(get_materials_path(),l.pl_file)
-
-			new_pl_file=l.pl_file+".inp"
-			if inp_isfile(new_pl_file)==False:
-				pl_path=os.path.join(mat_dir,"pl.inp")
-				if os.path.isfile(pl_path)==False:
-					pl_path=os.path.join(get_default_material_path(),"pl.inp")
-
-				inp_copy_file(new_pl_file,pl_path)
-
-
+			l.pl_file=self.gen_new_electrical_file("pl")
 
 		if data=="active layer" and l.lumo_file.startswith("lumo")==False:
-			l.lumo_file=self.new_electrical_file("lumo")
-
-			new_lumo_file=l.lumo_file+".inp"
-			if inp_isfile(new_lumo_file)==False:
-				lumo_path=os.path.join(get_materials_path(),"lumo.inp")
-				if os.path.isfile(lumo_path)==False:
-					lumo_path=os.path.join(get_default_material_path(),"lumo.inp")
-
-				inp_copy_file(new_lumo_file,lumo_path)
+			l.lumo_file=self.gen_new_electrical_file("lumo")
 
 		if data=="active layer" and l.homo_file.startswith("homo")==False:
+			l.homo_file=self.gen_new_electrical_file("homo")
 
-			l.homo_file=self.new_electrical_file("homo")
-
-			new_homo_file=l.homo_file+".inp"
-			if inp_isfile(new_homo_file)==False:
-				homo_path=os.path.join(get_materials_path(),"homo.inp")
-				if os.path.isfile(homo_path)==False:
-					homo_path=os.path.join(get_default_material_path(),"homo.inp")
-
-				inp_copy_file(new_homo_file,homo_path)
 
 		if data!="active layer":
 			l.electrical_layer=data
@@ -380,6 +355,16 @@ class epitaxy():
 		self.clean_unused_files()
 
 		#self.dump()
+
+	def gen_new_electrical_file(self,prefix):
+		new_file_name=self.new_electrical_file(prefix)
+		full_new_file_name=new_file_name+".inp"
+		db_file=os.path.join(get_default_material_path(),prefix+".inp")
+
+		if inp_isfile(full_new_file_name)==False:
+			inp_copy_file(full_new_file_name,db_file)
+
+		return new_file_name
 
 	def find_shape_by_file_name(self,shape_file):
 		if shape_file.endswith(".inp"):
@@ -523,6 +508,9 @@ class epitaxy():
 
 				a.end=y_pos
 				epi.layers.append(a)
+
+			self.contacts.load()
+
 
 	def find_layer_index_from_file_name(self,input_file):
 		if input_file.endswith(".inp")==True:

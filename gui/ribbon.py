@@ -70,6 +70,7 @@ import webbrowser
 
 from help import help_window
 from lock import get_email
+from lock import get_lock
 
 class QLabel_click(QLabel):
 	clicked=pyqtSignal()
@@ -113,7 +114,7 @@ class ribbon(ribbon_base):
 		self.toolbar=QToolBar()
 		self.toolbar.setIconSize(QSize(32, 32))
 
-		self.help_message=QLabel_click(_("Questions? Contact <a href=\""+get_email()+"\">"+get_email()+"</a>"))
+		self.help_message=QLabel_click(_(get_lock().question+" <a href=\""+get_lock().my_email+"\">"+get_lock().my_email+"</a>"))
 		self.help_message.clicked.connect(self.callback_questions)
 		self.about = QToolButton(self)
 		self.about.setText(_("About"))

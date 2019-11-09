@@ -58,7 +58,6 @@ from device_lib_io import device_lib_delete
 from cal_path import test_arg_for_sim_file
 from cal_path import set_sim_path
 from import_archive import patch_file
-from inp import inp_dir_listing
 from util_zip import archive_decompress
 from util_zip import archive_compress
 from scan_io import build_scan
@@ -110,7 +109,6 @@ parser.add_argument("--encrypt", help=_("Encrypt a gpvdm file --file sim.gpvdm")
 parser.add_argument("--unpack", help=_("Extract the sim.gpvdm archive --unpack"), action='store_true')
 parser.add_argument("--pack", help=_("Extract the sim.gpvdm archive --pack"), action='store_true')
 parser.add_argument("--matcompress", help=_("Compresses the materials dir"), action='store_true')
-parser.add_argument("--list", help=_("List the content of a gpvdm archive"), action='store_true')
 parser.add_argument("--ri_sync", help=_("Sync to ri"), action='store_true')
 
 if test_arg_for_sim_file()==False:
@@ -186,9 +184,6 @@ def command_args(argc,argv):
 			sys.exit(0)
 		elif args.pack:
 			archive_compress(os.path.join(os.getcwd(),"sim.gpvdm"))
-			sys.exit(0)
-		elif args.list:
-			inp_dir_listing(os.path.join(os.getcwd(),"sim.gpvdm"))
 			sys.exit(0)
 		elif args.ri_sync:
 			from refractiveindex_info import refractiveindex_info_sync

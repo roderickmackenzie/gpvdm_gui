@@ -107,7 +107,7 @@ class register(QDialog):
 		self.setWindowIcon(icon_get("icon"))
 		self.setWindowTitle(_("Registration window (www.gpvdm.com)")) 
 		self.setWindowFlags(Qt.WindowStaysOnTopHint)
-
+		#Qt.FramelessWindowHint|
 		vbox=QVBoxLayout()
 
 		l=QLabel(_("Please register to use gpvdm. Thanks!"))

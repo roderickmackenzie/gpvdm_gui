@@ -533,6 +533,24 @@ class epitaxy():
 
 		return False
 
+	def get_layer_end(self,l):
+		global epi
+
+		pos=0.0
+		for i in range(0, l+1):
+			pos=pos+epi.layers[i].dy
+
+		return pos
+
+	def get_layer_start(self,l):
+		global epi
+
+		pos=0.0
+		for i in range(0, l):
+			pos=pos+epi.layers[i].dy
+
+		return pos
+
 epi=epitaxy()
 
 

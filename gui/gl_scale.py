@@ -131,7 +131,7 @@ def scale_m2screen_z(z):
 
 	return z_start+z_mul*z
 
-def scale_trianges_m2screen(triangles):
+def project_trianges_m2screen(triangles):
 	ret=[]
 	for t in triangles:
 		t0=triangle()
@@ -152,6 +152,29 @@ def scale_trianges_m2screen(triangles):
 
 	return ret
 
+def scale_trianges_m2screen(triangles):
+	global x_mul
+	global y_mul
+	global z_mul
+	ret=[]
+	for t in triangles:
+		t0=triangle()
+		t0.points=t.points
+		t0.xyz0.x=t.xyz0.x*x_mul
+		t0.xyz0.y=-t.xyz0.y*y_mul
+		t0.xyz0.z=t.xyz0.z*z_mul
+
+		t0.xyz1.x=t.xyz1.x*x_mul
+		t0.xyz1.y=-t.xyz1.y*y_mul
+		t0.xyz1.z=t.xyz1.z*z_mul
+
+		t0.xyz2.x=t.xyz2.x*x_mul
+		t0.xyz2.y=-t.xyz2.y*y_mul
+		t0.xyz2.z=t.xyz2.z*z_mul
+
+		ret.append(t0)
+
+	return ret
 
 def scale_screen_x2m(x):
 	global x_mul

@@ -53,7 +53,7 @@ from triangle import vec
 from triangle_io import triangles_mul_vec
 from triangle_io import triangles_print
 from triangle_io import triangles_add_vec
-from gl_scale import scale_trianges_m2screen
+from gl_scale import project_trianges_m2screen
 from triangle_io import triangles_flip
 
 class shape_layer():
@@ -91,7 +91,7 @@ class shape_layer():
 					a.triangles=triangles_add_vec(a.triangles,pos)
 
 					#scale to the screen
-					a.triangles=scale_trianges_m2screen(a.triangles)
+					a.triangles=project_trianges_m2screen(a.triangles)
 				self.gl_objects_add(a)
 
 

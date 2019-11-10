@@ -47,7 +47,7 @@ from util import isnumber
 from gl_scale import scale_m2screen_x
 from gl_scale import scale_m2screen_y
 from gl_scale import scale_m2screen_z
-from gl_scale import scale_trianges_m2screen
+from gl_scale import project_trianges_m2screen
 
 from gl_list import gl_base_object
 
@@ -103,7 +103,7 @@ class gl_lib_ray():
 				a.r=r
 				a.g=g
 				a.b=b
-				a.triangles=scale_trianges_m2screen(self.ray_mesh_data.data)
+				a.triangles=project_trianges_m2screen(self.ray_mesh_data.data)
 				self.gl_objects_add(a)
 
 

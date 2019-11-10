@@ -97,7 +97,6 @@ class contacts_window(QWidgetSavePos):
 			self.contacts.contacts[i].voltage=float(self.tab.get_value(i, 5))
 			self.contacts.contacts[i].np=float(self.tab.get_value(i, 6))
 			self.contacts.contacts[i].charge_type=self.tab.get_value(i, 7)
-			print(self.contacts.contacts[i].shape.type,self.tab.get_value(i, 8))
 			if self.contacts.contacts[i].shape.type!=self.tab.get_value(i, 8):
 				self.contacts.contacts[i].shape.type=self.tab.get_value(i, 8)
 				self.contacts.contacts[i].shape.load_triangles()
@@ -131,7 +130,7 @@ class contacts_window(QWidgetSavePos):
 		combobox.addItemLang("top",_("top"))
 		combobox.addItemLang("bottom",_("bottom"))
 		combobox.addItemLang("right",_("right"))
-		combobox.addItemLang("right",_("left"))
+		combobox.addItemLang("left",_("left"))
 
 		self.tab.setCellWidget(pos,1, combobox)
 		combobox.currentIndexChanged.connect(self.save)
@@ -260,7 +259,7 @@ class contacts_window(QWidgetSavePos):
 		self.tab.verticalHeader().setVisible(False)
 
 		self.tab.clear()
-		self.tab.setColumnCount(9)
+		self.tab.setColumnCount(10)
 		self.tab.setSelectionBehavior(QAbstractItemView.SelectRows)
 
 		self.load()

@@ -192,7 +192,7 @@ class layer_widget(QWidgetSavePos):
 		epi=get_epi()
 		i=0
 		for l in epi.layers:
-			self.add_row(i,l.width,l.mat_file,l.electrical_layer,l.pl_file,l.name,l.lumo_file,l.homo_file)
+			self.add_row(i,l.dy,l.mat_file,l.electrical_layer,l.pl_file,l.name,l.lumo_file,l.homo_file)
 			i=i+1
 
 		self.tab.blockSignals(False)

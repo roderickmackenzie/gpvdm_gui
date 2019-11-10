@@ -36,7 +36,7 @@ from dat_file import dat_file
 from icon_lib import icon_get
 
 from gl_list import gl_base_object
-from gl_scale import scale_trianges_m2screen
+from gl_scale import project_trianges_m2screen
 
 class plot_window(QWidget):
 	def __init__(self):
@@ -109,7 +109,7 @@ class plot_window(QWidget):
 				a.r=data.r
 				a.g=data.g
 				a.b=data.b
-				a.triangles=scale_trianges_m2screen(data.data)
+				a.triangles=project_trianges_m2screen(data.data)
 				self.plot.gl_objects_add(a)
 			self.show()
 

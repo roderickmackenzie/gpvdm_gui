@@ -103,7 +103,7 @@ class gl_cords():
 		if self.view.zoom<20:
 			self.render_text (-0.2,0.0,0.0, "z",font)
 		glPopMatrix()
-		self.draw_numbers()
+		#self.draw_numbers()
 
 	def draw_numbers(self):
 

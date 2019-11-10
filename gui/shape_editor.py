@@ -58,7 +58,7 @@ from shape_import import shape_import
 from dat_file import dat_file
 
 from gl_list import gl_base_object
-from gl_scale import scale_trianges_m2screen
+from gl_scale import project_trianges_m2screen
 from triangle_io import triangles_get_min
 from triangle_io import triangles_sub_vec
 from triangle_io import triangles_get_max

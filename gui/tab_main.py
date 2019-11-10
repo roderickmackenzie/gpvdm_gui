@@ -32,12 +32,7 @@ from cal_path import get_materials_path
 from inp import inp_search_token_value
 from str2bool import str2bool
 from tab_base import tab_base
-from epitaxy import epitaxy_get_layers
-from epitaxy import epitaxy_get_width
-from epitaxy import epitaxy_get_mat_file
 from help import help_window
-from epitaxy import epitaxy_get_pl_file
-from epitaxy import epitaxy_get_name
 from display import display_widget
 from win_lin import running_on_linux
 from code_ctrl import enable_webupdates

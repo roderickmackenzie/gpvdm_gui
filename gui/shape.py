@@ -87,24 +87,12 @@ class shape():
 			return
 		self.type=f.get_token("#shape_type")
 
-		self.shape_path=os.path.join(get_shape_path(),self.type,"shape.inp")
+
 		self.dx=float(f.get_token("#shape_dx"))
 		self.dy=float(f.get_token("#shape_dy"))
 		self.dz=float(f.get_token("#shape_dz"))
 
-		if os.path.isfile(self.shape_path)==True:
-			self.triangles=dat_file()
-			self.triangles.load(self.shape_path)
-			if self.triangles.data!=None:
-				min_vec=triangles_get_min(self.triangles.data)
-
-				self.triangles.data=triangles_sub_vec(self.triangles.data,min_vec)
-
-				max_vec=triangles_get_max(self.triangles.data)
-
-				#triangles_print(self.triangles.data)
-
-				self.triangles.data=triangles_div_vec(self.triangles.data,max_vec)
+		self.load_triangles()
 
 		try:
 
@@ -137,6 +125,21 @@ class shape():
 		print("oh")
 		if self.callback!=None:
 			self.callback()
+
+	def load_triangles(self):
+		print("reload")
+		self.shape_path=os.path.join(get_shape_path(),self.type,"shape.inp")
+		if os.path.isfile(self.shape_path)==True:
+			self.triangles=dat_file()
+			self.triangles.load(self.shape_path)
+			if self.triangles.data!=None:
+				min_vec=triangles_get_min(self.triangles.data)
+
+				self.triangles.data=triangles_sub_vec(self.triangles.data,min_vec)
+
+				max_vec=triangles_get_max(self.triangles.data)
+
+				self.triangles.data=triangles_div_vec(self.triangles.data,max_vec)
 
 	def load(self,file_name):
 		if file_name=="none":

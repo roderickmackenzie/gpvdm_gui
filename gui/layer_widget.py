@@ -85,7 +85,7 @@ class layer_widget(QWidgetSavePos):
 		if x==0:
 			epi.layers[y].name=self.tab.get_value(y,x)
 		elif x==1:
-			ret=epi.layers[y].set_width(self.tab.get_value(y,x))
+			ret=epi.layers[y].set_dy(self.tab.get_value(y,x))
 			if ret==False:
 				error_dlg(self,_("You have entered a non numeric value."))
 		self.save_model()

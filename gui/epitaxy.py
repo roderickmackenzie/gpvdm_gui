@@ -60,7 +60,7 @@ if gui_get()==True:
 class epi_layer():
 	def __init__(self):
 
-		self.width=0
+		self.dy=0
 		self.mat_file=""
 		self.name=""
 		self.pl_file=""
@@ -75,12 +75,12 @@ class epi_layer():
 		self.start=0.0
 		self.end=0.0
 
-	def set_width(self,data):
+	def set_dy(self,data):
 		if type(data)==float or type(data)==int:
-			self.width=float(data)
+			self.dy=float(data)
 		if type(data)==str:
 			try:
-				self.width=float(data)
+				self.dy=float(data)
 			except:
 				return False
 
@@ -221,7 +221,7 @@ class epitaxy():
 			pos=self.layer_to_index(pos)
 
 		a=epi_layer()
-		a.width=100e-9
+		a.dy=100e-9
 		a.mat_file="blends/p3htpcbm"
 		a.name=self.get_new_material_name()
 		a.pl_file="none"
@@ -275,7 +275,7 @@ class epitaxy():
 			lines.append("#layer_name"+str(layer))
 			lines.append(str(epi.layers[i].name))
 			lines.append("#layer_width"+str(layer))
-			lines.append(str(epi.layers[i].width))
+			lines.append(str(epi.layers[i].dy))
 			lines.append("#layer_material_file"+str(layer))
 			lines.append(epi.layers[i].mat_file)
 			lines.append("#layer_dos_file"+str(layer))
@@ -416,7 +416,7 @@ class epitaxy():
 	def ylen(self):
 		tot=0
 		for a in epi.layers:
-			tot=tot+a.width
+			tot=tot+a.dy
 
 		return tot
 
@@ -424,7 +424,7 @@ class epitaxy():
 		tot=0
 		for a in epi.layers:
 			if a.electrical_layer.startswith("dos")==True:
-				tot=tot+a.width
+				tot=tot+a.dy
 
 		return tot
 
@@ -466,7 +466,7 @@ class epitaxy():
 
 				pos=pos+1		#token
 				pos=pos+1
-				a.width=float(lines[pos])
+				a.dy=float(lines[pos])
 
 				pos=pos+1		#token
 				pos=pos+1
@@ -504,7 +504,7 @@ class epitaxy():
 
 				a.start=y_pos
 
-				y_pos=y_pos+a.width
+				y_pos=y_pos+a.dy
 
 				a.end=y_pos
 				epi.layers.append(a)
@@ -582,7 +582,7 @@ def epitaxy_get_device_start():
 		if epi.layers[i].electrical_layer.startswith("dos")==True:
 			return pos
 
-		pos=pos+epi.layers[i].width
+		pos=pos+epi.layers[i].dy
 
 	return None
 	
@@ -590,9 +590,9 @@ def epitaxy_get_layers():
 	global epi
 	return len(epi.layers)
 
-def epitaxy_get_width(i):
+def epitaxy_get_dy(i):
 	global epi
-	return epi.layers[i].width
+	return epi.layers[i].dy
 
 def epitaxy_get_mat_file(i):
 	global epi

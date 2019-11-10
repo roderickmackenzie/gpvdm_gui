@@ -103,4 +103,17 @@ class gl_cords():
 		if self.view.zoom<20:
 			self.render_text (-0.2,0.0,0.0, "z",font)
 		glPopMatrix()
+		self.draw_numbers()
+
+	def draw_numbers(self):
+
+		font = QFont("Arial")
+		font.setPointSize(18)
+
+
+		self.render_text (0.0,0.0,0.0, "(0,0,0)",font)
+		self.render_text (1.0,0.0,0.0, "(1,0,0)",font)
+		self.render_text (0.0,2.0,0.0, "(0,1,0)",font)
+		self.render_text (0.0,0.0,1.0, "(0,0,1)",font)
+
 

@@ -180,6 +180,8 @@ class gl_objects():
 				raw_ray(o.x,o.y,o.z,o.dx,o.dy,o.dz,o.r,o.g,o.b)
 			elif o.type=="open_triangles":
 				paint_open_triangles_from_array(o)
+			elif o.type=="solid":
+				paint_from_array(o)
 			else:
 				paint_from_array(o)
 				paint_open_triangles_from_array(o)

@@ -28,7 +28,7 @@
 import os
 
 #epitaxy
-from epitaxy import epitaxy_get_width
+from epitaxy import epitaxy_get_dy
 from epitaxy import epitaxy_get_dos_file
 from epitaxy import epitaxy_get_layers
 
@@ -41,7 +41,7 @@ def epitaxy_mesh_update():
 	if len(mesh.layers)==1:
 		tot=0.0
 		for i in range(0,epitaxy_get_layers()):
-			width=float(epitaxy_get_width(i))
+			width=float(epitaxy_get_dy(i))
 			dos_layer=epitaxy_get_dos_file(i)
 			print(dos_layer,width)
 			if dos_layer.startswith("dos")==True:

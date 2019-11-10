@@ -54,7 +54,6 @@ from PyQt5.QtGui import QIcon,QPixmap,QImage
 from epitaxy import epitaxy_get_layers
 from epitaxy import epitaxy_get_mat_file
 from epitaxy import epitaxy_get_dos_file
-from epitaxy import epitaxy_get_width
 from epitaxy import epitaxy_get_name
 from epitaxy import epitaxy_get_device_start
 
@@ -141,7 +140,7 @@ class band_graph(QWidget):
 		for i in range(0,epitaxy_get_layers()):
 
 #			label=epitaxy_get_mat_file(i)
-			layer_ticknes=epitaxy_get_width(i)
+			layer_ticknes=epitaxy_get_dy(i)
 			layer_material=epitaxy_get_mat_file(i)
 			lumo=0.0
 			homo=0.0

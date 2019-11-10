@@ -41,7 +41,6 @@ import webbrowser
 from help import help_window
 
 from epitaxy import epitaxy_get_layers
-from epitaxy import epitaxy_get_width
 from mesh import mesh_get_xlen
 from mesh import mesh_get_zlen
 from epitaxy import epitaxy_get_mat_file
@@ -126,7 +125,7 @@ class cost(QWidgetSavePos):
 		cost_tot=0.0
 		for i in range(0,epitaxy_get_layers()):
 			
-			volume=epitaxy_get_width(i)*1.0*1.0
+			volume=epitaxy_get_dy(i)*1.0*1.0
 			name=epitaxy_get_mat_file(i)
 			xls_file_name=os.path.join(get_materials_path(),epitaxy_get_mat_file(i),"cost.xlsx")
 			if os.path.isfile(xls_file_name):

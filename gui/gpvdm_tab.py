@@ -33,6 +33,7 @@ from PyQt5.QtCore import QSize, Qt
 from PyQt5.QtWidgets import QWidget,QPushButton,QToolBar, QVBoxLayout, QTableWidget,QAbstractItemView, QTableWidgetItem, QComboBox
 
 from QComboBoxLang import QComboBoxLang
+from QComboBoxShape import QComboBoxShape
 from icon_lib import icon_get
 
 from gpvdm_select import gpvdm_select
@@ -70,6 +71,10 @@ class gpvdm_tab(QTableWidget):
 		elif type(self.cellWidget(y, x))==QComboBoxLang:
 			self.cellWidget(y, x).blockSignals(True)
 			self.cellWidget(y, x).setValue_using_english(value)
+			self.cellWidget(y, x).blockSignals(False)
+		elif type(self.cellWidget(y, x))==QComboBoxShape:
+			self.cellWidget(y, x).blockSignals(True)
+			self.cellWidget(y, x).setValue(value)
 			self.cellWidget(y, x).blockSignals(False)
 		elif type(self.cellWidget(y,x))==gpvdm_select:
 			self.cellWidget(y, x).blockSignals(True)
@@ -132,6 +137,8 @@ class gpvdm_tab(QTableWidget):
 			return self.cellWidget(y, x).get_value()
 		elif type(self.cellWidget(y,x))==gpvdm_select_material:
 			return self.cellWidget(y, x).text()
+		elif type(self.cellWidget(y, x))==QComboBoxShape:
+			return self.cellWidget(y, x).currentText()
 		else:
 			return self.item(y, x).text()
 

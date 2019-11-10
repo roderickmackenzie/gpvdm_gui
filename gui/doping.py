@@ -41,7 +41,7 @@ _ = i18n.language.gettext
 #epitaxy
 from epitaxy import epitaxy_get_layers
 from epitaxy import epitaxy_get_dos_file
-from epitaxy import epitaxy_get_width
+from epitaxy import epitaxy_get_dy
 
 #qt
 from PyQt5.QtCore import QSize, Qt 

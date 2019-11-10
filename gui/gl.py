@@ -54,7 +54,6 @@ from cal_path import get_sim_path
 
 #epitaxy
 from epitaxy import epitaxy_get_layers
-from epitaxy import epitaxy_get_width
 from epitaxy import epitaxy_get_dos_file
 from epitaxy import epitaxy_get_layer
 from epitaxy import epitaxy_get_epi
@@ -164,9 +163,10 @@ from gl_input import gl_input
 
 from gl_text import gl_text
 from gl_lib_ray import gl_lib_ray
+from gl_contacts import gl_contacts
 
 if open_gl_ok==True:		
-	class glWidget(QGLWidget,shape_layer, gl_lib_ray,gl_objects, gl_text,gl_move_view,gl_mesh,gl_layer_editor,gl_cords,gl_base_widget,gl_main_menu,gl_input):
+	class glWidget(QGLWidget,shape_layer, gl_lib_ray,gl_objects, gl_text,gl_move_view,gl_mesh,gl_layer_editor,gl_cords,gl_base_widget,gl_main_menu,gl_input, gl_contacts):
 
 		def __init__(self, parent):
 			QGLWidget.__init__(self, parent)
@@ -315,7 +315,7 @@ if open_gl_ok==True:
 			btm_layer=len(epitaxy_get_epi())-1
 
 			for obj in epitaxy_get_epi():
-				y_len=obj.width*scale_get_ymul()
+				y_len=obj.dy*scale_get_ymul()
 				y=y-y_len
 				dy_shrink=y_len*0.1
 
@@ -337,7 +337,7 @@ if open_gl_ok==True:
 			btm_layer=len(epitaxy_get_epi())-1
 
 			for obj in epitaxy_get_epi():
-				y_len=obj.width*scale_get_ymul()
+				y_len=obj.dy*scale_get_ymul()
 				y=y-y_len
 				dy_shrink=y_len*0.1
 
@@ -348,25 +348,8 @@ if open_gl_ok==True:
 				if len(obj.shapes)>0:
 					alpha=0.5
 
-				if obj.electrical_layer=="contact":
-
-					for c in get_epi().contacts.contacts:
-						if (c.position=="top" and l==0) or (c.position=="bottom" and l==btm_layer):
-							if len(self.x_mesh.points)==1 and len(self.z_mesh.points)==1:
-								xstart=x
-								xwidth=scale_get_device_x()
-							else:
-								xstart=x+scale_get_xmul()*c.shape.x0
-								xwidth=scale_get_xmul()*c.shape.dx
-								#print(c.position,xstart,xwidth)
-								#if (c.start+c.width)>self.x_len:
-								#	xwidth=scale_get_device_x()-xstart
-							#lens_layer(xstart,y+dy_shrink/2,z,xwidth,scale_get_device_z(),y_len-dy_shrink,scale_get_device_x()/10)
-							if name!="air":
-								box(xstart,y+dy_shrink/2,z,xwidth,y_len-dy_shrink, scale_get_device_z(), obj.r,obj.g, obj.b,alpha, name=layer_name)
-				else:
-					if name!="air":
-						box(x,y+dy_shrink/2,z,scale_get_device_x(),y_len-dy_shrink,scale_get_device_z(),obj.r,obj.g,obj.b,alpha,name=layer_name)
+				if name!="air" and obj.electrical_layer!="contact":
+						box(x,y+dy_shrink/2,z,scale_get_device_x(), y_len-dy_shrink,scale_get_device_z(), obj.r,obj.g,obj.b, alpha,name=layer_name)
 
 				if obj.electrical_layer.startswith("dos")==True:
 					tab(x+scale_get_device_x(),y,z,y_len-dy_shrink)
@@ -450,6 +433,7 @@ if open_gl_ok==True:
 				
 			if self.enable_draw_device==True:
 				self.draw_device(x,z)
+				self.draw_contacts()
 				draw_mode(x,y,z,scale_get_device_y())
 
 				if self.view.render_photons==True:

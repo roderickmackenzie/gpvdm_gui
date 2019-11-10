@@ -152,6 +152,7 @@ def scale_trianges_m2screen(triangles):
 
 	return ret
 
+
 def scale_screen_x2m(x):
 	global x_mul
 	global x_start

@@ -34,7 +34,7 @@ from inp import inp_search_token_value
 from str2bool import str2bool
 from tab_base import tab_base
 from epitaxy import epitaxy_get_layers
-from epitaxy import epitaxy_get_width
+from epitaxy import epitaxy_get_dy
 from epitaxy import epitaxy_get_mat_file
 from epitaxy import epitaxy_get_dos_file
 from help import my_help_class
@@ -93,7 +93,7 @@ class gl_fallback(QWidget,gl_base_widget):
 
 		tot=0
 		for i in range(0,epitaxy_get_layers()):
-			tot=tot+epitaxy_get_width(i)
+			tot=tot+epitaxy_get_dy(i)
 
 		pos=0.0
 		l=epitaxy_get_layers()-1
@@ -105,7 +105,7 @@ class gl_fallback(QWidget,gl_base_widget):
 			green=0.0
 			blue=0.0
 
-			thick=200.0*epitaxy_get_width(l-i)/tot
+			thick=200.0*epitaxy_get_dy(l-i)/tot
 			pos=pos+thick
 			path=os.path.join(get_materials_path(),epitaxy_get_mat_file(l-i),"mat.inp")
 			lines=inp_load_file(path)

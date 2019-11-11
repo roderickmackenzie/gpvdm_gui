@@ -182,6 +182,9 @@ class gl_objects():
 				paint_open_triangles_from_array(o)
 			elif o.type=="solid":
 				paint_from_array(o)
+			elif o.type=="solid_and_mesh":
+				paint_from_array(o)
+				paint_open_triangles_from_array(o)
 			else:
 				paint_from_array(o)
 				paint_open_triangles_from_array(o)

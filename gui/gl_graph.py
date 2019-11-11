@@ -39,9 +39,9 @@ try:
 	from PyQt5.QtOpenGL import QGLWidget
 	from gl_color import set_color
 	from gl_lib import val_to_rgb
-	from gl_scale import scale_m2screen_x
-	from gl_scale import scale_m2screen_y
-	from gl_scale import scale_m2screen_z
+	from gl_scale import project_m2screen_x
+	from gl_scale import project_m2screen_y
+	from gl_scale import project_m2screen_z
 
 except:
 	pass
@@ -87,8 +87,8 @@ def graph(x0,y0,z0,w,h,graph_data):
 			for y in range(0,ypoints):
 				r,g,b=val_to_rgb(graph_data.data[0][x][y]/(graph_data.data_max-graph_data.data_min))
 				glColor4f(r,g,b, 0.7)
-				y_pos0=scale_m2screen_y(graph_data.y_scale[y])
-				y_pos1=scale_m2screen_y(graph_data.y_scale[y+1])
+				y_pos0=project_m2screen_y(graph_data.y_scale[y])
+				y_pos1=project_m2screen_y(graph_data.y_scale[y+1])
 				glVertex3f(x0+dx*x,y_pos0, z0)
 				glVertex3f(x0+dx*(x+1),y_pos0, z0)
 				glVertex3f(x0+dx*(x+1),y_pos1, z0)

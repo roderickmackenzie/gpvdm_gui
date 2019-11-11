@@ -127,6 +127,20 @@ def triangles_flip(data):
 
 	return ret
 
+def triangles_flip_in_box(data):
+	v=vec()
+	v.x=1.0
+	v.y=-1.0
+	v.z=1.0
+
+	ret=triangles_mul_vec(data,v)
+
+	m=triangles_get_min(ret)
+	m.x=0
+	m.z=0
+	print(m)
+	ret=triangles_sub_vec(ret,m)
+	return ret
 
 def triangles_print(data):
 	if len(data)==0:

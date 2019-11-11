@@ -41,7 +41,9 @@ try:
 	from gl_color import set_false_color
 	from gl_color import color
 	from gl_color import search_color
-
+	from gl_scale import project_m2screen_x
+	from gl_scale import project_m2screen_y
+	from gl_scale import project_m2screen_z
 
 except:
 	pass
@@ -215,7 +217,7 @@ class gl_input():
 			if obj.id=="ray_src":
 				x=scale_screen_x2m(obj.x)
 				y=scale_screen_y2m(obj.y)-epitaxy_get_device_start()
-				z=scale_m2screen_z(obj.z)
+				z=project_m2screen_z(obj.z)
 				inp_update_token_value("ray.inp","#ray_xsrc",str(x))
 				inp_update_token_value("ray.inp","#ray_ysrc",str(y))
 				#inp_update_token_value("ray.inp","#ray_zsrc",str(z))

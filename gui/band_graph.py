@@ -56,6 +56,7 @@ from epitaxy import epitaxy_get_mat_file
 from epitaxy import epitaxy_get_dos_file
 from epitaxy import epitaxy_get_name
 from epitaxy import epitaxy_get_device_start
+from epitaxy import epitaxy_get_dy
 
 #inp
 from inp import inp_load_file

@@ -64,6 +64,9 @@ from gpvdm_tab import gpvdm_tab
 
 from file_watch import get_watch
 
+from mesh import mesh_get_zpoints
+from mesh import mesh_get_xpoints
+
 class contacts_window(QWidgetSavePos):
 
 	visible=1
@@ -81,6 +84,7 @@ class contacts_window(QWidgetSavePos):
 				float(self.tab.get_value(i, 4))
 				float(self.tab.get_value(i, 5))
 				float(self.tab.get_value(i, 6))
+				float(self.tab.get_value(i, 7))
 			except:
 				return False
 
@@ -92,29 +96,39 @@ class contacts_window(QWidgetSavePos):
 			self.contacts.contacts[i].name=self.tab.get_value(i, 0)
 			self.contacts.contacts[i].position=self.tab.get_value(i, 1)
 			self.contacts.contacts[i].active=str2bool(self.tab.get_value(i, 2))
-			self.contacts.contacts[i].shape.x0=float(self.tab.get_value(i, 3))
-			self.contacts.contacts[i].shape.dx=float(self.tab.get_value(i, 4))
-			self.contacts.contacts[i].voltage=float(self.tab.get_value(i, 5))
-			self.contacts.contacts[i].np=float(self.tab.get_value(i, 6))
-			self.contacts.contacts[i].charge_type=self.tab.get_value(i, 7)
-			if self.contacts.contacts[i].shape.type!=self.tab.get_value(i, 8):
-				self.contacts.contacts[i].shape.type=self.tab.get_value(i, 8)
+
+			if self.contacts.contacts[i].position=="top" or self.contacts.contacts[i].position=="bottom":
+				self.contacts.contacts[i].shape.x0=float(self.tab.get_value(i, 3))
+				self.contacts.contacts[i].shape.dx=float(self.tab.get_value(i, 4))
+			else:
+				self.contacts.contacts[i].shape.y0=float(self.tab.get_value(i, 3))
+				self.contacts.contacts[i].shape.dy=float(self.tab.get_value(i, 4))
+
+			self.contacts.contacts[i].ingress=float(self.tab.get_value(i, 5))
+			self.contacts.contacts[i].voltage=float(self.tab.get_value(i, 6))
+			self.contacts.contacts[i].np=float(self.tab.get_value(i, 7))
+			self.contacts.contacts[i].charge_type=self.tab.get_value(i, 8)
+
+			if self.contacts.contacts[i].shape.type!=self.tab.get_value(i, 9):
+				self.contacts.contacts[i].shape.type=self.tab.get_value(i, 9)
 				self.contacts.contacts[i].shape.load_triangles()
+
 		return True
 
 
-	def set_row(self,pos,name,top_btm,active,start,width,voltage,np,charge_type,shape):
+	def set_row(self,pos,name,top_btm,active,start,width,ingress,voltage,np,charge_type,shape):
 		self.tab.blockSignals(True)
 
 		self.tab.set_value(pos,0,name)
 		self.tab.set_value(pos,1,top_btm.lower())
-		self.tab.set_value(pos,2,active)
+		self.tab.set_value(pos,2,str(active).lower())
 		self.tab.set_value(pos,3,start)
 		self.tab.set_value(pos,4,width)
-		self.tab.set_value(pos,5,voltage)
-		self.tab.set_value(pos,6,np)
-		self.tab.set_value(pos,7, charge_type.lower())
-		self.tab.set_value(pos,8, shape)
+		self.tab.set_value(pos,5,ingress)
+		self.tab.set_value(pos,6,voltage)
+		self.tab.set_value(pos,7,np)
+		self.tab.set_value(pos,8, charge_type.lower())
+		self.tab.set_value(pos,9, shape)
 
 		self.tab.blockSignals(False)
 		
@@ -143,22 +157,23 @@ class contacts_window(QWidgetSavePos):
 		
 		self.tab.setItem(pos,3,QTableWidgetItem(""))
 		self.tab.setItem(pos,4,QTableWidgetItem(""))
+
 		self.tab.setItem(pos,5,QTableWidgetItem(""))
 		self.tab.setItem(pos,6,QTableWidgetItem(""))
+		self.tab.setItem(pos,7,QTableWidgetItem(""))
 
 
 		combobox = QComboBoxLang()
 		combobox.addItemLang("electron",_("Electron"))
 		combobox.addItemLang("hole",_("Hole"))
 
-		self.tab.setCellWidget(pos,7, combobox)
+		self.tab.setCellWidget(pos,8, combobox)
 		combobox.currentIndexChanged.connect(self.save)
 
 		combobox = QComboBoxShape()
 
-		self.tab.setCellWidget(pos,8, combobox)
+		self.tab.setCellWidget(pos,9, combobox)
 		combobox.currentIndexChanged.connect(self.save)
-
 
 		self.tab.blockSignals(False)
 		
@@ -200,22 +215,43 @@ class contacts_window(QWidgetSavePos):
 	def update(self):
 		i=0
 		for c in self.contacts:
-			self.set_row(i,str(c.name),str(c.position),str(c.active),str(c.start),str(c.width),str(c.voltage),str(c.np),str(c.charge_type), c.shape.type)
+			self.set_row(i,str(c.name),c.position,str(c.active),str(c.start),str(c.width),str(c.voltage),str(c.np),str(c.charge_type), c.shape.type)
 			i=i+1
+
+	def hide_cols(self,val):
+		self.tab.setColumnHidden(3,val)
+		self.tab.setColumnHidden(4,val)
+		self.tab.setColumnHidden(5,val)
+
 
 	def load(self):
 		self.contacts=get_epi().contacts
 		self.tab.clear()
-		self.tab.setHorizontalHeaderLabels([_("Name"),_("Top/Bottom"),_("Active contact"),_("Start")+" (m)", _("Width")+" (m)" ,_("Voltage"),_("Charge density"),_("Charge type"),_("Shape")])
+		self.tab.setHorizontalHeaderLabels([_("Name"),_("Top/Bottom"),_("Active contact"),_("Start")+" (m)", _("Width")+" (m)" , _("Ingress")+" (m)",_("Voltage"),_("Charge density"),_("Charge type"),_("Shape")])
 		self.contacts.load()
+
+		if mesh_get_zpoints()!=1 or mesh_get_xpoints()!=1: 
+			self.hide_cols(False)
+		else:
+			self.hide_cols(True)
+
 		#contacts_print()
 		i=0
 		for c in self.contacts.contacts:
 			self.add_row()
-			self.set_row(i,str(c.name),str(c.position),str(c.active),str(c.shape.x0),str(c.shape.dx),str(c.voltage),str(c.np),str(c.charge_type) , c.shape.type)
+			if c.position=="top" or c.position=="bottom":
+				start=str(c.shape.x0)
+				width=str(c.shape.dx)
+			else:
+				start=str(c.shape.y0)
+				width=str(c.shape.dy)
+			print(c.position,c.shape.y0,c.shape.z0)
+
+			self.set_row(i,str(c.name),c.position,str(c.active),start,width,str(c.ingress),str(c.voltage),str(c.np),str(c.charge_type) , c.shape.type)
 
 			i=i+1
 
+		
 
 	def __init__(self):
 		QWidgetSavePos.__init__(self,"contacts")

@@ -145,9 +145,9 @@ from gl_scale import scale_get_start_x
 from gl_scale import scale_get_start_z
 from gl_scale import scale_get_start_y
 
-from gl_scale import scale_m2screen_x
-from gl_scale import scale_m2screen_z
-from gl_scale import scale_m2screen_y
+from gl_scale import project_m2screen_x
+from gl_scale import project_m2screen_z
+from gl_scale import project_m2screen_y
 
 from gl_main_menu import gl_main_menu
 
@@ -180,8 +180,6 @@ if open_gl_ok==True:
 			self.failed=True
 			self.graph_path=None
 			#view pos
-
-
 
 			self.selected_layer=""
 			self.graph_data=dat_file()
@@ -373,9 +371,9 @@ if open_gl_ok==True:
 		def render(self):
 
 			self.update_real_to_gl_mul()
-			x=scale_m2screen_x(0)
-			y=0.0#scale_m2screen_y(0)
-			z=scale_m2screen_z(0)
+			x=project_m2screen_x(0)
+			y=0.0#project_m2screen_y(0)
+			z=project_m2screen_z(0)
 
 			clear_color()
 			glClearColor(self.view.bg_color[0], self.view.bg_color[1], self.view.bg_color[2], 0.5)
@@ -433,7 +431,6 @@ if open_gl_ok==True:
 				
 			if self.enable_draw_device==True:
 				self.draw_device(x,z)
-				self.draw_contacts()
 				draw_mode(x,y,z,scale_get_device_y())
 
 				if self.view.render_photons==True:
@@ -504,8 +501,8 @@ if open_gl_ok==True:
 		#This will rebuild the scene from scratch
 		def rebuild_scene(self):
 			self.gl_objects_clear()
-			x=scale_m2screen_x(0)
-			z=scale_m2screen_z(0)
+			x=project_m2screen_x(0)
+			z=project_m2screen_z(0)
 
 			if self.enable_draw_rays==True:
 				self.draw_rays(self.ray_file)
@@ -521,8 +518,8 @@ if open_gl_ok==True:
 						point_x=0.0
 						point_y=0.0
 					else:
-						point_x=scale_m2screen_x(point_x)
-						point_y=scale_m2screen_y(point_y)
+						point_x=project_m2screen_x(point_x)
+						point_y=project_m2screen_y(point_y)
 
 					a=gl_base_object()
 					a.id="ray_src"
@@ -543,6 +540,7 @@ if open_gl_ok==True:
 
 			if self.enable_draw_device==True:
 				self.draw_device2(x,z)
+				self.draw_contacts()
 
 		def force_redraw(self):
 			self.load_data()

@@ -43,9 +43,6 @@ import random
 import numpy as np
 from math import pi,acos,sin,cos
 
-from gl_scale import scale_m2screen_x
-from gl_scale import scale_m2screen_y
-from gl_scale import scale_m2screen_z
 
 from gl_scale import scale_get_xmul
 from gl_scale import scale_get_ymul

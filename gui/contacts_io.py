@@ -47,6 +47,7 @@ class segment():
 		self.np=1e20
 		self.charge_type="electron"
 		self.shape=None
+		self.ingress=0.0
 
 	def save(self):
 		self.shape.save()
@@ -78,7 +79,7 @@ class contacts_io():
 
 				position=contact_file.get_next_val()
 
-				active=contact_file.get_next_val()
+				active=str2bool(contact_file.get_next_val())
 
 				voltage=contact_file.get_next_val()
 
@@ -90,8 +91,10 @@ class contacts_io():
 
 				resistance_sq=contact_file.get_next_val()
 
-				#print(depth,voltage,charge_density)
-				self.contact_load(name,position,str2bool(active),float(voltage),float(charge_density), charge_type,shape_file_name)
+				ingress=contact_file.get_next_val()
+
+				print(voltage,charge_density,active)
+				self.contact_load(name,position,active,float(voltage),float(charge_density), charge_type,shape_file_name,ingress)
 
 	def get_shape_files(self):
 		ret=[]
@@ -106,7 +109,7 @@ class contacts_io():
 	def clear():
 		self.contacts=[]
 
-	def contact_load(self,name,position,active,voltage,np,charge_type,shape_file_name):
+	def contact_load(self,name,position,active,voltage,np,charge_type,shape_file_name,ingress):
 		s=segment()
 		s.name=name
 		s.position=position
@@ -115,7 +118,9 @@ class contacts_io():
 		s.np=np
 		s.charge_type=charge_type
 		s.shape=shape()
+		s.shape.shape_dos="none"
 		s.shape.load(shape_file_name)
+		s.ingress=float(ingress)
 		self.contacts.append(s)
 
 	def gen_file(self):
@@ -140,7 +145,8 @@ class contacts_io():
 			lines.append(s.shape.file_name)
 			lines.append("#contact_resistance_sq"+str(i))
 			lines.append(str(s.resistance_sq))
-
+			lines.append("#contact_ingress"+str(i))
+			lines.append(str(s.ingress))
 
 			i=i+1
 
@@ -178,6 +184,10 @@ class contacts_io():
 		s.shape=shape()
 		s.shape.load(shape_file_name)
 		s.shape.type="box"
+		s.shape.file_name="none"
+		s.shape.shape_dos="none"
+
+		s.ingress=0.0
 		self.contacts.insert(pos,s)
 		return self.contacts[pos]
 

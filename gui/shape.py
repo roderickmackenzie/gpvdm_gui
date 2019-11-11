@@ -94,9 +94,7 @@ class shape():
 
 		self.load_triangles()
 
-		try:
-
-					
+		try:		
 			self.dx_padding=float(f.get_token("#shape_padding_dx"))
 			self.dy_padding=float(f.get_token("#shape_padding_dy"))
 			self.dz_padding=float(f.get_token("#shape_padding_dz"))
@@ -112,9 +110,9 @@ class shape():
 			self.shape_name=f.get_token("#shape_name")
 			self.shape_dos=f.get_token("#shape_dos")
 			self.x0=float(f.get_token("#shape_x0"))
-
+			self.y0=float(f.get_token("#shape_y0"))
 			self.z0=float(f.get_token("#shape_z0"))
-			self.y0=0.0
+			#self.y0=0.0
 
 			self.shape_remove_layer=str2bool(f.get_token("#shape_remove_layer"))
 		except:
@@ -194,9 +192,11 @@ class shape():
 		lines.append("#ver")
 		lines.append("1.0")
 		lines.append("#end")
+
 		i=inp()
 		i.lines=lines
 		i.save_as(os.path.join(get_sim_path(),self.file_name+".inp"))
+		print("save",os.path.join(get_sim_path(),self.file_name+".inp"))
 
 	def dump(self):
 		print(self.file_name,self.type,self.width)

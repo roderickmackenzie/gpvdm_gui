@@ -93,7 +93,6 @@ class contacts_io():
 
 				ingress=contact_file.get_next_val()
 
-				print(voltage,charge_density,active)
 				self.contact_load(name,position,active,float(voltage),float(charge_density), charge_type,shape_file_name,ingress)
 
 	def get_shape_files(self):

@@ -239,6 +239,7 @@ class gpvdm_tab(QTableWidget):
 		if len(index)>0:
 			for i in range(0,len(index)):
 				ret.append(index[i].row())
+				break
 
 		index_list = []                                                          
 		for model_index in self.selectionModel().selectedRows():       
@@ -250,5 +251,4 @@ class gpvdm_tab(QTableWidget):
 			
 		self.blockSignals(False)
 
-		print("index>>",ret)
 		return ret

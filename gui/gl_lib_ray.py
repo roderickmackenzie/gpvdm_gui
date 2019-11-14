@@ -77,7 +77,7 @@ class gl_lib_ray():
 				dy=project_m2screen_y(t.xyz1.y)-project_m2screen_y(t.xyz0.y)
 
 				a=gl_base_object()
-				a.id="ray_trace_results"
+				a.id=["ray_trace_results"]
 				a.type="ray"
 				a.x=x
 				a.y=y
@@ -98,7 +98,7 @@ class gl_lib_ray():
 			if self.ray_mesh_data.new_read==True or self.gl_objects_count_regex("ray_mesh")==0:
 				self.gl_objects_remove_regex("ray_mesh")
 				a=gl_base_object()
-				a.id="ray_mesh"
+				a.id=["ray_mesh"]
 				a.type="open_triangles"
 				a.r=r
 				a.g=g

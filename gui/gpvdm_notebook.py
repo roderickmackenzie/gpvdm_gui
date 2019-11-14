@@ -150,7 +150,7 @@ class gpvdm_notebook(QTabWidget):
 			self.addTab(self.tab_main,_("Device structure"))
 
 			self.update_display_function=self.tab_main.update
-
+			#self.tab_main.three_d.display.force_redraw()
 
 			self.terminal=tab_terminal()
 			self.terminal.init()

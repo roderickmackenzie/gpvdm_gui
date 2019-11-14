@@ -68,7 +68,7 @@ class shape_layer():
 				pos.z=(s.z0+(s.dz+s.dz_padding)*z)
 
 				a=gl_base_object()
-				a.id=name
+				a.id=[name]
 				a.type=s.type
 				a.x=pos.x
 				a.y=pos.y

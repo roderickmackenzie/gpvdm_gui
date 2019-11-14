@@ -140,7 +140,7 @@ def scan_items_populate_from_files():
 			scan_item_add("epitaxy.inp","#layer_material_file"+str(i),os.path.join("epitaxy",str(epi[i].name),_("Material type")),2)
 			scan_item_add("epitaxy.inp","#layer_width"+str(i),os.path.join("epitaxy",str(epi[i].name),_("Layer width")),1)
 
-	contacts=epitaxy_get_epi().contacts.contacts
+	contacts=get_epi().contacts.contacts
 
 	for i in range(0,len(contacts)):
 		scan_item_add("contacts.inp","#contact_charge_density"+str(i),os.path.join("contacts",str(contacts[i].name),_("Charge density")),1)

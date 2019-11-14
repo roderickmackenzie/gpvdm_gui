@@ -256,8 +256,9 @@ class layer_widget(QWidgetSavePos):
 		#self.emit_change()
 
 	def on_remove_item_clicked(self):
-		pos=self.tab.remove()
-		if pos>0:
+		items=self.tab.remove()
+		if items!=[]:
+			pos=items[0]
 			epi=get_epi()
 			epi.remove_layer(pos)
 			epi.save()

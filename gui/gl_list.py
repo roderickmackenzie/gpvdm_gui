@@ -40,11 +40,11 @@ from gl_scale import scale_screen_x2m
 from gl_scale import scale_screen_y2m
 
 from epitaxy import epitaxy_get_device_start
-
+from gl_lib import gl_obj_id_starts_with
 
 class gl_base_object():
 	def __init__(self,x=0.0,y=0.0,z=0.0,dx=0.0,dy=0.0,dz=0.0,r=1.0,g=1.0,b=1.0):
-		self.id=""
+		self.id=[]
 		self.type=""
 		self.x=x
 		self.y=y
@@ -111,34 +111,35 @@ class gl_objects():
 		obj.x=obj.x+dx
 		obj.y=obj.y+dy
 
-	def gl_objects_count_regex(self,id):
+	def gl_objects_count_regex(self,in_id):
 		count=0
 		for i in range(0,len(self.objects)):
-			if self.objects[i].id.startswith(id)==False:
-				counnt=count+1
+			for id in self.objects[i].id: 	
+				if id.startswith(in_id)==False:
+					counnt=count+1
 
 		return count
 
 
-	def gl_objects_remove_regex(self,id):
+	def gl_objects_remove_regex(self,in_id):
 		new_objects=[]
 		for i in range(0,len(self.objects)):
-			if self.objects[i].id.startswith(id)==False:
+			if gl_obj_id_starts_with(self.objects[i].id,in_id)==False:
 				new_objects.append(self.objects[i])
 
 		self.objects=new_objects
 
 
-	def gl_objects_remove(self,id):
+	def gl_objects_remove(self,in_id):
 		for i in range(0,len(self.objects)):
-			if id==self.objects[i].id:
+			if in_id in self.objects[i].id:
 				self.objects.pop(i)
 				break
 
-	def gl_objects_select(self,id):
+	def gl_objects_select(self,in_id):
 		for i in range(0,len(self.objects)):
-			if id==self.objects[i].id:
-				self.objects[i].selected= not self.objects[i].selected
+			if gl_obj_id_starts_with(self.objects[i].id,in_id)==True:
+				self.objects[i].selected = not self.objects[i].selected
 			else:
 				self.objects[i].selected =False
 

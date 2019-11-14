@@ -179,6 +179,7 @@ if open_gl_ok==True:
 			self.enable_render_text=True
 			self.failed=True
 			self.graph_path=None
+			self.scene_built=False
 			#view pos
 
 			self.selected_layer=""
@@ -327,7 +328,6 @@ if open_gl_ok==True:
 
 		def draw_device(self,x,z):
 
-
 			y=scale_get_device_y()
 
 
@@ -347,7 +347,7 @@ if open_gl_ok==True:
 					alpha=0.5
 
 				if name!="air" and obj.electrical_layer!="contact":
-						box(x,y+dy_shrink/2,z,scale_get_device_x(), y_len-dy_shrink,scale_get_device_z(), obj.r,obj.g,obj.b, alpha,name=layer_name)
+						box(x,y+dy_shrink/2,z,scale_get_device_x(), y_len-dy_shrink,scale_get_device_z(), obj.r,obj.g,obj.b, alpha,name=[layer_name])
 
 				if obj.electrical_layer.startswith("dos")==True:
 					tab(x+scale_get_device_x(),y,z,y_len-dy_shrink)
@@ -369,8 +369,8 @@ if open_gl_ok==True:
 
 
 		def render(self):
-
 			self.update_real_to_gl_mul()
+
 			x=project_m2screen_x(0)
 			y=0.0#project_m2screen_y(0)
 			z=project_m2screen_z(0)
@@ -443,6 +443,9 @@ if open_gl_ok==True:
 
 			if self.view.zoom>self.view.stars_distance:
 				draw_stars()
+
+			if self.scene_built==False:
+				self.build_scene()
 
 			self.gl_objects_render()
 
@@ -522,7 +525,7 @@ if open_gl_ok==True:
 						point_y=project_m2screen_y(point_y)
 
 					a=gl_base_object()
-					a.id="ray_src"
+					a.id=["ray_src"]
 					a.type="box"
 					a.x=point_x
 					a.y=point_y
@@ -542,14 +545,15 @@ if open_gl_ok==True:
 				self.draw_device2(x,z)
 				self.draw_contacts()
 
-		def force_redraw(self):
+		def build_scene(self):
+			self.update_real_to_gl_mul()
+			self.scene_built=True
 			self.load_data()
 			self.update()
-
-			#y_mesh.calculate_points()
-			#x_mesh.calculate_points()
-			#z_mesh.calculate_points()
 			self.rebuild_scene()
+
+		def force_redraw(self):
+			self.build_scene()
 			self.do_draw()
 
 		def resizeEvent(self,event):

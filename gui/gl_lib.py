@@ -52,12 +52,27 @@ from gl_scale import scale_get_zmul
 
 stars=[]
 
+def gl_obj_id_starts_with(ids,val):
+
+	found=False
+	for id in ids:
+		if id.startswith(val)==True:
+			found=True
+			break
+	return found
+
+def gl_obj_id_extract_starts_with(ids,val):
+	for id in ids:
+		if id.startswith(val)==True:
+			return id
+	return False
+
 def gl_save_draw():
 	save_list=gl_save_list()
 	delta=6
 	for i in range(0,len(save_list)):
 		split=save_list[i].vec.split()
-		if save_list[i].id=="box":
+		if "box" in save_list[i].id:
 			w=float(split[0])
 			h=float(split[1])
 			d=float(split[2])
@@ -66,7 +81,7 @@ def gl_save_draw():
 			b=float(split[5])
 			alpha=float(split[6])
 			box(save_list[i].x+delta,save_list[i].y,save_list[i].z,w,h,d,r,g,b,alpha)
-		elif save_list[i].id=="photon":
+		elif "photon" in save_list[i].id:
 			x=save_list[i].x
 			z=save_list[i].z
 			up=bool(split[0])

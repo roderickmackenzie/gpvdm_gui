@@ -58,6 +58,8 @@ import time
 from mesh import mesh_get_xlen
 from mesh import mesh_get_zlen
 from epitaxy import get_epi
+from gl_lib import gl_obj_id_starts_with
+from gl_lib import gl_obj_id_extract_starts_with
 
 class mouse_event():
 	def __init__(self):
@@ -114,9 +116,8 @@ class gl_input():
 	def mouseDoubleClickEvent(self,event):
 		#thumb_nail_gen()
 		self.obj=self.event_to_3d_obj(event)
-
-		if self.obj.startswith("layer")==True:
-			self.selected_layer=self.obj
+		if gl_obj_id_starts_with(self.obj,"layer")==True:
+			self.selected_layer=gl_obj_id_extract_starts_with(self.obj,"layer")
 			self.do_draw()
 
 	def mouseMoveEvent(self,event):
@@ -160,8 +161,8 @@ class gl_input():
 		if event.buttons()==Qt.LeftButton:
 			self.obj=self.event_to_3d_obj(event)
 
-			if self.obj.startswith("layer")==True:
-				self.selected_layer=self.obj
+			if gl_obj_id_starts_with(self.obj,"layer")==True:
+				self.selected_layer=gl_obj_id_extract_starts_with(self.obj,"layer")
 				#self.enable_render_text=False
 				self.update()
 				#self.enable_render_text=True
@@ -197,13 +198,13 @@ class gl_input():
 
 		self.obj=self.event_to_3d_obj(event)
 
-		print(self.mouse_click_event.y,self.mouse_click_event.delta_time())
+		#print(self.mouse_click_event.y,self.mouse_click_event.delta_time())
 		if event.button()==Qt.RightButton:
-			
+			print(self.obj)
 			if (delta)<0.5:
 				if self.obj!="none":
-					if self.obj.startswith("layer")==True:
-						self.selected_layer=self.obj
+					if gl_obj_id_starts_with(self.obj,"layer")==True:
+						self.selected_layer=gl_obj_id_extract_starts_with(self.obj,"layer")
 						self.update()
 						self.menu_layer(event)
 
@@ -214,7 +215,7 @@ class gl_input():
 					self.menu(event)
 		obj=self.gl_object_deselect()
 		if obj!=False:
-			if obj.id=="ray_src":
+			if "ray_src" in obj.id:
 				x=scale_screen_x2m(obj.x)
 				y=scale_screen_y2m(obj.y)-epitaxy_get_device_start()
 				z=project_m2screen_z(obj.z)

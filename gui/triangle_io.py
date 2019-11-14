@@ -138,7 +138,7 @@ def triangles_flip_in_box(data):
 	m=triangles_get_min(ret)
 	m.x=0
 	m.z=0
-	print(m)
+
 	ret=triangles_sub_vec(ret,m)
 	return ret
 

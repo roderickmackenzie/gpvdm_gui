@@ -120,7 +120,7 @@ class shape():
 
 	def on_change(self):
 		self.do_load()
-		print("oh")
+		#print("oh")
 		if self.callback!=None:
 			self.callback()
 

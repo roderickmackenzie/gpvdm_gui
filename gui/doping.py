@@ -144,7 +144,7 @@ class doping_window(QWidgetSavePos):
 		for i in range(0,layers):
 			dos_file=epitaxy_get_dos_file(i)
 			e=epitaxy_get_layer(i)
-			width=e.width
+			dy=e.dy
 			if dos_file.startswith("dos")==True:
 				lines=[]
 				print("loading",dos_file)
@@ -161,7 +161,7 @@ class doping_window(QWidgetSavePos):
 					item.setFlags(item.flags() ^ Qt.ItemIsEnabled)
 					self.tab.setItem(row,0,item)
 
-					item = QTableWidgetItem(str(width))
+					item = QTableWidgetItem(str(dy))
 					item.setFlags(item.flags() ^ Qt.ItemIsEnabled)
 					self.tab.setItem(row,1,item)
 
@@ -191,20 +191,20 @@ class doping_window(QWidgetSavePos):
 		pos=0
 		pos=epitay_get_next_dos_layer(-1)
 		start_of_layer=0.0
-		width=epi[pos].width
-		end_of_layer=width
+		dy=epi[pos].dy
+		end_of_layer=dy
 
 		processed_layer=0
 
 		for i in range(0,len(x)):
-			y[i]=start_values[processed_layer]+(stop_values[processed_layer]-start_values[processed_layer])*(x[i]-start_of_layer)/width
-			#print(pos,x[i],start_of_layer,end_of_layer,epi[pos].width)
+			y[i]=start_values[processed_layer]+(stop_values[processed_layer]-start_values[processed_layer])*(x[i]-start_of_layer)/dy
+			#print(pos,x[i],start_of_layer,end_of_layer,epi[pos].dy)
 			if x[i]>end_of_layer:
 				start_of_layer=x[i]
 				pos=epitay_get_next_dos_layer(pos)
 				processed_layer=processed_layer+1
-				width=epi[pos].width
-				end_of_layer=end_of_layer+epi[pos].width
+				dy=epi[pos].dy
+				end_of_layer=end_of_layer+epi[pos].dy
 
 
 

@@ -143,6 +143,14 @@ class inp():
 				return ret
 		return False
 
+	def is_token(self,token):
+		"""Is the token in a file"""
+		for i in range(0, len(self.lines)):
+			if lines[i]==token:
+				return True
+
+		return False
+
 callbacks=[]
 class callback_data():
 	def __init__(self):
@@ -293,14 +301,6 @@ def inp_replace_token_array(lines,token,replace):
 		new_list.append(lines[i])
 	
 	return new_list
-
-def inp_is_token(lines,token):
-	"""Is the token in a file"""
-	for i in range(0, len(lines)):
-		if lines[i]==token:
-			return True
-
-	return False
 
 
 def inp_add_token(lines,token,value):

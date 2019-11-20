@@ -66,6 +66,7 @@ from file_watch import get_watch
 
 from mesh import mesh_get_zpoints
 from mesh import mesh_get_xpoints
+from energy_to_charge import energy_to_charge
 
 class contacts_window(QWidgetSavePos):
 
@@ -109,14 +110,20 @@ class contacts_window(QWidgetSavePos):
 			self.contacts.contacts[i].np=float(self.tab.get_value(i, 7))
 			self.contacts.contacts[i].charge_type=self.tab.get_value(i, 8)
 
-			if self.contacts.contacts[i].shape.type!=self.tab.get_value(i, 9):
-				self.contacts.contacts[i].shape.type=self.tab.get_value(i, 9)
+
+			self.contacts.contacts[i].ve0=self.tab.get_value(i, 9)
+			self.contacts.contacts[i].vh0=self.tab.get_value(i, 10)
+			self.contacts.contacts[i].type=self.tab.get_value(i, 11)
+
+
+			if self.contacts.contacts[i].shape.type!=self.tab.get_value(i, 12):
+				self.contacts.contacts[i].shape.type=self.tab.get_value(i, 12)
 				self.contacts.contacts[i].shape.load_triangles()
 
 		return True
 
 
-	def set_row(self,pos,name,top_btm,active,start,width,ingress,voltage,np,charge_type,shape):
+	def set_row(self,pos,name,top_btm,active,start,width,ingress,voltage,np,charge_type,ve0,vh0,type,shape):
 		self.tab.blockSignals(True)
 
 		self.tab.set_value(pos,0,name)
@@ -128,7 +135,10 @@ class contacts_window(QWidgetSavePos):
 		self.tab.set_value(pos,6,voltage)
 		self.tab.set_value(pos,7,np)
 		self.tab.set_value(pos,8, charge_type.lower())
-		self.tab.set_value(pos,9, shape)
+		self.tab.set_value(pos,9,ve0)
+		self.tab.set_value(pos,10,vh0)
+		self.tab.set_value(pos,11,type)
+		self.tab.set_value(pos,12, shape)
 
 		self.tab.blockSignals(False)
 		
@@ -160,8 +170,13 @@ class contacts_window(QWidgetSavePos):
 
 		self.tab.setItem(pos,5,QTableWidgetItem(""))
 		self.tab.setItem(pos,6,QTableWidgetItem(""))
-		self.tab.setItem(pos,7,QTableWidgetItem(""))
 
+		energy_to_charge_box=energy_to_charge()
+		self.tab.setCellWidget(pos,7, energy_to_charge_box)
+		self.tab.setColumnWidth(7, 150)
+		energy_to_charge_box.changed.connect(self.save)
+
+		#self.tab.setItem(pos,7,QTableWidgetItem(""))		
 
 		combobox = QComboBoxLang()
 		combobox.addItemLang("electron",_("Electron"))
@@ -169,10 +184,23 @@ class contacts_window(QWidgetSavePos):
 
 		self.tab.setCellWidget(pos,8, combobox)
 		combobox.currentIndexChanged.connect(self.save)
+		self.tab.setColumnWidth(8, 120)
+
+		self.tab.setItem(pos,9,QTableWidgetItem(""))
+		self.tab.setItem(pos,10,QTableWidgetItem(""))
+
+		combobox = QComboBoxLang()
+		combobox.addItemLang("ohmic",_("Ohmic"))
+		combobox.addItemLang("schottky",_("Schottky"))
+
+		self.tab.setCellWidget(pos,11, combobox)
+		combobox.currentIndexChanged.connect(self.save)
+
+
 
 		combobox = QComboBoxShape()
 
-		self.tab.setCellWidget(pos,9, combobox)
+		self.tab.setCellWidget(pos,12, combobox)
 		combobox.currentIndexChanged.connect(self.save)
 
 		self.tab.blockSignals(False)
@@ -186,7 +214,7 @@ class contacts_window(QWidgetSavePos):
 		new_shape_file=get_epi().gen_new_electrical_file("shape")
 		c=self.contacts.insert(pos,new_shape_file)
 
-		self.set_row(pos,c.name,c.position,c.active,str(c.shape.x0),str(c.shape.dx),str(c.voltage),str(c.np),str(c.charge_type),c.shape.type)
+		self.set_row(pos,c.name,c.position,c.active,str(c.shape.x0),str(c.shape.dx),str(c.ingress),str(c.voltage),str(c.np),str(c.charge_type),str(c.ve0),str(c.vh0),str(c.type),c.shape.type)
 		#print(pos,len(self.contacts))
 		#self.save()
 
@@ -197,13 +225,32 @@ class contacts_window(QWidgetSavePos):
 			self.contacts.remove(items[0])
 			self.save()
 
+	def show_hide_cols(self):
+		schottky=False
+		for i in range(0,self.tab.rowCount()):
+			if self.tab.get_value(i, 11)=="schottky":
+				schottky=True
+				break
+
+		if schottky==True:
+			self.tab.setColumnHidden(9,False)
+			self.tab.setColumnHidden(10,False)
+		else:
+			self.tab.setColumnHidden(9,True)
+			self.tab.setColumnHidden(10,True)
+
 	def save(self):
 		if self.update_contact_db()==True:
+			for i in range(0,self.tab.rowCount()):
+				self.tab.cellWidget(i,7).position=self.tab.get_value(i, 1)
+				self.tab.cellWidget(i,7).charge_type=self.tab.get_value(i, 8)
+
+			self.show_hide_cols()
 			self.contacts.save()
 			self.changed.emit()
 			global_object_run("gl_force_redraw")
-		else:
-			error_dlg(self,_("There are some non numeric values in the table"))
+		#else:
+		#	error_dlg(self,_("There are some non numeric values in the table"))
 
 
 	def callback_help(self):
@@ -227,7 +274,8 @@ class contacts_window(QWidgetSavePos):
 	def load(self):
 		self.contacts=get_epi().contacts
 		self.tab.clear()
-		self.tab.setHorizontalHeaderLabels([_("Name"),_("Top/Bottom"),_("Active contact"),_("Start")+" (m)", _("Width")+" (m)" , _("Ingress")+" (m)",_("Voltage"),_("Charge density"),_("Charge type"),_("Shape")])
+		self.tab.setHorizontalHeaderLabels([_("Name"),_("Top/Bottom"),_("Active contact"),_("Start")+" (m)", _("Width")+" (m)" , _("Ingress")+" (m)",_("Voltage"),_("Charge density/\nFermi-offset"),_("Majority\ncarrier"),_("ve0 (m/s)"),_("vh0 (m/s)"),_("Type"),_("Shape")])
+		self.tab.horizontalHeader().setFixedHeight(60)
 		self.contacts.load()
 
 		if mesh_get_zpoints()!=1 or mesh_get_xpoints()!=1: 
@@ -245,17 +293,16 @@ class contacts_window(QWidgetSavePos):
 			else:
 				start=str(c.shape.y0)
 				width=str(c.shape.dy)
-			print(c.position,c.shape.y0,c.shape.z0)
 
-			self.set_row(i,str(c.name),c.position,str(c.active),start,width,str(c.ingress),str(c.voltage),str(c.np),str(c.charge_type) , c.shape.type)
+			self.set_row(i,str(c.name),c.position,str(c.active),start,width,str(c.ingress),str(c.voltage),str(c.np),str(c.charge_type),str(c.ve0),str(c.vh0),str(c.type), c.shape.type)
 
 			i=i+1
 
-		
+		self.show_hide_cols()
 
 	def __init__(self):
 		QWidgetSavePos.__init__(self,"contacts")
-		self.setMinimumSize(1000, 400)
+		self.setMinimumSize(1200, 400)
 
 		self.setWindowIcon(icon_get("contact"))
 
@@ -295,7 +342,7 @@ class contacts_window(QWidgetSavePos):
 		self.tab.verticalHeader().setVisible(False)
 
 		self.tab.clear()
-		self.tab.setColumnCount(10)
+		self.tab.setColumnCount(13)
 		self.tab.setSelectionBehavior(QAbstractItemView.SelectRows)
 
 		self.load()

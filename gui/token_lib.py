@@ -80,10 +80,12 @@ def build_token_lib():
 
 	#dos?.inp
 	lib.append(my_data("","#dostype","Edit",_("DoS distribution"),"s",1.0,"dos_complex_switch",units_widget="QPushButton"))
+	lib.append(my_data("","#dos_free_carrier_stats","type",_("Free carrier statistics"),"e",1.0,"QComboBoxLang",defaults=[[("mb_equation"),_("Maxwell Boltzmann - analytic")],["mb_look_up_table_analytic",_("Maxwell Boltzmann - numerical+analytic")],["mb_look_up_table",_("Maxwell Boltzmann - full numerical")],["fd_look_up_table",_("Ferm-Dirac - numerical")]]))
+
 	lib.append(my_data("","#dos_photon_generation","Edit",_("Photon emission"),"s",1.0,"gtkswitch",units_widget="QPushButton" ))
 
-	lib.append(my_data("","#Nc","m^{-3}",_("Effective density of free electron states"),"e",1.0,"QLineEdit",min=1e10,max=1e27 ))
-	lib.append(my_data("","#Nv","m^{-3}",_("Effective density of free hole states"),"e",1.0,"QLineEdit",min=1e10,max=1e27 ))
+	lib.append(my_data("","#Nc","m^{-3}",_("Effective density of free electron states (@300K)"),"e",1.0,"QLineEdit",min=1e10,max=1e27 ))
+	lib.append(my_data("","#Nv","m^{-3}",_("Effective density of free hole states (@300K)"),"e",1.0,"QLineEdit",min=1e10,max=1e27 ))
 	lib.append(my_data("","#mueffe","m^{2}V^{-1}s^{-1}",_("Electron mobility"),"e",1.0,"QLineEdit",min=1.0,max=1e-1))
 	lib.append(my_data("","#mueffh","m^{2}V^{-1}s^{-1}",_("Hole mobility"),"e",1.0,"QLineEdit",min=1.0,max=1e-14 ))
 

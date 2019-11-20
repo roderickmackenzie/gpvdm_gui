@@ -37,6 +37,8 @@ from QComboBoxShape import QComboBoxShape
 from icon_lib import icon_get
 
 from gpvdm_select import gpvdm_select
+from energy_to_charge import energy_to_charge
+
 from gtkswitch import gtkswitch
 from leftright import leftright
 from gpvdm_select_material import gpvdm_select_material
@@ -80,6 +82,11 @@ class gpvdm_tab(QTableWidget):
 			self.cellWidget(y, x).blockSignals(True)
 			self.cellWidget(y, x).setText(value)
 			self.cellWidget(y, x).blockSignals(False)
+		elif type(self.cellWidget(y,x))==energy_to_charge:
+			self.cellWidget(y, x).blockSignals(True)
+			self.cellWidget(y, x).setText(value)
+			self.cellWidget(y, x).blockSignals(False)
+
 		elif type(self.cellWidget(y,x))==gtkswitch:
 			self.cellWidget(y, x).blockSignals(True)
 			self.cellWidget(y, x).set_value(str2bool(value))
@@ -130,6 +137,8 @@ class gpvdm_tab(QTableWidget):
 		elif type(self.cellWidget(y, x))==QComboBoxLang:
 			return self.cellWidget(y, x).currentText_english()
 		elif type(self.cellWidget(y,x))==gpvdm_select:
+			return self.cellWidget(y, x).text()
+		elif type(self.cellWidget(y,x))==energy_to_charge:
 			return self.cellWidget(y, x).text()
 		elif type(self.cellWidget(y,x))==leftright:
 			return self.cellWidget(y, x).get_value()

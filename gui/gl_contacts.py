@@ -110,9 +110,10 @@ class gl_contacts():
 					my_vec.y=c.shape.dy
 					my_vec.z=mesh_get_zlen()
 
-					a.triangles=scale_trianges_m2screen(triangles_mul_vec(triangles_flip_in_box(c.shape.triangles.data),my_vec))
+					if c.shape.triangles!=None:
+						a.triangles=scale_trianges_m2screen(triangles_mul_vec(triangles_flip_in_box(c.shape.triangles.data),my_vec))
 
-					self.gl_objects_add(a)
+						self.gl_objects_add(a)
 
 			elif c.position=="top":
 				if epi.layers[0].name!="air":
@@ -141,9 +142,9 @@ class gl_contacts():
 					a.b=epi.layers[0].b
 					a.alpha=1.0
 
-					a.triangles=scale_trianges_m2screen(triangles_mul_vec(triangles_flip_in_box(c.shape.triangles.data),box))
-
-					self.gl_objects_add(a)
+					if c.shape.triangles!=None:
+						a.triangles=scale_trianges_m2screen(triangles_mul_vec(triangles_flip_in_box(c.shape.triangles.data),box))
+						self.gl_objects_add(a)
 
 			elif c.position=="bottom":
 				box=vec()

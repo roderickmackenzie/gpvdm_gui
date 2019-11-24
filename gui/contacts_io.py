@@ -202,7 +202,6 @@ class contacts_io():
 		s.shape=shape()
 		s.shape.load(shape_file_name)
 		s.shape.type="box"
-		s.shape.file_name="none"
 		s.shape.shape_dos="none"
 
 		s.ingress=0.0

@@ -157,13 +157,13 @@ class contacts_window(QWidgetSavePos):
 		combobox.addItemLang("left",_("left"))
 
 		self.tab.setCellWidget(pos,1, combobox)
-		combobox.currentIndexChanged.connect(self.save)
+		combobox.currentIndexChanged.connect(self.save_and_redraw)
 
 		combobox = QComboBoxLang()
 		combobox.addItemLang("true",_("true"))
 		combobox.addItemLang("false",_("false"))
 		self.tab.setCellWidget(pos,2, combobox)
-		combobox.currentIndexChanged.connect(self.save)
+		combobox.currentIndexChanged.connect(self.save_and_redraw)
 		
 		self.tab.setItem(pos,3,QTableWidgetItem(""))
 		self.tab.setItem(pos,4,QTableWidgetItem(""))
@@ -201,7 +201,7 @@ class contacts_window(QWidgetSavePos):
 		combobox = QComboBoxShape()
 
 		self.tab.setCellWidget(pos,12, combobox)
-		combobox.currentIndexChanged.connect(self.save)
+		combobox.currentIndexChanged.connect(self.save_and_redraw)
 
 		self.tab.blockSignals(False)
 		
@@ -216,14 +216,14 @@ class contacts_window(QWidgetSavePos):
 
 		self.set_row(pos,c.name,c.position,c.active,str(c.shape.x0),str(c.shape.dx),str(c.ingress),str(c.voltage),str(c.np),str(c.charge_type),str(c.ve0),str(c.vh0),str(c.type),c.shape.type)
 		#print(pos,len(self.contacts))
-		#self.save()
+		self.save_and_redraw()
 
 	def on_remove_clicked(self, button):
 		items=self.tab.remove()
 
 		if len(items)!=0:
 			self.contacts.remove(items[0])
-			self.save()
+			self.save_and_redraw()
 
 	def show_hide_cols(self):
 		schottky=False
@@ -239,6 +239,12 @@ class contacts_window(QWidgetSavePos):
 			self.tab.setColumnHidden(9,True)
 			self.tab.setColumnHidden(10,True)
 
+	def save_and_redraw(self):
+		print("save and redraw called")
+		self.save()
+		self.changed.emit()
+		global_object_run("gl_force_redraw")
+
 	def save(self):
 		if self.update_contact_db()==True:
 			for i in range(0,self.tab.rowCount()):
@@ -247,17 +253,13 @@ class contacts_window(QWidgetSavePos):
 
 			self.show_hide_cols()
 			self.contacts.save()
-			self.changed.emit()
-			global_object_run("gl_force_redraw")
-		#else:
-		#	error_dlg(self,_("There are some non numeric values in the table"))
 
 
 	def callback_help(self):
 		webbrowser.open('http://www.gpvdm.com/man/index.html')
 
 	def tab_changed(self, x,y):
-		self.save()
+		self.save_and_redraw()
 
 	def update(self):
 		i=0

@@ -150,6 +150,8 @@ def triangles_print(data):
 		print(data[i])
 
 def triangles_scale_for_gl(data):
+	if len(data)==0:
+		return False
 	min=triangles_get_min(data)
 	ret=triangles_sub_vec(data,min)
 	max=triangles_get_max(ret)

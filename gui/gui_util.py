@@ -40,6 +40,20 @@ if gui_get()==True:
 	from PyQt5.QtCore import QSize, Qt, QTimer
 	from QComboBoxLang import QComboBoxLang
 	from PyQt5.QtGui import QIcon
+	from gtkswitch import gtkswitch
+	from gpvdm_select_material import gpvdm_select_material
+	from gpvdm_select_emission import gpvdm_select_emission
+	from leftright import leftright
+	from gpvdm_select import gpvdm_select
+	from QComboBoxLang import QComboBoxLang
+	from QColorPicker import QColorPicker
+	from QComboBoxNewtonSelect import QComboBoxNewtonSelect
+	from QComboBoxShape import QComboBoxShape
+	from QChangeLog import QChangeLog
+	from QParasitic import QParasitic
+	from dos_complex_switch import dos_complex_switch
+	from shape_dos_switch import shape_dos_switch
+
 
 #windows
 from cal_path import get_ui_path
@@ -93,3 +107,81 @@ def yes_no_cancel_dlg(parent,text):
 		return "no"
 	else:
 		return "cancel"
+
+def widget_get_value(widget):
+	if type(widget)==QLineEdit:
+		return widget.text()
+	elif type(widget)==gtkswitch:
+		return widget.get_value()
+	elif type(widget)==leftright:
+		return widget.get_value()
+	elif type(widget)==gpvdm_select:
+		return widget.text()
+	elif type(widget)==gpvdm_select_material:
+		return widget.text()
+	elif type(widget)==gpvdm_select_emission:
+		return widget.text()
+	elif type(widget)==QComboBox:
+		return widget.itemText(widget.currentIndex())
+	elif type(widget)==QComboBoxLang:
+		return widget.currentText_english()
+	elif type(widget)==QColorPicker:
+		return [str(widget.r),str(widget.g),str(widget.b)]
+	elif type(widget)==QChangeLog:
+		return widget.toPlainText().split("\n")
+	elif type(widget)==QComboBoxNewtonSelect:
+		return widget.currentText()
+	elif type(widget)==QComboBoxShape:
+		return widget.currentText()
+	elif type(widget)==QParasitic:
+		return widget.text()
+	elif type(widget)==dos_complex_switch:
+		return widget.get_value()
+	elif type(widget)==shape_dos_switch:
+		return widget.get_value()
+	else:
+		return None
+
+def widget_set_value(widget,value):
+
+	widget.blockSignals(True)
+	if type(widget)==QLineEdit:
+		widget.setText(value)
+	elif type(widget)==gtkswitch:
+		widget.set_value(str2bool(value))
+	elif type(widget)==leftright:
+		widget.set_value(str2bool(value))
+	elif type(widget)==gpvdm_select:
+		widget.setText(value)
+	elif type(widget)==gpvdm_select_material:
+		widget.setText(value)
+	elif type(widget)==gpvdm_select_emission:
+		widget.setText(value)
+	elif type(widget)==QComboBox:
+		all_items  = [widget.itemText(i) for i in range(widget.count())]
+		for i in range(0,len(all_items)):
+			if all_items[i] == value:
+				widget.setCurrentIndex(i)
+				break
+	elif type(widget)==QComboBoxLang:
+		widget.setValue_using_english(value)
+	elif type(widget)==QColorPicker:
+		pass
+	elif type(widget)==QChangeLog:
+		widget.setText(value)
+	elif type(widget)==QComboBoxNewtonSelect:
+		widget.setValue(value)
+	elif type(widget)==QComboBoxShape:
+		widget.setValue(value)
+	elif type(widget)==QParasitic:
+		widget.setValue(value)
+	elif type(widget)==dos_complex_switch:
+		widget.set_value(value)
+	elif type(widget)==shape_dos_switch:
+		widget.set_value(value)
+	else:
+		print("ooops")
+
+	widget.blockSignals(False)
+
+

@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# 
+#
 #   General-purpose Photovoltaic Device Model - a drift diffusion base/Shockley-Read-Hall
 #   model for 1st, 2nd and 3rd generation solar cells.
 #   Copyright (C) 2012-2017 Roderick C. I. MacKenzie r.c.i.mackenzie at googlemail.com
@@ -20,7 +20,7 @@
 #   with this program; if not, write to the Free Software Foundation, Inc.,
 #   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
-# 
+#
 
 ## @package ribbon_configure
 #  The configure ribbon.
@@ -60,7 +60,7 @@ from inp import inp_update_token_value
 from QAction_lock import QAction_lock
 from solar_spectrum_gen_window import solar_spectrum_gen_window
 
-from inp import inp_isfile
+from inp import inp
 
 class ribbon_configure(QToolBar):
 	def __init__(self):
@@ -73,13 +73,13 @@ class ribbon_configure(QToolBar):
 		self.configwindow = QAction_lock("preferences-system", _("Configure"), self,"ribbon_config_config")
 		self.configwindow.triggered.connect(self.callback_config_window)
 		self.addAction(self.configwindow)
-		
+
 		self.dump = dump_io(self)
 		global_object_register("ribbon_configure_dump_refresh",self.dump.refresh)
 		self.addAction(self.dump)
 
 		self.mesh = QAction_lock("mesh", _("Electrical\nmesh"), self,"ribbon_config_mesh")
-		self.mesh.triggered.connect(self.callback_edit_mesh)		
+		self.mesh.triggered.connect(self.callback_edit_mesh)
 		self.addAction(self.mesh)
 
 		self.temperature = QAction_lock("thermal", _("Temperature"), self,"ribbon_config_temperature")
@@ -88,7 +88,7 @@ class ribbon_configure(QToolBar):
 
 		self.solar = QAction_lock("weather-few-clouds", _("Solar spectrum\ngenerator"), self,"solar_spectrum_tool")
 		self.solar.clicked.connect(self.callback_solar)
-		if inp_isfile("spectral2.inp")==True:
+		if inp().isfile("spectral2.inp")==True:
 			self.addAction(self.solar)
 
 	def callback_thermal(self):
@@ -106,13 +106,13 @@ class ribbon_configure(QToolBar):
 		self.dump.refresh()
 		if self.electrical_mesh!=None:
 			self.electrical_mesh.update()
-		
+
 	def setEnabled(self,val):
 		self.configwindow.setEnabled(val)
 		self.dump.setEnabled(val)
 		self.mesh.setEnabled(val)
 		self.temperature.setEnabled(val)
-		
+
 	def callback_edit_mesh(self):
 		help_window().help_set_help(["mesh.png",_("<big><b>Mesh editor</b></big>\nUse this window to setup the mesh, the window can also be used to change the dimensionality of the simulation.")])
 
@@ -122,7 +122,7 @@ class ribbon_configure(QToolBar):
 			self.electrical_mesh.hide()
 		else:
 			self.electrical_mesh.show()
-			
+
 	def callback_config_window(self):
 
 		self.config_window=gpvdm_open("/gpvdmroot/gpvdm_configure",show_inp_files=False,title=_("Configure"))
@@ -133,7 +133,7 @@ class ribbon_configure(QToolBar):
 
 		help_window().help_set_help(["preferences-system.png",_("<big><b>Configuration editor</b></big><br> Use this window to control advanced simulation parameters.")])
 
-			
+
 	def callback_solar(self):
 
 		self.solar_window=solar_spectrum_gen_window()

@@ -56,6 +56,8 @@ from cost import cost
 
 from jvexperiment import jvexperiment
 from plexperiment import plexperiment
+from cv_editor import cv_editor
+
 from util import wrap_text
 from fdtd import fdtd
 from global_objects import global_object_run
@@ -68,9 +70,11 @@ class ribbon_simulations(QToolBar):
 	def __init__(self):
 		QToolBar.__init__(self)
 
+		self.jvexperiment_window=None
 		self.experiment_window=None
 		self.fxexperiment_window=None
-		self.jvexperiment_window=None
+		self.capacitance_voltage_window=None
+
 		self.sunsvocexperiment_window=None
 		self.sunsjsc_experiment_window=None
 
@@ -86,19 +90,21 @@ class ribbon_simulations(QToolBar):
 		self.setToolButtonStyle( Qt.ToolButtonTextUnderIcon)
 		self.setIconSize(QSize(42, 42))
 
+		self.jv = QAction_lock("jv", _("Steady state\nsimulation editor"), self,"ribbon_simulations_jv")
+		self.jv.clicked.connect(self.callback_jv_window)
+		self.addAction(self.jv)
+
 		self.time = QAction_lock("time", _("Time domain\nsimulation editor."), self,"ribbon_simulations_time")
 		self.time.clicked.connect(self.callback_edit_experiment_window)
 		self.addAction(self.time )
-
 
 		self.fx = QAction_lock("spectrum", _("Frequency domain\nsimulation editor"), self,"ribbon_simulations_spectrum")
 		self.fx.clicked.connect(self.callback_fxexperiment_window)
 		self.addAction(self.fx)
 
-
-		self.jv = QAction_lock("jv", _("Steady state\nsimulation editor"), self,"ribbon_simulations_jv")
-		self.jv.clicked.connect(self.callback_jv_window)
-		self.addAction(self.jv)
+		self.capacitance_voltage = QAction_lock("cv", _("Capacitance voltage\nsimulation editor"), self,"ribbon_capacitance_voltage")
+		self.capacitance_voltage.clicked.connect(self.callback_capacitance_voltage)
+		self.addAction(self.capacitance_voltage)
 
 		self.sunsvoc = QAction_lock("sunsvoc", _("Suns Voc\nsimulation editor"), self,"ribbon_simulations_sunsvoc")
 		self.sunsvoc.clicked.connect(self.callback_sunsvoc_window)
@@ -146,6 +152,10 @@ class ribbon_simulations(QToolBar):
 			del self.qe_window
 			self.qe_window=None
 
+		if self.jvexperiment_window!=None:
+			del self.jvexperiment_window
+			self.jvexperiment_window=None
+
 		if self.experiment_window!=None:
 			del self.experiment_window
 			self.experiment_window=None
@@ -154,9 +164,9 @@ class ribbon_simulations(QToolBar):
 			del self.fxexperiment_window
 			self.fxexperiment_window=None
 
-		if self.jvexperiment_window!=None:
-			del self.jvexperiment_window
-			self.jvexperiment_window=None
+		if self.capacitance_voltage_window!=None:
+			del self.capacitance_voltage_window
+			self.capacitance_voltage_window=None
 
 		if self.solar_spectrum_window!=None:
 			del self.solar_spectrum_window
@@ -166,12 +176,16 @@ class ribbon_simulations(QToolBar):
 			del self.cost_window
 			self.cost_window=None
 
+
 		#self.mode.update()
 
 	def setEnabled(self,val):
+
+		self.jv.setEnabled(val)
 		self.time.setEnabled(val)
 		self.fx.setEnabled(val)
-		self.jv.setEnabled(val)
+		self.capacitance_voltage.setEnabled(val)
+
 		self.qe.setEnabled(val)
 		#self.mode.setEnabled(val)
 		self.tb_cost.setEnabled(val)
@@ -205,6 +219,16 @@ class ribbon_simulations(QToolBar):
 		else:
 			self.fxexperiment_window.show()
 		
+	def callback_capacitance_voltage(self):
+
+		if self.capacitance_voltage_window==None:
+			self.capacitance_voltage_window=cv_editor()
+			
+		help_window().help_set_help(["cv.png",_("<big><b>Capacitance voltage editor</b></big><br> Use this editor to change serup capacitance voltage simulation.")])
+		if self.capacitance_voltage_window.isVisible()==True:
+			self.capacitance_voltage_window.hide()
+		else:
+			self.capacitance_voltage_window.show()
 
 	def callback_configure_measure(self):
 

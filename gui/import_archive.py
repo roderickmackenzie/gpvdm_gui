@@ -119,6 +119,10 @@ file_list.append(file_type(name="pulse",dest="archive",copy_opp=file_type().MERG
 file_list.append(file_type(name="laser",dest="archive",copy_opp=file_type().MERGE,base_file="laser0.inp"))
 file_list.append(file_type(name="jv",dest="archive",copy_opp=file_type().MERGE,base_file="jv0.inp"))
 file_list.append(file_type(name="pl_ss",dest="archive",copy_opp=file_type().MERGE,base_file="pl_ss0.inp"))
+file_list.append(file_type(name="is",dest="archive",copy_opp=file_type().MERGE,base_file="is0.inp"))
+file_list.append(file_type(name="is_fxdomain_data",dest="archive",copy_opp=file_type().MERGE,base_file="is_fxdomain_data0.inp"))
+file_list.append(file_type(name="cv",dest="archive",copy_opp=file_type().MERGE,base_file="cv0.inp"))
+file_list.append(file_type(name="cv_fxdomain_data",dest="archive",copy_opp=file_type().MERGE,base_file="cv_fxdomain_data0.inp"))
 
 file_list.append(file_type(name="spectral2.inp",copy_opp=file_type().MERGE))
 
@@ -128,6 +132,7 @@ file_list.append(file_type(name="sim.inp",copy_opp=file_type().MERGE))
 file_list.append(file_type(name="device.inp",copy_opp=file_type().MERGE))
 file_list.append(file_type(name="parasitic.inp",copy_opp=file_type().MERGE))
 file_list.append(file_type(name="ray.inp",copy_opp=file_type().MERGE))
+file_list.append(file_type(name="viewpoint.inp",copy_opp=file_type().MERGE))
 file_list.append(file_type(name="stark.inp",copy_opp=file_type().MERGE))
 file_list.append(file_type(name="shg.inp",copy_opp=file_type().MERGE))
 file_list.append(file_type(name="math.inp",copy_opp=file_type().MERGE))
@@ -242,6 +247,8 @@ def merge_archives(src_archive,dest_archive,only_over_write):
 					if archive_isfile(dest_archive,ls[i])==False:
 						if archive_copy_file(dest_archive,ls[i],template_archive,info.base_file)==False:
 							print("problem copying",template_archive,info.base_file)
+							#if info.base_file=="dump.inp":
+							#	sys.exit(0)
 						#print("made new file",dest_archive,ls[i])
 
 				ret=archive_merge_file(dest_archive,src_archive,ls[i],ls[i])

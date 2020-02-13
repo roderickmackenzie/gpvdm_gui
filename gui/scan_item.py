@@ -35,7 +35,6 @@ from cal_path import get_sim_path
 from inp import inp_get_token_value
 
 from epitaxy import epitaxy_dos_file_to_layer_name
-from epitaxy import epitaxy_get_epi
 
 
 from util import is_numbered_file
@@ -84,6 +83,7 @@ def scan_items_populate_from_known_tokens():
 	#	scan_item_add(os.path.join("materials",mat[i],"fit.inp"),"#alpha_mul","Absorption spectrum multiplier",1)
 
 def scan_items_populate_from_files():
+	epi=get_epi()
 	name=os.path.join(get_sim_path(),"sim.gpvdm")
 	if os.path.isfile(name)==True:
 		file_list=zip_lsdir(name)
@@ -96,14 +96,12 @@ def scan_items_populate_from_files():
 					scan_populate_from_file(file_list[i],human_name=os.path.join("epitaxy",name,"dos"))
 
 			if is_numbered_file(file_list[i],"lumo")==True:
-				epi=get_epi()
 				index=epi.find_layer_index_from_file_name(file_list[i])
 				if index!=False:
 					name=epi.layers[index].name
 					scan_populate_from_file(file_list[i],human_name=os.path.join("epitaxy",name,"lumo"))
 
 			if is_numbered_file(file_list[i],"homo")==True:
-				epi=get_epi()
 				index=epi.find_layer_index_from_file_name(file_list[i])
 				if index!=False:
 					name=epi.layers[index].name
@@ -135,12 +133,11 @@ def scan_items_populate_from_files():
 		#	scan_item_add(os.path.join("materials",mat[i],"fit.inp"),"#n_mul",os.path.join("materials",mat[i],"Refractive index spectrum multiplier"),1)
 		#	scan_item_add(os.path.join("materials",mat[i],"fit.inp"),"#alpha_mul",os.path.join("materials",mat[i],"Absorption spectrum multiplier"),1)
 
-		epi=epitaxy_get_epi()
-		for i in range(0,len(epi)):
-			scan_item_add("epitaxy.inp","#layer_material_file"+str(i),os.path.join("epitaxy",str(epi[i].name),_("Material type")),2)
-			scan_item_add("epitaxy.inp","#layer_width"+str(i),os.path.join("epitaxy",str(epi[i].name),_("Layer width")),1)
+		for i in range(0,len(epi.layers)):
+			scan_item_add("epitaxy.inp","#layer_material_file"+str(i),os.path.join("epitaxy",str(epi.layers[i].name),_("Material type")),2)
+			scan_item_add("epitaxy.inp","#layer_width"+str(i),os.path.join("epitaxy",str(epi.layers[i].name),_("Layer width")),1)
 
-	contacts=get_epi().contacts.contacts
+	contacts=epi.contacts.contacts
 
 	for i in range(0,len(contacts)):
 		scan_item_add("contacts.inp","#contact_charge_density"+str(i),os.path.join("contacts",str(contacts[i].name),_("Charge density")),1)

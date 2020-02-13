@@ -188,6 +188,14 @@ class contacts_io():
 	def remove(self,index):
 		self.contacts.pop(index)
 
+	def get_layers_with_contacts(self):
+		layers=[]
+		for c in self.contacts:
+			if c.position not in layers:
+				layers.append(c.position)
+
+		return layers
+
 	def insert(self,pos,shape_file_name):
 		s=segment()
 		s.name="new_contact"

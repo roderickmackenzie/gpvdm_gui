@@ -28,9 +28,10 @@
 import os
 
 #qt
-from PyQt5.QtWidgets import QTextEdit, QAction
-from PyQt5.QtCore import QSize, Qt 
-from PyQt5.QtWidgets import QWidget,QPushButton,QToolBar, QVBoxLayout, QTableWidget,QAbstractItemView, QTableWidgetItem, QComboBox
+from PyQt5.QtWidgets import QTextEdit, QAction, QMenu
+from PyQt5.QtCore import QSize, Qt , QPersistentModelIndex
+from PyQt5.QtWidgets import QWidget,QPushButton,QToolBar, QVBoxLayout, QTableWidget,QAbstractItemView, QTableWidgetItem, QComboBox, QApplication
+from PyQt5.QtGui import QCursor
 
 from QComboBoxLang import QComboBoxLang
 from QComboBoxShape import QComboBoxShape
@@ -42,7 +43,6 @@ from energy_to_charge import energy_to_charge
 from gtkswitch import gtkswitch
 from leftright import leftright
 from gpvdm_select_material import gpvdm_select_material
-from PyQt5.QtCore import QPersistentModelIndex
 
 
 class gpvdm_tab(QTableWidget):
@@ -64,6 +64,60 @@ class gpvdm_tab(QTableWidget):
 			self.tb_up= QAction(icon_get("go-up"), _("Move up"), self)
 			self.toolbar.addAction(self.tb_up)
 
+		self.menu = QMenu(self)
+		self.menu_copy = QAction(_("Copy"), self)
+		self.menu_copy.triggered.connect(self.callback_menu_copy)
+		self.menu.addAction(self.menu_copy)
+		self.menu_paste = QAction(_("Paste"), self)
+		self.menu.addAction(self.menu_paste)
+		self.menu_paste.triggered.connect(self.callback_menu_paste)
+
+	def callback_menu_copy(self):
+		if self.rowCount()==0:
+			return
+
+		rows=self.selectionModel().selectedRows()
+		ret=""
+		for a in rows:
+			a=a.row()
+			for i in range(0,self.columnCount()):
+				ret=ret+str(self.get_value(a,i))+";"
+			ret=ret[:-1]
+			ret=ret+"\n"
+
+		cb = QApplication.clipboard()
+		cb.clear(mode=cb.Clipboard )
+		cb.setText(ret, mode=cb.Clipboard)
+
+
+		#	b=a+1
+		#	if b>self.rowCount()-1:
+		#		return -1
+
+		#	ret=a
+
+		#	av=[]
+		#	for i in range(0,self.columnCount()):
+		#		av.append(str(self.get_value(a,i)))
+
+		#	bv=[]
+		#	for i in range(0,self.columnCount()):
+		#		bv.append(str(self.get_value(b,i)))
+
+		#	for i in range(0,self.columnCount()):
+		#		self.set_value(b,i,str(av[i]))
+		#		self.set_value(a,i,str(bv[i]))
+
+		#	self.selectRow(b)
+		#	self.blockSignals(False)
+		#	return ret
+
+
+	def callback_menu_paste(self):
+		print("paste")
+
+	def contextMenuEvent(self, event):
+		self.menu.popup(QCursor.pos())
 
 	def set_value(self,y,x,value):
 		if type(self.cellWidget(y, x))==QComboBox:
@@ -86,7 +140,10 @@ class gpvdm_tab(QTableWidget):
 			self.cellWidget(y, x).blockSignals(True)
 			self.cellWidget(y, x).setText(value)
 			self.cellWidget(y, x).blockSignals(False)
-
+		elif type(self.cellWidget(y,x))==gpvdm_select_material:
+			self.cellWidget(y, x).blockSignals(True)
+			self.cellWidget(y, x).setText(value)
+			self.cellWidget(y, x).blockSignals(False)
 		elif type(self.cellWidget(y,x))==gtkswitch:
 			self.cellWidget(y, x).blockSignals(True)
 			self.cellWidget(y, x).set_value(str2bool(value))

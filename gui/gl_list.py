@@ -35,12 +35,16 @@ from gl_shapes import pyrmid
 from gl_lib import box_lines
 from gl_lib import plane
 from gl_lib import raw_ray
-
+from gl_lib import paint_ball
 from gl_scale import scale_screen_x2m
 from gl_scale import scale_screen_y2m
 
-from epitaxy import epitaxy_get_device_start
 from gl_lib import gl_obj_id_starts_with
+from gl_lib import paint_line
+from gl_lib import paint_resistor
+from gl_lib import paint_diode
+from OpenGL.GLU import *
+from OpenGL.GL import *
 
 class gl_base_object():
 	def __init__(self,x=0.0,y=0.0,z=0.0,dx=0.0,dy=0.0,dz=0.0,r=1.0,g=1.0,b=1.0):
@@ -105,7 +109,16 @@ class gl_objects():
 		return False
 
 	def gl_objects_add(self,my_object):
+		if type(my_object.id)==str:
+			print("id should be an array not a string")
+			adsasddsa
+
 		self.objects.append(my_object)
+
+	def gl_objects_dump(self):
+		for o in self.objects:
+			print(o.type)
+		print(len(self.objects))
 
 	def gl_objects_move(obj,dx,dy):
 		obj.x=obj.x+dx
@@ -144,41 +157,20 @@ class gl_objects():
 				self.objects[i].selected =False
 
 	def gl_objects_render(self):
-		if 1==0:
-			from triangle_io import triangles_mul_vec
-			from dat_file import dat_file
-			from triangle import vec
-			a=dat_file()
-			from triangle_shapes import dome
-			a.data=dome()
-			v=vec()
-			v.x=1.0
-			v.y=-1.0
-			v.z=1.0
-
-			#a.data=triangles_mul_vec(a.data,v)
-
-			a.type="poly"
-			#a.save("a.inp")
-
-			from triangle_shapes import btm
-			a.data.extend(btm())
-			v=vec()
-			v.x=1.0
-			v.y=-1.0
-			v.z=1.0
-
-			a.data=triangles_mul_vec(a.data,v)
-
-			a.type="poly"
-			a.save("a.inp")
-			return
-
+		#self.gl_objects_dump()
 		for o in self.objects:
 			if o.type=="plane":
-				plane(o.x,o.y,o.z,o.dx,o.dy,o.dz,o.r,o.g,o.b)
+				plane(o)
+			if o.type=="ball":
+				paint_ball(o)
 			elif o.type=="ray":
-				raw_ray(o.x,o.y,o.z,o.dx,o.dy,o.dz,o.r,o.g,o.b)
+				raw_ray(o)
+			elif o.type=="line":
+				paint_line(o)
+			elif o.type=="resistor":
+				paint_resistor(o)
+			elif o.type=="diode":
+				paint_diode(o)
 			elif o.type=="open_triangles":
 				paint_open_triangles_from_array(o)
 			elif o.type=="solid":
@@ -186,6 +178,8 @@ class gl_objects():
 			elif o.type=="solid_and_mesh":
 				paint_from_array(o)
 				paint_open_triangles_from_array(o)
+			elif o.type=="box":
+				box(o.x,o.y,o.z,o.dx,o.dy,o.dz,o.r,o.g,o.b,o.alpha,name=o.id)
 			else:
 				paint_from_array(o)
 				paint_open_triangles_from_array(o)

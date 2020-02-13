@@ -69,6 +69,7 @@ from i18n import get_full_language
 from cal_path import get_tmp_path
 from inp import inp
 from cal_path import multiplatform_exe_command
+from cal_path import get_user_settings_dir
 
 #firewall-cmd --permanent --add-port=8080/tcp
 #firewall-cmd --reload
@@ -218,6 +219,9 @@ class lock():
 			return False
 
 		lines=[]
+
+		if os.path.isfile(os.path.join(get_user_settings_dir(),"settings.inp"))==False:
+			return False
 
 		lines=lock_load(self.data_path)
 #		print(lines)

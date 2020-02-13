@@ -147,10 +147,9 @@ class materials_main(QWidgetSavePos):
 
 
 		for i in range(0,len(files)):
-			tab=tab_class()
 			full_path=os.path.join(self.path,files[i])
 			if os.path.isfile(full_path)==True:
-				tab.init(os.path.join(self.path,files[i]),description[i])
+				tab=tab_class(os.path.join(self.path,files[i]))
 				self.notebook.addTab(tab,description[i])
 		self.setLayout(self.main_vbox)
 		

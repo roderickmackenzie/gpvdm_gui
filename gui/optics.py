@@ -160,8 +160,7 @@ class class_optical(QWidgetSavePos):
 				self.close()
 
 	def callback_configwindow(self):
-		widget=tab_class()
-		widget.init(os.path.join(get_sim_path(),"light.inp"),_("Optical setup"))
+		widget=tab_class(os.path.join(get_sim_path(),"light.inp"))
 		widget.show()
 
 	def callback_save(self):

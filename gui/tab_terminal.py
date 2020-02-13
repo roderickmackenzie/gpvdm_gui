@@ -101,6 +101,11 @@ class tab_terminal(QWidget,tab_base):
 		data=str(r,'utf-8',errors='ignore')
 
 		#cursor.insertHtml(data)
+		pos=data.find('<clear_terminal>')
+		if pos!=-1:
+			data=data[pos:]
+			self.terminals[i].clear()
+
 		self.terminals[i].add_text(data)
 
 	def list_cpu_state(self):

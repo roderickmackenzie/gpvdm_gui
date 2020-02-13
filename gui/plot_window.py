@@ -37,6 +37,7 @@ from icon_lib import icon_get
 
 from gl_list import gl_base_object
 from gl_scale import project_trianges_m2screen
+from gl import glWidget
 
 class plot_window(QWidget):
 	def __init__(self):
@@ -54,15 +55,84 @@ class plot_window(QWidget):
 
 	def init(self,input_files,plot_labels,config_file):
 		three_d=False
+		data_type="xy"
 
 		if len(input_files)==1:
 			data=dat_file()
 			data.load(input_files[0])
 
-			if data.type=="poly":
-				three_d=True
+			data_type=data.type
 
-		if three_d==False:
+		if data_type=="zxy-d":
+			self.setWindowTitle(_("3D object viewer")+" https://www.gpvdm.com")
+			self.setWindowIcon(icon_get("shape"))
+
+			self.plot=glWidget(self)
+			self.main_vbox.addWidget(self.plot)
+			self.setLayout(self.main_vbox)
+
+			#self.plot.triangle_file=input_files[0]
+
+			self.plot.draw_electrical_mesh=False
+			self.plot.enable_draw_device=False
+			self.plot.enable_draw_ray_mesh=False
+			self.plot.enable_draw_light_source=False
+			self.plot.enable_draw_rays=False
+			self.plot.view.render_photons=False
+			self.plot.plot_graph=True
+			self.plot.graph_data.load(input_files[0])
+			print(self.plot.graph_data.data)
+			self.show()
+		elif data_type=="circuit":
+			self.setWindowTitle(_("3D object viewer")+" https://www.gpvdm.com")
+			self.setWindowIcon(icon_get("shape"))
+
+			self.plot=glWidget(self)
+			self.main_vbox.addWidget(self.plot)
+			self.setLayout(self.main_vbox)
+
+			#self.plot.triangle_file=input_files[0]
+
+			self.plot.draw_electrical_mesh=False
+			self.plot.enable_draw_device=False
+			self.plot.enable_draw_ray_mesh=False
+			self.plot.enable_draw_light_source=False
+			self.plot.enable_draw_rays=False
+			self.plot.plot_graph=False
+			self.plot.plot_circuit=True
+			self.plot.view.render_photons=False
+			self.plot.graph_data.load(input_files[0])
+			self.show()
+		elif data_type=="poly":
+			self.setWindowTitle(_("3D object viewer")+" https://www.gpvdm.com")
+			self.setWindowIcon(icon_get("shape"))
+
+			self.plot=glWidget(self)
+			self.main_vbox.addWidget(self.plot)
+			self.setLayout(self.main_vbox)
+
+			#self.plot.triangle_file=input_files[0]
+
+			self.plot.draw_electrical_mesh=False
+			self.plot.enable_draw_device=False
+			self.plot.enable_draw_ray_mesh=True
+			self.plot.enable_draw_light_source=False
+			self.plot.enable_draw_rays=False
+			self.plot.scene_built=True
+			self.plot.view.render_photons=False
+			data=dat_file()
+
+			if data.load(input_files[0])==True:
+				a=gl_base_object()
+				a.id=["bing"]
+				a.type="open_triangles"
+				a.r=data.r
+				a.g=data.g
+				a.b=data.b
+				a.triangles=project_trianges_m2screen(data.data)
+				self.plot.gl_objects_add(a)
+			self.show()
+		else:
 			self.shown=True
 
 			self.plot=plot_widget()
@@ -82,35 +152,8 @@ class plot_window(QWidget):
 			self.plot.set_labels(plot_labels)
 
 			self.plot.do_plot()
-			self.plot.show()
-		else:
-			self.setWindowTitle(_("3D object viewer")+" https://www.gpvdm.com")
-			self.setWindowIcon(icon_get("shape"))
+			self.plot.show()	
+		
 
-
-			from gl import glWidget
-			self.plot=glWidget(self)
-			self.main_vbox.addWidget(self.plot)
-			self.setLayout(self.main_vbox)
-
-			#self.plot.triangle_file=input_files[0]
-
-			self.plot.draw_electrical_mesh=False
-			self.plot.enable_draw_device=False
-			self.plot.enable_draw_ray_mesh=True
-			self.plot.enable_draw_light_source=False
-			self.plot.enable_draw_rays=False
-			data=dat_file()
-
-			if data.load(input_files[0])==True:
-				a=gl_base_object()
-				a.id="bing"
-				a.type="open_triangles"
-				a.r=data.r
-				a.g=data.g
-				a.b=data.b
-				a.triangles=project_trianges_m2screen(data.data)
-				self.plot.gl_objects_add(a)
-			self.show()
 
 

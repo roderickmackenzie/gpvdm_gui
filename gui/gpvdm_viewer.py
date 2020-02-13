@@ -173,6 +173,7 @@ class gpvdm_viewer(QListWidget):
 
 		self.setIconSize(QSize(64,64))
 
+		
 		self.fill_store()
 
 		self.itemDoubleClicked.connect(self.on_item_activated)
@@ -194,20 +195,28 @@ class gpvdm_viewer(QListWidget):
 	def set_enable_menu(self,data):
 		self.enable_menu=data
 
+	def set_grid_view(self):
+		self.setIconSize(QSize(64,64))
+		self.setViewMode(QListView.IconMode)
+		self.setSpacing(8)
+		self.setWordWrap(True)
+		self.setTextElideMode ( Qt.ElideNone)
+		gridsize=self.size()
+		gridsize.setWidth(100)
+		gridsize.setHeight(90)
+		self.setGridSize(gridsize)
+
 	def set_list_view(self):
 		self.setViewMode(QListView.ListMode)
 		self.setIconSize(QSize(32,32))
+		gridsize=self.size()
+		gridsize.setWidth(100)
+		gridsize.setHeight(40)
+		self.setGridSize(gridsize)
 
 	def set_directory_view(self,data):
 		if data==True:
-			self.setViewMode(QListView.IconMode)
-			self.setSpacing(8)
-			self.setWordWrap(True)
-			self.setTextElideMode ( Qt.ElideNone)
-			gridsize=self.size()
-			gridsize.setWidth(100)
-			gridsize.setHeight(90)
-			self.setGridSize(gridsize)
+			self.set_grid_view()
 
 
 	def callback_menu(self,event):
@@ -431,6 +440,10 @@ class gpvdm_viewer(QListWidget):
 			else:
 				all_files=os.listdir(path)
 				all_files.sort()
+				if path.endswith("dynamic")==True:
+					self.set_list_view()
+				else:
+					self.set_grid_view()
 
 				for fl in all_files:
 					#print(fl)

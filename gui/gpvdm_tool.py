@@ -110,7 +110,6 @@ from inp import inp_dir_listing
 from util_zip import archive_decompress
 from util_zip import archive_compress
 from scan_io import build_scan
-from scan_io import scan_build_nested_simulation
 from scan_tree import tree_load_flat_list
 
 from scan_item import scan_items_clear
@@ -123,17 +122,12 @@ from device_lib_io import device_lib_token_insert_top
 from device_lib_io import device_lib_token_duplicate
 from device_lib_io import device_lib_fix_ver
 
-from scan_ml import scan_ml_build_vector
-
-from scan_io import scan_archive
-
 from gui_enable import set_gui
 from gui_enable import gui_get
 
 from device_lib_io import device_lib_token_repair
 
 from materials_io import archive_materials
-from scan_ml import scan_ml_build_vector
 
 import i18n
 _ = i18n.language.gettext
@@ -165,7 +159,6 @@ parser.add_argument("--buildscan", help=_("Builds a scan, usage --buildscan /pat
 parser.add_argument("--buildnestedscan", help=_("Builds a nested scan, usage --buildnestedscan /path/to/scan/dir/ sim_to_nest"), nargs=2)
 parser.add_argument("--runscan", help=_("Runs a scan, usage --runscan /path/to/scan/dir/ "), nargs=1)
 parser.add_argument("--scanarchive", help=_("Compress a scandir --scanarchive path_to_scan_dir"), nargs=1)
-parser.add_argument("--scanbuildvectors", help=_("Build vectors from scan dir --scanbuildvectors path_to_scan_dir"), nargs=1)
 parser.add_argument("--list", help=_("List the content of a gpvdm archive"), action='store_true')
 
 set_gui(False)
@@ -221,31 +214,10 @@ def command_args_tool(argc,argv):
 		elif args.delete:
 			device_lib_delete(args.delete[0],dir_name=args.delete[1])
 			exit(0)
-		elif args.buildscan:
-			scan_items_clear()
-			scan_items_populate_from_known_tokens()
-			scan_items_populate_from_files()
-
-			scan_dir_path=args.buildscan[0]	#program file
-			base_dir=args.buildscan[1]				#base dir
-
-			build_scan(scan_dir_path,base_dir)
 
 			sys.exit(0)
 		elif args.list:
 			inp_dir_listing(os.path.join(os.getcwd(),"sim.gpvdm"))
-			sys.exit(0)
-
-		if args.buildnestedscan:
-
-			scan_items_clear()
-			scan_items_populate_from_known_tokens()
-			scan_items_populate_from_files()
-
-			scan_dir_path=os.path.abspath(args.buildnestedscan[0])	#program file
-			sim_to_nest=os.path.abspath(args.buildnestedscan[1])	#program file
-			scan_build_nested_simulation(scan_dir_path,os.path.join(os.getcwd(),sim_to_nest))
-
 			sys.exit(0)
 
 
@@ -274,14 +246,6 @@ def command_args_tool(argc,argv):
 
 			sys.exit(0)
 
-		if args.scanarchive:
-			scan_archive(args.scanarchive[0])
-			sys.exit(0)
-
-		if args.scanbuildvectors:
-			set_gui(False)
-			scan_ml_build_vector(args.scanbuildvectors[0])
-			sys.exit(0)
 
 command_args_tool(len(sys.argv),sys.argv)
 

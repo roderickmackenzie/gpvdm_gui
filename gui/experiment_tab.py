@@ -43,7 +43,7 @@ from PyQt5.QtCore import QSize, Qt
 from PyQt5.QtWidgets import QWidget,QVBoxLayout,QToolBar,QSizePolicy,QAction,QTabWidget,QTabWidget
 from PyQt5.QtGui import QPainter,QIcon
 from cal_path import get_sim_path
-
+from inp import inp
 from css import css_apply
 
 class experiment_tab(QTabWidget):
@@ -73,12 +73,11 @@ class experiment_tab(QTabWidget):
 		self.addTab(self.tmesh,_("time mesh"))
 
 
+		#if inp().isfile("diagram.inp")==False:
 		self.circuit=circuit(self.index)
-
 		self.addTab(self.circuit,_("Circuit"))
 
-		tab=tab_class()
-		tab.init(self.file_name,_("Configure"))
+		tab=tab_class(self.file_name)
 		self.addTab(tab,_("Configure"))
 
 

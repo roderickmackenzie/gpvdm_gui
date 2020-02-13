@@ -1,4 +1,4 @@
-# 
+#
 #   General-purpose Photovoltaic Device Model - a drift diffusion base/Shockley-Read-Hall
 #   model for 1st, 2nd and 3rd generation solar cells.
 #   Copyright (C) 2012-2017 Roderick C. I. MacKenzie r.c.i.mackenzie at googlemail.com
@@ -19,7 +19,7 @@
 #   with this program; if not, write to the Free Software Foundation, Inc.,
 #   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
-# 
+#
 
 ## @package fit_window
 #  Main fit window
@@ -42,14 +42,14 @@ import i18n
 _ = i18n.language.gettext
 
 #inp
-from inp import inp_isfile
+from inp import inp
 from inp import inp_copy_file
 from inp import inp_remove_file
 from inp import inp_update_token_value
 from fit_configure_window import fit_configure_window
 
 #qt
-from PyQt5.QtCore import QSize, Qt 
+from PyQt5.QtCore import QSize, Qt
 from PyQt5.QtWidgets import QWidget,QVBoxLayout,QToolBar,QSizePolicy,QAction,QTabWidget,QStatusBar, QTableWidget, QAbstractItemView
 from PyQt5.QtGui import QPainter,QIcon,QCursor
 
@@ -73,7 +73,7 @@ from css import css_apply
 from cal_path import get_inp_file_path
 
 from fit_ribbon import fit_ribbon
- 
+
 class fit_window(QWidgetSavePos):
 
 	def update(self):
@@ -86,7 +86,7 @@ class fit_window(QWidgetSavePos):
 	def callback_configure(self):
 		if self.fit_configure_window==None:
 			self.fit_configure_window=fit_configure_window("fit_config")
-			
+
 		help_window().help_set_help(["vars.png",_("<big><b>The fitting variables window</b></big><br> Use this window to select the variables use to perform the fit.")])
 		if self.fit_configure_window.isVisible()==True:
 			self.fit_configure_window.hide()
@@ -168,7 +168,7 @@ class fit_window(QWidgetSavePos):
 		self.main_vbox = QVBoxLayout()
 
 		#self.setFixedSize(900, 700)
-		self.setWindowTitle(_("Fit the simulation to experimental data")+" https://www.gpvdm.com")   
+		self.setWindowTitle(_("Fit the simulation to experimental data")+" https://www.gpvdm.com")
 		self.setWindowIcon(icon_get("fit"))
 
 		toolbar=QToolBar()
@@ -219,14 +219,14 @@ class fit_window(QWidgetSavePos):
 		self.load_tabs()
 
 		self.main_vbox.addWidget(self.notebook)
-		
+
 		self.status_bar=QStatusBar()
 		self.main_vbox.addWidget(self.status_bar)
 
 		self.setLayout(self.main_vbox)
 
 		self.fit_configure_window=None
-		
+
 
 
 

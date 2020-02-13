@@ -33,6 +33,7 @@ from tb_pulse_load_type import tb_pulse_load_type
 from PyQt5.QtCore import QSize, Qt 
 from PyQt5.QtWidgets import QWidget,QVBoxLayout,QToolBar,QSizePolicy,QAction,QTabWidget,QMenuBar,QStatusBar
 from PyQt5.QtGui import QPainter,QIcon,QPixmap
+from ersatzschaltbild import ersatzschaltbild
 
 class my_draw(QWidget):
     def __init__(self, parent=None):
@@ -52,7 +53,7 @@ class circuit(QWidget):
 	def update(self,object):
 		self.darea.queue_draw()
 
-	def __init__(self,index):
+	def __init__(self,index,base_file_name="pulse",token="#pulse_sim_mode"):
 		QWidget.__init__(self)
 
 		vbox=QVBoxLayout()
@@ -64,7 +65,7 @@ class circuit(QWidget):
 		toolbar.setIconSize(QSize(48, 48))
 
 
-		self.load_type=tb_pulse_load_type(self.index)
+		self.load_type=tb_pulse_load_type(self.index,base_file_name=base_file_name,token=token)
 		#self.load_type.connect("changed", self.draw_callback)
 
 		toolbar.addWidget(self.load_type)
@@ -78,32 +79,89 @@ class circuit(QWidget):
 
 		self.darea = QWidget()
 
-		vbox.addWidget(self.darea)
 
+		self.diagram=ersatzschaltbild()
+		self.diagram.dx=200
+		self.diagram.dy=200
+		self.diagram.editable=False
+
+		vbox.addWidget(self.diagram)
+		#vbox.addWidget(self.darea)
+
+		
 		self.setLayout(vbox)
-		self.load_type.changed.connect(self.repaint)
-		return
+		#self.load_type.changed.connect(self.repaint)
+		self.load_type.changed.connect(self.update)
+		self.update()
 
-	def paintEvent(self, QPaintEvent):
-		y_offset=100
-		x_offset=50
+	#def paintEvent(self, QPaintEvent):
+	#	y_offset=100
+	#	x_offset=50
 
-		painter = QPainter()
-		painter.begin(self)
+	#	painter = QPainter()
+	#	painter.begin(self)
 
+	#	if self.load_type.sim_mode.currentText()=="load":
+	#		painter.drawPixmap(x_offset,y_offset, self.diode)
+
+	#		painter.drawPixmap(x_offset+620,y_offset+67, self.load)
+	#	elif self.load_type.sim_mode.currentText()=="ideal_diode_ideal_load":
+	#		painter.drawPixmap(x_offset,y_offset, self.ideal_diode)
+
+	#		painter.drawPixmap(x_offset+620,y_offset+68, self.ideal_load)
+	#	else:
+	#		painter.drawPixmap(x_offset,y_offset, self.diode)
+
+	#		painter.drawPixmap(x_offset+620,y_offset+57, self.voc)
+
+	#	painter.end()
+
+	def update(self):
+		self.diagram.clear()
 		if self.load_type.sim_mode.currentText()=="load":
-			painter.drawPixmap(x_offset,y_offset, self.diode)
+			self.diagram.add_object(1,1,1,2,"diode")
 
-			painter.drawPixmap(x_offset+620,y_offset+67, self.load)
+			self.diagram.add_object(1,1,2,1,"wire")
+			self.diagram.add_object(1,2,2,2,"wire")
+
+			self.diagram.add_object(2,1,2,2,"capacitor")
+			self.diagram.add_object(2,1,3,1,"wire")
+			self.diagram.add_object(2,2,3,2,"wire")
+
+			self.diagram.add_object(3,1,3,2,"resistor")
+			self.diagram.add_object(3,1,4,1,"resistor")
+			self.diagram.add_object(3,2,4,2,"wire")
+
+			self.diagram.add_object(4,1,5,1,"resistor")
+			self.diagram.add_object(5,1,5,2,"vsource")
+
+			self.diagram.add_object(4,2,5,2,"wire")
+
 		elif self.load_type.sim_mode.currentText()=="ideal_diode_ideal_load":
-			painter.drawPixmap(x_offset,y_offset, self.ideal_diode)
 
-			painter.drawPixmap(x_offset+620,y_offset+68, self.ideal_load)
+			self.diagram.add_object(1,1,1,2,"diode")
+
+			self.diagram.add_object(1,1,2,1,"wire")
+			self.diagram.add_object(1,2,2,2,"wire")
+
+			self.diagram.add_object(2,1,3,1,"wire")
+			self.diagram.add_object(2,2,3,2,"wire")
+
+			self.diagram.add_object(3,1,3,2,"vsource")
+
 		else:
-			painter.drawPixmap(x_offset,y_offset, self.diode)
+			self.diagram.add_object(1,1,1,2,"diode")
 
-			painter.drawPixmap(x_offset+620,y_offset+57, self.voc)
+			self.diagram.add_object(1,1,2,1,"wire")
+			self.diagram.add_object(1,2,2,2,"wire")
 
-		painter.end()
+			self.diagram.add_object(2,1,2,2,"capacitor")
+			self.diagram.add_object(2,1,3,1,"wire")
+			self.diagram.add_object(2,2,3,2,"wire")
 
+			self.diagram.add_object(3,1,3,2,"resistor")
+			self.diagram.add_object(3,1,4,1,"resistor")
+			self.diagram.add_object(3,2,4,2,"wire")
+
+		self.diagram.repaint()
 

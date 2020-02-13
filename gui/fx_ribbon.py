@@ -53,8 +53,6 @@ from tb_lasers import tb_lasers
 from ribbon_base import ribbon_base
 from order_widget import order_widget
 
-from tb_item_is_imps import tb_item_is_imps
-
 class fx_ribbon(ribbon_base):
 		
 	def experiment(self):
@@ -68,12 +66,12 @@ class fx_ribbon(ribbon_base):
 		self.order_widget.clone_text=_("Clone experiment")
 		self.order_widget.rename_text=_("Rename experiment")
 		self.order_widget.new_dlg_text=_("New experiment name:")
-		self.order_widget.base_file_name=["fxdomain","fxmesh"]
+		self.order_widget.base_file_name=["is","is_fxdomain_data","fxmesh"]
 		self.order_widget.new_tab_name=_("experiment ")
 		self.order_widget.clone_dlg_text=_("Clone the current experiment to a new experiment called:")
 		self.order_widget.rename_dlg_text=_("Rename the experiment to be called:")
 		self.order_widget.delete_dlg_text=_("Should I remove the experiment file ")
-		self.order_widget.postfix="@fxdomain"
+		self.order_widget.postfix="@is"
 		self.order_widget.name_token="#sim_menu_name"
 		self.order_widget.init()
 
@@ -83,11 +81,6 @@ class fx_ribbon(ribbon_base):
 
 		self.tb_save = QAction(icon_get(("document-save")), wrap_text(_("Save image"),3), self)
 		toolbar.addAction(self.tb_save)
-
-
-		self.mode=tb_item_is_imps()
-		toolbar.addWidget(self.mode)
-
 
 		spacer = QWidget()
 		spacer.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)

@@ -59,6 +59,7 @@ cluster_path=None
 cluster_libs_path=None
 home_path=None
 use_gpvdm_local=None
+components_path=None
 
 def subtract_paths(root,b_in):
 	a=root.replace("/","\\")
@@ -245,6 +246,7 @@ def calculate_paths():
 	global cluster_path
 	global cluster_libs_path
 	global atmosphere_path
+	global components_path
 
 	root_materials_path=os.path.join(get_sim_path(),"materials")
 	if os.path.isdir(root_materials_path)==False:
@@ -272,6 +274,7 @@ def calculate_paths():
 
 	html_path=search_known_paths("html",[""],"info0.html",True)
 	video_path=search_known_paths("video",[""],"welcome.wmv",True)
+	components_path=search_known_paths("components",[""],"resistor.inp",True)
 
 
 def get_license_path():
@@ -416,6 +419,10 @@ def get_exe_command():
 def get_exe_name():
 	global exe_command
 	return os.path.basename(exe_command)
+
+def get_components_path():
+	global components_path
+	return components_path
 
 def get_inp_file_path():
 	global inp_file_path

@@ -95,11 +95,6 @@ def scan_archive(sim_dir):
 
 	progress_window.stop()
 
-def scan_build_all_nested(sim_dir,parent_window=None):
-	commands=scan_build_nested_simulation(sim_dir,os.path.join(os.getcwd(),"sub_sim"))
-	commands=scan_build_nested_simulation(sim_dir,os.path.join(os.getcwd(),"sub_sim_tpc"))
-	commands=scan_build_nested_simulation(sim_dir,os.path.join(os.getcwd(),"sub_sim_tpv"))
-
 
 def build_scan(scan_path,base_path,parent_window=None):
 	scan_clean_dir(scan_path,parent_window=parent_window)
@@ -108,7 +103,7 @@ def build_scan(scan_path,base_path,parent_window=None):
 	program_list=tree_load_program(scan_path)
 	path=os.getcwd()
 
-	if tree_gen(flat_simulation_list,program_list,base_path,scan_path)==False:
+	if tree_gen(scan_path,flat_simulation_list,program_list,base_path)==False:
 		error_dlg(parent_window,_("Problem generating tree."))
 		return False
 	os.chdir(path)
@@ -266,34 +261,12 @@ def scan_gen_report(path):
 	for ii in range(0,len(tokens)):
 		print(tokens[ii].token,sum(tokens[ii].values)/len(tokens[ii].values),std(tokens[ii].values))
 
-#maybe delete
-def scan_nested_simulation(root_simulation,nest_simulation):
-	a=tree_gen_flat_list(root_simulation,level=1)
-	print(a)
-	return
-	program_list=tree_load_program(nest_simulation)
-
-	names=tree_load_flat_list(root_simulation)
-	commands=[]
-
-	flat_simulation_list=[]
-	#tree_save_flat_list(self.sim_dir,flat_simulation_list)
-
-	for i in range(0,len(names)):
-		dest_name=os.path.join(root_simulation,names[i])
-		tree_gen(flat_simulation_list,program_list,dest_name,dest_name)
-
-		files = os.listdir(dest_name)
-		for file in files:
-			if file.endswith(".inp") or file.endswith(".gpvdm") or file.endswith(".dat") :
-				os.remove(os.path.join(dest_name,file))
-
-		print(names[i],flat_simulation_list)
-	tree_save_flat_list(root_simulation,flat_simulation_list)
-
-	return
 
 def scan_build_nested_simulation(root_simulation,nest_simulation):
+
+	if os.path.isdir(nest_simulation)==False:
+		print("Path ",nest_simulation,"does not exist")
+		sys.exit(0)
 
 	progress_window=progress_class()
 	progress_window.show()
@@ -301,6 +274,7 @@ def scan_build_nested_simulation(root_simulation,nest_simulation):
 
 	process_events()
 
+	nest_simulation_name=os.path.basename(nest_simulation) 
 	program_list=tree_load_program(nest_simulation)
 		
 	files = os.listdir(root_simulation)
@@ -313,8 +287,10 @@ def scan_build_nested_simulation(root_simulation,nest_simulation):
 
 	path=os.getcwd()
 	for i in range(0,len(simulations)):
-		dest_name=os.path.join(root_simulation,simulations[i])
-		tree_gen(flat_simulation_list,program_list,dest_name,dest_name)
+		dest_name=os.path.join(root_simulation,simulations[i],nest_simulation_name)
+		base_dir=os.path.join(root_simulation,simulations[i])
+		#print(">>>",dest_name,base_dir,"<<",nest_simulation_name)
+		tree_gen(dest_name,flat_simulation_list,program_list,base_dir)
 
 		progress_window.set_fraction(float(i)/float(len(simulations)))
 		progress_window.set_text(simulations[i])
@@ -326,7 +302,7 @@ def scan_build_nested_simulation(root_simulation,nest_simulation):
 
 	flat_simulation_list=tree_gen_flat_list(root_simulation,level=1)
 
-	print(flat_simulation_list)
+	#print(flat_simulation_list)
 	tree_save_flat_list(root_simulation,flat_simulation_list)
 
 	return

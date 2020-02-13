@@ -164,10 +164,6 @@ class scan_class(QWidgetSavePos):
 		tab = self.notebook.currentWidget()
 		tab.plot_fits()
 
-	def callback_nested_simulation(self):
-		tab = self.notebook.currentWidget()
-		tab.nested_simulation()
-
 
 	def callback_clean_simulation(self):
 		tab = self.notebook.currentWidget()
@@ -279,8 +275,6 @@ class scan_class(QWidgetSavePos):
 		self.main_vbox.addWidget(self.ribbon)
 
 		self.ribbon.menu_plot_fits.triggered.connect(self.callback_plot_fits)
-
-		self.ribbon.menu_run_nested.triggered.connect(self.callback_nested_simulation)
 
 		self.ribbon.sim_no_gen.triggered.connect(self.callback_run_simulation_nogen)
 

@@ -41,8 +41,6 @@ import webbrowser
 from help import help_window
 
 from epitaxy import epitaxy_get_layers
-from mesh import mesh_get_xlen
-from mesh import mesh_get_zlen
 from epitaxy import epitaxy_get_mat_file
 
 work_book_enabled=False
@@ -60,7 +58,6 @@ from inp import inp_get_token_value
 from QWidgetSavePos import QWidgetSavePos
 
 articles = []
-mesh_articles = []
 
 class cost(QWidgetSavePos):
 

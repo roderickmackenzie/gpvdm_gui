@@ -30,11 +30,12 @@
 import os
 #import shutil
 from inp import inp_save
-from inp import inp_load_file
-from code_ctrl import enable_betafeatures
 
 from cal_path import get_sim_path
 from str2bool import str2bool
+from inp import inp
+
+from newton_solver import newton_solver_get_type
 
 class mlayer():
 	def __init__(self):
@@ -43,93 +44,106 @@ class mlayer():
 		self.mul=1.0
 		self.left_right="left"
 
-class mesh:
+class mesh_zxy:
 	def __init__(self,direction):
 		self.direction=direction
 		self.layers=[]
 		self.remesh=False
 		self.points=[]
+		self.circuit_model=False
+		self.tot_points=0
+		self.epi=None
 
 	def calculate_points(self):
 		total_pos=0.0
 		out_x=[]
 		out_y=[]
 
-		for i in range(0,len(self.layers)):
-			l=self.layers[i]
-			layer_length=l.thick
-			layer_points=l.points
-			layer_mul=l.mul
-			layer_left_right=l.left_right
-			dx=layer_length/layer_points
-			pos=dx/2
-			ii=0
-			temp_x=[]
-			temp_mag=[]
-			while(pos<layer_length):
-				temp_x.append(pos)
-				temp_mag.append(1.0)
+		self.tot_points=0
+		if self.circuit_model==True:
+			for i in range(0,len(self.epi.layers)):
+				l=self.epi.layers[i]
+				out_x.append(l.start)
+				out_y.append(1.0)
 
-				pos=pos+dx*pow(layer_mul,ii)
+			out_x.append(self.epi.layers[-1].end)
+			out_y.append(1.0)
+		else:
+			for i in range(0,len(self.layers)):
+				l=self.layers[i]
+				if l.points!=0:
+					layer_length=l.thick
+					layer_points=l.points
+					layer_mul=l.mul
+					layer_left_right=l.left_right
+					dx=layer_length/layer_points
+					pos=dx/2
+					ii=0
+					temp_x=[]
+					temp_mag=[]
+					while(pos<layer_length):
+						temp_x.append(pos)
+						temp_mag.append(1.0)
 
-				ii=ii+1
-				#dx=dx*layer_mul
-			for i in range(0,len(temp_x)):
-				if layer_left_right=="left":
-					out_x.append((temp_x[i]+total_pos))
-				else:
-					out_x.append((layer_length-temp_x[i]+total_pos))
+						pos=pos+dx*pow(layer_mul,ii)
 
-				out_y.append(temp_mag[i])
-			total_pos=total_pos+layer_length
-		
-		out_x.sort()
+						ii=ii+1
+						#dx=dx*layer_mul
+						self.tot_points=self.tot_points+1
+
+					for i in range(0,len(temp_x)):
+						if layer_left_right=="left":
+							out_x.append((temp_x[i]+total_pos))
+						else:
+							out_x.append((layer_length-temp_x[i]+total_pos))
+
+						out_y.append(temp_mag[i])
+					total_pos=total_pos+layer_length
+				
+			out_x.sort()
 
 		self.points=out_x
 		return out_x,out_y
 
-	def load(self):
+	def check_curcuit_sim(self,epi):
+		newton_solver=newton_solver_get_type()
+
+		if newton_solver=="newton_simple" and self.direction=="y":
+			for l in epi.layers:
+				self.add_layer(l.dy,1,1.0,"left")
+			self.circuit_model=True
+			return True
+
+		return False
+
+	def load(self,epi):
+		self.epi=epi
+		self.file=inp()
 		file_name=os.path.join(get_sim_path(),"mesh_"+self.direction+".inp")
 
 		self.clear()
 
-		my_list=[]
-		pos=0
-		lines=inp_load_file(file_name)
+		if self.check_curcuit_sim(epi)==True:
+			self.update()
+			return True
 
-		if lines!=False:
-			if lines[pos]!="#remesh_enable":			#Check we are not trying to open an old version
-				return False
+		if self.file.load(file_name)!=False:
 
-			pos=pos+1	#first comment
-			remesh=str2bool(lines[pos])
-			pos=pos+1	#remesh
+			remesh=str2bool(self.file.get_next_val())
 
 			self.remesh=remesh
 
-			pos=pos+1	#first comment
-			mesh_layers=int(lines[pos])
+			mesh_layers=int(self.file.get_next_val())
+
 			for i in range(0, mesh_layers):
 				#thick
-				pos=pos+1			#token
-				token=lines[pos]
-				pos=pos+1
-				thick=lines[pos]	#length
+				thick=float(self.file.get_next_val())	#length
 
-				pos=pos+1			#token
-				token=lines[pos]
-				pos=pos+1
-				points=lines[pos] 	#points
+				points=float(self.file.get_next_val()) 	#points
 			
-				pos=pos+1			#token
-				token=lines[pos]
-				pos=pos+1
-				mul=lines[pos] 		#mul
+				mul=float(self.file.get_next_val()) 		#mul
 
-				pos=pos+1			#token
-				token=lines[pos]
-				pos=pos+1
-				left_right=lines[pos] 		#left_right
+				left_right=self.file.get_next_val() 		#left_right
 
 				self.add_layer(thick,points,mul,left_right)
 
@@ -143,9 +157,9 @@ class mesh:
 
 	def add_layer(self,thick,points,mul,left_right):
 		a=mlayer()
-		a.thick=float(thick)
-		a.points=float(points)
-		a.mul=float(mul)
+		a.thick=thick
+		a.points=points
+		a.mul=mul
 		a.left_right=left_right
 		self.layers.append(a)
 
@@ -185,125 +199,125 @@ class mesh:
 			self.layers[0].thick=to_size
 			self.save()
 
-xlist=mesh("x")
-ylist=mesh("y")
-zlist=mesh("z")
 
+
+class mesh:
+	def __init__(self):
+		self.x=mesh_zxy("x")
+		self.y=mesh_zxy("y")
+		self.z=mesh_zxy("z")
+
+	def save(self):
+		self.x.save()
+		self.y.save()
+		self.z.save()
+	
+
+	def load(self,epi):
+		self.epi=epi
+		ret=True
+		r=self.x.load(epi)
+		ret=ret and r
+		r=self.y.load(epi)
+		ret=ret and r
+		r=self.z.load(epi)
+		ret=ret and r
+		return ret
+	
+	def set_xlen(self,value):
+		if len(self.x.layers)==1:
+			self.x.layers[0].thick=value
+			return True
+		else:
+			return False
+
+	def set_zlen(self,value):
+		if len(self.z.layers)==1:
+			self.z.layers[0].thick=value
+			return True
+		else:
+			return False
+
+
+	def get_xlen(self):
+		tot=0.0
+		for a in self.x.layers:
+			tot=tot+a.thick
+		return tot
+
+	def get_ylen(self):
+		tot=0.0
+		for a in self.y.layers:
+			tot=tot+a.thick
+		return tot
+
+	def get_zlen(self):
+		tot=0.0
+		for a in self.z.layers:
+			tot=tot+a.thick
+		return tot
+
+	def get_xpoints(self):
+		tot=0.0
+		for a in self.x.layers:
+			tot=tot+a.points
+		return tot
+
+	def get_ypoints(self):
+		tot=0.0
+		for a in self.y.layers:
+			tot=tot+a.points
+		return tot
+
+	def get_zpoints(self):
+		tot=0.0
+		for a in self.z.layers:
+			tot=tot+a.points
+		return tot
+
+	def get_xlayers(self):
+		return len(self.x.layers)
+
+	def get_ylayers(self):
+		return len(self.y.layers)
+
+	def get_zlayers(self):
+		return len(self.z.layers)
 		
-def mesh_save_all():
-	global xlist
-	global ylist
-	global zlist
-	xlist.save()
-	ylist.save()
-	zlist.save()
-	
+	def clear(self):
+		self.x.clear()
+		self.y.clear()
+		self.z.clear()
 
-def mesh_load_all():
-	global xlist
-	global ylist
-	global zlist
+	def build_device_shadow(self):
+		y,temp=self.y.calculate_points()
+		x,temp=self.x.calculate_points()
+		z,temp=self.z.calculate_points()
+		ret=[]
+		build_x=[]
+		build_y=[]
 
-	ret=True
+		for zi in range(0,len(z)):
+			build_x=[]
+			for xi in range(0,len(x)):
+				build_y=[]
+				for yi in range(0,len(y)):
+					#print(self.x.tot_points,self.z.tot_points)
+					if self.x.tot_points==1 and self.z.tot_points==1:
+						val=True
+					else:
+						val=self.epi.device_mask(x[xi],y[yi],z[zi])
+					build_y.append(val)
+				build_x.append(build_y)
 
-	r=xlist.load()
-	ret=ret and r
-	r=ylist.load()
-	ret=ret and r
-	r=zlist.load()
-	ret=ret and r
-	return ret
-	
-def mesh_set_xlen(value):
-	global xlist
-	if len(xlist.layers)==1:
-		xlist.layers[0].thick=value
-		return True
-	else:
-		return False
-
-def mesh_set_zlen(value):
-	global zlist
-	if len(zlist.layers)==1:
-		zlist.layers[0].thick=value
-		return True
-	else:
-		return False
+			ret.append(build_x)
+		#print(ret)
+		return ret
 
 
-def mesh_get_xlen():
-	global xlist
-	tot=0.0
-	for a in xlist.layers:
-		tot=tot+a.thick
-	return tot
-
-def mesh_get_ylen():
-	global ylist
-	tot=0.0
-	for a in ylist.layers:
-		tot=tot+a.thick
-	return tot
-
-def mesh_get_zlen():
-	global zlist
-	tot=0.0
-	for a in zlist.layers:
-		tot=tot+a.thick
-	return tot
-
-def mesh_get_xpoints():
-	global xlist
-	tot=0.0
-	for a in xlist.layers:
-		tot=tot+a.points
-	return tot
-
-def mesh_get_ypoints():
-	global ylist
-	tot=0.0
-	for a in ylist.layers:
-		tot=tot+a.points
-	return tot
-
-def mesh_get_zpoints():
-	global zlist
-	tot=0.0
-	for a in zlist.layers:
-		tot=tot+a.points
-	return tot
-
-def mesh_get_xlayers():
-	global xlist
-	return len(xlist.layers)
-
-def mesh_get_ylayers():
-	global ylist
-	return len(ylist.layers)
-
-def mesh_get_zlayers():
-	global zlist
-	return len(zlist.layers)
-
-def mesh_get_xmesh():
-	global xlist
-	return xlist
-
-def mesh_get_ymesh():
-	global ylist
-	return ylist
-
-def mesh_get_zmesh():
-	global zlist
-	return zlist
-	
-def mesh_clear():
-	global xlist
-	global ylist
-	global zlist
-	xlist.clear()
-	ylist.clear()
-	zlist.clear()
-
+mesh_data=mesh()
+def get_mesh():
+	global mesh_data
+	return mesh_data
 
 

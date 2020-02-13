@@ -246,6 +246,7 @@ def scan_ml_build_vector(sim_dir):
 		if response!="yes":
 			sys.exit(0)
 
+	fx_points=[1,3,10,30,1e2,3e2,1e3,3e3,1e4,3e4,7e5,8e5,1e5,2e5,3e5,4e5,5e5,7e5,8e5,9e5,1e6]
 	out=open(output_file,'wb')
 	progress_window=progress_class()
 	progress_window.show()
@@ -266,23 +267,16 @@ def scan_ml_build_vector(sim_dir):
 			archive_path=os.path.join(sim_dir,archive_name)
 
 			if done==0:		#Find the measurment files and determine which ones are needed
-				found=[]
+				sub_sims=[]
 				zf = zipfile.ZipFile(archive_path, 'r')
 				items=zf.namelist()
 				for l in items:
-					parts=l.split("/")
-					fname=parts[-1]
-					if fname.endswith("scan.inp")==True:
-						found_item=os.path.join(parts[-2],parts[-1])
+					if l.endswith("scan.inp")==True:		#if it's scan file then strip out the hex dir name and the scan.inp part
+						parts=l.split("/")
+						found_sim="/".join(parts[1:-1])
 
-						a=parts[-2]
-						#measurment()
-						#a.experiment=parts[-2]
-						#a.measurement_file=parts[-1]
-						#a.token="#ml_input_"+parts[-1][8:-4]+"_"+parts[-2]
-
-						if found.count(a)==False:
-							found.append(a)
+						if sub_sims.count(found_sim)==False:
+							sub_sims.append(found_sim)
 
 			zf = zipfile.ZipFile(archive_path, 'r')
 			dirs=zip_lsdir(archive_path,zf=zf,sub_dir="/")
@@ -308,29 +302,28 @@ def scan_ml_build_vector(sim_dir):
 				v="#ml_id\n"
 				v=v+dirs[i]+"\n"
 
-				
-				for scan_folder in found:
-					token="#ml_input_"+scan_folder
-					v=v+token+"\n"
+
+				for scan_folder in sub_sims:
 
 					dolog=False
 					div=1.0
 					mul=1.0
 					do_fabs=False
-
 					sim_mode=inp_get_token_value(os.path.join(full_name,scan_folder,"sim.inp"), "#simmode")
 					if sim_mode==None:
 						error=True
 						break
+
 					sim_mode=sim_mode.lower()
 
 					light=float(inp_get_token_value(os.path.join(full_name,scan_folder,"light.inp"), "#Psun"))
+					scan_folder_token=scan_folder.replace("/","_")
 
 					if sim_mode.endswith("jv") or sim_mode.startswith("jv"):
-						file_name="jv.dat"
-						sim_mode="jv"
-						vector=[0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1.0]	#np.linspace(0.2,1.0,20)#
-
+						file_name=["jv.dat"]
+						sim_mode=["jv"]
+						vector=[[0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1.0]]
+						token_ext=[scan_folder_token]
 						#if light>0.0:
 						#	div=1e2
 
@@ -338,35 +331,78 @@ def scan_ml_build_vector(sim_dir):
 						#	dolog=True
 
 					elif sim_mode=="sun_voc":
-						file_name="suns_voc.dat"
-						vector=[0.02,0.04,0.05,0.1,0.5,0.7,1.0]
+						file_name=["suns_voc.dat"]
+						vector=[[0.02,0.04,0.05,0.1,0.5,0.7,1.0]]
+						token_ext=[scan_folder_token]
 						#dolog=True
 						#mul=-10.0
 
+					elif sim_mode.startswith("cv"):
+						file_name=["cv.dat"]
+						vector=[[-2.0, -1.8 ,-1.6,-1.4,-1.2,-1.0,-0.8,-0.6,-0.4,-0.2,0.0,0.2,0.4]]
+						token_ext=[scan_folder_token]
+
+					elif sim_mode.startswith("is"):
+						file_name=["fx_imag.dat"]
+						vector=[fx_points]
+						token_ext=[scan_folder_token+"_fx_imag"]
+
+						file_name.append("fx_real.dat")
+						vector.append(fx_points)
+						token_ext.append(scan_folder_token+"_fx_real")
+
+					elif sim_mode.startswith("imps"):
+						file_name=["fx_imag.dat"]
+						vector=[fx_points]
+						token_ext=[scan_folder_token+"_fx_imag"]
+
+						file_name.append("fx_real.dat")
+						vector.append(fx_points)
+						token_ext.append(scan_folder_token+"_fx_real")
+
+					elif sim_mode.startswith("imvs"):
+						file_name=["fx_imag.dat"]
+						vector=[fx_points]
+						token_ext=[scan_folder_token+"_fx_imag"]
+
+						file_name.append("fx_real.dat")
+						vector.append(fx_points)
+						token_ext.append(scan_folder_token+"_fx_real")
+
 					elif sim_mode.startswith("tpc")==True:
-						file_name="time_i.dat"
-						vector=[1.1e-6,2e-6,2e-5,1e-4,0.02,0.1]
+						file_name=["time_i.dat"]
+						vector=[[1.1e-6,2e-6,2e-5,1e-4,0.02,0.1]]
+						token_ext=[scan_folder_token]
 						#dolog=True
 						#do_fabs=True
+
 					elif sim_mode.startswith("celiv")==True:
-						file_name="time_i.dat"
-						vector=[2e-6,3e-6,4e-6,5e-6,6e-6,7e-6,8e-6]
+						file_name=["time_i.dat"]
+						vector=[[2e-6,3e-6,4e-6,5e-6,6e-6,7e-6,8e-6]]
+						token_ext=[scan_folder_token]
 						#do_fabs=True
 						#mul=1000.0
+
 					elif sim_mode.startswith("tpv")==True:
-						file_name="time_v.dat"
-						vector=[10e-6,20e-6,30e-6,40e-6,50e-6,60e-6,80e-6]
+						file_name=["time_v.dat"]
+						vector=[[10e-6,20e-6,30e-6,40e-6,50e-6,60e-6,80e-6]]
+						token_ext=[scan_folder_token]
 						#do_fabs=True
 						#mul=10.0
 					else:
 						print(sim_mode)
 						asdas
-					ret=get_vectors(os.path.join(full_name,scan_folder,file_name),vector,dolog=dolog,div=div,mul=mul,fabs=do_fabs)
-					#print(ret)
-					if ret==False:
-						error=True
-						break
-					v=v+ret+"\n"
+
+					for c in range(0,len(file_name)):
+						ret=get_vectors(os.path.join(full_name,scan_folder,file_name[c]),vector[c], dolog=dolog,div=div,mul=mul, fabs=do_fabs)
+						#print(ret)
+						if ret==False:
+							error=True
+							break
+
+						token="#ml_input_"+token_ext[c]
+						v=v+token+"\n"
+						v=v+ret+"\n"
 
 					if sim_mode=="jv" and light>0.0:
 						ret=scan_ml_build_token_abs(os.path.join(full_name,scan_folder,"sim_info.dat"),"#jv_pmax_tau","#jv_pmax_tau",min_max="avg",dolog=True)

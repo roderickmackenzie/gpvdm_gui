@@ -48,7 +48,7 @@ from gl_scale import scale_get_start_z
 
 class gl_cords():
 	def draw_cords(self):
-
+		#thse issue is that you should be using QOpenGLWidget and do the text rendering by hand
 		font = QFont("Arial")
 		font.setPointSize(18)
 
@@ -70,8 +70,8 @@ class gl_cords():
 		glTranslatef(0.0,0.0,leng)
 		gluCylinder(quad, 0.1, 0.00, 0.2, 10, 1)
 		set_color(1.0,1.0,1.0,"cordinates",alpha=1.0)
-		if self.view.zoom<20:
-			self.render_text (0.2,0.0,0.0, "x",font)
+		#if self.view.zoom<20:
+		#	self.render_text (0.2,0.0,0.0, "x",font)
 		glPopMatrix()
 
 		glPushMatrix()
@@ -84,8 +84,8 @@ class gl_cords():
 		glTranslatef(0.0,0.0,leng)
 		gluCylinder(quad, 0.1, 0.00, 0.2, 10, 1)
 		set_color(1.0,1.0,1.0,"cordinates",alpha=1.0)
-		if self.view.zoom<20:
-			self.render_text (0.2,0.0,0.0, "y",font)
+		#if self.view.zoom<20:
+		#	self.render_text (0.2,0.0,0.0, "y",font)
 		glPopMatrix()
 
 		glPushMatrix()
@@ -100,8 +100,8 @@ class gl_cords():
 
 		gluSphere(quad,0.08,32,32)
 		set_color(1.0,1.0,1.0,"cordinates",alpha=1.0)
-		if self.view.zoom<20:
-			self.render_text (-0.2,0.0,0.0, "z",font)
+		#if self.view.zoom<20:
+		#	self.render_text (-0.2,0.0,0.0, "z",font)
 		glPopMatrix()
 		#self.draw_numbers()
 

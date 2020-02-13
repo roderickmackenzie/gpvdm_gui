@@ -74,9 +74,7 @@ class connect_to_cluster(QDialog):
 		#self.title=QLabel("<big><b>"+_("Which type of device would you like to simulate?")+"</b></big>")
 
 		active_file=inp_find_active_file(os.path.join(get_sim_path(),"cluster"))
-		self.viewer=tab_class()
-		self.viewer.init(active_file,"cluster")
-				#gpvdm_viewer(get_device_lib_path())
+		self.viewer=tab_class(active_file)
 
 		self.main_vbox.addWidget(self.viewer)
 

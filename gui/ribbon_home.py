@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# 
+#
 #   General-purpose Photovoltaic Device Model - a drift diffusion base/Shockley-Read-Hall
 #   model for 1st, 2nd and 3rd generation solar cells.
 #   Copyright (C) 2012-2017 Roderick C. I. MacKenzie r.c.i.mackenzie at googlemail.com
@@ -20,7 +20,7 @@
 #   with this program; if not, write to the Free Software Foundation, Inc.,
 #   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
-# 
+#
 
 ## @package ribbon_home
 #  The home ribbon.
@@ -45,7 +45,7 @@ from info import sim_info
 from win_lin import desktop_open
 
 #windows
-from scan import scan_class 
+from scan import scan_class
 from help import help_window
 from gpvdm_open import gpvdm_open
 from error_dlg import error_dlg
@@ -57,7 +57,7 @@ from util import isfiletype
 from icon_lib import icon_get
 
 from cal_path import get_sim_path
-from inp import inp_isfile
+from inp import inp
 from play import play
 from util import wrap_text
 from optics import class_optical
@@ -80,7 +80,7 @@ class ribbon_home(QToolBar):
 
 		self.setToolButtonStyle( Qt.ToolButtonTextUnderIcon)
 		self.setIconSize(QSize(42, 42))
-		
+
 		self.scan_window=None
 		self.fit_window=None
 		self.optics_window=False
@@ -101,7 +101,7 @@ class ribbon_home(QToolBar):
 		#self.addAction(self.stop)
 
 		self.addSeparator()
-		
+
 		self.scan = QAction_lock("scan", _("Parameter\nscan"), self,"ribbon_home_scan")
 		self.scan.clicked.connect(self.callback_scan)
 		self.addAction(self.scan)
@@ -113,7 +113,7 @@ class ribbon_home(QToolBar):
 		self.addAction(self.fit)
 
 		self.addSeparator()
-		
+
 		self.plot = QAction_lock("plot", _("Plot\nFile"), self,"ribbon_home_plot")
 		self.plot.clicked.connect(self.callback_plot_select)
 		self.addAction(self.plot)
@@ -148,7 +148,7 @@ class ribbon_home(QToolBar):
 
 	#def callback_sun(self):
 	#	global_object_run("gl_force_redraw")
-		
+
 	def update(self):
 		if self.scan_window!=None:
 			del self.scan_window
@@ -158,8 +158,8 @@ class ribbon_home(QToolBar):
 			del self.fit_window
 			self.fit_window=None
 		self.sun.update()
-		
-		if inp_isfile(os.path.join(get_sim_path(),"fit.inp"))==True:
+
+		if inp().isfile(os.path.join(get_sim_path(),"fit.inp"))==True:
 			self.fit.setVisible(True)
 		else:
 			self.fit.setVisible(False)
@@ -172,7 +172,7 @@ class ribbon_home(QToolBar):
 		self.plot.setEnabled(val)
 		self.sun.setEnabled(val)
 		self.help.setEnabled(val)
-		if inp_isfile(os.path.join(get_sim_path(),"fit.inp"))==True:
+		if inp().isfile(os.path.join(get_sim_path(),"fit.inp"))==True:
 			self.fit.setEnabled(val)
 		self.optics.setEnabled(val)
 
@@ -184,7 +184,7 @@ class ribbon_home(QToolBar):
 		ret=dialog.exec_()
 		if ret==QDialog.Accepted:
 			file_name=dialog.get_filename()
-			
+
 			if os.path.basename(dialog.get_filename())=="sim_info.dat":
 				self.sim_info_window=sim_info(dialog.get_filename())
 				self.sim_info_window.show()
@@ -207,7 +207,7 @@ class ribbon_home(QToolBar):
 			self.scan_window.hide()
 		else:
 			self.scan_window.show()
-		
+
 	def callback_simulate_stop(self):
 		server_get().killall()
 

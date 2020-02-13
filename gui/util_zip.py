@@ -106,7 +106,7 @@ def zip_lsdir(file_name,zf=None,sub_dir=None):
 		my_list=sorted(my_list)
 		return my_list
 
-	return False
+	return my_list
 
 def zip_get_raw_data(file_name,bytes=None):
 	found=False

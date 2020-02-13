@@ -45,9 +45,10 @@ class tb_pulse_load_type(QWidget):
 
 	changed = pyqtSignal()
 
-	def __init__(self,index):
+	def __init__(self,index,base_file_name="pulse",token="#pulse_sim_mode"):
 		self.index=index
-
+		self.token=token
+		self.base_file_name=base_file_name
 		QWidget.__init__(self)
 
 
@@ -56,6 +57,7 @@ class tb_pulse_load_type(QWidget):
 		label.setText(_("Load type")+":")
 		layout.addWidget(label)
 
+		self.file_name=os.path.join(get_sim_path(),self.base_file_name+str(self.index)+".inp")
 		self.sim_mode = QComboBox(self)
 		self.sim_mode.setEditable(True)
 
@@ -69,7 +71,7 @@ class tb_pulse_load_type(QWidget):
 		self.sim_mode.addItem("ideal_diode_ideal_load")
 
 
-		token=inp_get_token_value(os.path.join(get_sim_path(),"pulse"+str(self.index)+".inp"), "#pulse_sim_mode")
+		token=inp_get_token_value(self.file_name, "#pulse_sim_mode")
 
 		all_items  = [self.sim_mode.itemText(i) for i in range(self.sim_mode.count())]
 		for i in range(0,len(all_items)):
@@ -81,6 +83,7 @@ class tb_pulse_load_type(QWidget):
 
 	def call_back_sim_mode_changed(self):
 		mode=self.sim_mode.currentText()
-		inp_update_token_value(os.path.join(get_sim_path(),"pulse"+str(self.index)+".inp"), "#pulse_sim_mode", mode)
+		print("write to:",self.file_name)
+		inp_update_token_value(self.file_name, self.token, mode)
 		self.changed.emit()
 

@@ -87,8 +87,7 @@ class ray_trace_editor(QWidgetSavePos):
 
 
 		for i in range(0,len(files)):
-			tab=tab_class()
-			tab.init(files[i],description[i])
+			tab=tab_class(files[i])
 			self.notebook.addTab(tab,description[i])
 
 

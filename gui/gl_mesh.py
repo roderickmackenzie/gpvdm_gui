@@ -36,99 +36,287 @@ try:
 	from gl_color import set_color
 	from gl_lib import val_to_rgb
 	from PyQt5.QtWidgets import QMenu
-	from gl_scale import scale_get_xmul
-	from gl_scale import scale_get_ymul
-	from gl_scale import scale_get_zmul
-	from gl_scale import scale_get_start_x
-	from gl_scale import scale_get_start_z
+	from gl_scale import project_m2screen_x
+	from gl_scale import project_m2screen_y
+	from gl_scale import project_m2screen_z
 
 except:
 	pass
 
 from PyQt5.QtCore import QTimer
-from inp import inp_update_token_value
+from inp import inp
 
+from epitaxy import get_epi
+from mesh import get_mesh
+from gl_list import gl_base_object
+from gl_lib import gl_obj_id_extract_starts_with
 
 class gl_mesh():
 	def draw_mesh(self):
+		x=[]
+		y=[]
+		z=[]
+		epi=get_epi()
+		device_start=epi.get_device_start()
+		mesh=get_mesh()
+
+		y,temp=mesh.y.calculate_points()
+		x,temp=mesh.x.calculate_points()
+		z,temp=mesh.z.calculate_points()
+
+		old_layer=-1
+		components=[]
+		component=""
+
+		for i in range(0,len(y)):
+			y[i]=y[i]+device_start
+			layer=epi.get_layer_by_cordinate(y[i])
+			if old_layer!=layer:
+				old_layer=layer
+				f=inp()
+				f.load(epi.layers[layer].electrical_file+".inp")
+				component=f.get_token("#electrical_component")
+				if component=="resistance":
+					component="resistor"
+			components.append(component)
+
+		x=project_m2screen_x(x)
+		y=project_m2screen_y(y)
+		z=project_m2screen_z(z)
+
 
 
 		set_color(1.0,0.0,0.0,"mesh",alpha=0.5)
 
+		glLineWidth(3)
+		if mesh.y.circuit_model==False:
+			self.drift_diffusion_mesh()
+		else:
+			self.circuit_mesh()
+
+	def circuit_mesh(self):
 		x=[]
 		y=[]
 		z=[]
+		epi=get_epi()
+		device_start=epi.get_device_start()
+		mesh=get_mesh()
 
-		for z0 in self.z_mesh.points:
-			z.append(scale_get_start_z()+z0*scale_get_zmul())
+		y,temp=mesh.y.calculate_points()
+		x,temp=mesh.x.calculate_points()
+		z,temp=mesh.z.calculate_points()
 
-		for x0 in self.x_mesh.points:
-			x.append(scale_get_start_x()+x0*scale_get_xmul())
+		old_layer=-1
+		components=[]
+		component=""
 
-		for y0 in self.y_mesh.points:
-			y.append(y0*scale_get_ymul()*3)
+		for i in range(0,len(y)):
+			y[i]=y[i]+device_start
+			layer=epi.get_layer_by_cordinate(y[i])
+			if old_layer!=layer:
+				old_layer=layer
+				f=inp()
+				f.load(epi.layers[layer].electrical_file+".inp")
+				component=f.get_token("#electrical_component")
+				if component=="resistance":
+					component="resistor"
+			components.append(component)
 
-		
+		x=project_m2screen_x(x)
+		y=project_m2screen_y(y)
+		z=project_m2screen_z(z)
+
+		set_color(1.0,0.0,0.0,"mesh",alpha=0.5)
+
 		glLineWidth(3)
-		#print(x_mesh.points)
+
+		mesh=get_mesh()
+		mask=mesh.build_device_shadow()
+
 		for zi in range(0,len(z)):
 			for xi in range(0,len(x)):
 				for yi in range(0,len(y)):
+					name="mesh:"+str(xi)+":"+str(yi)+":"+str(zi)
 
-					#box(dx*x,self.pos+y*(dy),z*dz,dx*xshrink,dy*0.8,dz*zshrink,1.0,0.0,0.0,1.0)
+					block_y=False
+					block_x=False
+					block_z=False
 
+					if mask[zi][xi][yi]==False:
+						block_y=True
+
+					if xi!=len(x)-1:
+						if mask[zi][xi+1][yi]==False:
+							block_x=True
+
+					if mask[zi][xi][yi]==False:
+						block_x=True
+						block_z=True						
+
+					if yi!=len(y)-1 and block_y==False:
+						a=gl_base_object()
+						a.id=["electrical_mesh"]
+						a.type=components[yi]
+						a.x=x[xi]
+						a.y=y[yi]
+						a.z=z[zi]
+						a.dx=0.0
+						a.dy=y[yi+1]-y[yi]
+						a.dz=0.0
+						a.r=1.0
+						a.g=0.0
+						a.b=0.0
+						a.alpha=1.0
+						self.gl_objects_add(a)
+
+
+					if xi!=len(x)-1 and block_x==False:
+						a=gl_base_object()
+						a.id=["electrical_mesh"]
+						a.type="resistor"
+						a.x=x[xi]
+						a.y=y[yi]
+						a.z=z[zi]
+						a.dx=x[xi+1]-x[xi]
+						a.dy=0.0
+						a.dz=0.0
+						a.r=1.0
+						a.g=0.0
+						a.b=0.0
+						a.alpha=1.0
+						self.gl_objects_add(a)
+
+					if zi!=len(z)-1 and block_z==False:
+						a=gl_base_object()
+						a.id=["electrical_mesh"]
+						a.type="resistor"
+						a.x=x[xi]
+						a.y=y[yi]
+						a.z=z[zi]
+						a.dx=0.0
+						a.dy=0.0
+						a.dz=z[zi+1]-z[zi]
+						a.r=1.0
+						a.g=0.0
+						a.b=0.0
+						a.alpha=1.0
+						self.gl_objects_add(a)
+
+	def drift_diffusion_mesh(self):
+		x=[]
+		y=[]
+		z=[]
+		epi=get_epi()
+		device_start=epi.get_device_start()
+		mesh=get_mesh()
+
+		y,temp=mesh.y.calculate_points()
+		x,temp=mesh.x.calculate_points()
+		z,temp=mesh.z.calculate_points()
+
+		for i in range(0,len(y)):
+			y[i]=y[i]+device_start
+
+		x=project_m2screen_x(x)
+		y=project_m2screen_y(y)
+		z=project_m2screen_z(z)
+
+		set_color(1.0,0.0,0.0,"mesh",alpha=0.5)
+
+		glLineWidth(3)
+
+		for zi in range(0,len(z)):
+			for xi in range(0,len(x)):
+				for yi in range(0,len(y)):
 					name="mesh:"+str(xi)+":"+str(yi)+":"+str(zi)
 					if yi==self.dump_energy_slice_ypos and xi==self.dump_energy_slice_xpos and zi==self.dump_energy_slice_zpos:
-						glPushMatrix()
-						quad=gluNewQuadric()
-						glTranslatef(x[xi],y[yi],z[zi])
-						set_color(0.0,1.0,0.0,name,alpha=0.9)
-						gluSphere(quad,0.08,32,32)
-						glPopMatrix()
+						a=gl_base_object()
+						a.id=[name]
+						a.type="ball"
+						a.x=x[xi]
+						a.y=y[yi]
+						a.z=z[zi]
+						a.dx=0.08
+						a.r=0.0
+						a.g=1.0
+						a.b=0.0
+						self.gl_objects_add(a)
 					elif xi==self.dump_1d_slice_xpos and zi==self.dump_1d_slice_zpos:
-						glPushMatrix()
-						quad=gluNewQuadric()
-						glTranslatef(x[xi],y[yi],z[zi])
-						set_color(0.0,0.0,1.0,name,alpha=0.9)
-						gluSphere(quad,0.05,32,32)
-						glPopMatrix()
+						a=gl_base_object()
+						a.id=[name]
+						a.type="ball"
+						a.x=x[xi]
+						a.y=y[yi]
+						a.z=z[zi]
+						a.dx=0.05
+						a.r=0.0
+						a.g=0.0
+						a.b=1.0
+						self.gl_objects_add(a)
 					else:
-						glPushMatrix()
-						quad=gluNewQuadric()
-						glTranslatef(x[xi],y[yi],z[zi])
+						a=gl_base_object()
+						a.id=[name]
+						a.type="ball"
+						a.x=x[xi]
+						a.y=y[yi]
+						a.z=z[zi]
+						a.dx=0.05
 						if self.dump_verbose_electrical_solver_results==False:
-							set_color(1.0,0.0,0.0,name,alpha=0.5)
+							a.alpha=0.5
 						else:
-							set_color(1.0,0.0,0.0,name,alpha=0.9)
+							a.alpha=0.9
+						a.r=1.0
+						a.g=0.0
+						a.b=0.0
+						self.gl_objects_add(a)
 
-						gluSphere(quad,0.05,32,32)
-						glPopMatrix()
+					if yi!=len(y)-1:
+						a=gl_base_object()
+						a.id=["electrical_mesh"]
+						a.type="line"
+						a.x=x[xi]
+						a.y=y[yi]
+						a.z=z[zi]
+						a.dx=0.0
+						a.dy=y[yi+1]-y[yi]
+						a.dz=0.0
+						a.r=1.0
+						a.g=0.0
+						a.b=0.0
+						self.gl_objects_add(a)
 
-					if yi!=0:
-						set_color(1.0,0.0,0.0,"line",alpha=0.5)
-						glBegin(GL_LINES)
-						glVertex3f(x[xi], y[yi-1], z[zi])
-						glVertex3f(x[xi], y[yi], z[zi])
-						glEnd()
+
+					if xi!=len(x)-1:
+						a=gl_base_object()
+						a.id=["electrical_mesh"]
+						a.type="line"
+						a.x=x[xi]
+						a.y=y[yi]
+						a.z=z[zi]
+						a.dx=x[xi+1]-x[xi]
+						a.dy=0.0
+						a.dz=0.0
+						a.r=1.0
+						a.g=0.0
+						a.b=0.0
+						self.gl_objects_add(a)
+
+					if zi!=len(z)-1:
+						a=gl_base_object()
+						a.id=["electrical_mesh"]
+						a.type="line"
+						a.x=x[xi]
+						a.y=y[yi]
+						a.z=z[zi]
+						a.dx=0.0
+						a.dy=0.0
+						a.dz=z[zi+1]-z[zi]
+						a.r=1.0
+						a.g=0.0
+						a.b=0.0
+						self.gl_objects_add(a)
 
 
-					if xi!=0:
-						set_color(1.0,0.0,0.0,"line",alpha=0.5)
-						glBegin(GL_LINES)
-						glVertex3f(x[xi-1], y[yi], z[zi])
-						glVertex3f(x[xi], y[yi], z[zi])
-						glEnd()
-
-					if zi!=0:
-						set_color(1.0,0.0,0.0,"line",alpha=0.5)
-						glBegin(GL_LINES)
-						glVertex3f(x[xi], y[yi], z[zi-1])
-						glVertex3f(x[xi], y[yi], z[zi])
-						glEnd()
-
-						#glTranslatef(0.0,0.0,0.0);
-
-	
 	def mesh_menu(self,event):
 		view_menu = QMenu(self)
 		
@@ -163,7 +351,7 @@ class gl_mesh():
 		menu.exec_(event.globalPos())
 
 	def menu_energy_slice_dump(self):
-		s=self.obj.split(":")
+		s=gl_obj_id_extract_starts_with(self.obj,"mesh").split(":")
 		x=int(s[1])
 		y=int(s[2])
 		z=int(s[3])
@@ -177,14 +365,21 @@ class gl_mesh():
 			self.dump_energy_slice_ypos=y
 			self.dump_energy_slice_zpos=z
 
-		inp_update_token_value("dump.inp","#dump_energy_slice_xpos",str(x))
-		inp_update_token_value("dump.inp","#dump_energy_slice_ypos",str(len(self.y_mesh.points)-1-y))
-		inp_update_token_value("dump.inp","#dump_energy_slice_zpos",str(z))
+		mesh=get_mesh()
+		f=inp()
+		f.load("dump.inp")
+		f.replace("#dump_energy_slice_xpos",str(x))
+		f.replace("#dump_energy_slice_ypos",str(len(mesh.y.points)-1-y))
+		f.replace("#dump_energy_slice_zpos",str(z))
+		f.save()
+
+		self.gl_objects_remove_regex("mesh")
+		self.draw_mesh()
 
 		self.do_draw()
 
 	def menu_1d_slice_dump(self):
-		s=self.obj.split(":")
+		s=gl_obj_id_extract_starts_with(self.obj,"mesh").split(":")
 		x=int(s[1])
 		y=int(s[2])
 		z=int(s[3])
@@ -196,12 +391,25 @@ class gl_mesh():
 			self.dump_1d_slice_xpos=x
 			self.dump_1d_slice_zpos=z
 
-		inp_update_token_value("dump.inp","#dump_1d_slice_xpos",str(self.dump_1d_slice_xpos))
-		inp_update_token_value("dump.inp","#dump_1d_slice_zpos",str(self.dump_1d_slice_zpos))
+		f=inp()
+		f.load("dump.inp")
+		f.replace("#dump_1d_slice_xpos",str(self.dump_1d_slice_xpos))
+		f.replace("#dump_1d_slice_zpos",str(self.dump_1d_slice_zpos))
+		f.save()
+
+		self.gl_objects_remove_regex("mesh")
+		self.draw_mesh()
 
 		self.do_draw()
 
 	def menu_dump_verbose_electrical_solver_results(self):
-		self.dump_verbose_electrical_solver_results = not self.dump_verbose_electrical_solver_results 
-		inp_update_token_value("dump.inp","#dump_verbose_electrical_solver_results",str(self.dump_verbose_electrical_solver_results))
+		self.dump_verbose_electrical_solver_results = not self.dump_verbose_electrical_solver_results
+		f=inp()
+		f.load("dump.inp")
+		f.replace("#dump_verbose_electrical_solver_results",str(self.dump_verbose_electrical_solver_results))
+		f.save()
+
+		self.gl_objects_remove_regex("mesh")
+		self.draw_mesh()
+
 		self.do_draw()

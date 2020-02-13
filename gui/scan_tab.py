@@ -47,13 +47,11 @@ from str2bool import str2bool
 #scan_io
 from scan_io import scan_clean_dir
 from scan_io import scan_clean_unconverged
-from scan_io import scan_build_nested_simulation
 from scan_io import scan_push_to_hpc
 from scan_io import scan_import_from_hpc
 from scan_io import scan_plot_fits
 from scan_io import scan_gen_report
 from scan_io import build_scan
-from scan_io import scan_build_all_nested
 
 #scan_tree
 from scan_tree import tree_gen
@@ -237,11 +235,6 @@ class scan_vbox(QWidget):
 
 	def push_unconverged_to_hpc(self):
 		scan_push_to_hpc(self.sim_dir,True)
-
-	def nested_simulation(self):
-		scan_build_all_nested(self.sim_dir,parent_window=self)
-
-		#self.send_commands_to_server(commands,"")
 
 	def scan_run(self,args=""):
 		commands=tree_load_flat_list(self.sim_dir)

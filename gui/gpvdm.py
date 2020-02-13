@@ -109,7 +109,7 @@ from server import server_init
 from server import server_get
 
 #mesh
-from mesh import mesh_load_all
+from mesh import get_mesh
 
 
 from splash import splash_window
@@ -221,6 +221,8 @@ from cal_path import get_emission_path
 
 from cal_path import get_base_shape_path
 from cal_path import get_shape_path
+
+from circuit_editor import circuit_editor
 
 if running_on_linux()==True:
 	import dbus
@@ -394,13 +396,13 @@ class gpvdm_main_window(QMainWindow):
 		calculate_paths()
 		self.splash.inc_value()
 
-
-		get_epi().load(get_sim_path())
+		epi=get_epi()
+		epi.load(get_sim_path())
 		self.splash.inc_value()
 
 		self.splash.inc_value()
 
-		if mesh_load_all()==False:
+		if get_mesh().load(epi)==False:
 			error_dlg(self,_("There was a problem loading the electrical mesh, I suspect you are trying to open a file generated in a very old version of gpvdm."))
 			return
 
@@ -655,6 +657,10 @@ class gpvdm_main_window(QMainWindow):
 				clone_spectras(get_spectra_path())
 
 		self.cache=cache(only_open_if_full=True)
+
+		#from shape_editor import shape_editor
+		#self.shape_window=shape_editor("/home/rod/gpvdm_local/shape/sin4")
+		#self.shape_window.show()
 
 	def dragEnterEvent(self, event):
 		if event.mimeData().hasUrls:

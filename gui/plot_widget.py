@@ -234,6 +234,9 @@ class plot_widget(QWidget):
 			elif self.plot_type=="3d":
 				for i in range(0,len(self.data)):
 					self.ax.append(self.fig.add_subplot(111,facecolor='white' ,projection='3d'))
+			elif self.plot_type=="quiver":
+				for i in range(0,len(self.data)):
+					self.ax.append(self.fig.add_subplot(111,facecolor='white' ,projection='3d'))
 		else:
 			if self.plot_type=="3d":
 				for a in self.ax:
@@ -266,9 +269,12 @@ class plot_widget(QWidget):
 		key_text=[]
 
 		self.plot_type=""
+
 		#print(self.data[0].x_len,self.data[0].z_len,self.data[0].data)
 		if self.data[0].type=="rgb":
 			self.plot_type="rgb"
+		elif self.data[0].type=="quiver":
+			self.plot_type="quiver"
 		else:
 			if self.data[0].x_len==1 and self.data[0].z_len==1:
 				self.plot_type="linegraph"
@@ -283,16 +289,6 @@ class plot_widget(QWidget):
 			else:
 				print(_("I don't know how to process this type of file!"),self.data[0].x_len, self.data[0].y_len,self.data[0].z_len)
 				return
-
-		if self.hide_title==False:
-			title=self.data[0].title
-			if self.data[0].time!=-1.0 and self.data[0].Vexternal!=-1.0:
-				mul,unit=time_with_units(self.data[0].time)
-				title=self.data[0].title+" V="+str(self.data[0].Vexternal)+" "+_("time")+"="+str(self.data[0].time*mul)+" "+unit
-
-			self.fig.suptitle(title)
-
-			self.setWindowTitle(title+" - www.gpvdm.com")
 
 		self.setup_axis()
 
@@ -404,25 +400,50 @@ class plot_widget(QWidget):
 		elif self.plot_type=="3d":
 			self.ax[0].set_xlabel(self.data[0].x_label+" ("+self.data[0].x_units+")")
 			self.ax[0].set_ylabel(self.data[0].y_label+" ("+self.data[0].y_units+")")
-			self.ax[0].set_zlabel(self.data[0].z_label+" ("+self.data[0].z_units+")")
-
-			for ii in range(0,len(self.data[i].z_scale)):
-				my_max,my_min=dat_file_max_min(self.data[i])
-				X, Y = meshgrid( self.data[i].x_scale,self.data[i].y_scale)
-				new_data=[[float for y in range(self.data[0].y_len)] for x in range(self.data[0].x_len)]
-				for x in range(0,self.data[i].x_len):
-					for y in range(0,self.data[i].y_len):
-						new_data[x][y]=self.data[i].z_scale[ii]+self.data[i].data[ii][x][y]
-
-				self.ax[i].contourf(X, Y, new_data, zdir='z')#
-
-				self.ax[i].set_xlim3d(0, self.data[i].x_scale[-1])
-				self.ax[i].set_ylim3d(0, self.data[i].y_scale[-1])
-				self.ax[i].set_zlim3d(0, self.data[i].z_scale[-1])
+			i=0
+			y_scale=self.data[i].y_scale
+			x_scale=self.data[i].x_scale
+			X, Y = meshgrid( y_scale,x_scale)		#self.data[i].y_scale,self.data[i].x_scale
+			Z = self.data[i].data[0]
+			col=get_color(i)
+			my_max,my_min=dat_file_max_min(self.data[0])
 		elif self.plot_type=="rgb":
 			self.ax[0].set_xlabel(self.data[0].y_label+" ("+str(self.data[0].y_units)+")")
 			self.ax[0].set_ylabel(self.data[0].data_label+" ("+self.data[0].data_units+")")
-			self.ax[0].imshow(self.data[0].data[0],extent=[self.data[0].y_scale[0],self.data[0].y_scale[-1],0,20])		#
+			self.ax[0].imshow(self.data[0].data[0])		#
+			#,extent=[self.data[0].y_scale[0],self.data[0].y_scale[-1],0,20]
+		elif self.plot_type=="quiver":
+			self.ax[0].set_xlabel(self.data[0].x_label+" ("+self.data[0].x_units+")")
+			self.ax[0].set_ylabel(self.data[0].y_label+" ("+self.data[0].y_units+")")
+			self.ax[0].set_zlabel(self.data[0].z_label+" ("+self.data[0].z_units+")")
+			X=[]
+			Y=[]
+			Z=[]
+			U=[]
+			V=[]
+			W=[]
+			mag=[]
+			for d in self.data[0].data:
+				X.append(d.x)
+				Y.append(d.y)
+				Z.append(d.z)
+				U.append(d.dx)
+				V.append(d.dy)
+				W.append(d.dz)
+				mag.append(d.mag)
+
+			c=plt.cm.hsv(mag)
+
+			mag=[]
+			for d in self.data[0].data:
+
+				mag.append(2.0)
+
+			self.ax[0].quiver(X, Y, Z, U, V, W,colors=c,linewidths=mag)
+			self.ax[0].set_xlim([0, self.data[0].xmax])
+			self.ax[0].set_ylim([0, self.data[0].ymax])
+			self.ax[0].set_zlim([0, self.data[0].zmax])
+
 
 		#setup the key
 		if self.data[0].legend_pos=="No key":
@@ -441,6 +462,16 @@ class plot_widget(QWidget):
 
 			#		y=y+0.1
 			#	x=x+0.25
+
+		if self.hide_title==False:
+			title=self.data[0].title
+			if self.data[0].time!=-1.0 and self.data[0].Vexternal!=-1.0:
+				mul,unit=time_with_units(self.data[0].time)
+				title=title+" V="+str(self.data[0].Vexternal)+" "+_("time")+"="+str(self.data[0].time*mul)+" "+unit
+
+			self.fig.suptitle(title)
+
+			self.setWindowTitle(title+" - www.gpvdm.com")
 
 		self.fig.canvas.draw()
 
@@ -518,7 +549,7 @@ class plot_widget(QWidget):
 
 	def norm_data(self):
 		if len(self.data)>0:
-			if self.data[0].type=="rgb":
+			if self.data[0].type=="rgb" or self.data[0].type=="quiver":
 				return
 
 			if self.zero_frame_enable==True:
@@ -556,31 +587,6 @@ class plot_widget(QWidget):
 				my_max,my_min=dat_file_max_min(self.data[0])
 				for i in range(0,len(self.data)):
 					dat_file_sub_float(self.data[i],my_min)
-
-
-
-			#if self.plot_token.ymax!=-1:
-				#self.ax[index].set_ylim((self.plot_token.ymin,self.plot_token.ymax))
-			#return True
-		#else:
-			#return False
-	
-##norm stuff
-			#all_max=1.0
-			#if self.plot_token.norm_to_peak_of_all_data==True:
-				#my_max=-1e40
-				#for i in range(0, len(self.data)):
-					#local_max,my_min=dat_file_max_min(self.data[i])
-					#if local_max>my_max:
-						#my_max=local_max
-				#all_max=my_max
-
-			#for i in range(0, len(self.data)):
-				#if all_max!=1.0:
-					#for x in range(0,data.x_len):
-						#for y in range(0,data.y_len):
-							#for z in range(0,data.z_len):
-								#data.data[z][x][y]=data.data[z][x][y]/all_max
 
 
 

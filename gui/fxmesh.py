@@ -51,7 +51,7 @@ from matplotlib.backends.backend_qt5agg import NavigationToolbar2QT as Navigatio
 
 #qt
 from PyQt5.QtCore import QSize, Qt 
-from PyQt5.QtWidgets import QWidget,QVBoxLayout,QToolBar,QSizePolicy,QAction,QTabWidget,QTableWidget,QAbstractItemView
+from PyQt5.QtWidgets import QWidget,QVBoxLayout,QToolBar,QSizePolicy,QAction,QTabWidget,QTableWidget,QAbstractItemView,QApplication
 from PyQt5.QtGui import QPainter,QIcon
 
 #windows
@@ -60,6 +60,9 @@ from open_save_dlg import save_as_jpg
 from colors import get_color
 from cal_path import get_sim_path
 from gpvdm_tab import gpvdm_tab
+
+import matplotlib.cm as cm
+import numpy as np
 
 mesh_articles = []
 
@@ -156,6 +159,9 @@ class tab_fxmesh(QWidget):
 		self.fig.canvas.draw()
 
 	def draw_graph(self):
+		if len(self.fx)==0:
+			return
+
 		my_max=self.fx[0][0]
 		my_min=self.fx[0][0]
 
@@ -174,32 +180,46 @@ class tab_fxmesh(QWidget):
 			unit="Hz"
 
 		fx=[]
-
+		mag=[]
 		for i in range(0,len(self.fx)):
 			local_fx=[]
 			for ii in range(0,len(self.fx[i])):
 				local_fx.append(self.fx[i][ii]*mul)
-			fx.append(local_fx)
+				mag.append(1)
+			fx.extend(local_fx)
 
 		self.fig.clf()
 		self.fig.subplots_adjust(bottom=0.2)
 		self.fig.subplots_adjust(left=0.1)
 		self.ax1 = self.fig.add_subplot(111)
+
+		cmap = cm.jet
+		#self.ax1.clear()
+		#self.ax1.scatter(self.x,self.mag ,c=c, cmap=cmap)
+		#self.fig.canvas.draw()
+
+		c = np.linspace(0, 10, len(fx))
+
+		self.ax1 = self.fig.add_subplot(111)
 		self.ax1.ticklabel_format(useOffset=False)
 
 		self.ax1.set_ylabel(_("Magnitude")+" ("+_("Volts")+" )")
-
-		for i in range(0,len(fx)):
-			frequency, = self.ax1.plot(fx[i],self.mag[i], 'ro-', color=get_color(i),linewidth=3 ,alpha=1.0)
+		self.ax1.get_yaxis().set_visible(False)
+		self.ax1.spines['top'].set_visible(False)
+		self.ax1.spines['right'].set_visible(False)
+		#self.ax1.spines['bottom'].set_visible(False)
+		self.ax1.spines['left'].set_visible(False)
+		self.ax1.set_xscale("log")
+		#print(fx,self.mag)
+		self.ax1.scatter(fx,mag, c=c, cmap=cmap)
 		
 		self.ax1.set_xlabel(_("Frequency")+" ("+unit+")")
-
 
 	def load_data(self):
 		self.tab.clear()
 		self.tab.setColumnCount(4)
 		self.tab.setSelectionBehavior(QAbstractItemView.SelectRows)
-		self.tab.setHorizontalHeaderLabels([_("Frequency start"),_("Frequency stop"), _("points"), _("Multiply")])
+		self.tab.setHorizontalHeaderLabels([_("Frequency start"),_("Frequency stop"), _("Max points"), _("Multiply")])
 		self.tab.setColumnWidth(0, 200)
 		self.tab.setColumnWidth(1, 200)
 
@@ -242,19 +262,25 @@ class tab_fxmesh(QWidget):
 			local_mag=[]
 			local_fx=[]
 			start=float(self.tab.get_value(i, 0))
-			pos=start
+			fx=start
 			stop=float(self.tab.get_value(i, 1))
-			points=float(self.tab.get_value(i, 2))
+			max_points=float(self.tab.get_value(i, 2))
 			mul=float(self.tab.get_value(i, 3))
-
-			if stop!=0.0 and points!=0.0 and mul!=0.0:
-				dfx=(stop-start)/points
-				while(pos<stop):
-					local_fx.append(pos)
+			pos=0
+			if stop!=0.0 and max_points!=0.0 and mul!=0.0:
+				if max_points==1:
+					local_fx.append(fx)
 					local_mag.append(1.0)
-					pos=pos+dfx
-
-					dfx=dfx*mul
+				else:
+					while(fx<stop):
+						local_fx.append(fx)
+						local_mag.append(1.0)
+						fx=fx*mul
+						pos=pos+1
+						if pos>max_points:
+							break
+				#local_fx.append(stop)
+				#local_mag.append(1.0)
 			self.mag.append(local_mag)
 			self.fx.append(local_fx)
 			local_mag=[]
@@ -275,6 +301,20 @@ class tab_fxmesh(QWidget):
 		file_name = save_as_jpg(self)
 		if file_name !=None:
 			self.fig.savefig(file_name)
+
+	def paste_action(self):
+		cb = QApplication.clipboard()
+		text=cb.text()
+		lines=text.rstrip().split()
+		for l in lines:
+			self.tab.add([l,l,"1","1.0"])
+
+		self.build_mesh()
+		self.draw_graph()
+		self.fig.canvas.draw()
+		self.save_data()
+
+		print("paste>>",lines)
 
 	def __init__(self,index):
 		QWidget.__init__(self)
@@ -341,7 +381,7 @@ class tab_fxmesh(QWidget):
 
 		self.setLayout(self.main_vbox)
 
-		return
+		self.tab.menu_paste.triggered.connect(self.paste_action)
 
 
 

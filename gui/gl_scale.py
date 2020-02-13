@@ -28,8 +28,7 @@
 import sys
 from math import fabs
 
-from mesh import mesh_get_xlen
-from mesh import mesh_get_zlen
+from mesh import get_mesh
 from epitaxy import get_epi
 import math
 
@@ -70,8 +69,8 @@ def set_m2screen():
 	mesh_max=30
 
 	epi=get_epi()
-	x_len= mesh_get_xlen()
-	z_len= mesh_get_zlen() 
+	x_len= get_mesh().get_xlen()
+	z_len= get_mesh().get_zlen() 
 
 	z_mul=scale(z_len)
 	x_mul=scale(x_len)
@@ -97,8 +96,8 @@ def set_m2screen():
 
 	y_mul=device_y/epi.ylen()
 
-	device_x=mesh_get_xlen()*x_mul
-	device_z=mesh_get_zlen()*z_mul
+	device_x=get_mesh().get_xlen()*x_mul
+	device_z=get_mesh().get_zlen()*z_mul
 
 	x_start=-device_x/2.0
 	z_start=-device_z/2.0
@@ -117,19 +116,37 @@ def scale_get_start_y():
 def project_m2screen_x(x):
 	global x_mul
 	global x_start
-	return x_start+x_mul*x
+	if type(x)==float or type(x)==int:
+		return x_start+x_mul*x
+	elif type(x)==list:
+		ret=[]
+		for val in x:
+			ret.append(x_start+x_mul*val)
+		return ret
 
 def project_m2screen_y(y):
 	global y_mul
 	global y_start
+	if type(y)==float or type(y)==int :
+		return y_start-y_mul*y
+	elif type(y)==list:
+		ret=[]
+		for val in y:
+			ret.append(y_start-y_mul*val)
+		return ret
 
-	return y_start-y_mul*y
 	
 def project_m2screen_z(z):
 	global z_mul
 	global z_start
 
-	return z_start+z_mul*z
+	if type(z)==float or type(z)==int:
+		return z_start+z_mul*z
+	elif type(z)==list:
+		ret=[]
+		for val in z:
+			ret.append(z_start+z_mul*val)
+		return ret
 
 def project_trianges_m2screen(triangles):
 	ret=[]

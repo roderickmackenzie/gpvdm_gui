@@ -57,6 +57,7 @@ from dat_file_math import dat_file_max_min
 from PIL import Image
 from PyQt5.QtGui import QImage
 import io
+from util_text import str_to_latex
 
 class cmp_class(QWidgetSavePos):
 
@@ -69,7 +70,7 @@ class cmp_class(QWidgetSavePos):
 			f=file_names[i]
 			if f!=None:
 				files.append(f)
-				key.append("data")
+				key.append(str_to_latex(os.path.basename(f)))
 				types.append(graph_types[i])
 
 		if len(files)!=0:
@@ -90,7 +91,7 @@ class cmp_class(QWidgetSavePos):
 			fmax=self.slider.slider_max
 			for i in range(0,fmax):
 				self.slider.slider0.setValue(i)
-				QApplication.processEvents()
+				#QApplication.processEvents()
 				self.update()
 				#self.plot.do_plot()
 				image_name=os.path.join(dir_name,"image_"+str(i)+".jpg")

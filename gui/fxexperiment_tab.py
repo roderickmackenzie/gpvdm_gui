@@ -45,6 +45,7 @@ from inp import inp_get_token_value
 
 from tab import tab_class
 from cal_path import get_sim_path
+from inp import inp
 
 class fxexperiment_tab(QTabWidget):
 
@@ -55,18 +56,14 @@ class fxexperiment_tab(QTabWidget):
 		tab = self.currentWidget()
 		tab.save_image()
 	
-	def update_mode(self,new_mode):
-		inp_update_token_value(self.file_name, "#fx_modulation_type", new_mode)
-
-	def get_mode(self):
-		return inp_get_token_value(self.file_name, "#fx_modulation_type")
-
 	def init(self,index):
 		QTabWidget.__init__(self)
 
 		self.index=index
+
+
 		lines=[]
-		self.file_name=os.path.join(get_sim_path(),"fxdomain"+str(self.index)+".inp")
+		self.file_name=os.path.join(get_sim_path(),"is"+str(self.index)+".inp")
 		lines=inp_load_file(self.file_name)
 		if lines!=False:
 			self.tab_name=inp_search_token_value(lines, "#sim_menu_name")
@@ -75,15 +72,16 @@ class fxexperiment_tab(QTabWidget):
 
 		self.tmesh = tab_fxmesh(self.index)
 		self.addTab(self.tmesh,_("Frequency mesh"))
-
-
-		self.circuit=circuit(self.index)
-
+		#if inp().isfile("diagram.inp")==False:
+		self.circuit=circuit(self.index,base_file_name="is_fxdomain_data",token="#fxdomain_sim_mode")
 		self.addTab(self.circuit,_("Circuit"))
 
-		widget=tab_class()
-		widget.init(self.file_name,_("Configure"))
-		self.addTab(widget,_("Configure"))
+		widget=tab_class(self.file_name)
+		self.addTab(widget,_("Simulation"))
+
+		self.fx_domain_file_name=os.path.join(get_sim_path(),"is_fxdomain_data"+str(self.index)+".inp")
+		widget=tab_class(self.fx_domain_file_name)
+		self.addTab(widget,_("FX domain simulation"))
 
 	def set_tab_caption(self,name):
 		mytext=name

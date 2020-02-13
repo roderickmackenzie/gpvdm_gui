@@ -120,10 +120,10 @@ class object_editor(QWidgetSavePos):
 		self.layer_index=layer_index
 		shapes=get_epi().get_shapes(self.layer_index)
 		for s in shapes:
-			my_tab=tab_class()
 			shape_name=inp_get_token_value(s.file_name+".inp", "#shape_name")
 
-			my_tab.init(s.file_name+".inp",s.file_name+".inp")
+			my_tab=tab_class(s.file_name+".inp")
+
 			self.notebook.addTab(my_tab,shape_name)	
 
 	def callback_add_shape(self):
@@ -138,8 +138,7 @@ class object_editor(QWidgetSavePos):
 
 		shape_name=inp_get_token_value(new_filename, "#shape_name")
 
-		my_tab=tab_class()
-		my_tab.init(new_filename,new_filename)
+		my_tab=tab_class(new_filename)
 		self.notebook.addTab(my_tab,shape_name)
 		global_object_run("gl_force_redraw")
 

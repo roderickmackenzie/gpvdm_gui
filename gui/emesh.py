@@ -45,11 +45,7 @@ from PyQt5.QtCore import QSize, Qt
 from PyQt5.QtWidgets import QWidget,QSizePolicy,QHBoxLayout,QPushButton,QDialog,QFileDialog,QToolBar,QMessageBox,QVBoxLayout
 
 #windows
-from mesh import mesh_load_all
-
-from mesh import mesh_get_xpoints
-from mesh import mesh_get_ypoints
-from mesh import mesh_get_zpoints
+from mesh import get_mesh
 
 #matplotlib
 import matplotlib
@@ -98,7 +94,7 @@ class tab_electrical_mesh(QWidgetSavePos):
 
 
 	def update_dim(self):
-		if mesh_get_xpoints()==1 and mesh_get_zpoints()==1:
+		if get_mesh().get_xpoints()==1 and get_mesh().get_zpoints()==1:
 			self.one_d.setEnabled(False)
 			self.two_d.setEnabled(True)
 			self.three_d.setEnabled(True)
@@ -110,7 +106,7 @@ class tab_electrical_mesh(QWidgetSavePos):
 			self.emesh_editor_z.hide()
 
 
-		if mesh_get_xpoints()>1 and mesh_get_zpoints()==1:
+		if get_mesh().get_xpoints()>1 and get_mesh().get_zpoints()==1:
 			self.one_d.setEnabled(True)
 			self.two_d.setEnabled(False)
 			self.three_d.setEnabled(True)
@@ -121,7 +117,7 @@ class tab_electrical_mesh(QWidgetSavePos):
 			self.emesh_editor_x.show()
 			self.emesh_editor_z.hide()
 
-		if mesh_get_xpoints()>1 and mesh_get_zpoints()>1:
+		if get_mesh().get_xpoints()>1 and get_mesh().get_zpoints()>1:
 			self.one_d.setEnabled(True)
 			self.two_d.setEnabled(True)
 			self.three_d.setEnabled(False)

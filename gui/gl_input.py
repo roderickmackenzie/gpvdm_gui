@@ -54,9 +54,6 @@ from PyQt5 import QtGui
 import time
 
 
-#mesh
-from mesh import mesh_get_xlen
-from mesh import mesh_get_zlen
 from epitaxy import get_epi
 from gl_lib import gl_obj_id_starts_with
 from gl_lib import gl_obj_id_extract_starts_with
@@ -209,15 +206,16 @@ class gl_input():
 						self.menu_layer(event)
 
 						return
-					if self.obj.startswith("mesh")==True:
+					if gl_obj_id_starts_with(self.obj,"mesh")==True:
 						self.mesh_menu(event)
 				else:
 					self.menu(event)
 		obj=self.gl_object_deselect()
 		if obj!=False:
 			if "ray_src" in obj.id:
+				epi=get_epi()
 				x=scale_screen_x2m(obj.x)
-				y=scale_screen_y2m(obj.y)-epitaxy_get_device_start()
+				y=scale_screen_y2m(obj.y)-epi.get_device_start()
 				z=project_m2screen_z(obj.z)
 				inp_update_token_value("ray.inp","#ray_xsrc",str(x))
 				inp_update_token_value("ray.inp","#ray_ysrc",str(y))

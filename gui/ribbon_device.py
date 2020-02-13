@@ -64,6 +64,10 @@ from dos_main import dos_main
 from global_objects import global_object_register
 from pl_main import pl_main
 from QAction_lock import QAction_lock
+from file_watch import get_watch
+
+from cal_path import get_sim_path
+from inp import inp
 
 class ribbon_device(QToolBar):
 	def __init__(self):
@@ -111,6 +115,16 @@ class ribbon_device(QToolBar):
 		self.tb_dimension_editor = QAction_lock("dimensions", _("xz-size"), self,"ribbon_device_dim")
 		self.tb_dimension_editor.clicked.connect(self.callback_dimension_editor)
 		self.addAction(self.tb_dimension_editor)
+
+		get_watch().add_call_back("diagram.inp",self.callback_circuit_diagram)
+		self.callback_circuit_diagram()
+
+	def callback_circuit_diagram(self):
+		if inp().isfile(os.path.join(get_sim_path(),"diagram.inp"))==True:
+			self.tb_electrical_editor.setEnabled(False)
+		else:
+			self.tb_electrical_editor.setEnabled(True)
+
 
 	def update(self):
 		if self.cost_window!=None:

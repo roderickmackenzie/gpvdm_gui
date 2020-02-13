@@ -66,7 +66,7 @@ class shape():
 		self.shape_nz=1
 		self.file_name=None
 		self.shape_dos="none"
-
+		self.shape_name="none"
 		self.shape_x0=0.0
 		self.shape_z0=0.0
 		self.shape_remove_layer=False
@@ -76,6 +76,11 @@ class shape():
 		self.b=0.8
 
 		self.shape_path=""
+
+		self.shape_flip_y=False
+		self.shape_flip_x=False
+
+		self.optical_material="none"
 
 
 
@@ -112,6 +117,12 @@ class shape():
 			self.x0=float(f.get_token("#shape_x0"))
 			self.y0=float(f.get_token("#shape_y0"))
 			self.z0=float(f.get_token("#shape_z0"))
+
+			self.shape_flip_y=str2bool(f.get_token("#shape_flip_y"))
+			self.shape_flip_x=str2bool(f.get_token("#shape_flip_x"))
+
+			self.optical_material=f.get_token("#shape_optical_material")
+
 			#self.y0=0.0
 
 			self.shape_remove_layer=str2bool(f.get_token("#shape_remove_layer"))
@@ -176,7 +187,7 @@ class shape():
 		lines.append("#shape_dos")
 		lines.append(str(self.shape_dos))
 		lines.append("#shape_optical_material")
-		lines.append("none")
+		lines.append(self.optical_material)
 		lines.append("#shape_x0")
 		lines.append(str(self.x0))
 		lines.append("#shape_y0")
@@ -185,6 +196,10 @@ class shape():
 		lines.append(str(self.z0))
 		lines.append("#shape_remove_layer")
 		lines.append(str(self.shape_remove_layer))
+		lines.append("#shape_flip_y")
+		lines.append(str(self.shape_flip_y))
+		lines.append("#shape_flip_x")
+		lines.append(str(self.shape_flip_x))
 		lines.append("#red_green_blue")
 		lines.append(str(self.r))
 		lines.append(str(self.g))

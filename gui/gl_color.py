@@ -65,6 +65,12 @@ def set_color(r,g,b,name,alpha=-1):
 	global color_list
 	global false_color
 
+	if r==None or g==None or b==None:
+		r=255
+		g=0
+		b=0
+		alpha=0.7
+
 	if false_color==True:
 		rgb_int=len(color_list)+1
 		r =  rgb_int & 255
@@ -80,7 +86,7 @@ def set_color(r,g,b,name,alpha=-1):
 		r=r/255
 		g=g/255
 		b=b/255
-		alpha=alpha/255
+		alpha=alpha
 
 	if alpha==-1:
 		glColor3f(r,g,b)

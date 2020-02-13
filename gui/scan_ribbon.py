@@ -133,16 +133,6 @@ class scan_ribbon(ribbon_base):
 		
 		return toolbar
 
-	def nested(self):
-		toolbar = QToolBar()
-		toolbar.setToolButtonStyle( Qt.ToolButtonTextUnderIcon)
-		toolbar.setIconSize(QSize(42, 42))
-
-		self.menu_run_nested = QAction(icon_get("nested"), wrap_text(_("Build nested simulation"),5), self)
-		toolbar.addAction(self.menu_run_nested)
-
-		return toolbar
-
 	def advanced(self):
 		toolbar = QToolBar()
 		toolbar.setToolButtonStyle( Qt.ToolButtonTextUnderIcon)
@@ -217,10 +207,6 @@ class scan_ribbon(ribbon_base):
 		w=self.advanced()
 		if enable_betafeatures()==True:
 			self.addTab(w,_("Advanced"))
-
-		w=self.nested()
-		if enable_betafeatures()==True:
-			self.addTab(w,_("Nested"))
 
 		w=self.ml()
 		if enable_betafeatures()==True:

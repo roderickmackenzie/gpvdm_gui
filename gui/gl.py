@@ -113,18 +113,14 @@ from thumb import thumb_nail_gen
 from gl_view_point import view_point 
 from gl_view_point import gl_move_view
 from gl_graph import draw_mode
-from gl_graph import graph
 from gl_active_tab import tab	
 
 from gl_lib import val_to_rgb
 
 from gl_mesh import gl_mesh
 
-from mesh import mesh_get_xmesh
-from mesh import mesh_get_ymesh
-from mesh import mesh_get_zmesh
 
-from mesh import mesh_get_xlen
+from mesh import get_mesh
 
 from gl_layer_editor import gl_layer_editor
 
@@ -155,7 +151,6 @@ from gl_list import gl_objects
 
 from gl_scale import scale_screen_x2m
 from gl_scale import scale_screen_y2m
-from epitaxy import epitaxy_get_device_start
 
 from inp import inp_update_token_value
 from file_watch import get_watch
@@ -164,9 +159,11 @@ from gl_input import gl_input
 from gl_text import gl_text
 from gl_lib_ray import gl_lib_ray
 from gl_contacts import gl_contacts
+from gl_graph import gl_graph
+from gl_draw_circuit import gl_draw_circuit
 
 if open_gl_ok==True:		
-	class glWidget(QGLWidget,shape_layer, gl_lib_ray,gl_objects, gl_text,gl_move_view,gl_mesh,gl_layer_editor,gl_cords,gl_base_widget,gl_main_menu,gl_input, gl_contacts):
+	class glWidget(QGLWidget,shape_layer, gl_lib_ray,gl_objects, gl_text,gl_move_view,gl_mesh,gl_layer_editor,gl_cords,gl_base_widget,gl_main_menu,gl_input, gl_contacts, gl_graph, gl_draw_circuit):
 
 		def __init__(self, parent):
 			QGLWidget.__init__(self, parent)
@@ -194,6 +191,9 @@ if open_gl_ok==True:
 			self.enable_draw_ray_mesh=False
 			self.enable_draw_light_source=False
 			self.enable_draw_rays=True
+			self.enable_cordinates=True
+			self.plot_graph=False
+			self.plot_circuit=False
 
 			#For image
 			#self.render_grid=False
@@ -202,9 +202,9 @@ if open_gl_ok==True:
 			#self.dy_layer_offset=0.1
 			self.font = QFont("Arial")
 			self.font.setPointSize(15)
+			self.called=False
 
 		def optics(self):
-
 			width=0.02
 			leng=0.5
 			start_x=-4
@@ -326,15 +326,17 @@ if open_gl_ok==True:
 					for s in obj.shapes:
 						self.shape_layer(obj,s, y_padding=dy_shrink/2, name=layer_name)
 
-		def draw_device(self,x,z):
 
+		def draw_device(self,x,z):
+			epi=get_epi()
 			y=scale_get_device_y()
 
+			contact_layers=epi.contacts.get_layers_with_contacts()
 
 			l=0
 			btm_layer=len(epitaxy_get_epi())-1
 
-			for obj in epitaxy_get_epi():
+			for obj in epi.layers:
 				y_len=obj.dy*scale_get_ymul()
 				y=y-y_len
 				dy_shrink=y_len*0.1
@@ -346,10 +348,17 @@ if open_gl_ok==True:
 				if len(obj.shapes)>0:
 					alpha=0.5
 
-				if name!="air" and obj.electrical_layer!="contact":
+				contact_layer=False
+				if l==0 and "top" in contact_layers:
+					contact_layer=True
+
+				if l==len(epi.layers)-1 and "bottom" in contact_layers:
+					contact_layer=True
+
+				if name!="air" and contact_layer==False:
 						box(x,y+dy_shrink/2,z,scale_get_device_x(), y_len-dy_shrink,scale_get_device_z(), obj.r,obj.g,obj.b, alpha,name=[layer_name])
 
-				if obj.electrical_layer.startswith("dos")==True:
+				if obj.dos_file.startswith("dos")==True:
 					tab(x+scale_get_device_x(),y,z,y_len-dy_shrink)
 					display_name=display_name+" ("+_("active")+")"
 
@@ -394,10 +403,10 @@ if open_gl_ok==True:
 				self.ray_model=val=str2bool(inp_search_token_value(lines, "#ray_auto_run"))
 
 			lines=[]
-
-			for i in range(0,epitaxy_get_layers()):
-				if epitaxy_get_dos_file(i)!="none":
-					lines=inp_load_file(os.path.join(get_sim_path(),epitaxy_get_dos_file(i)+".inp"))
+			epi=get_epi()
+			for i in range(0,len(epi.layers)):
+				if epi.layers[i].dos_file!="none":
+					lines=inp_load_file(os.path.join(get_sim_path(),epi.layers[i].dos_file+".inp"))
 					if lines!=False and len(lines)!=0:
 						if str2bool(lines[3])==True:
 							self.emission=True
@@ -420,11 +429,8 @@ if open_gl_ok==True:
 			lines=[]
 
 			self.pos=0.0
-			
-			self.draw_cords()
-
-			if self.draw_electrical_mesh==True:
-				self.draw_mesh()
+			if self.enable_cordinates==True:
+				self.draw_cords()
 
 			if self.enable_draw_ray_mesh==True:
 				self.draw_ray_mesh()
@@ -433,10 +439,8 @@ if open_gl_ok==True:
 				self.draw_device(x,z)
 				draw_mode(x,y,z,scale_get_device_y())
 
-				if self.view.render_photons==True:
-					self.draw_photons(x,z)
-
-				graph(scale_get_start_x(),0.0,scale_get_start_z()-0.2,scale_get_device_x(),scale_get_device_y(),self.graph_data)
+			if self.view.render_photons==True:
+				self.draw_photons(x,z)
 
 			if self.view.render_grid==True:
 				draw_grid()
@@ -444,8 +448,12 @@ if open_gl_ok==True:
 			if self.view.zoom>self.view.stars_distance:
 				draw_stars()
 
+
 			if self.scene_built==False:
 				self.build_scene()
+
+			if self.plot_graph==True:
+				self.draw_graph()
 
 			self.gl_objects_render()
 
@@ -479,6 +487,7 @@ if open_gl_ok==True:
 			lines=[]
 
 			val=inp_get_token_value(os.path.join(get_sim_path(),"light.inp"), "#Psun")
+			print(">>>>>>>>",get_sim_path())
 			self.dump_energy_slice_xpos=int(inp_get_token_value(os.path.join(get_sim_path(),"dump.inp"), "#dump_energy_slice_xpos"))
 			self.dump_energy_slice_ypos=int(inp_get_token_value(os.path.join(get_sim_path(),"dump.inp"), "#dump_energy_slice_ypos"))
 			self.dump_energy_slice_zpos=int(inp_get_token_value(os.path.join(get_sim_path(),"dump.inp"), "#dump_energy_slice_zpos"))
@@ -492,11 +501,11 @@ if open_gl_ok==True:
 			except:
 				self.suns=0.0
 
-			self.y_mesh=mesh_get_ymesh()
-			self.x_mesh=mesh_get_xmesh()
-			self.z_mesh=mesh_get_zmesh()
+			#self.y_mesh=get_mesh().y
+			#self.x_mesh=get_mesh().x
+			#self.z_mesh=get_mesh().z
 
-			self.x_len=mesh_get_xlen()
+			self.x_len=get_mesh().get_xlen()
 			if os.path.isdir(os.path.join(os.path.join(get_sim_path(),"ray_trace")))==True:
 				self.view.render_photons=False
 
@@ -541,9 +550,16 @@ if open_gl_ok==True:
 					a.selectable=True
 					self.gl_objects_add(a)
 
-			if self.enable_draw_device==True:
+			if self.draw_electrical_mesh==True:
+				self.draw_mesh()
+			elif self.enable_draw_device==True:
 				self.draw_device2(x,z)
 				self.draw_contacts()
+
+			if self.plot_circuit==True:
+				self.draw_circuit()
+			print("rebuild")
+
 
 		def build_scene(self):
 			self.update_real_to_gl_mul()

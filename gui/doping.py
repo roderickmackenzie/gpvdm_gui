@@ -58,7 +58,7 @@ from open_save_dlg import save_as_image
 from QWidgetSavePos import QWidgetSavePos
 from cal_path import get_sim_path
 
-from mesh import mesh_get_ymesh
+from mesh import get_mesh
 
 from epitaxy import epitaxy_get_epi
 from epitaxy import epitay_get_next_dos_layer
@@ -184,7 +184,7 @@ class doping_window(QWidgetSavePos):
 		return
 
 	def project(self,start_values,stop_values):
-		mesh=mesh_get_ymesh()
+		mesh=get_mesh().y
 		x,y =	mesh.calculate_points()
 
 		epi=epitaxy_get_epi()

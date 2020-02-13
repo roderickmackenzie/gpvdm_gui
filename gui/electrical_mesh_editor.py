@@ -46,9 +46,7 @@ from matplotlib.backends.backend_qt5agg import NavigationToolbar2QT as Navigatio
 import matplotlib.cm as cm
 from matplotlib import rcParams
 
-from mesh import mesh_get_xmesh
-from mesh import mesh_get_ymesh
-from mesh import mesh_get_zmesh
+from mesh import get_mesh
 
 import numpy as np
 
@@ -243,14 +241,19 @@ class electrical_mesh_editor(QGroupBox):
 		vbox.addWidget(self.canvas)
 
 		if self.xyz=="y": 
-			self.mesh=mesh_get_ymesh()
+			self.mesh=get_mesh().y
 			get_watch().add_call_back("mesh_y.inp",self.load)
 		elif self.xyz=="x":
-			self.mesh=mesh_get_xmesh()
+			self.mesh=get_mesh().x
 			get_watch().add_call_back("mesh_x.inp",self.load)
 		elif self.xyz=="z":
-			self.mesh=mesh_get_zmesh()
+			self.mesh=get_mesh().z
 			get_watch().add_call_back("mesh_z.inp",self.load)
+
+		if self.mesh.circuit_model==True:
+			add.setEnabled(False)
+			remove.setEnabled(False)
+			self.tab.setEnabled(False)
 
 		self.load()
 

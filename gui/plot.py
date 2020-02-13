@@ -41,9 +41,6 @@ def check_info_file(search_string):
 	else:
 		return False
 
-def file_name_to_latex(in_string):
-	out_string=in_string.replace("_","\\_")
-	return out_string
 
 def plot_populate_plot_token(plot_token,file_name):
 	if file_name!=None:

@@ -1,4 +1,4 @@
-# 
+#
 #   General-purpose Photovoltaic Device Model - a drift diffusion base/Shockley-Read-Hall
 #   model for 1st, 2nd and 3rd generation solar cells.
 #   Copyright (C) 2012-2017 Roderick C. I. MacKenzie r.c.i.mackenzie at googlemail.com
@@ -19,7 +19,7 @@
 #   with this program; if not, write to the Free Software Foundation, Inc.,
 #   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
-# 
+#
 
 ## @package experiment
 #  The main experiment window, used for configuring time domain experiments.
@@ -31,7 +31,7 @@ import webbrowser
 from code_ctrl import enable_betafeatures
 from inp import inp_update_token_value
 from util_zip import zip_lsdir
-from inp import inp_isfile
+from inp import inp
 from inp import inp_copy_file
 from inp import inp_remove_file
 from util import strextract_interger
@@ -42,7 +42,7 @@ import i18n
 _ = i18n.language.gettext
 
 #qt
-from PyQt5.QtCore import QSize, Qt 
+from PyQt5.QtCore import QSize, Qt
 from PyQt5.QtWidgets import QWidget,QVBoxLayout,QToolBar,QSizePolicy,QAction,QTabWidget,QMenuBar,QStatusBar
 from PyQt5.QtGui import QPainter,QIcon
 
@@ -69,7 +69,7 @@ from timedomain_ribbon import timedomain_ribbon
 class experiment(QWidgetSavePos):
 
 	changed = pyqtSignal()
-	
+
 	def update(self):
 		for item in self.notebook.get_children():
 			item.update()
@@ -147,7 +147,7 @@ class experiment(QWidgetSavePos):
 
 
 		self.setMinimumSize(1200, 700)
-		self.setWindowTitle(_("Time domain experiment window")+" (https://www.gpvdm.com)") 
+		self.setWindowTitle(_("Time domain experiment window")+" (https://www.gpvdm.com)")
 		self.setWindowIcon(icon_get("icon"))
 
 		self.ribbon=timedomain_ribbon()
@@ -156,7 +156,7 @@ class experiment(QWidgetSavePos):
 
 		self.ribbon.order_widget.changed.connect(self.callback_changed)
 		self.ribbon.order_widget.added.connect(self.callback_add_page)
-		
+
 		self.ribbon.tb_laser_start_time.triggered.connect(self.callback_laser_start_time)
 
 		self.ribbon.tb_start.triggered.connect(self.callback_start_time)
@@ -186,7 +186,7 @@ class experiment(QWidgetSavePos):
 
 
 		self.setLayout(self.main_vbox)
-		
+
 		self.notebook.currentChanged.connect(self.switch_page)
 		self.switch_page()
 

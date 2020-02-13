@@ -1,4 +1,4 @@
-# 
+#
 #   General-purpose Photovoltaic Device Model - a drift diffusion base/Shockley-Read-Hall
 #   model for 1st, 2nd and 3rd generation solar cells.
 #   Copyright (C) 2012-2017 Roderick C. I. MacKenzie r.c.i.mackenzie at googlemail.com
@@ -19,7 +19,7 @@
 #   with this program; if not, write to the Free Software Foundation, Inc.,
 #   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
-# 
+#
 
 ## @package triangle_xy_editor
 #  A window to edit the dimentions of the device.
@@ -37,7 +37,7 @@ from global_objects import global_object_get
 from help import help_window
 
 #inp
-from inp import inp_isfile
+from inp import inp
 from inp import inp_copy_file
 from inp import inp_update_token_value
 from inp import inp_load_file
@@ -94,9 +94,9 @@ class triangle_xy_editor(QWidgetSavePos):
 
 		self.help = QAction(icon_get("internet-web-browser"), _("Help"), self)
 		self.toolbar.addAction(self.help)
-		
+
 		self.main_vbox.addWidget(self.toolbar)
-	
+
 		self.widget0 = QWidget()
 		self.widget0_hbox=QHBoxLayout()
 		self.widget0.setLayout(self.widget0_hbox)

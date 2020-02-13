@@ -64,9 +64,10 @@ from gpvdm_tab import gpvdm_tab
 
 from file_watch import get_watch
 
-from mesh import mesh_get_zpoints
-from mesh import mesh_get_xpoints
+from mesh import get_mesh
 from energy_to_charge import energy_to_charge
+
+from gpvdm_select_material import gpvdm_select_material
 
 class contacts_window(QWidgetSavePos):
 
@@ -79,6 +80,8 @@ class contacts_window(QWidgetSavePos):
 		self.charge_density_window.show()
 
 	def update_contact_db(self):
+		#first_contact
+
 		for i in range(0,self.tab.rowCount()):
 			try:
 				float(self.tab.get_value(i, 3))
@@ -120,10 +123,12 @@ class contacts_window(QWidgetSavePos):
 				self.contacts.contacts[i].shape.type=self.tab.get_value(i, 12)
 				self.contacts.contacts[i].shape.load_triangles()
 
+			self.contacts.contacts[i].shape.optical_material=self.tab.get_value(i, 13)
+
 		return True
 
 
-	def set_row(self,pos,name,top_btm,active,start,width,ingress,voltage,np,charge_type,ve0,vh0,type,shape):
+	def set_row(self,pos,name,top_btm,active,start,width,ingress,voltage,np,charge_type,ve0,vh0,type,shape,material):
 		self.tab.blockSignals(True)
 
 		self.tab.set_value(pos,0,name)
@@ -139,6 +144,8 @@ class contacts_window(QWidgetSavePos):
 		self.tab.set_value(pos,10,vh0)
 		self.tab.set_value(pos,11,type)
 		self.tab.set_value(pos,12, shape)
+		self.tab.set_value(pos,13, material)
+
 
 		self.tab.blockSignals(False)
 		
@@ -203,6 +210,10 @@ class contacts_window(QWidgetSavePos):
 		self.tab.setCellWidget(pos,12, combobox)
 		combobox.currentIndexChanged.connect(self.save_and_redraw)
 
+		combobox = gpvdm_select_material()
+		combobox.changed.connect(self.save)
+		self.tab.setCellWidget(pos,13, combobox)
+
 		self.tab.blockSignals(False)
 		
 		return pos
@@ -214,7 +225,7 @@ class contacts_window(QWidgetSavePos):
 		new_shape_file=get_epi().gen_new_electrical_file("shape")
 		c=self.contacts.insert(pos,new_shape_file)
 
-		self.set_row(pos,c.name,c.position,c.active,str(c.shape.x0),str(c.shape.dx),str(c.ingress),str(c.voltage),str(c.np),str(c.charge_type),str(c.ve0),str(c.vh0),str(c.type),c.shape.type)
+		self.set_row(pos,c.name,c.position,c.active,str(c.shape.x0),str(c.shape.dx),str(c.ingress),str(c.voltage),str(c.np),str(c.charge_type),str(c.ve0),str(c.vh0),str(c.type),c.shape.type,c.shape.optical_material)
 		#print(pos,len(self.contacts))
 		self.save_and_redraw()
 
@@ -276,11 +287,11 @@ class contacts_window(QWidgetSavePos):
 	def load(self):
 		self.contacts=get_epi().contacts
 		self.tab.clear()
-		self.tab.setHorizontalHeaderLabels([_("Name"),_("Top/Bottom"),_("Active contact"),_("Start")+" (m)", _("Width")+" (m)" , _("Ingress")+" (m)",_("Voltage"),_("Charge density/\nFermi-offset"),_("Majority\ncarrier"),_("ve0 (m/s)"),_("vh0 (m/s)"),_("Type"),_("Shape")])
+		self.tab.setHorizontalHeaderLabels([_("Name"),_("Top/Bottom"),_("Active contact"),_("Start")+" (m)", _("Width")+" (m)" , _("Ingress")+" (m)",_("Voltage"),_("Charge density/\nFermi-offset"),_("Majority\ncarrier"),_("ve0 (m/s)"),_("vh0 (m/s)"),_("Type"),_("Shape"),_("Material")])
 		self.tab.horizontalHeader().setFixedHeight(60)
 		self.contacts.load()
 
-		if mesh_get_zpoints()!=1 or mesh_get_xpoints()!=1: 
+		if get_mesh().get_zpoints()!=1 or get_mesh().get_xpoints()!=1: 
 			self.hide_cols(False)
 		else:
 			self.hide_cols(True)
@@ -296,7 +307,7 @@ class contacts_window(QWidgetSavePos):
 				start=str(c.shape.y0)
 				width=str(c.shape.dy)
 
-			self.set_row(i,str(c.name),c.position,str(c.active),start,width,str(c.ingress),str(c.voltage),str(c.np),str(c.charge_type),str(c.ve0),str(c.vh0),str(c.type), c.shape.type)
+			self.set_row(i,str(c.name),c.position,str(c.active),start,width,str(c.ingress),str(c.voltage),str(c.np),str(c.charge_type),str(c.ve0),str(c.vh0),str(c.type), c.shape.type,c.shape.optical_material)
 
 			i=i+1
 
@@ -344,7 +355,7 @@ class contacts_window(QWidgetSavePos):
 		self.tab.verticalHeader().setVisible(False)
 
 		self.tab.clear()
-		self.tab.setColumnCount(13)
+		self.tab.setColumnCount(14)
 		self.tab.setSelectionBehavior(QAbstractItemView.SelectRows)
 
 		self.load()
@@ -355,6 +366,8 @@ class contacts_window(QWidgetSavePos):
 
 
 		self.setLayout(self.main_vbox)
+
+		self.epi=get_epi()
 
 		#get_contactsio().changed.connect(self.update)
 

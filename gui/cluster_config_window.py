@@ -182,9 +182,8 @@ class cluster_config_window(QWidgetSavePos):
 		self.add_page(new_filename)
 
 	def add_page(self,file_name):
-		tab=tab_class()
 		name=inp_get_token_value(file_name, "#tab_name")
-		tab.init(file_name,name)
+		tab=tab_class(file_name)
 		self.notebook.addTab(tab,name)
 
 

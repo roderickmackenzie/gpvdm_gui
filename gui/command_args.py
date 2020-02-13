@@ -61,7 +61,6 @@ from import_archive import patch_file
 from util_zip import archive_decompress
 from util_zip import archive_compress
 from scan_io import build_scan
-from scan_io import scan_build_nested_simulation
 from scan_tree import tree_load_flat_list
 
 from scan_item import scan_items_clear

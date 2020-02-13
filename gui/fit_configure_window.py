@@ -26,7 +26,6 @@
 #
 
 import os
-from tab import tab_class
 from icon_lib import icon_get
 
 #qt
@@ -95,8 +94,7 @@ class fit_configure_window(QWidgetSavePos):
 		description=[_("Configure minimizer")]
 
 		for i in range(0,len(files)):
-			tab=tab_class()
-			tab.init(files[i],description[i])
+			tab=tab_class(files[i])
 			self.notebook.addTab(tab,description[i])
 
 		self.duplicate_window=duplicate()

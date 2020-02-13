@@ -1,4 +1,4 @@
-# 
+#
 #   General-purpose Photovoltaic Device Model - a drift diffusion base/Shockley-Read-Hall
 #   model for 1st, 2nd and 3rd generation solar cells.
 #   Copyright (C) 2012-2017 Roderick C. I. MacKenzie r.c.i.mackenzie at googlemail.com
@@ -19,7 +19,7 @@
 #   with this program; if not, write to the Free Software Foundation, Inc.,
 #   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
-# 
+#
 
 ## @package lasers
 #  Main laser editor window.
@@ -31,7 +31,7 @@ from inp import inp_update_token_value
 from inp import inp_get_token_value
 from tab import tab_class
 from util_zip import zip_lsdir
-from inp import inp_isfile
+from inp import inp
 from inp import inp_copy_file
 from inp import inp_remove_file
 from util import strextract_interger
@@ -43,7 +43,7 @@ _ = i18n.language.gettext
 #qt
 from PyQt5.QtWidgets import QMainWindow, QTextEdit, QAction, QApplication
 from PyQt5.QtGui import QIcon, QPainter, QFont, QColor
-from PyQt5.QtCore import QSize, Qt 
+from PyQt5.QtCore import QSize, Qt
 from PyQt5.QtWidgets import QWidget,QSizePolicy,QVBoxLayout,QPushButton,QDialog,QFileDialog,QToolBar,QLabel,QComboBox, QTabWidget,QStatusBar,QMenuBar, QTabBar, QStylePainter, QStyleOptionTab,QStyle
 
 #window
@@ -61,7 +61,7 @@ from order_widget import order_widget
 def laser_new_filename():
 	for i in range(0,20):
 		pulse_name="laser"+str(i)+".inp"
-		if inp_isfile(os.path.join(get_sim_path(),pulse_name))==False:
+		if inp().isfile(os.path.join(get_sim_path(),pulse_name))==False:
 			return i
 	return -1
 
@@ -97,8 +97,7 @@ class lasers(QWidgetSavePos):
 
 	def add_page(self,filename):
 		name=inp_get_token_value(filename, "#laser_name")
-		tab=tab_class()
-		tab.init(filename,name)
+		tab=tab_class(filename)
 		self.notebook.addTab(tab,name)
 
 	def switch_page(self,page, page_num, user_param1):
@@ -114,7 +113,7 @@ class lasers(QWidgetSavePos):
 
 
 		self.setFixedSize(900, 500)
-		self.setWindowTitle(_("Laser configuration window")+" https://www.gpvdm.com")   
+		self.setWindowTitle(_("Laser configuration window")+" https://www.gpvdm.com")
 		self.setWindowIcon(icon_get("lasers"))
 
 		toolbar=QToolBar()

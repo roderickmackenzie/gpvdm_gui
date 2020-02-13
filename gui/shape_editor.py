@@ -67,8 +67,6 @@ from triangle_io import triangles_flip
 from triangle_io import triangles_scale_for_gl
 from triangle import vec
 
-articles = []
-mesh_articles = []
 
 class shape_editor(QWidgetSavePos):
 
@@ -96,16 +94,21 @@ class shape_editor(QWidgetSavePos):
 		data=dat_file()
 
 		if data.load(os.path.join(self.path,"shape.inp"))==True:
-			print(">>>>>>>>>>>>>>")
 			self.three_d_shape.gl_objects_remove_regex("bing")
 			a=gl_base_object()
-			a.id="bing"
-			a.type="open_triangles"
+			a.id=["bing"]
+			a.type="solid_and_mesh"
 			a.r=data.r
 			a.g=data.g
 			a.b=data.b
+			
 			a.triangles=triangles_scale_for_gl(data.data)
-			self.three_d_shape.gl_objects_add(a)
+			if a.triangles!=False:
+				self.three_d_shape.gl_objects_add(a)
+				#from triangle_io import triangles_print
+				#triangles_print(a.triangles)
+				#print(a.r,a.g,a.b)
+				self.three_d_shape.scene_built=True
 
 	def __init__(self,path):
 		QWidgetSavePos.__init__(self,"spectra_main")

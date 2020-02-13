@@ -1,4 +1,4 @@
-# 
+#
 #   General-purpose Photovoltaic Device Model - a drift diffusion base/Shockley-Read-Hall
 #   model for 1st, 2nd and 3rd generation solar cells.
 #   Copyright (C) 2012-2017 Roderick C. I. MacKenzie r.c.i.mackenzie at googlemail.com
@@ -19,7 +19,7 @@
 #   with this program; if not, write to the Free Software Foundation, Inc.,
 #   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
-# 
+#
 
 ## @package jvexperiment
 #  JV simulation set up, for different types of JV curves.
@@ -30,7 +30,7 @@ from gui_util import dlg_get_text
 import webbrowser
 from inp import inp_update_token_value
 from util_zip import zip_lsdir
-from inp import inp_isfile
+from inp import inp
 from inp import inp_copy_file
 from inp import inp_remove_file
 from util import strextract_interger
@@ -41,7 +41,7 @@ import i18n
 _ = i18n.language.gettext
 
 #qt
-from PyQt5.QtCore import QSize, Qt 
+from PyQt5.QtCore import QSize, Qt
 from PyQt5.QtWidgets import QWidget,QVBoxLayout,QToolBar,QSizePolicy,QAction,QTabWidget,QMenuBar,QStatusBar
 from PyQt5.QtGui import QPainter,QIcon
 
@@ -65,7 +65,7 @@ from order_widget import order_widget
 class jvexperiment(QWidgetSavePos):
 
 	changed = pyqtSignal()
-	
+
 	def update(self):
 		for item in self.notebook.get_children():
 			item.update()
@@ -105,7 +105,7 @@ class jvexperiment(QWidgetSavePos):
 
 
 		self.setMinimumSize(1200, 700)
-		self.setWindowTitle(_("JV experiment window")+" (https://www.gpvdm.com)") 
+		self.setWindowTitle(_("JV experiment window")+" (https://www.gpvdm.com)")
 		self.setWindowIcon(icon_get("icon"))
 
 		toolbar=QToolBar()

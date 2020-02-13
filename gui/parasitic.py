@@ -88,8 +88,7 @@ class parasitic(QWidgetSavePos):
 
 
 		for i in range(0,len(files)):
-			tab=tab_class()
-			tab.init(os.path.join(get_sim_path(),files[i]),description[i])
+			tab=tab_class(os.path.join(get_sim_path(),files[i]))
 			self.notebook.addTab(tab,description[i])
 
 

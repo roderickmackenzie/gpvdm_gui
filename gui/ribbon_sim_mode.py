@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# 
+#
 #   General-purpose Photovoltaic Device Model - a drift diffusion base/Shockley-Read-Hall
 #   model for 1st, 2nd and 3rd generation solar cells.
 #   Copyright (C) 2012-2017 Roderick C. I. MacKenzie r.c.i.mackenzie at googlemail.com
@@ -20,7 +20,7 @@
 #   with this program; if not, write to the Free Software Foundation, Inc.,
 #   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
-# 
+#
 
 ## @package ribbon_sim_mode
 #  The sim mode ribbon.
@@ -45,7 +45,7 @@ from info import sim_info
 from win_lin import desktop_open
 
 #windows
-from scan import scan_class 
+from scan import scan_class
 from help import help_window
 from gpvdm_open import gpvdm_open
 from error_dlg import error_dlg
@@ -57,7 +57,7 @@ from util import isfiletype
 from icon_lib import icon_get
 
 from cal_path import get_sim_path
-from inp import inp_isfile
+from inp import inp
 from play import play
 from util import wrap_text
 
@@ -142,11 +142,12 @@ class ribbon_sim_mode(QToolBar):
 							#temp.append(value)
 
 			#temp.sort()
-			
+
 			token=inp_get_token_value("sim.inp", "#simmode")
 			if token==None:
-				print(os.getcwd(),"!!!!!!!!!!!!!")
-				sys.exit(0)
+				return
+				#print(os.getcwd(),"!!!!!!!!!!!!!")
+				#sys.exit(0)
 			if token.count("@")!=0:
 				command,module=token.split("@")
 			else:
@@ -162,7 +163,7 @@ class ribbon_sim_mode(QToolBar):
 						if self.actions[i].command.lower().startswith(o.lower())==True:
 							if self.actions[i].done==False:
 								self.build.append(self.actions[i])
-								self.actions[i].done=True					
+								self.actions[i].done=True
 
 
 			for i in range(0,len(self.actions)):
@@ -172,7 +173,7 @@ class ribbon_sim_mode(QToolBar):
 
 			self.actions=self.build
 
-			self.blockSignals(True)			
+			self.blockSignals(True)
 			for a in self.actions:
 				#self.sim_mode.addItem(command)
 				if type(a)==gQAction:
@@ -204,7 +205,7 @@ class ribbon_sim_mode(QToolBar):
 		#		self.removeAction(a)
 		#	if type(a)==str:
 		#		self.removeSeperator(a)
-		self.clear()	
+		self.clear()
 		self.actions=[]
 
 	def __init__(self):

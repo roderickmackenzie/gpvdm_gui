@@ -53,8 +53,7 @@ from dat_file import dat_file
 from PyQt5.QtCore import pyqtSignal
 
 from window_list import resize_window_to_be_sane
-from mesh import mesh_get_xlen
-from mesh import mesh_get_zlen
+from mesh import get_mesh
 
 from QWidgetSavePos import QWidgetSavePos
 
@@ -69,9 +68,6 @@ from ribbon_import import ribbon_import
 
 from str2bool import str2bool
 import shutil
-
-articles = []
-mesh_articles = []
 
 class import_data(QDialog):
 
@@ -403,7 +399,7 @@ class import_data(QDialog):
 		self.area_label=QLabel(_("device area:"))
 		self.area_hbox.addWidget(self.area_label)
 		self.area_entry=QLineEdit()
-		self.area_entry.setText(str(round(mesh_get_xlen()*mesh_get_zlen()*100*100, 3)))
+		self.area_entry.setText(str(round(get_mesh().get_xlen()*get_mesh().get_zlen()*100*100, 3)))
 		self.area_hbox.addWidget(self.area_entry)
 		self.area_units=QLabel("cm2")
 		self.area_hbox.addWidget(self.area_units)

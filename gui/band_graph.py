@@ -55,8 +55,8 @@ from epitaxy import epitaxy_get_layers
 from epitaxy import epitaxy_get_mat_file
 from epitaxy import epitaxy_get_dos_file
 from epitaxy import epitaxy_get_name
-from epitaxy import epitaxy_get_device_start
 from epitaxy import epitaxy_get_dy
+from epitaxy import get_epi
 
 #inp
 from inp import inp_load_file
@@ -131,7 +131,8 @@ class band_graph(QWidget):
 		color =['r','g','b','y','o','r','g','b','y','o','r','g','b','y','o','r','g','b','y','o']
 		start=0.0
 
-		device_start=epitaxy_get_device_start()
+		epi=get_epi()
+		device_start=epi.get_device_start()
 		if device_start!=None:
 			start=start-device_start
 

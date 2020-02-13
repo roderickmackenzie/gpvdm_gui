@@ -1,4 +1,4 @@
-# 
+#
 #   General-purpose Photovoltaic Device Model - a drift diffusion base/Shockley-Read-Hall
 #   model for 1st, 2nd and 3rd generation solar cells.
 #   Copyright (C) 2012-2017 Roderick C. I. MacKenzie r.c.i.mackenzie at googlemail.com
@@ -19,7 +19,7 @@
 #   with this program; if not, write to the Free Software Foundation, Inc.,
 #   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
-# 
+#
 
 ## @package fxexperiment
 #  Main fx domain experiment window
@@ -31,7 +31,7 @@ import webbrowser
 from inp import inp_update_token_value
 from fxexperiment_tab import fxexperiment_tab
 from util_zip import zip_lsdir
-from inp import inp_isfile
+from inp import inp
 from inp import inp_copy_file
 from inp import inp_remove_file
 from inp import inp_get_token_value
@@ -47,7 +47,7 @@ import i18n
 _ = i18n.language.gettext
 
 #qt
-from PyQt5.QtCore import QSize, Qt 
+from PyQt5.QtCore import QSize, Qt
 from PyQt5.QtWidgets import QWidget,QVBoxLayout,QToolBar,QSizePolicy,QAction,QTabWidget,QStatusBar
 from PyQt5.QtGui import QPainter,QIcon
 
@@ -56,7 +56,6 @@ from QHTabBar import QHTabBar
 from PyQt5.QtCore import pyqtSignal
 
 from util import wrap_text
-from tb_item_is_imps import tb_item_is_imps
 
 from cal_path import get_sim_path
 from QWidgetSavePos import QWidgetSavePos
@@ -66,6 +65,8 @@ from fx_ribbon import fx_ribbon
 from progress_class import progress_class
 from process_events import process_events
 from global_objects import global_object_run
+
+from util import is_numbered_file
 
 class fxexperiment(QWidgetSavePos):
 
@@ -81,9 +82,7 @@ class fxexperiment(QWidgetSavePos):
 
 
 	def callback_tab_changed(self):
-		tab = self.notebook.currentWidget()
-		self.ribbon.mode.setText(tab.get_mode())
-
+		return
 
 	def load_tabs(self):
 		progress_window=progress_class()
@@ -95,7 +94,7 @@ class fxexperiment(QWidgetSavePos):
 		file_list=zip_lsdir(os.path.join(get_sim_path(),"sim.gpvdm"))
 		files=[]
 		for i in range(0,len(file_list)):
-			if file_list[i].startswith("fxdomain") and file_list[i].endswith(".inp"):
+			if is_numbered_file(file_list[i],"is"):
 				name=inp_get_token_value(file_list[i], "#sim_menu_name")
 				files.append([name,file_list[i]])
 
@@ -116,13 +115,14 @@ class fxexperiment(QWidgetSavePos):
 	def add_page(self,filename):
 		name=inp_get_token_value(filename, "#sim_menu_name")
 		tab=fxexperiment_tab()
-		print(filename[8:-4],filename)
-		tab.init(int(filename[8:-4]))
+		print(filename[2:-4],filename)
+		tab.init(int(filename[2:-4]))
 		self.notebook.addTab(tab,name.split("@")[0])
 
 	def callback_mode_changed(self):
-		tab = self.notebook.currentWidget()
-		tab.update_mode(self.ribbon.mode.mode.currentText())
+		return
+		#tab = self.notebook.currentWidget()
+		#tab.update_mode(self.ribbon.mode.mode.currentText())
 
 	def callback_save(self):
 		tab = self.notebook.currentWidget()
@@ -134,7 +134,7 @@ class fxexperiment(QWidgetSavePos):
 
 		self.main_vbox = QVBoxLayout()
 
-		self.setWindowTitle(_("Frequency domain experiment editor")+" https://www.gpvdm.com") 
+		self.setWindowTitle(_("Frequency domain experiment editor")+" https://www.gpvdm.com")
 		self.setWindowIcon(icon_get("spectrum"))
 
 
@@ -147,8 +147,6 @@ class fxexperiment(QWidgetSavePos):
 
 		self.ribbon.order_widget.changed.connect(self.callback_changed)
 		self.ribbon.order_widget.added.connect(self.callback_add_page)
-
-		self.ribbon.mode.changed.connect(self.callback_mode_changed)
 
 		self.main_vbox.addWidget(self.ribbon)
 

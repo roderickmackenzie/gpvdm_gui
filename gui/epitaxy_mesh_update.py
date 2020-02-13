@@ -33,11 +33,11 @@ from epitaxy import epitaxy_get_dos_file
 from epitaxy import epitaxy_get_layers
 
 
-from mesh import mesh_get_ymesh
+from mesh import get_mesh
 
 
 def epitaxy_mesh_update():
-	mesh=mesh_get_ymesh()
+	mesh=get_mesh().y
 	if len(mesh.layers)==1:
 		tot=0.0
 		for i in range(0,epitaxy_get_layers()):

@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# 
+#
 #   General-purpose Photovoltaic Device Model - a drift diffusion base/Shockley-Read-Hall
 #   model for 1st, 2nd and 3rd generation solar cells.
 #   Copyright (C) 2012-2017 Roderick C. I. MacKenzie r.c.i.mackenzie at googlemail.com
@@ -20,7 +20,7 @@
 #   with this program; if not, write to the Free Software Foundation, Inc.,
 #   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
-# 
+#
 
 ## @package ribbon_information
 #  The information ribbon.
@@ -47,7 +47,7 @@ from PyQt5.QtWidgets import QTabWidget
 import webbrowser
 from help import help_window
 
-from inp import inp_isfile
+from inp import inp
 
 from cal_path import get_sim_path
 from util import wrap_text
@@ -65,7 +65,7 @@ class ribbon_information(QToolBar):
 
 		#self.license = QAction(icon_get("license"), _("License")+"\n"	, self)
 		#self.license.triggered.connect(self.callback_license)
-		#self.addAction(self.license)		
+		#self.addAction(self.license)
 
 		self.ref = QAction(icon_get("ref"), _("How to\ncite"), self)
 		self.ref.triggered.connect(self.callback_ref)
@@ -92,7 +92,7 @@ class ribbon_information(QToolBar):
 		self.twitter.triggered.connect(self.callback_twitter)
 		self.addAction(self.twitter)
 
-	
+
 		self.youtube = QAction(icon_get("youtube.png"), _("Youtube\nchannel"), self)
 		self.youtube.triggered.connect(self.callback_youtube)
 		self.addAction(self.youtube)
@@ -102,11 +102,11 @@ class ribbon_information(QToolBar):
 		self.addAction(self.man)
 
 	def update(self):
-		if inp_isfile(os.path.join(get_sim_path(),"sim.ref"))==True:
+		if inp().isfile(os.path.join(get_sim_path(),"sim.ref"))==True:
 			self.paper.setVisible(True)
 		else:
 			self.paper.setVisible(False)
-		
+
 	def setEnabled(self,val):
 		self.license.setEnabled(val)
 		self.ref.setEnabled(val)
@@ -116,7 +116,7 @@ class ribbon_information(QToolBar):
 
 	def callback_license(self):
 		webbrowser.open("https://www.gpvdm.com/license.html")
-		
+
 	def callback_youtube(self):
 		webbrowser.open("https://www.youtube.com/channel/UCbm_0AKX1SpbMMT7jilxFfA")
 
@@ -133,7 +133,7 @@ class ribbon_information(QToolBar):
 
 	def callback_ref(self):
 		webbrowser.open("https://gpvdm.com/how_to_cite.html")
-		
+
 	def callback_on_line_help(self):
 		#print("here")
 		#self.a=cool_menu(self.ribbon.home.help.icon())
@@ -144,7 +144,7 @@ class ribbon_information(QToolBar):
 		#self.a.setFocus(True)
 		#self.a.hasFocus()
 		webbrowser.open("https://www.gpvdm.com")
-		
+
 	def callback_help(self, widget, data=None):
 		help_window().toggle_visible()
 

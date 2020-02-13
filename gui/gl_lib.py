@@ -117,18 +117,17 @@ def draw_stars():
 		#glVertex3f(-1.0,-1.0,0.0)
 		glEnd()
 
+def plane(o):
+	glColor4f(o.r, o.g, o.b,0.5)
+	glBegin(GL_QUADS)
 
-def plane(x0,y0,z0,dx,dy,dz,r,g,b):
-			glColor4f(r, g, b,0.5)
-			glBegin(GL_QUADS)
+	glVertex3f(o.x, o.y, o.z)
+	glVertex3f(o.x+o.dx, o.y+o.dy, o.z)
 
-			glVertex3f(x0, y0, z0)
-			glVertex3f(x0+dx, y0+dy, z0)
+	glVertex3f(o.x+o.dx, o.y+o.dy, o.z+o.dz)
+	glVertex3f(o.x, o.y, o.z+o.dz)
 
-			glVertex3f(x0+dx, y0+dy, z0+dz)
-			glVertex3f(x0, y0, z0+dz)
-
-			glEnd()
+	glEnd()
 
 def draw_grid():
 	glLineWidth(1)
@@ -197,12 +196,73 @@ def draw_photon(x,y,z,up,color=[0.0, 1.0, 0.0]):
 
 		glEnd()
 
-def raw_ray(x0,y0,z0,dx,dy,dz,r,g,b):
+def raw_ray(o):
 	glLineWidth(5)
-	set_color(r, g, b,"rays")
+	set_color(o.r, o.g, o.b,"rays")
 	glBegin(GL_LINES)
-	glVertex3f(x0, y0, z0)
-	glVertex3f(x0+dx, y0+dy, z0+dz)
+	glVertex3f(o.x, o.y, o.z)
+	glVertex3f(o.x+o.dx, o.y+o.dy, o.z+o.dz)
+	glEnd()
+
+def paint_ball(o):
+	glPushMatrix()
+	quad=gluNewQuadric()
+	glTranslatef(o.x,o.y,o.z)
+	set_color(o.r,o.g,o.b,o.id,alpha=o.alpha)
+	gluSphere(quad,o.dx,32,32)
+	glPopMatrix()
+
+def paint_line(o):
+	glLineWidth(1)
+	set_color(o.r,o.g,o.b,o.id,alpha=o.alpha)
+	glBegin(GL_LINES)
+	glVertex3f(o.x, o.y, o.z)
+	glVertex3f(o.x+o.dx, o.y+o.dy, o.z+o.dz)
+	glEnd()
+
+def paint_resistor(o):
+	glLineWidth(4)
+	set_color(o.r,o.g,o.b,o.id,alpha=o.alpha)
+	glBegin(GL_LINES)
+	glVertex3f(o.x, o.y, o.z)
+	glVertex3f(o.x+o.dx, o.y+o.dy, o.z+o.dz)
+	glEnd()
+
+
+	glLineWidth(10)
+	set_color(0.0,0.0,1.0,o.id,alpha=o.alpha)
+	glBegin(GL_LINES)
+	glVertex3f(o.x+o.dx*0.3, o.y+o.dy*0.3, o.z+o.dz*0.3)
+	glVertex3f(o.x+o.dx*0.7, o.y+o.dy*0.7, o.z+o.dz*0.7)
+	glEnd()
+
+def paint_diode(o):
+	glLineWidth(4)
+	set_color(o.r,o.g,o.b,o.id,alpha=o.alpha)
+	glBegin(GL_LINES)
+	glVertex3f(o.x, o.y, o.z)
+	glVertex3f(o.x+o.dx, o.y+o.dy, o.z+o.dz)
+	glEnd()
+
+
+	glLineWidth(7)
+	set_color(0.0,1.0,0.0,o.id,alpha=o.alpha)
+	glBegin(GL_LINES)
+	#arrow btm
+	glVertex3f(o.x-0.1, o.y+o.dy*0.3, o.z)
+	glVertex3f(o.x+0.1, o.y+o.dy*0.3, o.z)
+	#bar top
+	glVertex3f(o.x-0.1, o.y+o.dy*0.7, o.z)
+	glVertex3f(o.x+0.1, o.y+o.dy*0.7, o.z)
+
+	#arrow left
+	glVertex3f(o.x-0.1, o.y+o.dy*0.3, o.z)
+	glVertex3f(o.x, o.y+o.dy*0.7, o.z)
+
+	#arrow right
+	glVertex3f(o.x+0.1, o.y+o.dy*0.3, o.z)
+	glVertex3f(o.x, o.y+o.dy*0.7, o.z)
+
 	glEnd()
 
 def box_lines(x,y,z,w,h,d):
@@ -283,39 +343,23 @@ def box_lines(x,y,z,w,h,d):
 	glEnd()
 
 def val_to_rgb(v):
+	if v>1.0:
+		v=0.99
 
-	dx=1.0
-	r=0*v/dx
-	g=0*v/dx
-	b=1*v/dx	
-	return r,g,b
-
-	dx=1/6.0
-
-	if v<dx:
-		r=0*v/dx
-		g=0*v/dx
-		b=1*v/dx
-	elif v<dx*2:
-		r=0*(v-dx)/dx
-		g=1*(v-dx)/dx
-		b=1*(v-dx)/dx
-	elif v<dx*3:
-		r=0*(v-2*dx)/dx
-		g=1*(v-2*dx)/dx
-		b=0*(v-2*dx)/dx
-	elif v<dx*4:
-		r=1*(v-3*dx)/dx
-		g=1*(v-3*dx)/dx
-		b=0*(v-3*dx)/dx
-	elif v<dx*5:
-		r=1*(v-4*dx)/dx
-		g=0*(v-4*dx)/dx
-		b=0*(v-4*dx)/dx
-	else:
-		r=1*(v-5*dx)/dx
-		g=1*(v-5*dx)/dx
-		b=1*(v-5*dx)/dx
-		
-	return r,g,b
+	colors = [(0, 0, 1.0), (0, 1.0, 0), (1.0, 0, 0)]
+	dx=1.0/(len(colors)-1)
+	i0 = int(v * float(len(colors)-2))
+	i1 = i0+1
+	f=(v-(i0*dx))/dx
+	#print(i0)
+	#print(i1)
+	#print(f)
+	#print(i_f)
+	#print(v)
+	#print(len(colors)-1)
+	#print(i)
+	#print(f)
+	(r0, g0, b0) = colors[i0]
+	(r1, g1, b1) = colors[i1]
+	return r0 + f*(r1-r0), g0 + f*(g1-g0), b0 + f*(b1-b0)
 

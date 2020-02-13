@@ -34,6 +34,8 @@ from util_zip import zip_get_data_file
 from inp import inp_load_file
 from str2bool import str2bool
 from triangle import triangle
+from quiver import quiver
+from component import component
 
 #search first 40 lines for dims
 def dat_file_load_info(output,lines):
@@ -194,7 +196,6 @@ def decode_line(line,known_col_sep=None):
 		s=line.split(known_col_sep)
 		return s,False
 
-
 	line=re.sub('\t',' ',line)
 
 	#check for labels at the end of the line
@@ -349,6 +350,10 @@ class dat_file():
 		self.legend_pos="lower right"
 		self.ymax=-1
 		self.ymin=-1
+		self.xmax=-1
+		self.xmin=-1
+		self.zmax=-1
+		self.zmin=-1
 		self.x_label=""
 		self.y_label=""
 		self.z_label=""
@@ -580,14 +585,34 @@ class dat_file():
 		self.data_units=in_data.data_units
 
 	def init_mem(self):
-		if self.type=="poly":
-			return
 		self.data=[[[0.0 for k in range(self.y_len)] for j in range(self.x_len)] for i in range(self.z_len)]
 				
 		self.x_scale= [0.0]*self.x_len
 		self.y_scale= [0.0]*self.y_len
 		self.z_scale= [0.0]*self.z_len
 		self.valid_data=True
+
+
+	def decode_circuit_lines(self,lines):
+		build=[]
+		self.data=[]
+		for line in lines:
+			s,label=decode_line(line)
+			l=len(s)
+			if l>0:
+				if s[0].startswith("#")==False:
+					c=component()
+					c.z0=float(s[0])
+					c.x0=float(s[1])
+					c.y0=float(s[2])
+					c.z1=float(s[3])
+					c.x1=float(s[4])
+					c.y1=float(s[5])
+					c.name=s[6]
+
+					self.data.append(c)
+
+		return True
 
 	def decode_poly_lines(self,lines):
 		build=[]
@@ -636,6 +661,51 @@ class dat_file():
 
 		return True
 
+	def cal_min_max(self):
+		self.ymax=0.0
+		self.ymin=0.0
+		self.xmax=0.0
+		self.xmin=0.0
+		self.zmax=0.0
+		self.zmin=0.0
+
+		if self.type=="quiver":
+			for d in self.data:
+				if d.x>self.xmax:
+					self.xmax=d.x
+
+				if d.y>self.ymax:
+					self.ymax=d.y
+
+				if d.z>self.zmax:
+					self.zmax=d.z
+
+	def decode_quiver_lines(self,lines):
+		build=[]
+		self.data=[]
+
+		for line in lines:
+			s,label=decode_line(line)
+			l=len(s)
+			if l>0:
+				if s[0].startswith("#")==False:
+					s=list(map(float, s))
+					q=quiver()
+					q.x=s[0]
+					q.y=s[1]
+					q.z=s[2]
+					q.dx=s[3]
+					q.dy=s[4]
+					q.dz=s[5]
+					q.mag=s[6]
+
+
+					self.data.append(q)
+
+		self.cal_min_max()
+		self.valid_data=True
+		return True
+
 	def load(self,file_name,guess=True):
 		self.file_name=file_name
 
@@ -658,7 +728,6 @@ class dat_file():
 			return False
 
 
-
 		self.x_scale=[]
 		self.y_scale=[]
 		self.z_scale=[]
@@ -674,6 +743,19 @@ class dat_file():
 				print("No idea what to do with this file!",file_name)
 				return False
 
+
+		if self.type=="poly":
+			return self.decode_poly_lines(lines)
+
+		if self.type=="circuit":
+			return self.decode_circuit_lines(lines)
+
+		if self.type=="quiver":
+			return self.decode_quiver_lines(lines)
+
+		return self.decode_zxy_lines(lines)
+
+	def decode_zxy_lines(self,lines):
 		self.init_mem()
 
 		self.labels=[]
@@ -687,12 +769,11 @@ class dat_file():
 		label=""
 		labels=False
 		#print(file_name)
-		if self.type=="poly":
-			return self.decode_poly_lines(lines)
 
 		for line in lines:
 			s,label=decode_line(line)
 			l=len(s)
+
 			if l>0:
 								
 
@@ -712,10 +793,10 @@ class dat_file():
 					line_found=False
 					if l==4:
 						line_found=True
-						self.data[z][x][y]=float(s[3])
 						a0=s[0]
 						a1=s[1]
 						a2=s[2]
+						self.data[z][x][y]=float(s[3])
 
 					if l==3:
 						line_found=True
@@ -759,14 +840,14 @@ class dat_file():
 								self.x_scale[x]=float(a0)
 
 						if l==4:
-							if x==0 and z==0:
-								self.y_scale[y]=float(a1)+self.y_offset
-								
-							if z==0 and y==0:
-								self.x_scale[x]=float(a0)
-
 							if x==0 and y==0:
-								self.z_scale[z]=float(a2)
+								self.z_scale[z]=float(a0)
+
+							if z==0 and y==0:
+								self.x_scale[x]=float(a1)
+
+							if x==0 and z==0:
+								self.y_scale[y]=float(a2)+self.y_offset
 						#if z==y:
 						#	self.z_scale[y]=float(a0)
 						if label!=False:
@@ -784,6 +865,8 @@ class dat_file():
 
 		if data_started==False:
 			return False
+
+		#print(self.data)
 
 		return True
 

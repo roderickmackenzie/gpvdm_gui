@@ -1,4 +1,4 @@
-# 
+#
 #   General-purpose Photovoltaic Device Model - a drift diffusion base/Shockley-Read-Hall
 #   model for 1st, 2nd and 3rd generation solar cells.
 #   Copyright (C) 2012-2017 Roderick C. I. MacKenzie r.c.i.mackenzie at googlemail.com
@@ -19,7 +19,7 @@
 #   with this program; if not, write to the Free Software Foundation, Inc.,
 #   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
-# 
+#
 
 ## @package experiment_util
 #  Helper functions used by the experiment window
@@ -27,11 +27,11 @@
 
 import os
 from cal_path import get_sim_path
-from inp import inp_isfile
+from inp import inp
 
 def experiment_new_filename(base_name):
 	for i in range(0,20):
 		pulse_name=base_name+str(i)+".inp"
-		if inp_isfile(os.path.join(get_sim_path(),pulse_name))==False:
+		if inp().isfile(os.path.join(get_sim_path(),pulse_name))==False:
 			return i
 	return -1

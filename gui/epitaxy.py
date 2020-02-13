@@ -1,4 +1,4 @@
-# 
+#
 #   General-purpose Photovoltaic Device Model - a drift diffusion base/Shockley-Read-Hall
 #   model for 1st, 2nd and 3rd generation solar cells.
 #   Copyright (C) 2012-2017 Roderick C. I. MacKenzie r.c.i.mackenzie at googlemail.com
@@ -19,7 +19,7 @@
 #   with this program; if not, write to the Free Software Foundation, Inc.,
 #   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
-# 
+#
 
 ## @package epitaxy
 #  The epitaxy class.
@@ -38,13 +38,14 @@ from inp import inp_search_token_array
 from inp import inp_search_token_value
 from inp import inp_remove_file
 
-from inp import inp_isfile
+from inp import inp
 from inp import inp_copy_file
 from inp import inp_lsdir
+from inp import inp
 
 from cal_path import get_sim_path
 from util_zip import archive_merge_file
-from mesh import mesh_get_ymesh
+from mesh import get_mesh
 from shape import shape
 from inp import inp_update_token_value
 
@@ -68,10 +69,12 @@ class epi_layer():
 		self.r=0
 		self.g=0
 		self.b=0
-		self.electrical_layer="other"
+		self.dos_file="none"
+		self.layer_type="other"
 		self.alpha=1.0
 		self.lumo_file="none"
 		self.homo_file="none"
+		self.electrical_file="none"
 		self.start=0.0
 		self.end=0.0
 
@@ -92,7 +95,7 @@ class epi_layer():
 
 	def cal_rgb(self):
 		path=os.path.join(os.path.join(get_materials_path(),self.mat_file),"mat.inp")
-	
+
 		zip_file=os.path.basename(self.mat_file)+".zip"
 
 		mat_lines=inp_load_file(path,archive=zip_file)
@@ -140,9 +143,8 @@ class epitaxy():
 	def get_all_electrical_files(self):
 		tab=[]
 		for l in self.layers:
-			if l.electrical_layer.startswith("dos"):
-				tab.append(l.electrical_layer+".inp")
-				tab.append("electrical"+l.electrical_layer[3:]+".inp")
+			if l.dos_file.startswith("dos"):
+				tab.append(l.dos_file+".inp")
 
 			if len(l.shapes)!=0:
 				for s in l.shapes:
@@ -160,8 +162,14 @@ class epitaxy():
 			if l.lumo_file!="none":
 				tab.append(l.lumo_file+".inp")
 
+			#homo files
 			if l.homo_file!="none":
 				tab.append(l.homo_file+".inp")
+
+			#electrical files
+			if l.electrical_file!="none":
+				tab.append(l.electrical_file+".inp")
+
 
 		tab.extend(self.contacts.get_shape_files())
 
@@ -198,11 +206,8 @@ class epitaxy():
 				if disk_file not in tab:
 					inp_remove_file(disk_file)
 
-		#homo files
-
-		for i in range(0,len(files)):
-			if is_numbered_file(files[i],"homo")==True:
-				disk_file=files[i]
+			#homo files
+			if is_numbered_file(disk_file,"homo")==True:
 				if disk_file not in tab:
 					inp_remove_file(disk_file)
 
@@ -216,7 +221,7 @@ class epitaxy():
 					return i
 		return -1
 
-	def add_layer(self,pos=-1):
+	def add_new_layer(self,pos=-1):
 		if pos!=-1:
 			pos=self.layer_to_index(pos)
 
@@ -228,7 +233,9 @@ class epitaxy():
 		a.shapes=[]
 		a.lumo_file="none"
 		a.homo_file="none"
-		self.electrical_layer="other"
+		a.dos_file="other"
+		a.electrical_file=self.new_electrical_file("electrical")
+
 		a.r=1.0
 		a.g=0
 		a.b=0
@@ -274,12 +281,14 @@ class epitaxy():
 		for i in range(0,len(epi.layers)):
 			lines.append("#layer_name"+str(layer))
 			lines.append(str(epi.layers[i].name))
+			lines.append("#layer_type"+str(layer))
+			lines.append(str(epi.layers[i].layer_type))
 			lines.append("#layer_width"+str(layer))
 			lines.append(str(epi.layers[i].dy))
 			lines.append("#layer_material_file"+str(layer))
 			lines.append(epi.layers[i].mat_file)
 			lines.append("#layer_dos_file"+str(layer))
-			lines.append(epi.layers[i].electrical_layer)
+			lines.append(epi.layers[i].dos_file)
 			lines.append("#layer_pl_file"+str(layer))
 			lines.append(epi.layers[i].pl_file)
 			lines.append("#layer_shape"+str(layer))
@@ -296,6 +305,9 @@ class epitaxy():
 			lines.append(epi.layers[i].lumo_file)
 			lines.append("#layer_homo"+str(layer))
 			lines.append(epi.layers[i].homo_file)
+			lines.append("#layer_electrical_file"+str(layer))
+			lines.append(epi.layers[i].electrical_file)
+
 			layer=layer+1
 
 		lines.append("#ver")
@@ -308,23 +320,21 @@ class epitaxy():
 
 		inp_save(os.path.join(get_sim_path(),"epitaxy.inp"),lines,id="epitaxy")
 
-		ymesh=mesh_get_ymesh()
+		ymesh=get_mesh().y
 		ymesh.do_remesh(self.ylen_active())
 
 	def update_layer_type(self,layer,data):
 		l=self.layers[layer]
 
-		if data=="active layer" and l.electrical_layer.startswith("dos")==False:
+		if data=="active" and l.dos_file.startswith("dos")==False:
 
-			l.electrical_layer=self.new_electrical_file("dos")
+			l.dos_file=self.new_electrical_file("dos")
 
 			mat_dir=os.path.join(get_materials_path(),l.mat_file)
 
-			new_dos_file=l.electrical_layer+".inp"
-			new_electrical_file="electrical"+l.electrical_layer[3:]+".inp"
+			new_dos_file=l.dos_file+".inp"
 
-			
-			if inp_isfile(new_dos_file)==False:
+			if inp().isfile(new_dos_file)==False:
 				dos_path_generic=os.path.join(get_default_material_path(),"dos.inp")
 				inp_copy_file(new_dos_file,dos_path_generic)
 
@@ -332,21 +342,22 @@ class epitaxy():
 				if os.path.isfile(dos_path_material)==True:
 					archive_merge_file(os.path.join(get_sim_path(),"sim.gpvdm"),os.path.join(mat_dir,"sim.gpvdm"),new_dos_file,"dos.inp")
 
-				electrical_path_generic=os.path.join(get_default_material_path(),"electrical.inp")
-				inp_copy_file(new_electrical_file,electrical_path_generic)
-
-		if data=="active layer" and l.pl_file.startswith("pl")==False:
+		if data=="active" and l.pl_file.startswith("pl")==False:
 			l.pl_file=self.gen_new_electrical_file("pl")
 
-		if data=="active layer" and l.lumo_file.startswith("lumo")==False:
+		if data=="active" and l.lumo_file.startswith("lumo")==False:
 			l.lumo_file=self.gen_new_electrical_file("lumo")
 
-		if data=="active layer" and l.homo_file.startswith("homo")==False:
+		if data=="active" and l.homo_file.startswith("homo")==False:
 			l.homo_file=self.gen_new_electrical_file("homo")
 
+		if l.electrical_file=="none" or inp().isfile(l.electrical_file+".inp")==False:
+			l.electrical_file=self.gen_new_electrical_file("electrical")
 
-		if data!="active layer":
-			l.electrical_layer=data
+		l.layer_type=data
+
+		if data!="active":
+			l.dos_file=data
 			l.pl_file="none"
 			l.lumo_file="none"
 			l.homo_file="none"
@@ -361,7 +372,7 @@ class epitaxy():
 		full_new_file_name=new_file_name+".inp"
 		db_file=os.path.join(get_default_material_path(),prefix+".inp")
 
-		if inp_isfile(full_new_file_name)==False:
+		if inp().isfile(full_new_file_name)==False:
 			inp_copy_file(full_new_file_name,db_file)
 
 		return new_file_name
@@ -394,8 +405,8 @@ class epitaxy():
 		inp_update_token_value(s.file_name,"#shape_dos",s.shape_dos)
 
 		new_dos_file=new_file+".inp"
-			
-		if inp_isfile(new_dos_file)==False:
+
+		if inp().isfile(new_dos_file)==False:
 			dos_path_generic=os.path.join(get_default_material_path(),"dos.inp")
 			inp_copy_file(new_dos_file,dos_path_generic)
 
@@ -409,7 +420,7 @@ class epitaxy():
 
 			if name not in files:
 				return prefix+str(i)
-				
+
 	def get_shapes(self,layer):
 		return epi.layers[layer].shapes
 
@@ -422,14 +433,42 @@ class epitaxy():
 
 	def ylen_active(self):
 		tot=0
-		for a in epi.layers:
-			if a.electrical_layer.startswith("dos")==True:
+		for a in self.layers:
+			if a.dos_file.startswith("dos")==True:
 				tot=tot+a.dy
 
 		return tot
 
+	def get_layer_by_cordinate(self,y):
+		tot=0
+		for i in range(0,len(self.layers)):
+			tot=tot+self.layers[i].dy
+			if tot>=y:
+				return i
+
+		return -1
+
+	def device_mask(self,x,y,z):
+		mesh=get_mesh()
+		#1D case
+		if mesh.x.points==1 and mesh.z.points==1:
+			return True
+
+		#check for contact
+		layer=self.get_layer_by_cordinate(y)
+		l=self.layers[layer]
+
+		if l.layer_type=="contact" and layer==0:
+			for c in self.contacts.contacts:
+				if c.position=="top":
+					s=c.shape
+					if x>=s.x0 and x<=s.x0+s.dx:
+						return True
+			return False
+		return True
+
 	def reload_shapes(self):
-		for a in epi.layers:
+		for a in self.layers:
 			for s in a.shapes:
 				print(s.file_name)
 				s.load(s.file_name)
@@ -445,46 +484,30 @@ class epitaxy():
 
 	def load(self,path):
 		self.layers=[]
-
-		lines=[]
-
-		lines=inp_load_file(os.path.join(path,"epitaxy.inp"))
+		f=inp()
 
 		y_pos=0.0
-		if lines!=False:
-			#compat layer for 
-			ver=float(inp_search_token_value(lines,"#ver"))
+		if f.load(os.path.join(path,"epitaxy.inp"))!=False:
 
-			pos=0
-			pos=pos+1
+			number_of_layers=int(f.get_next_val())
 
-			for i in range(0, int(lines[pos])):
+			for i in range(0, number_of_layers):
 				a=epi_layer()
-				pos=pos+1		#token
-				pos=pos+1
-				a.name=lines[pos]
 
-				pos=pos+1		#token
-				pos=pos+1
-				a.dy=float(lines[pos])
+				a.name=f.get_next_val()
+				a.layer_type=f.get_next_val()
 
-				pos=pos+1		#token
-				pos=pos+1
-				lines[pos]=lines[pos].replace("\\", "/")
-				a.set_mat_file(lines[pos])
+				a.dy=float(f.get_next_val())
 
-				pos=pos+1		#token
-				pos=pos+1
-				a.electrical_layer=lines[pos]		#value
+				temp=f.get_next_val().replace("\\", "/")
+				a.set_mat_file(temp)
 
-				pos=pos+1		#token
-				pos=pos+1
-				a.pl_file=lines[pos]		#value
+				a.dos_file=f.get_next_val()
 
+				a.pl_file=f.get_next_val()
 
-				pos=pos+1		#token
-				pos=pos+1
-				temp=lines[pos]		#value
+				#shape
+				temp=f.get_next_val()		#value
 				if temp=="none":
 					a.shapes=[]
 				else:
@@ -494,20 +517,21 @@ class epitaxy():
 						my_shape.load(s)
 						a.shapes.append(my_shape)
 
-				pos=pos+1		#token
-				pos=pos+1
-				a.lumo_file=lines[pos]		#value
+				#lumo
+				a.lumo_file=f.get_next_val()
 
-				pos=pos+1		#token
-				pos=pos+1
-				a.homo_file=lines[pos]		#value
+				#lumo
+				a.homo_file=f.get_next_val()
+
+				#lumo
+				a.electrical_file=f.get_next_val()
 
 				a.start=y_pos
 
 				y_pos=y_pos+a.dy
 
 				a.end=y_pos
-				epi.layers.append(a)
+				self.layers.append(a)
 
 			self.contacts.load()
 
@@ -522,7 +546,7 @@ class epitaxy():
 				if s.file_name==input_file:
 					return i
 
-			if l.electrical_layer==input_file:
+			if l.dos_file==input_file:
 				return i
 
 			if l.homo_file==input_file:
@@ -534,22 +558,34 @@ class epitaxy():
 		return False
 
 	def get_layer_end(self,l):
-		global epi
 
 		pos=0.0
 		for i in range(0, l+1):
-			pos=pos+epi.layers[i].dy
+			pos=pos+self.layers[i].dy
 
 		return pos
 
 	def get_layer_start(self,l):
-		global epi
 
 		pos=0.0
 		for i in range(0, l):
-			pos=pos+epi.layers[i].dy
+			pos=pos+self.layers[i].dy
 
 		return pos
+
+	def get_device_start(self):
+		if get_mesh().y.circuit_model==True:
+			return 0.0
+
+		pos=0.0
+		for i in range(0, len(self.layers)):
+			if self.layers[i].dos_file.startswith("dos")==True:
+				return pos
+
+			pos=pos+self.layers[i].dy
+
+		return None
+
 
 epi=epitaxy()
 
@@ -559,7 +595,7 @@ def epitay_get_next_dos_layer(layer):
 	global epi
 	layer=layer+1
 	for i in range(layer,len(epi.layers)):
-		if epi.layers[i].electrical_layer.startswith("dos")==True:
+		if epi.layers[i].dos_file.startswith("dos")==True:
 			return i
 
 
@@ -587,23 +623,12 @@ def epitaxy_get_dos_files():
 	global epi
 	dos_file=[]
 	for i in range(0,len(epi.layers)):
-		if epi.layers[i].electrical_layer.startswith("dos")==True:
-			dos_file.append(epi.layers[i].electrical_layer)
+		if epi.layers[i].dos_file.startswith("dos")==True:
+			dos_file.append(epi.layers[i].dos_file)
 
 	return dos_file
 
-def epitaxy_get_device_start():
-	global epi
 
-	pos=0.0
-	for i in range(0, len(epi.layers)):
-		if epi.layers[i].electrical_layer.startswith("dos")==True:
-			return pos
-
-		pos=pos+epi.layers[i].dy
-
-	return None
-	
 def epitaxy_get_layers():
 	global epi
 	return len(epi.layers)
@@ -622,11 +647,8 @@ def epitaxy_get_pl_file(i):
 
 def epitaxy_get_dos_file(i):
 	global epi
-	return epi.layers[i].electrical_layer
+	return epi.layers[i].dos_file
 
-def epitaxy_get_electrical_file(i):
-	global epi
-	return "electrical"+epi.layers[i].electrical_layer[3:]
 
 def epitaxy_get_name(i):
 	global epi

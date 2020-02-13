@@ -220,8 +220,7 @@ def half_cyl(x0,y0,z0,dx,dy0,dz,name="name"):
 		glEnd()
 
 
-def box(x,y,z,w,h,d,r,g,b,alpha,name="box"):
-	gl_save_add("box",x,y,z,[w,h,d,r,g,b,alpha])
+def box(x,y,z,w,h,d,r,g,b,alpha,name=["box"]):
 	red=r
 	green=g
 	blue=b

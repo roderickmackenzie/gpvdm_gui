@@ -94,7 +94,7 @@ class gl_layer_editor():
 		epi=get_epi()
 		pos=self.selected_layer[len("layer:"):]
 		#print(pos)
-		epi.add_layer(pos=pos)
+		epi.add_new_layer(pos=pos)
 		epi.save()
 		
 	def layer_move_down(self):

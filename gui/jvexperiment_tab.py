@@ -69,8 +69,7 @@ class jvexperiment_tab(QTabWidget):
 
 
 
-		tab=tab_class()
-		tab.init(self.file_name,_("Configure"))
+		tab=tab_class(self.file_name)
 		self.addTab(tab,_("Configure"))
 
 

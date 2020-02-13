@@ -95,6 +95,7 @@ class progress_base():
 		self.draw()
 
 	def stop(self):
+		return
 		print("stop")
 
 	def set_text(self,text):

@@ -1,4 +1,4 @@
-# 
+#
 #   General-purpose Photovoltaic Device Model - a drift diffusion base/Shockley-Read-Hall
 #   model for 1st, 2nd and 3rd generation solar cells.
 #   Copyright (C) 2012-2017 Roderick C. I. MacKenzie r.c.i.mackenzie at googlemail.com
@@ -19,7 +19,7 @@
 #   with this program; if not, write to the Free Software Foundation, Inc.,
 #   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
-# 
+#
 
 ## @package dim_editor
 #  A window to edit the dimentions of the device.
@@ -37,7 +37,7 @@ from global_objects import global_object_get
 from help import help_window
 
 #inp
-from inp import inp_isfile
+from inp import inp
 from inp import inp_copy_file
 from inp import inp_update_token_value
 from inp import inp_load_file
@@ -48,11 +48,6 @@ from inp import inp_remove_file
 from gui_util import yes_no_dlg
 from error_dlg import error_dlg
 
-#mesh
-from mesh import mesh_get_xlen
-from mesh import mesh_get_zlen
-from mesh import mesh_set_xlen
-from mesh import mesh_set_zlen
 
 #qt
 from PyQt5.QtCore import QSize, Qt
@@ -81,9 +76,7 @@ from QWidgetSavePos import QWidgetSavePos
 
 from epitaxy_mesh_update import epitaxy_mesh_update
 
-from mesh import mesh_get_xmesh
-from mesh import mesh_get_ymesh
-from mesh import mesh_get_zmesh
+from mesh import get_mesh
 
 class dim_editor(QWidgetSavePos):
 
@@ -110,9 +103,9 @@ class dim_editor(QWidgetSavePos):
 
 		self.help = QAction(icon_get("internet-web-browser"), _("Help"), self)
 		self.toolbar.addAction(self.help)
-		
+
 		self.main_vbox.addWidget(self.toolbar)
-	
+
 		self.widget0 = QWidget()
 		self.widget0_hbox=QHBoxLayout()
 		self.widget0.setLayout(self.widget0_hbox)
@@ -121,7 +114,7 @@ class dim_editor(QWidgetSavePos):
 		self.widget0_hbox.addWidget(self.widget0_label)
 
 		self.widget0_edit=QLineEdit()
-		self.widget0_edit.setText(str(mesh_get_xlen()))
+		self.widget0_edit.setText(str(get_mesh().get_xlen()))
 		self.widget0_edit.textChanged.connect(self.apply)
 		self.widget0_hbox.addWidget(self.widget0_edit)
 		self.widget0_label=QLabel("m")
@@ -135,14 +128,14 @@ class dim_editor(QWidgetSavePos):
 		self.widget1_label=QLabel("z size")
 		self.widget1_hbox.addWidget(self.widget1_label)
 		self.widget1_edit=QLineEdit()
-		self.widget1_edit.setText(str(mesh_get_zlen()))
+		self.widget1_edit.setText(str(get_mesh().get_zlen()))
 		self.widget1_edit.textChanged.connect(self.apply)
 		self.widget1_hbox.addWidget(self.widget1_edit)
 		self.widget1_label=QLabel("m")
 		self.widget1_hbox.addWidget(self.widget1_label)
 		self.main_vbox.addWidget(self.widget1)
 
-		
+
 		#self.tab.itemSelectionChanged.connect(self.callback_tab_selection_changed)
 
 
@@ -158,7 +151,7 @@ class dim_editor(QWidgetSavePos):
 				return
 		except:
 			return
-		mesh_set_xlen(val)
+		get_mesh().set_xlen(val)
 
 		try:
 			val=float(self.widget1_edit.text())
@@ -167,13 +160,11 @@ class dim_editor(QWidgetSavePos):
 
 		except:
 			return
-		mesh_set_zlen(val)
 
-		mesh=mesh_get_xmesh()
-		mesh.save()
+		get_mesh().set_zlen(val)
 
-		mesh=mesh_get_zmesh()
-		mesh.save()
+		get_mesh().x.save()
+		get_mesh().z.save()
 
 		global_object_run("mesh_update")
 		global_object_run("gl_force_redraw")

@@ -61,8 +61,7 @@ class inp():
 		self.lines=[]
 		self.pos=-1
 
-	def load(self,file_path,archive="sim.gpvdm",mode="l"):
-		"""load file"""
+	def set_file_name(self,file_path,archive="sim.gpvdm",mode="l"):
 		if file_path==None:
 			return False
 
@@ -72,8 +71,59 @@ class inp():
 
 		self.file_name=os.path.basename(file_name)
 
+	def load(self,file_path,archive="sim.gpvdm",mode="l"):
+		self.set_file_name(file_path,archive=archive,mode=mode)
+
 		self.lines=read_lines_from_archive(self.zip_file_path,self.file_name,mode=mode)
 		return self.lines
+
+	def isfile(self,file_path,archive="sim.gpvdm"):
+		file_name=default_to_sim_path(file_path)
+		
+		self.zip_file_name=search_zip_file(file_name,archive)
+
+		return archive_isfile(self.zip_file_name,os.path.basename(file_name))
+
+	def to_sections(self,start="#layers"):
+		self.pos=-1
+		seg_len=0
+		tokens={}
+
+		while(1):
+			token,val=self.get_next_token_and_val()
+			if seg_len!=0:
+				if token==False:
+					break
+				if token.startswith(start)==True or token=="#ver" or token=="#end":
+					break
+			token=token.rstrip('1234567890').lstrip("#")
+			if token[-1]=="_":
+				token=token[:-1]
+			tokens.update([ (token, 0) ])
+			seg_len=seg_len+1
+
+		#print(tokens)
+		section_object = type("section_object",(), tokens)
+
+		self.sections=[]
+		self.pos=-1
+		seg_pos=0
+		sec=section_object()
+		while(1):
+			token,val=self.get_next_token_and_val()
+			#print(token)
+			if token=="#end" or token==False:
+				break
+			token=token.rstrip('1234567890').lstrip("#")
+			if token[-1]=="_":
+				token=token[:-1]
+
+			setattr(sec, token, val)
+			seg_pos=seg_pos+1
+			if seg_pos==seg_len:
+				seg_pos=0
+				self.sections.append(sec)
+				sec=section_object()
 
 	def get_token(self,token):
 		if self.lines==False:
@@ -94,18 +144,34 @@ class inp():
 			return False
 
 		replaced=False
-		for i in range(0, len(self.lines)):
-			if self.lines[i]==token:
-				if i+1<len(self.lines):
-					self.lines[i+1]=replace
-					replaced=True
-					break
+		if type(replace)==str:
+			for i in range(0, len(self.lines)):
+				if self.lines[i]==token:
+					if i+1<len(self.lines):
+						self.lines[i+1]=replace
+						replaced=True
+						break
+
+		if type(replace)==list:
+			ret=[]
+			i=0
+			while(i<len(self.lines)):
+				ret.append(self.lines[i])
+				if self.lines[i]==token:
+					for r in replace:
+						ret.append(r)
+					for ii in range(i+1,len(self.lines)):
+						if self.lines[ii].startswith("#")==True:
+							i=ii-1
+							break
+				i=i+1
+
+			self.lines=ret
 
 		return replaced
 
 	def save(self):
 		"""Write save lines to a file"""
-
 		ret= write_lines_to_archive(self.zip_file_path,self.file_name,self.lines)
 		return ret
 
@@ -122,6 +188,19 @@ class inp():
 
 	def delete(self):
 		zip_remove_file(self.zip_file_path,self.file_name)
+
+	def get_next_token_and_val(self):
+		ret=[]
+		self.pos=self.pos+1
+		if self.pos>=len(self.lines):
+			return False,False
+		ret.append(self.lines[self.pos])
+
+		self.pos=self.pos+1
+		if self.pos>=len(self.lines):
+			return False,False
+		ret.append(self.lines[self.pos])
+		return ret[0],ret[1]
 
 	def get_next_val(self):
 		self.pos=self.pos+1
@@ -150,6 +229,37 @@ class inp():
 				return True
 
 		return False
+
+	def time(self):
+		full_file_name=default_to_sim_path(self.file_name)
+
+		if os.path.isfile(full_file_name):
+			return os.path.getmtime(full_file_name)
+
+		if os.path.isfile(self.zip_file_path):
+			return archive_get_file_time(self.zip_file_path,os.path.basename(self.file_name))
+
+		return -1
+
+	def get_next_token_array(self):
+		"""Get the next token as an array"""
+		values=[]
+		if self.pos>=len(self.lines):
+			return None
+
+		self.pos=self.pos+1
+		token=self.lines[self.pos]
+
+		for i in range(self.pos+1,len(self.lines)):
+
+			if len(self.lines[i])>0:
+				if self.lines[i][0]=="#":
+					break
+
+			values.append(self.lines[i])
+			self.pos=self.pos+1				
+
+		return token,values
 
 callbacks=[]
 class callback_data():
@@ -435,25 +545,6 @@ def inp_update_token_value(file_path, token, replace,archive="sim.gpvdm",id=""):
 
 	return True
 
-def inp_getmtime(file_path,archive="sim.gpvdm"):
-	file_name=default_to_sim_path(file_path)
-
-	if os.path.isfile(file_name):
-		return os.path.getmtime(file_name)
-
-	zip_file_name=os.path.join(os.path.dirname(file_name),archive)
-
-	if os.path.isfile(zip_file_name):
-		return archive_get_file_time(zip_file_name,os.path.basename(file_name))
-
-	return False
-
-def inp_isfile(file_path,archive="sim.gpvdm"):
-	file_name=default_to_sim_path(file_path)
-	
-	zip_file_name=os.path.join(os.path.dirname(file_name),archive)
-	return archive_isfile(zip_file_name,os.path.basename(file_name))
-
 def inp_copy_file(dest,src):
 	lines=[]
 	lines=inp_load_file(src)
@@ -541,23 +632,6 @@ def inp_new_file():
 	return ret
 
 
-def inp_get_next_token_array(lines,start):
-	"""Get the next token"""
-	ret=[]
-	if start>=len(lines):
-		return None,start
-
-	for i in range(start,len(lines)):
-		if i!=start:
-			if len(lines[i])>0:
-				if lines[i][0]=="#":
-					break
-
-		ret.append(lines[i])
-			
-
-	return ret,i
-
 
 def inp_search_token_array(lines, token):
 	"""Get an array of data assosiated with a token"""
@@ -635,3 +709,20 @@ def inp_get_file_ver(archive,file_name):
 		return ""
 
 	return ver
+
+def inp_get_next_token_array(lines,start):
+	"""Get the next token"""
+	ret=[]
+	if start>=len(lines):
+		return None,start
+
+	for i in range(start,len(lines)):
+		if i!=start:
+			if len(lines[i])>0:
+				if lines[i][0]=="#":
+					break
+
+		ret.append(lines[i])
+			
+
+	return ret,i

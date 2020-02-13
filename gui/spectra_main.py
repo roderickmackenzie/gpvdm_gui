@@ -125,8 +125,7 @@ class spectra_main(QWidgetSavePos):
 		self.notebook.addTab(self.alpha,_("Absorption"))
 
 		for i in range(0,len(files)):
-			tab=tab_class()
-			tab.init(os.path.join(self.path,files[i]),description[i])
+			tab=tab_class(os.path.join(self.path,files[i]))
 			self.notebook.addTab(tab,description[i])
 
 

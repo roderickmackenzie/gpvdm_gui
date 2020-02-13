@@ -105,7 +105,7 @@ class layer_widget(QWidgetSavePos):
 		epi=get_epi()
 		for i in range(0,self.tab.rowCount()):
 			epi.update_layer_type(i,self.tab.get_value(i,3).lower())
-			self.tab.set_value(i,4,epi.layers[i].electrical_layer)
+			self.tab.set_value(i,4,epi.layers[i].dos_file)
 			self.tab.set_value(i,5,epi.layers[i].pl_file)
 			self.tab.set_value(i,6,epi.layers[i].homo_file)
 			self.tab.set_value(i,7,epi.layers[i].lumo_file)
@@ -192,7 +192,7 @@ class layer_widget(QWidgetSavePos):
 		epi=get_epi()
 		i=0
 		for l in epi.layers:
-			self.add_row(i,l.dy,l.mat_file,l.electrical_layer,l.pl_file,l.name,l.lumo_file,l.homo_file)
+			self.add_row(i,l.dy,l.mat_file,l.dos_file,l.pl_file,l.name,l.lumo_file,l.homo_file)
 			i=i+1
 
 		self.tab.blockSignals(False)
@@ -200,11 +200,11 @@ class layer_widget(QWidgetSavePos):
 	def add_row(self,i,thick,material,dos_layer,pl_file,name,lumo_file,homo_file):
 
 		self.tab.blockSignals(True)
-
+		
 		dos_file=""
 		
 		if dos_layer.startswith("dos")==True:
-			dos_file="active layer"
+			dos_file="active"
 		else:
 			dos_file=dos_layer
 
@@ -224,7 +224,7 @@ class layer_widget(QWidgetSavePos):
 		combobox_layer_type = QComboBoxLang()
 
 		combobox_layer_type.addItemLang("contact",_("contact"))
-		combobox_layer_type.addItemLang("active layer",_("active layer"))
+		combobox_layer_type.addItemLang("active",_("active layer"))
 		combobox_layer_type.addItemLang("other",_("other"))
 
 		self.tab.setCellWidget(i,3, combobox_layer_type)
@@ -267,10 +267,10 @@ class layer_widget(QWidgetSavePos):
 
 	def on_add_item_clicked(self):
 		row=self.tab.insert_row()
-		print(row)
 		epi=get_epi()
-		a=epi.add_layer(pos=row)
-		self.add_row(row,str(a.width),a.mat_file,a.electrical_layer,a.pl_file,a.name,a.lumo_file,a.homo_file)
+		a=epi.add_new_layer(pos=row)
+		self.add_row(row,str(a.dy),a.mat_file,a.dos_file,a.pl_file,a.name,a.lumo_file,a.homo_file)
+		epi.update_layer_type(row,self.tab.get_value(row,3).lower())
 		epi.save()
 		#self.emit_change()
 		return

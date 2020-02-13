@@ -26,7 +26,7 @@
 #
 
 import os
-
+from math import pi,acos,sin,cos
 
 class vec():
 	def __init__(self):
@@ -45,18 +45,30 @@ class vec():
 		return a
 
 	def __add__(self,data):
-		a=vec()
-		a.x=self.x+data.x
-		a.y=self.y+data.y
-		a.z=self.z+data.z
+		if type(data)==vec:
+			a=vec()
+			a.x=self.x+data.x
+			a.y=self.y+data.y
+			a.z=self.z+data.z
+		if type(data)==float or type(data)==int:
+			a=vec()
+			a.x=self.x+data
+			a.y=self.y+data
+			a.z=self.z+data
 		return a
 
 	def __truediv__(self,data):
 		if type(data)==vec:
 			a=vec()
-			a.x=self.x/data.x
-			a.y=self.y/data.y
-			a.z=self.z/data.z
+			if data.x!=0:
+				a.x=self.x/data.x
+
+			if data.y!=0:
+				a.y=self.y/data.y
+
+			if data.z!=0:
+				a.z=self.z/data.z
+
 		if type(data)==float:
 			a=vec()
 			a.x=self.x/data
@@ -71,7 +83,16 @@ class vec():
 		a.y=self.y*data.y
 		a.z=self.z*data.z
 		return a
-		
+	
+	def rotate(self,theta):
+		theta_rad=(theta/360.0)*2*3.14159
+		print()
+		a=vec()
+		a.x=self.x*cos(theta_rad)-self.y*sin(theta_rad)
+		a.y=self.x*sin(theta_rad)+self.y*cos(theta_rad)
+		a.z=0.0
+		return a
+
 
 class triangle():
 	def __init__(self):

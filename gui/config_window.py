@@ -1,4 +1,4 @@
-# 
+#
 #   General-purpose Photovoltaic Device Model - a drift diffusion base/Shockley-Read-Hall
 #   model for 1st, 2nd and 3rd generation solar cells.
 #   Copyright (C) 2012-2017 Roderick C. I. MacKenzie r.c.i.mackenzie at googlemail.com
@@ -19,7 +19,7 @@
 #   with this program; if not, write to the Free Software Foundation, Inc.,
 #   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
-# 
+#
 
 ## @package config_window
 #  Configuration window.
@@ -29,7 +29,7 @@ import os
 from icon_lib import icon_get
 
 #qt
-from PyQt5.QtCore import QSize, Qt 
+from PyQt5.QtCore import QSize, Qt
 from PyQt5.QtWidgets import QWidget,QVBoxLayout,QToolBar,QSizePolicy,QAction,QTabWidget
 from PyQt5.QtGui import QPainter,QIcon
 
@@ -42,7 +42,7 @@ from tab import tab_class
 from PyQt5.QtCore import pyqtSignal
 from global_objects import global_object_run
 
-from inp import inp_isfile
+from inp import inp
 
 from cal_path import get_sim_path
 from QWidgetSavePos import QWidgetSavePos
@@ -57,11 +57,11 @@ mesh_articles = []
 class class_config_window(QWidgetSavePos):
 
 	changed = pyqtSignal()
-	
+
 	def callback_tab_changed(self):
 		self.changed.emit()
 		global_object_run("ribbon_configure_dump_refresh")
-	
+
 	def __init__(self):
 		QWidgetSavePos.__init__(self,"config_window")
 		self.files=[]
@@ -74,8 +74,8 @@ class class_config_window(QWidgetSavePos):
 		self.setFixedSize(900, 600)
 		self.setWindowIcon(icon_get("preferences-system"))
 
-		self.setWindowTitle(_("Configure")+" (https://www.gpvdm.com)") 
-		
+		self.setWindowTitle(_("Configure")+" (https://www.gpvdm.com)")
+
 
 		self.main_vbox = QVBoxLayout()
 
@@ -93,7 +93,7 @@ class class_config_window(QWidgetSavePos):
 
 		self.main_vbox.addWidget(self.toolbar)
 
-		
+
 
 		self.notebook = QTabWidget()
 		css_apply(self.notebook,"tab_default.css")
@@ -103,16 +103,15 @@ class class_config_window(QWidgetSavePos):
 
 		for i in range(0,len(self.files)):
 			file_name=os.path.join(get_sim_path(),self.files[i])
-			if inp_isfile(file_name)==True:
-				tab=tab_class()
-				tab.init(file_name,self.description[i])
+			if inp().isfile(file_name)==True:
+				tab=tab_class(file_name)
 				self.notebook.addTab(tab,self.description[i])
 				if os.path.basename(file_name)=="dump.inp":
 					tab.changed.connect(self.callback_tab_changed)
-					
+
 					self.detailed_file_select=dump_select()
 					self.notebook.addTab(self.detailed_file_select,_("Detailed dump control"))
-		
+
 
 		self.setLayout(self.main_vbox)
 

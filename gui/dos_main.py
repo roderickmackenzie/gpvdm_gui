@@ -28,11 +28,8 @@
 import os
 from tab_base import tab_base
 from tab import tab_class
-from epitaxy import epitaxy_get_layers
-from epitaxy import epitaxy_get_dos_file
-from epitaxy import epitaxy_get_electrical_file
 from global_objects import global_object_register
-from epitaxy import epitaxy_get_name
+from epitaxy import get_epi
 
 #qt5
 from PyQt5.QtWidgets import  QTextEdit, QAction, QApplication
@@ -47,8 +44,10 @@ from icon_lib import icon_get
 
 from css import css_apply
 
-from inp import inp_get_token_value
+from inp import inp
+
 from cal_path import get_sim_path
+from newton_solver import newton_solver_get_type
 
 class dos_main(QWidget,tab_base):
 
@@ -97,29 +96,25 @@ class dos_main(QWidget,tab_base):
 	def update(self):
 		self.notebook.clear()
 		fulle_sim=True
-		sim_type=inp_get_token_value(os.path.join(get_sim_path(),"math.inp"), "#newton_name")
+		sim_type=newton_solver_get_type()
 		if sim_type=="newton_simple":
 			fulle_sim=False
+		epi=get_epi()
+		for l in epi.layers:
+			if fulle_sim==True:
+				if l.dos_file.startswith("dos")==True:
+					
+						name="DoS of "+l.name
 
-		for i in range(0,epitaxy_get_layers()):
-			dos_file=epitaxy_get_dos_file(i)
+						widget=tab_class(l.dos_file+".inp")
 
-			if dos_file.startswith("dos")==True:
-				if fulle_sim==True:
-					name="DoS of "+epitaxy_get_name(i)
+						self.notebook.addTab(widget,name)
+			else:
+				name="Electrical "+l.name
 
-					widget=tab_class()
-					widget.init(dos_file+".inp",name)
+				widget=tab_class(l.electrical_file+".inp")
 
-					self.notebook.addTab(widget,name)
-				else:
-					electrical_file=epitaxy_get_electrical_file(i)
-					name="Electrical "+epitaxy_get_name(i)
-
-					widget=tab_class()
-					widget.init(electrical_file+".inp",name)
-
-					self.notebook.addTab(widget,name)
+				self.notebook.addTab(widget,name)
 
 	def help(self):
 		help_window().help_set_help(["tab.png","<big><b>Density of States</b></big>\nThis tab contains the electrical model parameters, such as mobility, tail slope energy, and band gap."])

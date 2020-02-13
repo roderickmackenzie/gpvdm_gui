@@ -31,6 +31,7 @@ from math import fabs
 from cal_path import get_sim_path
 
 from dat_file import dat_file
+from dat_file_math import dat_file_max_min
 
 try:
 	from OpenGL.GL import *
@@ -42,6 +43,10 @@ try:
 	from gl_scale import project_m2screen_x
 	from gl_scale import project_m2screen_y
 	from gl_scale import project_m2screen_z
+	from gl_list import gl_base_object
+	from gl_scale import scale_get_xmul
+	from gl_scale import scale_get_ymul
+	from gl_scale import scale_get_zmul
 
 except:
 	pass
@@ -51,14 +56,16 @@ except:
 def draw_mode(x,y,z,z_size):
 	glLineWidth(5)
 	set_color(1.0, 1.0, 1.0,"mode")
-	glBegin(GL_LINES)
+
 	t=[]
 	s=[]
 
 	data=dat_file()
 			
 	path=os.path.join(get_sim_path(),"optical_output","light_1d_photons_tot_norm.dat")
+
 	if data.load(path)==True:
+		glBegin(GL_LINES)
 		array_len=data.y_len
 		s=data.data[0][0]
 		s.reverse()
@@ -68,32 +75,94 @@ def draw_mode(x,y,z,z_size):
 			glVertex3f(x, y+(z_size*(i-1)/array_len), z-s[i-1]*0.5)
 			glVertex3f(x, y+(z_size*i/array_len), z-s[i]*0.5)
 
-	glEnd()
+		glEnd()
 
 
-def graph(x0,y0,z0,w,h,graph_data):
-	xpoints=graph_data.x_len
-	ypoints=graph_data.y_len-1
-	
-	if xpoints>0 and ypoints>0:
-		
-		dx=w/xpoints
-		dy=h/ypoints
+class gl_graph():
+
+	def draw_graph(self):
+		z=0
+		#for z in range(0,len(self.graph_data.z_scale)):
+		my_max,my_min=dat_file_max_min(self.graph_data)
+
+		if len(self.graph_data.z_scale)==1:
+			zi_list=[0]
+		else:
+			zi_list=[0,len(self.graph_data.z_scale)-1]
 
 		glBegin(GL_QUADS)
 
+		if len(self.graph_data.z_scale)>1:
+			dz=self.graph_data.z_scale[1]-self.graph_data.z_scale[0]
+		else:
+			dz=0.0
 
-		for x in range(0,xpoints):
-			for y in range(0,ypoints):
-				r,g,b=val_to_rgb(graph_data.data[0][x][y]/(graph_data.data_max-graph_data.data_min))
-				glColor4f(r,g,b, 0.7)
-				y_pos0=project_m2screen_y(graph_data.y_scale[y])
-				y_pos1=project_m2screen_y(graph_data.y_scale[y+1])
-				glVertex3f(x0+dx*x,y_pos0, z0)
-				glVertex3f(x0+dx*(x+1),y_pos0, z0)
-				glVertex3f(x0+dx*(x+1),y_pos1, z0)
-				glVertex3f(x0+dx*x, y_pos1, z0) 
+		dx=self.graph_data.x_scale[1]-self.graph_data.x_scale[0]
+		dy=self.graph_data.y_scale[1]-self.graph_data.y_scale[0]
 
+		#front,back
+		for zi in zi_list:
+			for xi in range(0,len(self.graph_data.x_scale)):
+				for yi in range(0,len(self.graph_data.y_scale)):
+					x0=project_m2screen_x(self.graph_data.x_scale[xi])
+					y0=project_m2screen_y(self.graph_data.y_scale[yi])
+					z0=project_m2screen_z(self.graph_data.z_scale[zi])
+					x1=project_m2screen_x(self.graph_data.x_scale[xi]+dx)
+					y1=project_m2screen_y(self.graph_data.y_scale[yi]+dy)
+					z1=project_m2screen_z(self.graph_data.z_scale[zi])
+
+					r,g,b=val_to_rgb(self.graph_data.data[zi][xi][yi]/(my_max-my_min))
+
+					glColor4f(r,g,b, 1.0)
+
+					glVertex3f(x0, y0, z0)
+					glVertex3f(x1, y0, z0)
+					glVertex3f(x1, y1, z0)
+					glVertex3f(x0, y1, z0) 
+
+		if len(self.graph_data.z_scale)==1:
+			glEnd()
+			return
+ 
+		#left,right
+		for xi in [0, len(self.graph_data.x_scale)-1]:
+			for zi in range(0,len(self.graph_data.z_scale)):
+				for yi in range(0,len(self.graph_data.y_scale)):
+					x0=project_m2screen_x(self.graph_data.x_scale[xi])
+					y0=project_m2screen_y(self.graph_data.y_scale[yi])
+					z0=project_m2screen_z(self.graph_data.z_scale[zi])
+					x1=project_m2screen_x(self.graph_data.x_scale[xi])
+					y1=project_m2screen_y(self.graph_data.y_scale[yi]+dy)
+					z1=project_m2screen_z(self.graph_data.z_scale[zi]+dz)
+					r,g,b=val_to_rgb(self.graph_data.data[zi][xi][yi]/(my_max-my_min))
+
+					glColor4f(r,g,b, 1.0)
+
+					glVertex3f(x0, y0, z0)
+					glVertex3f(x0, y1, z0)
+					glVertex3f(x0, y1, z1)
+					glVertex3f(x0, y0, z1)
+
+
+		#top,bottom
+		for yi in [0,len(self.graph_data.y_scale)-1]:
+			for zi in range(0,len(self.graph_data.z_scale)):
+				for xi in range(0,len(self.graph_data.x_scale)):
+					x0=project_m2screen_x(self.graph_data.x_scale[xi])
+					y0=project_m2screen_y(self.graph_data.y_scale[yi])
+					z0=project_m2screen_z(self.graph_data.z_scale[zi])
+					x1=project_m2screen_x(self.graph_data.x_scale[xi]+dx)
+					y1=project_m2screen_y(self.graph_data.y_scale[yi])
+					z1=project_m2screen_z(self.graph_data.z_scale[zi]+dz)
+
+					r,g,b=val_to_rgb((self.graph_data.data[zi][xi][yi]-my_min)/(my_max-my_min))
+
+					glColor4f(r,g,b, 1.0)
+
+					glVertex3f(x0, y0, z0)
+					glVertex3f(x1, y0, z0)
+					glVertex3f(x1, y0, z1)
+					glVertex3f(x0, y0, z1)
 
 		glEnd()
-	
+

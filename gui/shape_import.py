@@ -53,7 +53,6 @@ from ref import ref_window
 from ref import get_ref_text
 from ref_io import ref
 
-from inp import inp_get_token_value
 from triangle_xy_editor import triangle_xy_editor
 from open_save_dlg import open_as_filter
 
@@ -66,6 +65,8 @@ from triangle_io import triangles_get_max
 
 from PyQt5.QtCore import pyqtSignal
 from PIL import Image
+
+from inp import inp
 
 class image_widget(QWidget):
 	changed = pyqtSignal()
@@ -110,10 +111,12 @@ class image_widget(QWidget):
 		d.x_units="m"
 		d.z_units="m"
 		d.data_units="m"
+		d.r=1.0
+		d.g=0.0
+		d.b=0.0
 
 		d.x_len=3
 		d.y_len=len(self.triangles)
-		d.z_len=0
 
 		d.data=[]
 
@@ -134,14 +137,17 @@ class image_widget(QWidget):
 			return
 
 		pixmap = QPixmap(self.image_path)
-		print(">>>>>>>>>>",pixmap)
+
 		self.im=pixmap.toImage()
-		print(os.path.join(self.path,"shape_import.inp"))
-		x_segs=int(inp_get_token_value(os.path.join(self.path,"shape_import.inp"),"#x_trianges"))
-		z_segs=int(inp_get_token_value(os.path.join(self.path,"shape_import.inp"),"#y_trianges"))
+		f=inp()
+		f.load(os.path.join(self.path,"shape_import.inp"))
+		x_segs=int(f.get_token("#x_trianges"))
+		z_segs=int(f.get_token("#y_trianges"))
+
 		dx=self.len_x/x_segs
 		dz=self.len_z/z_segs
 
+		#add top
 		x=0
 		z=0
 		self.triangles=[]
@@ -163,9 +169,9 @@ class image_widget(QWidget):
 				t0.xyz2.x=x+dx
 				t0.xyz2.y=self.len_y*self.get_color(x+dx,z)
 				t0.xyz2.z=z
+				self.triangles.append(t0)
 
 				t1=triangle()
-
 				t1.xyz0.x=x
 				t1.xyz0.y=self.len_y*self.get_color(x,z+dz)
 				t1.xyz0.z=z+dz
@@ -177,20 +183,93 @@ class image_widget(QWidget):
 				t1.xyz2.x=x+dx
 				t1.xyz2.y=self.len_y*self.get_color(x+dx,z)
 				t1.xyz2.z=z
-
-
-
-				self.triangles.append(t0)
 				self.triangles.append(t1)
+
+				if iz==z_segs-1 or iz==0:
+					zadd=0.0
+					if iz==z_segs-1:
+						zadd=dz
+
+					td0=triangle()
+
+					td0.xyz0.x=x
+					td0.xyz0.y=self.len_y*self.get_color(x,z+zadd)
+					td0.xyz0.z=z+zadd
+					
+					td0.xyz1.x=x+dx
+					td0.xyz1.y=self.len_y*self.get_color(x+dx,z+zadd)
+					td0.xyz1.z=z+zadd
+
+					td0.xyz2.x=x
+					td0.xyz2.y=0.0
+					td0.xyz2.z=z+zadd
+					self.triangles.append(td0)
+
+
+					td0=triangle()
+
+					td0.xyz0.x=x+dx
+					td0.xyz0.y=self.len_y*self.get_color(x+dx,z+zadd)
+					td0.xyz0.z=z+zadd
+					
+					td0.xyz1.x=x
+					td0.xyz1.y=0.0
+					td0.xyz1.z=z+zadd
+
+					td0.xyz2.x=x+dx
+					td0.xyz2.y=0.0
+					td0.xyz2.z=z+zadd
+					self.triangles.append(td0)
+
+				if ix==0 or ix==x_segs-1:
+					xadd=0.0
+					if ix==x_segs-1:
+						xadd=dx
+
+					td0=triangle()
+
+					td0.xyz0.x=x+xadd
+					td0.xyz0.y=self.len_y*self.get_color(x+xadd,z)
+					td0.xyz0.z=z
+					
+					td0.xyz1.x=x+xadd
+					td0.xyz1.y=self.len_y*self.get_color(x+xadd,z+dz)
+					td0.xyz1.z=z+dz
+
+					td0.xyz2.x=x+xadd
+					td0.xyz2.y=0.0
+					td0.xyz2.z=z
+					self.triangles.append(td0)
+
+					td1=triangle()
+
+					td1.xyz0.x=x+xadd
+					td1.xyz0.y=self.len_y*self.get_color(x+xadd,z+dz)
+					td1.xyz0.z=z+dz
+					
+					td1.xyz1.x=x+xadd
+					td1.xyz1.y=0
+					td1.xyz1.z=z
+
+					td1.xyz2.x=x+xadd
+					td1.xyz2.y=0.0
+					td1.xyz2.z=z+dz
+					self.triangles.append(td1)
+
 
 				z=z+dz
 			x=x+dx
 
+
+		self.add_base()
+		#self.zero_edges()		#will force edges to zero
+		#self.squaer_sides()
+		#add base
+
+
+	def add_base(self):
 		min=triangles_get_min(self.triangles)
 		max=triangles_get_max(self.triangles)
-
-		delta=max-min
-
 		a=triangle()
 		a.xyz0.x=min.x
 		a.xyz0.y=0
@@ -218,6 +297,14 @@ class image_widget(QWidget):
 		a.xyz2.y=0
 		a.xyz2.z=max.z
 		self.triangles.append(a)
+
+		
+
+
+	def zero_edges(self):
+		#sides
+		min=triangles_get_min(self.triangles)
+		max=triangles_get_max(self.triangles)
 
 		for t in self.triangles:
 			if t.xyz0.x==min.x:

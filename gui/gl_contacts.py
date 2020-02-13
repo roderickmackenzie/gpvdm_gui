@@ -42,7 +42,6 @@ from math import sqrt
 from math import fabs
 from lines import lines_read
 from util import wavelength_to_rgb
-from epitaxy import epitaxy_get_device_start
 from util import isnumber
 from gl_scale import project_m2screen_x
 from gl_scale import project_m2screen_y
@@ -67,12 +66,7 @@ from triangle_io import triangles_mul_vec
 
 from triangle import vec
 
-from mesh import mesh_get_zlen
-from mesh import mesh_get_xlen
-
-from mesh import mesh_get_xmesh
-from mesh import mesh_get_ymesh
-from mesh import mesh_get_zmesh
+from mesh import get_mesh
 
 from triangle_io import triangles_flip_in_box
 
@@ -80,9 +74,9 @@ class gl_contacts():
 
 	def draw_contacts(self):
 		epi=get_epi()
-		y_mesh=mesh_get_ymesh()
-		x_mesh=mesh_get_xmesh()
-		z_mesh=mesh_get_zmesh()
+		y_mesh=get_mesh().y
+		x_mesh=get_mesh().x
+		z_mesh=get_mesh().z
 
 		self.gl_objects_remove_regex("contact")
 
@@ -108,7 +102,7 @@ class gl_contacts():
 					my_vec=vec()
 					my_vec.x=sticking_out_bit/scale_get_xmul()+c.ingress
 					my_vec.y=c.shape.dy
-					my_vec.z=mesh_get_zlen()
+					my_vec.z=get_mesh().get_zlen()
 
 					if c.shape.triangles!=None:
 						a.triangles=scale_trianges_m2screen(triangles_mul_vec(triangles_flip_in_box(c.shape.triangles.data),my_vec))
@@ -120,13 +114,13 @@ class gl_contacts():
 					box=vec()
 					if len(x_mesh.points)==1 and len(z_mesh.points)==1:
 						xstart=project_m2screen_x(0)
-						box.x=mesh_get_xlen()
+						box.x=get_mesh().get_xlen()
 					else:
 						xstart=project_m2screen_x(c.shape.x0)
 						box.x=c.shape.dx
 
 					box.y=epi.layers[0].dy+c.ingress
-					box.z=mesh_get_zlen()
+					box.z=get_mesh().get_zlen()
 
 					a=gl_base_object()
 					a.id=["layer:"+epi.layers[0].name,"contact"]
@@ -150,13 +144,13 @@ class gl_contacts():
 				box=vec()
 				if len(x_mesh.points)==1 and len(z_mesh.points)==1:
 					xstart=project_m2screen_x(0)
-					box.x=mesh_get_xlen()
+					box.x=get_mesh().get_xlen()
 				else:
 					xstart=project_m2screen_x(c.shape.x0)
 					box.x=c.shape.dx
 
 				box.y=epi.layers[len(epi.layers)-1].dy+c.ingress 
-				box.z=mesh_get_zlen()
+				box.z=get_mesh().get_zlen()
 
 				a=gl_base_object()
 				a.id=["layer:"+epi.layers[len(epi.layers)-1].name,"contact"]
@@ -177,7 +171,7 @@ class gl_contacts():
 				my_vec=vec()
 				my_vec.x=c.shape.dx
 				my_vec.y=epi.layers[len(epi.layers)-1].dy
-				my_vec.z=mesh_get_zlen()
+				my_vec.z=get_mesh().get_zlen()
 
 				a.triangles=scale_trianges_m2screen(triangles_mul_vec(triangles_flip_in_box(c.shape.triangles.data),box))
 

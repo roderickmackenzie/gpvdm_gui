@@ -42,7 +42,6 @@ from math import sqrt
 from math import fabs
 from lines import lines_read
 from util import wavelength_to_rgb
-from epitaxy import epitaxy_get_device_start
 from util import isnumber
 from gl_scale import project_m2screen_x
 from gl_scale import project_m2screen_y

@@ -62,10 +62,14 @@ class shape_layer():
 		for x in range(0,s.shape_nx):
 			for z in range(0,s.shape_nz):
 				pos=vec()
-				
-				pos.x=(s.x0+(s.dx+s.dx_padding)*x)
-				pos.y=epi_layer.end+(s.y0-s.dy_padding)
-				pos.z=(s.z0+(s.dz+s.dz_padding)*z)
+				if s.shape_flip_y==True:
+					pos.x=(s.x0+(s.dx+s.dx_padding)*x)
+					pos.y=epi_layer.end-s.dy_padding
+					pos.z=(s.z0+(s.dz+s.dz_padding)*z)
+				else:
+					pos.x=(s.x0+(s.dx+s.dx_padding)*x)
+					pos.y=epi_layer.start+s.dy_padding
+					pos.z=(s.z0+(s.dz+s.dz_padding)*z)
 
 				a=gl_base_object()
 				a.id=[name]
@@ -85,10 +89,13 @@ class shape_layer():
 					a.triangles=triangles_mul_vec(s.triangles.data,v)
 
 					#flip
-					a.triangles=triangles_flip(a.triangles)
+					#print(">>>>>>>>>",s.shape_flip_y)
+					if s.shape_flip_y==True:
+						a.triangles=triangles_flip(a.triangles)
 
 					#move to correct place
 					a.triangles=triangles_add_vec(a.triangles,pos)
+
 
 					#scale to the screen
 					a.triangles=project_trianges_m2screen(a.triangles)

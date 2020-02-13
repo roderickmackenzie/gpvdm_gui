@@ -67,6 +67,7 @@ class tab_main(QWidget,tab_base):
 		self.frame.setMinimumSize(100, 0)
 		mainLayout.addWidget(self.three_d)
 		mainLayout.setStretchFactor ( 1, 1 )
+
 		hbox.addWidget(mainLayout)
 		
 		self.setLayout(hbox)

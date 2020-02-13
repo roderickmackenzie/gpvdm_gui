@@ -102,8 +102,7 @@ class pl_main(QWidget):
  
 				name=_("Luminescence of ")+epitaxy_get_name(i)
 
-				widget=tab_class()
-				widget.init(pl_file+".inp",name)
+				widget=tab_class(pl_file+".inp")
 
 				self.notebook.addTab(widget,name)
 

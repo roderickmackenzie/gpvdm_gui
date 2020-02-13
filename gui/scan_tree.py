@@ -50,6 +50,7 @@ from cal_path import subtract_paths
 from progress_class import progress_class
 from process_events import process_events
 import math
+from util_zip import zip_lsdir
 
 def tree_load_flat_list(sim_dir):
 	config=[]
@@ -156,8 +157,8 @@ def build_scan_tree(program_list):
 
 	return tree_items
 
-def tree_gen(flat_simulation_list,program_list,base_dir,sim_dir):
-	sim_dir=os.path.abspath(sim_dir)	# we are about to traverse the directory structure better to have the abs path
+def tree_gen(output_dir,flat_simulation_list,program_list,base_dir):
+	output_dir=os.path.abspath(output_dir)	# we are about to traverse the directory structure better to have the abs path
 	#print("here",program_list)
 	found_scan=False
 	found_random=False
@@ -172,12 +173,12 @@ def tree_gen(flat_simulation_list,program_list,base_dir,sim_dir):
 		return False
 
 	if found_random==True:
-		tree_gen_random_files(sim_dir,flat_simulation_list,program_list,base_dir)
+		tree_gen_random_files(output_dir,flat_simulation_list,program_list,base_dir)
 		return
 
 	tree_items=build_scan_tree(program_list)			#tree_items[3].append(program_list[i][3])
 
-	ret=tree(flat_simulation_list,program_list,tree_items,base_dir,0,sim_dir,"","")
+	ret=tree(flat_simulation_list,program_list,tree_items,base_dir,0,output_dir,"","")
 
 	return ret
 
@@ -199,7 +200,16 @@ def tree_apply_duplicate(directory,program_list):
 def tree_apply_constant(directory,program_list):
 	for i in range(0, len(program_list)):
 		if program_list[i][3]=="constant":
-			inp_update_token_value(os.path.join(directory,program_list[i][0]), program_list[i][1], program_list[i][2])
+			if program_list[i][0].endswith("*"):
+				search_file=program_list[i][0][:-1]
+				file_list=zip_lsdir(os.path.join(directory,"sim.gpvdm"))
+				#print(directory,file_list)
+				for f in file_list:
+					if f.startswith(search_file)==True:
+						inp_update_token_value(os.path.join(directory,f), program_list[i][1], program_list[i][2])
+						#print(">>> edited",f)
+			else:
+				inp_update_token_value(os.path.join(directory,program_list[i][0]), program_list[i][1], program_list[i][2])
 
 	return True
 

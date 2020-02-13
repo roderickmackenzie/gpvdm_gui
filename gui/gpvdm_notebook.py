@@ -1,4 +1,4 @@
-# 
+#
 #   General-purpose Photovoltaic Device Model - a drift diffusion base/Shockley-Read-Hall
 #   model for 1st, 2nd and 3rd generation solar cells.
 #   Copyright (C) 2012-2017 Roderick C. I. MacKenzie r.c.i.mackenzie at googlemail.com
@@ -19,7 +19,7 @@
 #   with this program; if not, write to the Free Software Foundation, Inc.,
 #   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
-# 
+#
 
 ## @package gpvdm_notebook
 #  The main gpvdm notebook for the main window.
@@ -32,7 +32,7 @@ import random
 #inp files
 from inp import inp_load_file
 from inp import inp_get_next_token_array
-from inp import inp_isfile
+from inp import inp
 from inp import inp_update_token_value
 
 #tabs
@@ -72,11 +72,15 @@ from cal_path import get_sim_path
 from tab_view import tab_view
 
 from css import css_apply
+from inp import inp
+from circuit_editor import circuit_editor
+from display_mesh import display_mesh
+from mesh import get_mesh
 
 class gpvdm_notebook(QTabWidget):
 	item_factory=None
 
-		
+
 	def __init__(self):
 		QWidget.__init__(self)
 		css_apply(self,"tab_default.css")
@@ -85,6 +89,7 @@ class gpvdm_notebook(QTabWidget):
 		self.currentChanged.connect(self.changed_click)
 		global_object_register("notebook_goto_page",self.goto_page)
 		self.state_loaded=False
+
 
 	def update(self):
 		for i in range(0,self.count()):
@@ -107,7 +112,7 @@ class gpvdm_notebook(QTabWidget):
 
 		if self.tabText(self.currentIndex()).strip()==_("Output"):
 			help_window().help_set_help(["dat_file.png",_("<big><b>Output</b></big><br>This shows the root simulation directory, this is where the results are stored.  Double click on a file to see what is in it..")])
-		
+
 	def get_current_page(self):
 		i=self.currentIndex()
 		return self.tabText(i)
@@ -149,6 +154,15 @@ class gpvdm_notebook(QTabWidget):
 			self.tab_main=tab_main()
 			self.addTab(self.tab_main,_("Device structure"))
 
+			mesh=get_mesh()
+			if mesh.y.circuit_model==True or mesh.x.tot_points!=1 or mesh.z.tot_points!=1:
+				self.display_mesh=display_mesh()
+
+				if mesh.y.circuit_model==True:
+					self.addTab(self.display_mesh,_("Circuit diagram"))
+				else:
+					self.addTab(self.display_mesh,_("Electrical mesh"))
+
 			self.update_display_function=self.tab_main.update
 			#self.tab_main.three_d.display.force_redraw()
 
@@ -167,7 +181,7 @@ class gpvdm_notebook(QTabWidget):
 			self.add_info_page()
 			self.goto_page(_("Information"))
 			self.state_loaded=False
-			
+
 	def is_loaded(self):
 		return self.state_loaded
 

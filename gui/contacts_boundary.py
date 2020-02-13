@@ -86,8 +86,7 @@ class contacts_boundary(QWidgetSavePos):
 
 		self.main_vbox.addWidget(self.notebook)
 
-		widget=tab_class()
-		widget.init("device.inp",_("Device"))
+		widget=tab_class("device.inp")
 		self.notebook.addTab(widget,_("Device"))
 
 						

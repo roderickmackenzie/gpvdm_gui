@@ -1,4 +1,4 @@
-# 
+#
 #   General-purpose Photovoltaic Device Model - a drift diffusion base/Shockley-Read-Hall
 #   model for 1st, 2nd and 3rd generation solar cells.
 #   Copyright (C) 2012-2017 Roderick C. I. MacKenzie r.c.i.mackenzie at googlemail.com
@@ -19,7 +19,7 @@
 #   with this program; if not, write to the Free Software Foundation, Inc.,
 #   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
-# 
+#
 
 ## @package order_widget
 #  This is a general toolbar widget to handle sequential files, to make, clone, and delete them.
@@ -44,14 +44,14 @@ import i18n
 _ = i18n.language.gettext
 
 #qt
-from PyQt5.QtCore import QSize, Qt 
+from PyQt5.QtCore import QSize, Qt
 from PyQt5.QtWidgets import QWidget,QVBoxLayout,QToolBar,QSizePolicy,QAction,QTabWidget,QTableWidget,QAbstractItemView, QMenuBar,QTableWidgetItem, QCheckBox
 from PyQt5.QtGui import QPainter,QIcon
 from PyQt5.QtCore import pyqtSignal
 
 from inp import inp_save_lines_to_file
 from inp import inp_load_file
-from inp import inp_isfile
+from inp import inp
 from inp import inp_copy_file
 from inp import inp_update_token_value
 from inp import inp_get_token_value
@@ -96,7 +96,7 @@ class order_widget(QToolBar):
 	def new_filenumber(self):
 		for i in range(0,20):
 			new_filename=self.base_file_name[0]+str(i)+".inp"
-			if inp_isfile(os.path.join(get_sim_path(),new_filename))==False:
+			if inp().isfile(os.path.join(get_sim_path(),new_filename))==False:
 				return str(i)
 		return False
 
@@ -238,7 +238,7 @@ class order_widget(QToolBar):
 
 		if new_sim_name!=None:
 			inp_update_token_value(tab.file_name, self.name_token, new_sim_name+self.postfix)
-			index=self.notebook_pointer.currentIndex() 
+			index=self.notebook_pointer.currentIndex()
 			self.notebook_pointer.setTabText(index, new_sim_name)
 			self.changed.emit()
 
@@ -260,7 +260,7 @@ class order_widget(QToolBar):
 				file_name=b+file_number+".inp"
 				inp_remove_file(os.path.join(get_sim_path(),file_name))
 
-			index=self.notebook_pointer.currentIndex() 
+			index=self.notebook_pointer.currentIndex()
 			self.notebook_pointer.removeTab(index)
 			self.changed.emit()
 

@@ -1,4 +1,4 @@
-# 
+#
 #   General-purpose Photovoltaic Device Model - a drift diffusion base/Shockley-Read-Hall
 #   model for 1st, 2nd and 3rd generation solar cells.
 #   Copyright (C) 2012-2017 Roderick C. I. MacKenzie r.c.i.mackenzie at googlemail.com
@@ -19,7 +19,7 @@
 #   with this program; if not, write to the Free Software Foundation, Inc.,
 #   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
-# 
+#
 
 ## @package ref
 #  Reference manager window.
@@ -30,7 +30,7 @@ from icon_lib import icon_get
 import os
 
 #qt
-from PyQt5.QtCore import QSize, Qt 
+from PyQt5.QtCore import QSize, Qt
 from PyQt5.QtWidgets import QWidget,QVBoxLayout,QHBoxLayout,QToolBar,QSizePolicy,QAction,QTabWidget,QTableWidget,QAbstractItemView,QPushButton
 from PyQt5.QtGui import QPainter,QIcon
 
@@ -41,7 +41,7 @@ from cal_path import get_ui_path
 
 from gpvdm_select import gpvdm_select
 
-from inp import inp_isfile
+from inp import inp
 from inp import inp_get_token_array
 from inp_util import inp_check_ver
 from inp import inp_new_file
@@ -73,7 +73,7 @@ def get_ref_text(file_name,html=True):
 
 		return text
 	return None
-	
+
 class ref_window(QWidgetSavePos):
 	def __init__(self,file_name):
 		"""Pass this the file name of the file you want referenced."""
@@ -82,7 +82,7 @@ class ref_window(QWidgetSavePos):
 		self.file_name=os.path.splitext(file_name)[0]+".ref"
 		self.gen_file()
 		self.setWindowIcon(icon_get("ref"))
-		self.setWindowTitle(_("Reference manager")+" (https://www.gpvdm.com)") 
+		self.setWindowTitle(_("Reference manager")+" (https://www.gpvdm.com)")
 
 		self.vbox=QVBoxLayout()
 
@@ -100,11 +100,10 @@ class ref_window(QWidgetSavePos):
 		self.toolbar.addAction(self.tb_help)
 
 		self.vbox.addWidget(self.toolbar)
-		tab=tab_class()
+		tab=tab_class(self.file_name)
 		tab.icon_file="ref.png"
-		tab.init(self.file_name,_("Reference"))
 		self.vbox.addWidget(tab)
-		
+
 		self.button_widget=QWidget()
 		self.button_hbox=QHBoxLayout()
 		self.button_widget.setLayout(self.button_hbox)
@@ -117,7 +116,7 @@ class ref_window(QWidgetSavePos):
 		self.button_close=QPushButton(_("Close"))
 		self.button_close.clicked.connect(self.callback_close)
 		self.button_hbox.addWidget(self.button_close)
-		self.vbox.addWidget(self.button_widget)		
+		self.vbox.addWidget(self.button_widget)
 		self.setLayout(self.vbox)
 
 	def callback_close(self):
@@ -129,7 +128,7 @@ class ref_window(QWidgetSavePos):
 		if lines!=False:
 			if inp_check_ver(self.file_name, "1.0")==True:
 				make_new=False
-		
+
 		if make_new==True:
 			lines=[]
 			lines.append("#ref_website")
@@ -164,7 +163,7 @@ class ref_window(QWidgetSavePos):
 		ret=inp_get_token_array(self.file_name, self.token)
 		if ret!=False:									#We have found the file and got the token
 			self.ui.text.setText("\n".join(ret))
-		else:	
+		else:
 			self.ui.text.setText(_("New file"))
 
 			if inp_check_ver(self.file_name, "1.0")==True:	#The file exists but there is no token.

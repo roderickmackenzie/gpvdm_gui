@@ -42,9 +42,6 @@ except:
 from PyQt5.QtCore import QTimer
 
 
-#mesh
-from mesh import mesh_get_xlen
-from mesh import mesh_get_zlen
 from epitaxy import get_epi
 
 from gl_scale import set_m2screen

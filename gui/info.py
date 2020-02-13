@@ -87,9 +87,8 @@ class sim_info(QWidgetSavePos):
 
 
 		for i in range(0,len(files)):
-			tab=tab_class()
+			tab=tab_class(files[i])
 			tab.set_edit(False)
-			tab.init(files[i],description[i])
 			self.notebook.addTab(tab,description[i])
 
 		self.setLayout(self.main_vbox)

@@ -97,7 +97,7 @@ class energy_to_charge(QWidget):
 
 	def cal_ev(self):
 		for l in get_epi().layers:
-			file_name=l.electrical_layer+".inp"
+			file_name=l.dos_file+".inp"
 			if file_name.startswith("dos"):
 				f=inp()
 				f.load(file_name)
@@ -109,7 +109,7 @@ class energy_to_charge(QWidget):
 
 	def cal_m3(self):
 		for l in get_epi().layers:
-			file_name=l.electrical_layer+".inp"
+			file_name=l.dos_file+".inp"
 			if file_name.startswith("dos"):
 				f=inp()
 				f.load(file_name)

@@ -65,6 +65,7 @@ from triangle_io import triangles_get_max
 from triangle_io import triangles_div_vec
 from triangle_io import triangles_flip
 from triangle_io import triangles_scale_for_gl
+from triangle_io import triangles_print
 from triangle import vec
 
 
@@ -101,13 +102,10 @@ class shape_editor(QWidgetSavePos):
 			a.r=data.r
 			a.g=data.g
 			a.b=data.b
-			
+
 			a.triangles=triangles_scale_for_gl(data.data)
 			if a.triangles!=False:
 				self.three_d_shape.gl_objects_add(a)
-				#from triangle_io import triangles_print
-				#triangles_print(a.triangles)
-				#print(a.r,a.g,a.b)
 				self.three_d_shape.scene_built=True
 
 	def __init__(self,path):

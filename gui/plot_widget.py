@@ -64,6 +64,7 @@ from dat_file_math import dat_file_max_min
 from dat_file_math import dat_file_sub
 from dat_file_math import dat_file_mul
 from dat_file_math import dat_file_sub_float
+from dat_file_math import dat_file_abs
 from dat_file import dat_file
 from dat_file import read_data_2d
 
@@ -625,11 +626,12 @@ class plot_widget(QWidget):
 			self.force_data_max=False
 			self.force_data_min=False
 
-	def callback_normtoone_y(self):
-		if len(self.data)>0:
-			self.data[0].normalize= not self.data[0].normalize
-			self.norm_data()
-			self.do_plot()
+	def callback_math_opp(self,opp):
+		for i in range(0,len(self.data)):
+			if opp=="abs":
+				dat_file_abs(self.data[i])
+
+		self.do_plot()
 
 	def callback_norm_to_peak_of_all_data(self):
 		if len(self.data)>0:
@@ -765,14 +767,17 @@ class plot_widget(QWidget):
 			self.plot_ribbon.tb_scale_log_y.triggered.connect(self.callback_toggle_log_scale_y)
 			self.plot_ribbon.tb_scale_log_x.triggered.connect(self.callback_toggle_log_scale_x)
 
+			#new way to do math
+			for o in self.plot_ribbon.math_opps:
+				o[0].triggered.connect(lambda: self.callback_math_opp(o[1]))
 
-			self.plot_ribbon.math_subtract_first_point.triggered.connect(self.callback_toggle_subtract_first_point)
-			self.plot_ribbon.math_add_min_point.triggered.connect(self.callback_toggle_add_min)
-			self.plot_ribbon.math_invert_y_axis.triggered.connect(self.callback_toggle_invert_y)
-			self.plot_ribbon.math_norm_y_to_one.triggered.connect(self.callback_normtoone_y)
+			#old way to do math
 			self.plot_ribbon.math_norm_to_peak_of_all_data.triggered.connect(self.callback_norm_to_peak_of_all_data)
 			self.plot_ribbon.math_heat_map.triggered.connect(self.callback_set_heat_map)
 			self.plot_ribbon.math_heat_map_edit.triggered.connect(self.callback_heat_map_edit)
+			self.plot_ribbon.math_subtract_first_point.triggered.connect(self.callback_toggle_subtract_first_point)
+			self.plot_ribbon.math_add_min_point.triggered.connect(self.callback_toggle_add_min)
+			self.plot_ribbon.math_invert_y_axis.triggered.connect(self.callback_toggle_invert_y)
 
 
 			self.main_vbox.addWidget(self.plot_ribbon)

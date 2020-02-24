@@ -54,7 +54,8 @@ endif
 cssdir = $(pkgdatadir)/css
 css_DATA = css/*.css
 
-
+scriptsdir = $(pkgdatadir)/scripts
+scripts_DATA = scripts/*.py
 
 pythondir = $(pkgdatadir)/gui
 python_PYTHON=gui/*.py gui/*.bat

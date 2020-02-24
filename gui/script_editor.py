@@ -60,6 +60,8 @@ from code_editor import code_editor
 
 from inp import inp_load_file
 from inp import inp_save
+from gpvdm_api import gpvdm_api
+import imp
 
 class Highlighter(QSyntaxHighlighter):
 	def __init__(self, parent=None):
@@ -167,12 +169,15 @@ class script_editor(code_editor):
 		inp_save(self.file_name,text)
 
 	def run(self):
-
-		sys.path.insert(1, os.path.dirname(self.file_name))
-		import_name=os.path.splitext(os.path.basename(self.file_name))[0]
-		module=__import__(import_name)
-		importlib.reload(module)
-		module.run()
-		del module
+		print("Running:",self.file_name)
+		mod = imp.load_source("hi",self.file_name)
+		a=mod.gpvdm_plugin(gpvdm_api(verbose=True))
+		del mod
+		#sys.path.insert(1, os.path.dirname(self.file_name))
+		#import_name=os.path.splitext(os.path.basename(self.file_name))[0]
+		#module=__import__(import_name)
+		#importlib.reload(module)
+		#module.run()
+		#del module
 		#os.system("python3 "+self.file_name)
 

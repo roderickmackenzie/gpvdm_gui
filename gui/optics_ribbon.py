@@ -56,6 +56,7 @@ from inp import inp_get_token_value
 from inp import inp_update_token_value
 from cal_path import get_sim_path
 from gui_util import dlg_get_text
+from generation_rate_editor import generation_rate_editor
 
 class mode_button(QAction_lock):
 	def __init__(self,image,text,s,name):
@@ -116,13 +117,8 @@ class ribbon_optical_models(QToolBar):
 		self.set_mode()
 
 	def callback_edit_constant(self):
-		value=inp_get_token_value(os.path.join(get_sim_path(),"light.inp"), "#light_flat_generation_rate")
-
-		value=dlg_get_text( _("Enter the generation rate to be used (m-3 s-1)"), value,"constant_light.png")
-		value=value.ret
-
-		if value!=None:
-			inp_update_token_value(os.path.join(get_sim_path(),"light.inp"), "#light_flat_generation_rate",value)
+		self.generation_rate_editor=generation_rate_editor()
+		self.generation_rate_editor.show()
 
 
 	def set_mode(self):

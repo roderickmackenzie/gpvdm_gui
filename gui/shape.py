@@ -136,7 +136,7 @@ class shape():
 			self.callback()
 
 	def load_triangles(self):
-		print("reload")
+		#print("reload")
 		self.shape_path=os.path.join(get_shape_path(),self.type,"shape.inp")
 		if os.path.isfile(self.shape_path)==True:
 			self.triangles=dat_file()

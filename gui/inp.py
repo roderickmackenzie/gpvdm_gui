@@ -91,11 +91,13 @@ class inp():
 
 		while(1):
 			token,val=self.get_next_token_and_val()
+			#print(token,val)
 			if seg_len!=0:
 				if token==False:
 					break
 				if token.startswith(start)==True or token=="#ver" or token=="#end":
 					break
+			#print(token,val)
 			token=token.rstrip('1234567890').lstrip("#")
 			if token[-1]=="_":
 				token=token[:-1]
@@ -519,8 +521,8 @@ def inp_insert_duplicate(dest_file_path, dest_token, src_file_path, src_token, a
 def inp_update_token_value(file_path, token, replace,archive="sim.gpvdm",id=""):
 	lines=[]
 
-	if token=="#Tll":
-		inp_update_token_value("thermal.inp", "#Tlr", replace,archive)
+	if token=="#Ty0":
+		inp_update_token_value("thermal.inp", "#Ty1", replace,archive)
 		files=inp_lsdir(os.path.join(os.path.dirname(file_path),"sim.gpvdm"))
 		for i in range(0,len(files)):
 			if files[i].startswith("dos") and files[i].endswith(".inp"):

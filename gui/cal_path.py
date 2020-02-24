@@ -53,6 +53,7 @@ materials_base_path=None
 emission_base_path=None
 atmosphere_path=None
 shape_base_path=None
+scripts_base_path=None
 html_path=None
 video_path=None
 cluster_path=None
@@ -241,6 +242,7 @@ def calculate_paths():
 	global materials_base_path
 	global emission_base_path
 	global shape_base_path
+	global scripts_base_path
 	global html_path
 	global video_path
 	global cluster_path
@@ -254,6 +256,7 @@ def calculate_paths():
 	materials_base_path=search_known_paths("materials",[""],None,False)
 	emission_base_path=search_known_paths("emission",[""],None,False)
 	shape_base_path=search_known_paths("shape",[""],None,False)
+	scripts_base_path=search_known_paths("scripts",[""],None,False)
 	atmosphere_path=search_known_paths("atmosphere",[""],None,False)
 
 	device_lib_path=search_known_paths("device_lib",[""],None,False)
@@ -303,6 +306,8 @@ def get_base_spectra_path():
 def get_spectra_path():
 	return os.path.join(get_user_settings_dir(),"spectra")
 
+def get_scripts_path():
+	return os.path.join(get_user_settings_dir(),"scripts")
 
 def get_user_settings_dir():
 	global use_gpvdm_local
@@ -389,6 +394,10 @@ def get_base_emission_path():
 def get_base_shape_path():
 	global shape_base_path
 	return shape_base_path
+
+def get_base_scripts_path():
+	global scripts_base_path
+	return scripts_base_path
 
 
 def get_default_material_path():

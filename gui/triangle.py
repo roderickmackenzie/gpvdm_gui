@@ -35,7 +35,7 @@ class vec():
 		self.z=0.0
 
 	def __str__(self):
-		return "("+str(self.x)+","+str(self.y)+","+str(self.z)+")"
+		return "(x="+str(self.x)+",y="+str(self.y)+",z="+str(self.z)+")"
 
 	def __sub__(self,data):
 		a=vec()
@@ -86,7 +86,7 @@ class vec():
 	
 	def rotate(self,theta):
 		theta_rad=(theta/360.0)*2*3.14159
-		print()
+		#print()
 		a=vec()
 		a.x=self.x*cos(theta_rad)-self.y*sin(theta_rad)
 		a.y=self.x*sin(theta_rad)+self.y*cos(theta_rad)

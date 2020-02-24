@@ -136,6 +136,9 @@ from lock_gui import lock_gui
 
 from epitaxy import get_epi
 from cache import cache
+from cal_path import get_scripts_path
+from cal_path import get_base_scripts_path
+import shutil
 
 def do_import():
 	global new_simulation
@@ -652,6 +655,9 @@ class gpvdm_main_window(QMainWindow):
 
 			if os.path.isdir(get_shape_path())==False:
 				clone_materials(get_shape_path(), get_base_shape_path(),"shape")
+
+			if os.path.isdir(get_scripts_path())==False:
+				shutil.copytree(get_base_scripts_path(), get_scripts_path() ,symlinks=True)
 
 			if os.path.isdir(get_spectra_path())==False:
 				clone_spectras(get_spectra_path())

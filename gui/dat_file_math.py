@@ -30,7 +30,6 @@ import shutil
 import re
 from dat_file import dat_file
 
-
 def dat_file_max_min(my_data,cur_min=None,cur_max=None):
 	my_max=False
 	my_min=False
@@ -80,3 +79,9 @@ def dat_file_mul(my_data,val):
 			for x in range(0,my_data.x_len):
 				for y in range(0,my_data.y_len):
 					my_data.data[z][x][y]*=val
+
+def dat_file_abs(my_data):
+		for z in range(0,my_data.z_len):
+			for x in range(0,my_data.x_len):
+				for y in range(0,my_data.y_len):
+					my_data.data[z][x][y]=abs(my_data.data[z][x][y])

@@ -96,6 +96,16 @@ def triangles_add_vec(data,vec):
 		ret.append(data[i]+vec)
 	return ret
 
+def triangles_remove_below(data,val):
+	ret=[]
+	if len(data)==0:
+		return None
+
+	for i in range(0,len(data)):
+		if data[i].max_y()>val:		
+			ret.append(data[i])
+	return ret
+
 def triangles_div_vec(data,vec):
 	if len(data)==0:
 		return None
@@ -152,6 +162,7 @@ def triangles_print(data):
 def triangles_scale_for_gl(data):
 	if len(data)==0:
 		return False
+
 	min=triangles_get_min(data)
 	ret=triangles_sub_vec(data,min)
 	max=triangles_get_max(ret)

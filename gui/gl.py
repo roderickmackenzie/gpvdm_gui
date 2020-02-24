@@ -161,9 +161,10 @@ from gl_lib_ray import gl_lib_ray
 from gl_contacts import gl_contacts
 from gl_graph import gl_graph
 from gl_draw_circuit import gl_draw_circuit
+from gl_draw_light_profile import gl_draw_light_profile
 
 if open_gl_ok==True:		
-	class glWidget(QGLWidget,shape_layer, gl_lib_ray,gl_objects, gl_text,gl_move_view,gl_mesh,gl_layer_editor,gl_cords,gl_base_widget,gl_main_menu,gl_input, gl_contacts, gl_graph, gl_draw_circuit):
+	class glWidget(QGLWidget,shape_layer, gl_lib_ray,gl_objects, gl_text,gl_move_view,gl_mesh,gl_layer_editor,gl_cords,gl_base_widget,gl_main_menu,gl_input, gl_contacts, gl_draw_light_profile, gl_graph, gl_draw_circuit):
 
 		def __init__(self, parent):
 			QGLWidget.__init__(self, parent)
@@ -203,6 +204,7 @@ if open_gl_ok==True:
 			self.font = QFont("Arial")
 			self.font.setPointSize(15)
 			self.called=False
+			self.enable_light_profile=True
 
 		def optics(self):
 			width=0.02
@@ -552,12 +554,17 @@ if open_gl_ok==True:
 
 			if self.draw_electrical_mesh==True:
 				self.draw_mesh()
+
 			elif self.enable_draw_device==True:
 				self.draw_device2(x,z)
 				self.draw_contacts()
 
 			if self.plot_circuit==True:
 				self.draw_circuit()
+
+			if self.enable_light_profile==True:
+				self.draw_light_profile()
+
 			print("rebuild")
 
 

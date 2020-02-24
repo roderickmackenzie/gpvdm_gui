@@ -623,10 +623,16 @@ class dat_file():
 			if l>0:
 				if s[0].startswith("#")==False:
 					s=list(map(float, s))
-					if s not in build:
-						build.append(s)
+					build.append(s)
+
 
 			if len(build)!=0 and len(s)==0:
+
+				#This is to account for the forth xyz vector required by gnuplot and to remove it if it exists.
+				if len(build)==4:
+					if build[len(build)-1]==build[0]:
+						build=build[:-1]
+
 				if len(build)==3 and len(build[0])==3:
 					t=triangle()
 					t.xyz0.z=build[0][0]

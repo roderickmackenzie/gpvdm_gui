@@ -92,10 +92,10 @@ class ribbon_configure(QToolBar):
 			self.addAction(self.solar)
 
 	def callback_thermal(self):
-		temp=inp_get_token_value("thermal.inp", "#Tll")
+		temp=inp_get_token_value("thermal.inp", "#Ty0")
 		new_temp=dlg_get_text( _("Enter the new temperature"), temp,"thermal.png")
 		if new_temp.ret!=None:
-			inp_update_token_value("thermal.inp", "#Tll", new_temp.ret)
+			inp_update_token_value("thermal.inp", "#Ty0", new_temp.ret)
 			print(new_temp.ret)
 
 	def update(self):

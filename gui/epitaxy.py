@@ -77,6 +77,7 @@ class epi_layer():
 		self.electrical_file="none"
 		self.start=0.0
 		self.end=0.0
+		self.Gnp=0.0
 
 	def set_dy(self,data):
 		if type(data)==float or type(data)==int:

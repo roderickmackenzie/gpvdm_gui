@@ -58,7 +58,6 @@ from server import server_get
 
 from global_objects import global_object_run
 from global_objects import global_object_delete
-from cal_path import get_sim_path
 from QWidgetSavePos import QWidgetSavePos
 
 from script_ribbon import script_ribbon
@@ -68,13 +67,15 @@ from gui_util import yes_no_dlg
 from script_editor import script_editor
 from inp import inp_lsdir
 from gui_util import dlg_get_text
+from cal_path import get_scripts_path
+from os import listdir
 
 class scripts(QWidgetSavePos):
 
 	def __init__(self):
-		QWidgetSavePos.__init__(self,"optics")
+		QWidgetSavePos.__init__(self,"scripts")
 
-		self.setWindowIcon(icon_get("optics"))
+		self.setWindowIcon(icon_get("script"))
 
 		self.setMinimumSize(1000, 600)
 		self.setWindowTitle(_("Script editor")+" (https://www.gpvdm.com)")    
@@ -105,15 +106,15 @@ class scripts(QWidgetSavePos):
 		self.notebook.setMovable(True)
 
 		added=0
-		for f in inp_lsdir("sim.gpvdm"):
+		for f in listdir(get_scripts_path()):
 			if f.endswith(".py"):
-				file_name=os.path.join(get_sim_path(),f)
+				file_name=os.path.join(get_scripts_path(),f)
 				a=script_editor()
 				a.load(file_name)
 				self.notebook.addTab(a,f)
 				added=added+1
 		if added==0:
-			file_name=os.path.join(get_sim_path(),"example.py")
+			file_name=os.path.join(get_scripts_path(),"example.py")
 			self.new_script(file_name)
 			a=script_editor()
 			a.load(file_name)
@@ -146,7 +147,7 @@ class scripts(QWidgetSavePos):
 	def callback_add_page(self):
 		new_sim_name=dlg_get_text( "Add a new script:", "exampe.py","document-new.png")
 		if new_sim_name.ret!=None:
-			name=os.path.join(get_sim_path(),new_sim_name.ret)
+			name=os.path.join(get_scripts_path(),new_sim_name.ret)
 			self.new_script(name)
 			a=script_editor()
 			a.load(name)

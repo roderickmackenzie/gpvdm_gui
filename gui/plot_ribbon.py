@@ -123,6 +123,7 @@ class plot_ribbon(ribbon_base):
 		toolbar.setToolButtonStyle( Qt.ToolButtonTextUnderIcon)
 		toolbar.setIconSize(QSize(42, 42))
 
+		self.math_opps=[]
 		self.math_subtract_first_point = QAction(icon_get("plot_log_x"), _("Subtract first point"), self)
 		toolbar.addAction(self.math_subtract_first_point)
 
@@ -132,8 +133,8 @@ class plot_ribbon(ribbon_base):
 		self.math_invert_y_axis = QAction(icon_get("plot_invert_y"), _("Invert y-axis"), self)
 		toolbar.addAction(self.math_invert_y_axis)
 
-		self.math_norm_y_to_one = QAction(icon_get("plot_log_x"), _("Norm to 1.0 y"), self)
-		toolbar.addAction(self.math_norm_y_to_one)
+		self.math_opps.append([QAction(icon_get("plot_abs"), _("abs(f())"), self),"abs"])
+		toolbar.addAction(self.math_opps[-1][0])
 
 		self.math_norm_to_peak_of_all_data = QAction(icon_get("plot_log_x"), _("Norm to peak of all data"), self)
 		toolbar.addAction(self.math_norm_to_peak_of_all_data)

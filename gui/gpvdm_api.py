@@ -39,6 +39,7 @@ calculate_paths_init()
 calculate_paths()
 
 from server import base_server
+from server import server_get
 from cal_path import get_sim_path
 from progress_class import progress_class
 from spectral2 import spectral2
@@ -112,20 +113,23 @@ class gpvdm_api():
 		else:
 			self.my_server.pipe_to_null=True
 
-		self.my_server.base_server_init(get_sim_path())
-
+		#self.my_server.base_server_init(get_sim_path())
+		self.my_server=server_get()
+		self.my_server.clear_cache()
 		self.scan=api_scan()
 
 		print("gpvdm_api")
 
 	def run(self):
-		#self.dump_optics=inp_get_token_value("dump.inp", "#dump_optics")
-		#self.dump_optics_verbose=inp_get_token_value("dump.inp", "#dump_optics_verbose")
+		self.my_server.start()
 
-		#inp_update_token_value("dump.inp", "#dump_optics","true")
-		#inp_update_token_value("dump.inp", "#dump_optics_verbose","true")
-		#self.my_server.print_jobs()
-		self.my_server.run_now()
+	def add_job(self,path=""):
+		if path=="":
+			path=get_sim_path()
+		else:
+			path=os.path.join(get_sim_path(),path)
+		print("add path>",path)
+		self.my_server.add_job(path,"")
 
 
 	def set_sim_path(self,path):
@@ -149,4 +153,17 @@ class gpvdm_api():
 
 	def get(self,file_name,token):
 		return inp_get_token_value(os.path.join(get_sim_path(),file_name),token)
-	
+
+	def mkdir(self,file_name):
+		if os.path.isdir(file_name)==False:
+			os.mkdir(os.path.join(get_sim_path(),file_name))
+
+	def clone(self,file_name):
+		output_dir=os.path.join(get_sim_path(),file_name)
+		if os.path.isdir(output_dir)==False:
+			os.mkdir(output_dir)
+		for f in os.listdir(get_sim_path()):
+			if f.endswith(".inp") or f.endswith(".gpvdm"):
+				copyfile(os.path.join(get_sim_path(),f), os.path.join(output_dir,f))
+
+

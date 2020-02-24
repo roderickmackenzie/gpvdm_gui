@@ -68,7 +68,7 @@ def build_token_lib():
 
 	lib.append(my_data("light.inp","#Dphotoneff","0-1",_("Photon efficiency"),"e",1.0,"QLineEdit",min=0.001,max=1.2))
 	lib.append(my_data("light.inp","#light_file_qe_spectra","au",_("QE spectra file"),"e",1.0,"QLineEdit"))
-
+	lib.append(my_data("","#light_profile","au",_("Profile of light beam"),"s",1.0,"QComboBoxShape"))
 
 	#laser?.inp
 	lib.append(my_data("","#laserwavelength","m",_("Laser wavelength"),"e",1.0,"QLineEdit"))
@@ -289,8 +289,12 @@ def build_token_lib():
 
 
 	#thermal.inp
-#	lib.append(my_data("","#Tll","Kelvin",_("Device temperature on left"),"e",1.0,"QLineEdit"))
-#	lib.append(my_data("","#Tlr","Kelvin",_("Device temperature on right"),"e",1.0,"QLineEdit"))
+	lib.append(my_data("","#Ty0","Kelvin",_("Device temperature at y_{min}"),"e",1.0,"QLineEdit"))
+	lib.append(my_data("","#Ty1","Kelvin",_("Device temperature at y_{max}"),"e",1.0,"QLineEdit"))
+	lib.append(my_data("","#Tx0","Kelvin",_("Device temperature at x_{min}"),"e",1.0,"QLineEdit"))
+	lib.append(my_data("","#Tx1","Kelvin",_("Device temperature at x_{max}"),"e",1.0,"QLineEdit"))
+	lib.append(my_data("","#Tz0","Kelvin",_("Device temperature at z_{min}"),"e",1.0,"QLineEdit"))
+	lib.append(my_data("","#Tz1","Kelvin",_("Device temperature at z_{max}"),"e",1.0,"QLineEdit"))
 	lib.append(my_data("","#thermal",_("True/False"),_("Enable thermal solver"),"e",1.0,"gtkswitch"))
 	lib.append(my_data("","#thermal_l",_("True/False"),_("Lattice heat model"),"e",1.0,"gtkswitch"))
 	lib.append(my_data("","#thermal_e",_("True/False"),_("Electron heat model"),"e",1.0,"gtkswitch"))

@@ -111,6 +111,7 @@ class scripts(QWidgetSavePos):
 				file_name=os.path.join(get_scripts_path(),f)
 				a=script_editor()
 				a.load(file_name)
+				a.status_changed.connect(self.callback_tab_changed)
 				self.notebook.addTab(a,f)
 				added=added+1
 		if added==0:
@@ -118,6 +119,7 @@ class scripts(QWidgetSavePos):
 			self.new_script(file_name)
 			a=script_editor()
 			a.load(file_name)
+			a.status_changed.connect(self.callback_tab_changed)
 			self.notebook.addTab(a,"example.py")
 
 		self.notebook.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
@@ -151,7 +153,19 @@ class scripts(QWidgetSavePos):
 			self.new_script(name)
 			a=script_editor()
 			a.load(name)
+			a.status_changed.connect(self.callback_tab_changed)
 			self.notebook.addTab(a,os.path.basename(name))
+
+	def callback_tab_changed(self):
+		tab = self.notebook.currentWidget()
+		index=self.notebook.currentIndex() 
+
+		short_name=os.path.basename(tab.file_name)
+
+		if tab.not_saved==True:
+			self.notebook.setTabText(index, "*"+short_name)
+		else:
+			self.notebook.setTabText(index, short_name)
 
 	def closeEvent(self, event):
 		global_object_delete("optics_force_redraw")

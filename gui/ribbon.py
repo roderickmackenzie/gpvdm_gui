@@ -71,6 +71,8 @@ import webbrowser
 from help import help_window
 from lock import get_email
 from lock import get_lock
+from ribbon_thermal import ribbon_thermal
+from ribbon_electrical import ribbon_electrical
 
 class QLabel_click(QLabel):
 	clicked=pyqtSignal()
@@ -91,6 +93,9 @@ class ribbon(ribbon_base):
 		self.information.update()
 		self.home.update()
 		self.ribbon_sim_mode.update()
+		self.thermal.update()
+		#self.electrical.update()
+
 
 	def callback_about_dialog(self):
 		dlg=about_dlg()
@@ -146,10 +151,16 @@ class ribbon(ribbon_base):
 
 		self.configure=ribbon_configure()
 		self.addTab(self.configure,_("Configure"))
-		
+
 		#self.device=ribbon_device()
 		#self.addTab(self.device,_("Device"))
+
+		#self.electrical=ribbon_electrical()
+		#self.addTab(self.electrical,_("Electrical"))
 		
+		self.thermal=ribbon_thermal()
+		self.addTab(self.thermal,_("Thermal"))
+
 		self.database=ribbon_database()
 		self.addTab(self.database,_("Databases"))
 

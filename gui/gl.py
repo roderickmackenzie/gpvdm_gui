@@ -267,17 +267,19 @@ if open_gl_ok==True:
 			else:
 				y=device_top
 
+			dx=scale_get_device_x()
+			dy=scale_get_device_y()
 			if self.suns!=0:
 				if self.suns<=0.01:
-					den=1.4
+					den=dx/5
 				elif self.suns<=0.1:
-					den=0.8
+					den=dx/8
 				elif self.suns<=1.0:
-					den=0.6
+					den=dx/10
 				elif self.suns<=10.0:
-					den=0.3
+					den=dx/20
 				else:
-					den=0.2
+					den=dx/25
 
 				x=np.arange(x0, x0+scale_get_device_x() , den)
 				z=np.arange(z0, z0+scale_get_device_z() , den)
@@ -439,7 +441,7 @@ if open_gl_ok==True:
 				
 			if self.enable_draw_device==True:
 				self.draw_device(x,z)
-				draw_mode(x,y,z,scale_get_device_y())
+				draw_mode()
 
 			if self.view.render_photons==True:
 				self.draw_photons(x,z)

@@ -385,8 +385,8 @@ class plot_widget(QWidget):
 
 #cset = ax.contourf(X, Y, Z, zdir='y', offset=40, cmap=cm.coolwarm)
 		elif self.plot_type=="heat":
-			self.ax[0].set_xlabel(self.data[0].x_label+" ("+self.data[0].x_units+")")
-			self.ax[0].set_ylabel(self.data[0].y_label+" ("+self.data[0].y_units+")")
+			self.ax[0].set_xlabel(self.data[0].y_label+" ("+self.data[0].y_units+")")
+			self.ax[0].set_ylabel(self.data[0].x_label+" ("+self.data[0].x_units+")")
 			my_max,my_min=dat_file_max_min(self.data[0])
 			for i in range(0,len(self.data)):
 				if self.data[i].logdata==True:

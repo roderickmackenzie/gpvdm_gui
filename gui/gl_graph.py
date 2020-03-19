@@ -53,7 +53,7 @@ except:
 
 
 
-def draw_mode(x,y,z,z_size):
+def draw_mode():
 	glLineWidth(5)
 	set_color(1.0, 1.0, 1.0,"mode")
 
@@ -61,19 +61,24 @@ def draw_mode(x,y,z,z_size):
 	s=[]
 
 	data=dat_file()
-			
+	
 	path=os.path.join(get_sim_path(),"optical_output","light_1d_photons_tot_norm.dat")
 
 	if data.load(path)==True:
 		glBegin(GL_LINES)
 		array_len=data.y_len
 		s=data.data[0][0]
-		s.reverse()
 		#print(path)
 		#print(data.data)
 		for i in range(1,array_len):
-			glVertex3f(x, y+(z_size*(i-1)/array_len), z-s[i-1]*0.5)
-			glVertex3f(x, y+(z_size*i/array_len), z-s[i]*0.5)
+			x=project_m2screen_x(0)
+			y=project_m2screen_y(data.y_scale[i-1])
+			z=project_m2screen_z(0)-s[i-1]*0.5
+			glVertex3f(x, y, z)
+
+			y=project_m2screen_y(data.y_scale[i])
+			z=project_m2screen_z(0)-s[i]*0.5
+			glVertex3f(x, y, z)
 
 		glEnd()
 

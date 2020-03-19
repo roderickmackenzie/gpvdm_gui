@@ -33,6 +33,8 @@ from inp import inp_get_token_value
 from str2bool import str2bool
 from inp import inp_load_file
 from cal_path import get_inp_file_path
+from cal_path import get_image_file_path
+from inp import inp
 
 try:
 	from PyQt5.QtWidgets import QMainWindow, QTextEdit, QAction,QApplication,QTableWidgetItem,QComboBox, QMessageBox, QDialog, QDialogButtonBox, QFileDialog
@@ -43,7 +45,7 @@ try:
 	from PyQt5.QtCore import QSize, Qt, QTimer
 	from PyQt5.QtCore import QPersistentModelIndex
 	from QComboBoxLang import QComboBoxLang
-	from PyQt5.QtGui import QIcon
+	from PyQt5.QtGui import QPainter,QIcon
 except:
 	pass
 
@@ -51,102 +53,107 @@ except:
 icon_db=[]
 
 use_theme=None
+class icon:
+	def __init__(self):
+		self.name=[]
+		self.file_name=""
+		self.icon16x16=None
+		self.icon32x32=None
+		self.icon64x64=None
 
-def save_db():
-	global icon_db
-	f=open('icons.inp', 'w')
-	for i in range(0,len(icon_db)):
-		f.write(icon_db[i][0]+'\n'+icon_db[i][1]+'\n')
+class icon_data_base:
+	def __init__(self):
+		self.db=[]
+		self.load()
 
-	f.write('#end\n')
-	f.close()
-
-def icon_find(token):
-	global icon_db
-	for i in range(0,len(icon_db)):
-		if icon_db[i][0]==token:
-			return icon_db[i][2]
-
-	return False
-
-def add_to_db(name,save=False):
-	global icon_db
-	found=False
-	for i in range(0,len(icon_db)):
-		if icon_db[i][1]==name:
-			found=True
-			break
-	if found==False:
-		icon_db.append(["#"+name,name])
-
-		if save==True:
-			save_db()
-
-def QIcon_load(name,size=-1,save=True):
-	global use_theme
-	if use_theme==None:
-		use_theme=inp_get_token_value(os.path.join(os.getcwd(),"config.inp") , "#gui_use_icon_theme")
-		if use_theme==None:
-			use_theme=False
-		else:
+	def load(self):
+		config=inp()
+		config.load(os.path.join(get_inp_file_path(),"config.inp"))
+		use_theme=config.get_token("#gui_use_icon_theme")
+		if use_theme!=False:
 			use_theme=str2bool(use_theme)
-
-	if running_on_linux()==True and use_theme==True:
-		image=QIcon()
-		if image.hasThemeIcon(name)==True:
-			return image.fromTheme(name)
-
-	icon_path=get_icon_path(name,size=size)
-	if os.path.isfile(icon_path)==True:
-		ret=QIcon(icon_path)
-	else:
-		ret=False
-	return ret
-
-def icons_load():
-	lines=inp_load_file(os.path.join(get_inp_file_path(),"icons.inp"),archive="base.gpvdm")
-	if lines==False:
-		lines=inp_load_file(os.path.join(get_inp_file_path(),"icons.inp"),archive="sim.gpvdm")
-
-	pos=0
-	global icon_db
-	while(1):
-		file_type=lines[pos]
-		if file_type=="#end":
-			break
-		token=file_type
-		pos=pos+1
-		icon_name=lines[pos]
-		pos=pos+1
-		icon=QIcon_load(icon_name,save=False)
-		if icon!=False:
-			icon_db.append([token[1:],icon_name,icon])
 		else:
-			print("Icon not found:"+icon_name)
-			sys.exit(0)
+			use_theme=False
+
+		path_16=os.path.join(get_image_file_path(),"16x16")
+		path_32=os.path.join(get_image_file_path(),"32x32")
+		path_64=os.path.join(get_image_file_path(),"64x64")
+
+		for f in os.listdir(path_32):
+			my_icon=icon()
+			my_icon.name.append(f.split(".")[0])
+			my_icon.file_name=f.split(".")[0]		#no ext
+			found=False
+			if running_on_linux()==True and use_theme==True:
+				image=QIcon()
+				if image.hasThemeIcon(my_icon.name[0])==True:
+					my_icon.icon16x16=image.fromTheme(my_icon.name[0])
+					my_icon.icon32x32=image.fromTheme(my_icon.name[0])
+					my_icon.icon64x64=image.fromTheme(my_icon.name[0])
+			if found==False:
+				my_icon.icon16x16=QIcon(os.path.join(path_16,my_icon.file_name+".png"))
+				my_icon.icon32x32=QIcon(os.path.join(path_32,my_icon.file_name+".png"))
+				my_icon.icon64x64=QIcon(os.path.join(path_64,my_icon.file_name+".png"))
+
+			self.db.append(my_icon)
+
+		f=inp()
+		f.load(os.path.join(get_inp_file_path(),"icons.inp"),archive="base.gpvdm")
+		if f.lines==False:
+			f.load(os.path.join(get_inp_file_path(),"icons.inp"),archive="sim.gpvdm")
+
+		f.reset()
+		while(1):
+			token,val=f.get_next_token_and_val()
+
+			if token=="#end" or token==False:
+				break
+
+			for i in range(0,len(self.db)):
+				if val == self.db[i].file_name:
+					self.db[i].name.append(token[1:])
+
+
+	def dump(self):
+		for i in range(0,len(self.db)):
+			print(self.db[i].name,self.db[i].file_name)
+
+	def icon_get(self,token,size=-1):
+		for i in range(0,len(self.db)):
+			if token in self.db[i].name:
+				if size==16:
+					return self.db[i].icon16x16
+				elif size==32:
+					return self.db[i].icon32x32
+				elif size==64 or size==-1:
+					return self.db[i].icon64x64
+
+		return False
+
+
+def icon_init_db():
+	global icon_db
+	icon_db=icon_data_base()
+
 
 def icon_get(token,size=-1,sub_icon=None):
-
+	global icon_db
 	if token!=".png" and token.endswith(".png")==True:
 		token=token[:-4]
 
-	if size!=-1:
-		return QIcon_load(token,size=size)
+	if sub_icon==None:
+		return icon_db.icon_get(token,size=size)
 
-	icon_ret=icon_find(token)
+	icon_ret=icon_db.icon_get(token)
 
-
-	#self.undo = QAction(QIcon(icon1_pixmap), _("Undo"), self)
-	#self.addAction(self.undo)
 
 	if icon_ret!=False:
 		if sub_icon!=None:
 			icon1=icon_ret
-			icon2=icon_find(sub_icon)
+			icon2=icon_db.icon_get(sub_icon)
 
 			icon1_pixmap=icon1.pixmap(QSize(48,48))
 			icon2_small = icon2.pixmap(QSize(48,48)).scaled(QSize(24,24), Qt.KeepAspectRatio, Qt.SmoothTransformation);
-			from PyQt5.QtGui import QPainter,QIcon
 
 			p=QPainter(icon1_pixmap)
 			p.drawPixmap(24,24,icon2_small); 

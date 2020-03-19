@@ -64,5 +64,7 @@ def get_dir_type(path):
 			return "backup"
 		elif token=="cache":
 			return "cache"
+		elif token=="multi_plot_dir":
+			return "multi_plot_dir"
 		else:
 			return "dir"

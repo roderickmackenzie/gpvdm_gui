@@ -54,6 +54,9 @@ from QAction_lock import QAction_lock
 from inp import inp_get_token_value
 from inp import inp_update_token_value
 from cal_path import get_sim_path
+from cat_dir import cat_dir
+import webbrowser
+from gpvdm_open import gpvdm_open
 
 class mode_button(QAction_lock):
 	def __init__(self,image,text,s,name):
@@ -67,8 +70,8 @@ class script_ribbon(ribbon_base):
 
 	def file(self):
 		toolbar = QToolBar()
-		toolbar.setToolButtonStyle( Qt.ToolButtonTextBesideIcon)
-		toolbar.setIconSize(QSize(32, 32))
+		toolbar.setToolButtonStyle( Qt.ToolButtonTextUnderIcon)
+		toolbar.setIconSize(QSize(48, 48))
 
 		self.tb_new = QAction_lock("document-new", _("New"), self,"ribbion_script_new")
 		toolbar.addAction(self.tb_new)
@@ -82,15 +85,26 @@ class script_ribbon(ribbon_base):
 		self.tb_save = QAction_lock("document-save", _("Save"), self,"ribbion_script_save")
 		toolbar.addAction(self.tb_save)
 
+		self.plot = QAction_lock("plot", _("Plot\nFile"), self,"ribbon_script_plot")
+		self.plot.clicked.connect(self.callback_plot_select)
+		toolbar.addAction(self.plot)
+
 		spacer = QWidget()
 		spacer.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
 		toolbar.addWidget(spacer)
 
+		self.hashtag = QAction(icon_get("hash_dic"), _("Hashtag\ndictionary"), self)
+		toolbar.addAction(self.hashtag)
+		self.hashtag.triggered.connect(self.callback_hashtag_dict)
 
 		self.help = QAction(icon_get("help"), _("Help"), self)
 		toolbar.addAction(self.help)
 		return toolbar
 
+	def callback_plot_select(self):
+		dialog=gpvdm_open(get_sim_path(),show_inp_files=False)
+		dialog.show_directories=False
+		ret=dialog.exec_()		
 
 	def update(self):
 		self.fx_box.update()
@@ -116,4 +130,8 @@ class script_ribbon(ribbon_base):
 		if sheet!=None:
 			sheet=str(sheet,'utf-8')
 			self.setStyleSheet(sheet)
+
+	def callback_hashtag_dict(self):
+		cat_dir()
+		webbrowser.open(os.path.join(get_sim_path(),"index.html"))
 

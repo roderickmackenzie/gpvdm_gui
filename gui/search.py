@@ -29,6 +29,13 @@
 import os, fnmatch
 import glob
 
+def search_simulations(path):
+	ret=[]
+	for root, dirs, files in os.walk(path):
+		for name in files:
+			if name=="sim.gpvdm":
+				ret.append(os.path.dirname(os.path.join(root, name)))
+	return ret
 
 def find_fit_log(out_file,path):
 	pattern='fitlog_time_error.dat'

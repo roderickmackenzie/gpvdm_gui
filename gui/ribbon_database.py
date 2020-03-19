@@ -99,10 +99,6 @@ class ribbon_database(QToolBar):
 			self.tb_import_pvlighthouse.clicked.connect(self.callback_pvlighthouse)
 			self.addAction(self.tb_import_pvlighthouse)
 
-			self.tb_import_refractiveindex = QAction_lock("sync", _("Update materials\nfrom refractiveindex.info"), self,"ribbion_db_sync")
-			self.tb_import_refractiveindex.clicked.connect(self.callback_refractiveindex)
-			self.addAction(self.tb_import_refractiveindex)
-
 		self.tb_update = QAction_lock("update", _("Download extra\nmaterials"), self,"ribbion_db_update")
 		self.tb_update.clicked.connect(self.callback_update_window)
 		self.addAction(self.tb_update)
@@ -205,10 +201,6 @@ class ribbon_database(QToolBar):
 	def callback_pvlighthouse(self):
 		from pvlighthouse import pvlighthouse_sync
 		pvlighthouse_sync()
-
-	def callback_refractiveindex(self):
-		from refractiveindex_info import refractiveindex_info_sync
-		refractiveindex_info_sync()
 
 	def callback_update_window(self):
 		from update import update_window_show

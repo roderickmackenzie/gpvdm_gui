@@ -50,6 +50,7 @@ from cal_path import calculate_paths
 from cal_path import calculate_paths_init
 from cal_path import get_share_path
 from cal_path import set_sim_path
+from refractiveindex_info import refractiveindex_info_sync
 
 calculate_paths_init()
 calculate_paths()
@@ -117,6 +118,7 @@ from scan_item import scan_items_populate_from_known_tokens
 from scan_item import scan_items_populate_from_files
 from device_lib_io import device_lib_token_change
 from device_lib_io import device_lib_token_delete
+from device_lib_io import device_lib_token_delete_if_eq
 from device_lib_io import device_lib_token_insert
 from device_lib_io import device_lib_token_insert_top
 from device_lib_io import device_lib_token_duplicate
@@ -146,6 +148,7 @@ parser.add_argument("--replace", help=_("replaces file in device lib --replace f
 parser.add_argument("--token_append", help=_("Appends a token to files in the device lib after a given token --token_append file.inp #token #token_befor #value path_to_device_lib"), nargs=5)
 parser.add_argument("--token_change", help=_("Changes the value of a token device lib --token_change file.inp \\#token value"), nargs=3)
 parser.add_argument("--token_delete", help=_("Delete a token from the device lib --token_delete file.inp \\#token"), nargs=2)
+parser.add_argument("--token_delete_if_eq", help=_("Delete a token from the device lib if equal to --token_delete_if_eq file.inp \\#token test_value"), nargs=3)
 parser.add_argument("--token_insert", help=_("Insert a token into the device lib files --token_insert file.inp \\where \\#token \\value"), nargs=4)
 parser.add_argument("--token_insert_top", help=_("Insert a token into the top of a device lib file --token_insert file.inp  \\#token \\value"), nargs=3)
 
@@ -160,6 +163,7 @@ parser.add_argument("--buildnestedscan", help=_("Builds a nested scan, usage --b
 parser.add_argument("--runscan", help=_("Runs a scan, usage --runscan /path/to/scan/dir/ "), nargs=1)
 parser.add_argument("--scanarchive", help=_("Compress a scandir --scanarchive path_to_scan_dir"), nargs=1)
 parser.add_argument("--list", help=_("List the content of a gpvdm archive"), action='store_true')
+parser.add_argument("--sync_from_refractiveindex_info", help=_("Sync the database from refractiveindex.info"), action='store_true')
 
 set_gui(False)
 
@@ -194,6 +198,10 @@ def command_args_tool(argc,argv):
 			print(args.token_delete)
 			device_lib_token_delete(args.token_delete[0],args.token_delete[1])
 			exit(0)
+		elif args.token_delete_if_eq:
+			print(args.token_delete_if_eq)
+			device_lib_token_delete_if_eq(args.token_delete_if_eq[0],args.token_delete_if_eq[1],args.token_delete_if_eq[2])
+			exit(0)
 		elif args.token_insert:
 			print(args.token_insert)
 			device_lib_token_insert(args.token_insert[0],args.token_insert[1],args.token_insert[2],args.token_insert[3])
@@ -219,6 +227,8 @@ def command_args_tool(argc,argv):
 		elif args.list:
 			inp_dir_listing(os.path.join(os.getcwd(),"sim.gpvdm"))
 			sys.exit(0)
+		elif args.sync_from_refractiveindex_info:
+			refractiveindex_info_sync()
 
 
 		if args.runscan:

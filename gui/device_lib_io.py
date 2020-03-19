@@ -37,6 +37,7 @@ from inp import inp_insert_duplicate
 from inp import inp_get_token_value
 from inp import inp_load_file
 from inp import inp_save
+from inp import inp
 
 def find_device_libs():
 	out=[]
@@ -80,6 +81,19 @@ def device_lib_token_delete(file_name,token):
 		#inp_update_token_value(file_path, token, replace,archive="sim.gpvdm",id="")
 		print(sim_file_name,archive)
 		inp_delete_token(sim_file_name, token, archive=archives[i])
+
+def device_lib_token_delete_if_eq(file_name,token,value):
+	archives=find_device_libs()
+	for i in range(0,len(archives)):
+		sim_file_name=os.path.join(os.path.dirname(archives[i]),file_name)
+		archive=os.path.basename(archives[i])
+		f=inp()
+		f.load(sim_file_name, archive=archives[i])
+		
+		file_value=inp_get_token_value(sim_file_name, token,archive=archives[i])
+		if value==f.get_token(token):
+			f.delete_token(token,times=1)
+			f.save()
 
 def device_lib_token_insert(file_name,token_to_insert_after,token,value):
 	archives=find_device_libs()

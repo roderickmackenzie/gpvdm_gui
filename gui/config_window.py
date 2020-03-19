@@ -62,7 +62,7 @@ class class_config_window(QWidgetSavePos):
 		self.changed.emit()
 		global_object_run("ribbon_configure_dump_refresh")
 
-	def __init__(self):
+	def __init__(self,title=_("Configure"),icon="preferences-system"):
 		QWidgetSavePos.__init__(self,"config_window")
 		self.files=[]
 		self.description=[]
@@ -70,11 +70,12 @@ class class_config_window(QWidgetSavePos):
 		self.toolbar.setToolButtonStyle( Qt.ToolButtonTextUnderIcon)
 		self.toolbar.setIconSize(QSize(48, 48))
 
-	def init(self):
 		self.setFixedSize(900, 600)
-		self.setWindowIcon(icon_get("preferences-system"))
+		self.setWindowIcon(icon_get(icon))
 
-		self.setWindowTitle(_("Configure")+" (https://www.gpvdm.com)")
+		self.setWindowTitle(title+" (https://www.gpvdm.com)")
+
+	def init(self):
 
 
 		self.main_vbox = QVBoxLayout()

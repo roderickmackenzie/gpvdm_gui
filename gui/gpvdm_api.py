@@ -58,6 +58,9 @@ from scan_tree import tree_load_flat_list
 from gui_enable import set_gui
 from scan_ml import scan_ml_build_vector
 from scan_io import scan_archive
+from multiplot import multiplot
+from multiplot_from_tokens import multiplot_from_tokens
+
 
 class api_scan():
 	def build(self,scan_dir_path,base_dir):
@@ -120,7 +123,9 @@ class gpvdm_api():
 
 		print("gpvdm_api")
 
-	def run(self):
+	def run(self,callback=None):
+		if callback!=None:
+			self.my_server.base_server_set_callback(callback)
 		self.my_server.start()
 
 	def add_job(self,path=""):
@@ -165,5 +170,16 @@ class gpvdm_api():
 		for f in os.listdir(get_sim_path()):
 			if f.endswith(".inp") or f.endswith(".gpvdm"):
 				copyfile(os.path.join(get_sim_path(),f), os.path.join(output_dir,f))
+
+	def build_multiplot(self,path):
+		a=multiplot()
+		a.find_files(os.path.join(get_sim_path(),path))
+		a.save()
+
+	def graph_from_tokens(self,output_file,path,file0,token0,file1,token1):
+		output_file=os.path.join(get_sim_path(),path,output_file)
+		plot=multiplot_from_tokens()
+		print("here")
+		plot.gen_plot(os.path.join(get_sim_path(),path),file0,token0,file1,token1,output_file=os.path.join(get_sim_path(),output_file))
 
 

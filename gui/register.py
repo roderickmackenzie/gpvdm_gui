@@ -28,6 +28,7 @@
 
 
 import os
+import sys
 
 #qt
 from PyQt5.QtCore import QSize, Qt 
@@ -43,6 +44,7 @@ from inp import inp_load_file
 import re
 
 from error_dlg import error_dlg
+from gui_util import yes_no_dlg
 from lock import lock
 from code_ctrl import am_i_rod
 from spinner import spinner
@@ -100,10 +102,13 @@ class register(QDialog):
 
 		get_lock().get_license()
 
+		self.allow_exit=True
+
 		self.accept()
 
 	def __init__(self):
 		QWidget.__init__(self)
+		self.allow_exit=False
 		self.setWindowIcon(icon_get("icon"))
 		self.setWindowTitle(_("Registration window (www.gpvdm.com)")) 
 		self.setWindowFlags(Qt.WindowStaysOnTopHint)
@@ -205,7 +210,18 @@ class register(QDialog):
 
 			self.fist_name.setText("波长-")
 			self.surname.setText("反射光")
-		
+
+
+	def closeEvent(self, event):
+		if self.allow_exit==False:
+			response=yes_no_dlg(self,_("Gpvdm will not work until you register.  Would do you want to exit gpvdm?"))
+
+			if response == True:
+				sys.exit(0)
+
+			event.ignore()
+		else:
+			event.accept()
 		
 	def run(self):
 		return self.exec_()

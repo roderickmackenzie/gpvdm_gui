@@ -179,25 +179,31 @@ class layer_widget(QWidgetSavePos):
 	def create_model(self):
 		self.tab.blockSignals(True)
 		self.tab.clear()
-		self.tab.setColumnCount(8)
+		self.tab.setColumnCount(10)
 		#if enable_betafeatures()==False:
 		#	self.tab.setColumnHidden(4, True)
 		#	self.tab.setColumnHidden(5, True)
 
 		self.tab.setSelectionBehavior(QAbstractItemView.SelectRows)
-		self.tab.setHorizontalHeaderLabels([_("Layer name"), _("Thicknes"), _("Optical material"), _("Layer type"), _("DoS file"), _("PL file"), _("LUMO file"), _("HOMO file")])
+		self.tab.setHorizontalHeaderLabels([_("Layer name"), _("Thicknes"), _("Optical material"), _("Layer type"), _("DoS\nfile"), _("PL\nfile"), _("LUMO\nfile"), _("HOMO\nfile"), _("Solve optical\nproblem"), _("Solve thermal\nproblem")])
 		self.tab.setColumnWidth(2, 250)
+		self.tab.setColumnWidth(4, 80)
+		self.tab.setColumnWidth(5, 80)
+		self.tab.setColumnWidth(6, 80)
+		self.tab.setColumnWidth(7, 80)
+
+		self.tab.horizontalHeader().setFixedHeight(40)
 		self.tab.setRowCount(epitaxy_get_layers())
 
 		epi=get_epi()
 		i=0
 		for l in epi.layers:
-			self.add_row(i,l.dy,l.mat_file,l.dos_file,l.pl_file,l.name,l.lumo_file,l.homo_file)
+			self.add_row(i,l.dy,l.mat_file,l.dos_file,l.pl_file,l.name,l.lumo_file,l.homo_file,l.solve_optical_problem,l.solve_thermal_problem)
 			i=i+1
 
 		self.tab.blockSignals(False)
 
-	def add_row(self,i,thick,material,dos_layer,pl_file,name,lumo_file,homo_file):
+	def add_row(self,i,thick,material,dos_layer,pl_file,name,lumo_file,homo_file,solve_optical_problem,solve_thermal_problem):
 
 		self.tab.blockSignals(True)
 		
@@ -229,6 +235,7 @@ class layer_widget(QWidgetSavePos):
 
 		self.tab.setCellWidget(i,3, combobox_layer_type)
 		combobox_layer_type.setValue_using_english(str(dos_file).lower())
+		combobox_layer_type.currentIndexChanged.connect(self.layer_type_edit)
 
 		item3 = QTableWidgetItem(str(dos_layer))
 		self.tab.setItem(i,4,item3)
@@ -242,7 +249,24 @@ class layer_widget(QWidgetSavePos):
 		item7 = QTableWidgetItem(str(homo_file))
 		self.tab.setItem(i,7,item7)
 
-		combobox_layer_type.currentIndexChanged.connect(self.layer_type_edit)
+
+		combobox = QComboBoxLang()
+
+		combobox.addItemLang("true",_("Yes"))
+		combobox.addItemLang("false",_("No"))
+
+		self.tab.setCellWidget(i,8, combobox)
+		combobox.setValue_using_english(str(solve_optical_problem).lower())
+		combobox.currentIndexChanged.connect(self.callback_model_select)
+
+		combobox = QComboBoxLang()
+
+		combobox.addItemLang("true",_("Yes"))
+		combobox.addItemLang("false",_("No"))
+
+		self.tab.setCellWidget(i,9, combobox)
+		combobox.setValue_using_english(str(solve_thermal_problem).lower())
+		combobox.currentIndexChanged.connect(self.callback_model_select)
 
 		self.tab.blockSignals(False)
 
@@ -253,7 +277,18 @@ class layer_widget(QWidgetSavePos):
 
 		self.emit_structure_changed()
 		self.save_model()
-		#self.emit_change()
+
+
+	def callback_model_select(self):
+		epi=get_epi()
+		for i in range(0,self.tab.rowCount()):
+			epi.layers[i].solve_optical_problem=str2bool(self.tab.get_value(i, 8))
+			epi.layers[i].solve_thermal_problem=str2bool(self.tab.get_value(i, 9))
+			#print(epi.layers[i].solve_optical_probelm,epi.layers[i].solve_thermal_probelm)
+		#self.emit_structure_changed()
+
+		self.save_model()
+
 
 	def on_remove_item_clicked(self):
 		items=self.tab.remove()
@@ -269,7 +304,7 @@ class layer_widget(QWidgetSavePos):
 		row=self.tab.insert_row()
 		epi=get_epi()
 		a=epi.add_new_layer(pos=row)
-		self.add_row(row,str(a.dy),a.mat_file,a.dos_file,a.pl_file,a.name,a.lumo_file,a.homo_file)
+		self.add_row(row,str(a.dy),a.mat_file,a.dos_file,a.pl_file,a.name,a.lumo_file,a.homo_file,a.solve_optical_problem,a.solve_thermal_problem)
 		epi.update_layer_type(row,self.tab.get_value(row,3).lower())
 		epi.save()
 		#self.emit_change()

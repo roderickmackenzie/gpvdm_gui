@@ -35,11 +35,12 @@ from code_ctrl import enable_betafeatures
 from cal_path import get_css_path
 
 #qt
-from PyQt5.QtWidgets import QMainWindow, QTextEdit, QAction, QApplication
-from PyQt5.QtGui import QIcon, QTextFormat,QTextOption
+from PyQt5.QtWidgets import QMainWindow, QTextEdit, QAction, QApplication, QShortcut
+from PyQt5.QtGui import QIcon, QTextFormat,QTextOption, QKeySequence
 from PyQt5.QtCore import QSize, Qt,QFile,QIODevice,QRect
 from PyQt5.QtWidgets import QWidget,QSizePolicy, QPlainTextEdit,QVBoxLayout,QHBoxLayout, QPushButton,QDialog,QFileDialog,QToolBar, QMessageBox, QLineEdit, QToolButton
 from PyQt5.QtWidgets import QTabWidget
+import sys
 
 from PyQt5.QtGui import QPainter,QColor
 from icon_lib import icon_get
@@ -62,8 +63,10 @@ from inp import inp_load_file
 from inp import inp_save
 from gpvdm_api import gpvdm_api
 import imp
+from PyQt5.QtCore import pyqtSignal
 
 class Highlighter(QSyntaxHighlighter):
+
 	def __init__(self, parent=None):
 		super(Highlighter, self).__init__(parent)
 
@@ -148,6 +151,8 @@ class Highlighter(QSyntaxHighlighter):
 		            startIndex + commentLength);
 
 class script_editor(code_editor):
+	status_changed = pyqtSignal()
+
 	def __init__(self):
 		code_editor.__init__(self)
 		font = QFont()
@@ -158,15 +163,30 @@ class script_editor(code_editor):
 		self.setFont(font)
 
 		self.highlighter = Highlighter(self.document())
+		self.textChanged.connect(self.callback_edit)
+		shortcut = QShortcut(QKeySequence("Ctrl+S"), self)
+		shortcut.activated.connect(self.save)
+
+		self.not_saved=False
+
+
+	def callback_edit(self):
+
+		self.not_saved=True
+		self.status_changed.emit()
 
 	def load(self,file_name):
+		self.blockSignals(True)
 		self.file_name=file_name
 		lines=inp_load_file(file_name)
 		self.setPlainText("\n".join(lines))
+		self.blockSignals(False)
 
 	def save(self):
 		text=self.toPlainText().split("\n")
 		inp_save(self.file_name,text)
+		self.not_saved=False
+		self.status_changed.emit()
 
 	def run(self):
 		print("Running:",self.file_name)

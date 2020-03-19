@@ -178,14 +178,14 @@ class scan_vbox(QWidget):
 		self.rebuild_op_type_widgets()
 		self.save_combo()
 
-	def plot_results(self,plot_token):
-		plot_token.key_units=self.get_units()
+	def plot_results(self,data_file):
+		data_file.key_units=self.get_units()
 		#print("scanning",self.sim_dir)
-		plot_files, plot_labels, config_file = scan_gen_plot_data(plot_token,self.sim_dir)
+		plot_files, plot_labels, config_file = scan_gen_plot_data(data_file,self.sim_dir)
 		#print(plot_files, plot_labels)
 		plot_gen(plot_files,plot_labels,config_file)
 
-		self.last_plot_data=plot_token
+		self.last_plot_data=data_file
 		return
 
 	def get_units(self):

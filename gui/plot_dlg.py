@@ -87,7 +87,7 @@ class plot_dlg_class(QDialog):
 		QWidget.__init__(self)
 		self.path=os.path.dirname(data.example_file0)
 		self.setWindowIcon(icon_get("jv"))
-		self.setWindowTitle(_("Steady state simulation (www.gpvdm.com)")) 
+		self.setWindowTitle(_("Plot token values (www.gpvdm.com)")) 
 		self.setWindowFlags(Qt.WindowStaysOnTopHint)
 
 		l=QLabel("x-axis:")

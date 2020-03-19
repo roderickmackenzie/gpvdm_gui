@@ -27,114 +27,11 @@
 
 import sys
 import os
-#import shutil
 from search import return_file_list
 from plot import check_info_file
-#from token_lib import tokens
-from win_lin import running_on_linux
-from inp import inp_get_token_value
 from plot import plot_populate_plot_token
 from error_dlg import error_dlg
-
-def gen_plot_line(dirname,plot_token):
-	print(plot_token.file0,plot_token.file1)
-	if plot_token.file1=="":
-		f = open(os.path.join(dirname,plot_token.file0),'r')
-		values=f.readline()
-		f.close()
-		return values
-	else:
-		v0=inp_get_token_value(os.path.join(dirname,plot_token.file0), plot_token.tag0)
-		v1=inp_get_token_value(os.path.join(dirname,plot_token.file1), plot_token.tag1)
-		v2=""
-		print(os.path.join(dirname,plot_token.file1),plot_token.tag1)
-		#if plot_token.file2!="":
-		#	v2=inp_get_token_value(os.path.join(dirname,plot_token.file2), plot_token.tag2)
-		values=v0+" "+v1+"\n"
-		return values
-
-def gen_infofile_plot(file_list_in,base_dir,plot_token):
-	file_name=os.path.splitext(plot_token.file0)[0]+plot_token.tag0+"#"+os.path.splitext(plot_token.file1)[0]+plot_token.tag1+".dat"
-	values=""
-	result=[]
-
-	#only allow files from real simulations in the list
-	for i in range(0,len(file_list_in)):
-		test_name=os.path.join(os.path.dirname(file_list_in[i]),'sim.gpvdm')
-		if os.path.isfile(test_name):
-			result.append(file_list_in[i])
-
-
-	if len(result)==0:
-		print("No files found")
-		return
-
-	#pull out first item
-	ittr_path=os.path.dirname(result[0])
-
-	start_of_sim_dir_path_pos=len(base_dir)+1
-	ittr_path=ittr_path[start_of_sim_dir_path_pos:]
-	#check it's depth
-	if running_on_linux():
-		depth=ittr_path.count('/')
-	else:
-		depth=ittr_path.count('\\')
-
-
-	#Remove the first part of the path name just leaving what is in the simulation dir
-	if depth==0:
-		mydirs=[""]
-	else:
-		mydirs=[]
-		for i in result:
-			ittr_path=os.path.dirname(i)
-			ittr_path=ittr_path[start_of_sim_dir_path_pos:]
-			ittr_path=os.path.split(ittr_path)
-			#print ittr_path
-			if mydirs.count(ittr_path[0])==0:
-				mydirs.append(ittr_path[0])
-
-
-
-	data=["" for x in range(len(mydirs))]
-
-	#for each directory save the data into an array element?
-	for i in range(0, len(result)):
-		cur_sim_path=os.path.dirname(result[i])
-		if cur_sim_path!=base_dir:
-			#print result[i],cur_sim_path
-			values=gen_plot_line(cur_sim_path,plot_token)
-
-			if depth==0:
-				pos=0
-			else:
-				ittr_path=os.path.dirname(result[i])
-				ittr_path=ittr_path[start_of_sim_dir_path_pos:]
-				ittr_path=os.path.split(ittr_path)
-				pos=mydirs.index(ittr_path[0])
-
-			#print pos
-
-			data[pos]=data[pos]+values
-			#print data[pos]
-	plot_files=[]
-	plot_labels=[]
-
-	#Dump the array elements to disk
-	for i in range(0,len(mydirs)):
-		newplotfile=os.path.join(base_dir,mydirs[i],file_name)
-		plot_files.append(newplotfile)
-		plot_labels.append(os.path.basename(mydirs[i]))
-		f = open(newplotfile,'w')
-		f.write(data[i])
-		f.close()
-
-	save_file=os.path.join(base_dir,os.path.splitext(file_name)[0])+".oplot"
-	#print "save path",save,plot_files
-
-	plot_populate_plot_token(plot_token,None)
-
-	return plot_files, plot_labels, save_file
+from multiplot_from_tokens import multiplot_from_tokens
 
 def scan_gen_plot_data(plot_token,base_path):
 	ret=""
@@ -191,7 +88,8 @@ def scan_gen_plot_data(plot_token,base_path):
 
 		print(plot_files,"r",plot_labels,"r",save_file,"r",plot_files,"r",base_path,"r",plot_token)
 
-		plot_files, plot_labels, save_file = gen_infofile_plot(plot_files,base_path,plot_token)
+		multi_plot=multiplot_from_tokens()
+		plot_files, plot_labels, save_file = multi_plot.gen_plot(base_path,plot_token.file0,plot_token.tag0,plot_token.file1,plot_token.tag1)
 
 	else:
 		if len(plot_files)>0:

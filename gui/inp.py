@@ -59,7 +59,14 @@ except:
 class inp():
 	def __init__(self):
 		self.lines=[]
-		self.pos=-1
+		self.pos=0
+
+	def __str__(self):
+		ret=""
+		for i in range(0, len(self.lines)):
+			ret=ret+self.lines[i]+"\n"
+
+		return ret
 
 	def set_file_name(self,file_path,archive="sim.gpvdm",mode="l"):
 		if file_path==None:
@@ -85,47 +92,59 @@ class inp():
 		return archive_isfile(self.zip_file_name,os.path.basename(file_name))
 
 	def to_sections(self,start="#layers"):
-		self.pos=-1
+		self.pos=0
 		seg_len=0
 		tokens={}
-
+		seg_number=-1
 		while(1):
 			token,val=self.get_next_token_and_val()
-			#print(token,val)
-			if seg_len!=0:
-				if token==False:
-					break
-				if token.startswith(start)==True or token=="#ver" or token=="#end":
-					break
-			#print(token,val)
-			token=token.rstrip('1234567890').lstrip("#")
-			if token[-1]=="_":
-				token=token[:-1]
-			tokens.update([ (token, 0) ])
-			seg_len=seg_len+1
 
-		#print(tokens)
+			if token==False:
+				break
+
+			if token=="#ver" or token=="#end":
+				break
+
+			if token.startswith(start)==True:
+				seg_number=seg_number+1
+				if seg_number==1:
+					break
+
+			if seg_number==0:		#We are on the first segment
+				token=token.rstrip('1234567890').lstrip("#")
+				if token[-1]=="_":
+					token=token[:-1]
+				tokens.update([ (token, 0) ])
+
+				seg_len=seg_len+1
+
 		section_object = type("section_object",(), tokens)
 
 		self.sections=[]
-		self.pos=-1
+		self.pos=0
 		seg_pos=0
 		sec=section_object()
+		found_start=False
 		while(1):
 			token,val=self.get_next_token_and_val()
 			#print(token)
 			if token=="#end" or token==False:
 				break
-			token=token.rstrip('1234567890').lstrip("#")
-			if token[-1]=="_":
-				token=token[:-1]
 
-			setattr(sec, token, val)
-			seg_pos=seg_pos+1
-			if seg_pos==seg_len:
-				seg_pos=0
-				self.sections.append(sec)
-				sec=section_object()
+			if token.startswith(start)==True:
+				found_start=True
+
+			if found_start==True:
+				token=token.rstrip('1234567890').lstrip("#")
+				if token[-1]=="_":
+					token=token[:-1]
+
+				setattr(sec, token, val)
+				seg_pos=seg_pos+1
+				if seg_pos==seg_len:
+					seg_pos=0
+					self.sections.append(sec)
+					sec=section_object()
 
 	def get_token(self,token):
 		if self.lines==False:
@@ -138,6 +157,17 @@ class inp():
 
 		return False
 
+	def reset(self):
+		self.pos=0
+
+	def get_tokens(self):
+		ret=[]
+		for l in self.lines:
+			if l.startswith("#"):
+				ret.append(l)
+		return ret
+
+	#update a token value
 	def replace(self,token,replace):
 		if type(replace)==bool:
 			replace=str(replace)
@@ -172,15 +202,15 @@ class inp():
 
 		return replaced
 
-	def save(self):
+	def save(self,mode="l",dest="archive"):
 		"""Write save lines to a file"""
-		ret= write_lines_to_archive(self.zip_file_path,self.file_name,self.lines)
+		ret= write_lines_to_archive(self.zip_file_path,self.file_name,self.lines,mode=mode,dest=dest)
 		return ret
 
 	def append(self,data):
 		self.lines.append(data)
 
-	def save_as(self,file_path,archive="sim.gpvdm"):
+	def save_as(self,file_path,archive="sim.gpvdm",mode="l",dest="archive"):
 
 		full_path=default_to_sim_path(file_path)
 		self.zip_file_path=os.path.join(os.path.dirname(full_path),archive)
@@ -193,21 +223,23 @@ class inp():
 
 	def get_next_token_and_val(self):
 		ret=[]
-		self.pos=self.pos+1
 		if self.pos>=len(self.lines):
 			return False,False
 		ret.append(self.lines[self.pos])
+		self.pos=self.pos+1
 
-		self.pos=self.pos+1
 		if self.pos>=len(self.lines):
 			return False,False
 		ret.append(self.lines[self.pos])
+		self.pos=self.pos+1
+
 		return ret[0],ret[1]
 
 	def get_next_val(self):
 		self.pos=self.pos+1
+		val=self.lines[self.pos]
 		self.pos=self.pos+1
-		return self.lines[self.pos]
+		return val
 
 	def get_array(self, token):
 		"""Get an array of data assosiated with a token"""
@@ -247,21 +279,39 @@ class inp():
 		"""Get the next token as an array"""
 		values=[]
 		if self.pos>=len(self.lines):
-			return None
+			return False,False
 
-		self.pos=self.pos+1
 		token=self.lines[self.pos]
+		self.pos=self.pos+1
 
-		for i in range(self.pos+1,len(self.lines)):
-
+		for i in range(self.pos,len(self.lines)):
+			self.pos=i
 			if len(self.lines[i])>0:
 				if self.lines[i][0]=="#":
 					break
 
-			values.append(self.lines[i])
-			self.pos=self.pos+1				
+			values.append(self.lines[i])		
 
 		return token,values
+
+	def delete_token(self,token,times=-1):
+		ret=[]
+		copy=True
+		c=0
+		for l in self.lines:
+			if l.startswith("#"):
+				copy=True
+
+			if l.startswith("#"):
+				if l==token:
+					if c<times or c==-1:
+						copy=False
+						c=c+1
+
+			if copy==True:
+				ret.append(l)
+
+		self.lines=ret
 
 callbacks=[]
 class callback_data():
@@ -523,6 +573,13 @@ def inp_update_token_value(file_path, token, replace,archive="sim.gpvdm",id=""):
 
 	if token=="#Ty0":
 		inp_update_token_value("thermal.inp", "#Ty1", replace,archive)
+
+		inp_update_token_value("thermal.inp", "#Tx0", replace,archive)
+		inp_update_token_value("thermal.inp", "#Tx1", replace,archive)
+
+		inp_update_token_value("thermal.inp", "#Tz0", replace,archive)
+		inp_update_token_value("thermal.inp", "#Tz1", replace,archive)
+
 		files=inp_lsdir(os.path.join(os.path.dirname(file_path),"sim.gpvdm"))
 		for i in range(0,len(files)):
 			if files[i].startswith("dos") and files[i].endswith(".inp"):

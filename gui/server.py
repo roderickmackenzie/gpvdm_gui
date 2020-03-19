@@ -107,6 +107,7 @@ class base_server():
 		self.stop_work=False
 		self.update_cpu_number()
 		self.clear_jobs()
+		self.callback=None
 
 	def clear_jobs(self):
 		self.jobs=[]
@@ -254,6 +255,14 @@ class base_server():
 		self.jobs_run=self.jobs_run+1
 		self.jobs_running=self.jobs_running-1
 		self.jobs_per_second=self.jobs_run/(time.time()-self.start_time)
+
+		if self.jobs_running==0:
+			if self.callback!=None:
+				self.callback()
+			self.callback=None
+
+	def base_server_set_callback(self,callback):
+		self.callback=callback
 
 	def base_server_get_next_job_to_run(self,lock_file=False):
 		if (len(self.jobs)==0):

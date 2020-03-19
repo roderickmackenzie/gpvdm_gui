@@ -97,6 +97,7 @@ _ = i18n.language.gettext
 #util
 from util import latex_to_html
 from util import peek_data
+from multiplot import multiplot
 
 class file_store():
 	def __init__(self):
@@ -408,12 +409,6 @@ class gpvdm_viewer(QListWidget):
 			self.file_list.append(itm)
 
 			itm=file_store()
-			itm.file_name="gpvdm_thermal_config"
-			itm.icon="thermal"
-			itm.display_name=_("Thermal")
-			self.file_list.append(itm)
-
-			itm=file_store()
 			itm.file_name="gpvdm_server_config"
 			itm.icon="cpu"
 			itm.display_name=_("Server")
@@ -476,6 +471,9 @@ class gpvdm_viewer(QListWidget):
 						elif dir_type=="backup_main":
 							itm.file_name=fl
 							itm.icon="backup"
+						elif dir_type=="multi_plot_dir":
+							itm.file_name=fl
+							itm.icon="multi_plot_dir"
 						elif dir_type=="backup":
 							itm.file_name=fl
 							itm.icon="backup"
@@ -506,6 +504,9 @@ class gpvdm_viewer(QListWidget):
 
 								itm.file_name=fl
 								itm.icon="color"
+							elif text.startswith(b"#multiplot"):
+								itm.file_name=fl
+								itm.icon="multiplot"
 							elif text.startswith(b"#"):
 								itm.file_name=fl
 								itm.icon="dat_file"
@@ -604,7 +605,6 @@ class gpvdm_viewer(QListWidget):
 			if draw==True:
 				itm = QListWidgetItem( self.file_list[i].display_name )
 				a=icon_get(self.file_list[i].icon)
-				#print(self.file_list[i].icon)
 				itm.setIcon(a)
 
 				#if self.file_list[i].display_name=="data.xlsx":
@@ -713,13 +713,6 @@ class gpvdm_viewer(QListWidget):
 			self.config_window.init()
 			self.config_window.show()
 			return
-		elif decode=="gpvdm_thermal_config":
-			self.config_window=class_config_window()
-			self.config_window.files=["thermal.inp"]
-			self.config_window.description=[_("Thermal")]
-			self.config_window.init()
-			self.config_window.show()
-			return
 		elif decode=="gpvdm_server_config":
 			self.config_window=class_config_window()
 			self.config_window.files=["server.inp"]
@@ -798,8 +791,14 @@ class gpvdm_viewer(QListWidget):
 					return
 
 				if isfiletype(full_path,"dat")==True:
-					plot_gen([full_path],[],"auto")
+					text=peek_data(full_path)
+					if text.startswith(b"#multiplot"):
+						my_multiplot=multiplot()
+						my_multiplot.plot(full_path)
+					else:
+						plot_gen([full_path],[],"auto")
 					return
+
 				if  isfiletype(full_path,"gpvdm")==True:
 					return
 
@@ -807,7 +806,7 @@ class gpvdm_viewer(QListWidget):
 				return
 #self.reject.emit()
 		
-		if dir_type=="dir" or dir_type=="backup_main":
+		if dir_type=="dir" or dir_type=="backup_main" or dir_type=="multi_plot_dir" :
 			self.file_path=full_path
 			self.set_path(full_path)
 			self.fill_store()

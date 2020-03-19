@@ -30,7 +30,6 @@ import os
 from tab_base import tab_base
 from inp import inp_update_token_value
 from inp import inp_get_token_value
-from inp import inp_get_next_token_array
 from util import latex_to_html
 
 from PyQt5.QtCore import pyqtSignal

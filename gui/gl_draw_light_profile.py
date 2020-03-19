@@ -108,14 +108,14 @@ class gl_draw_light_profile():
 
 			my_vec=vec()
 			my_vec.x=get_mesh().get_xlen()
-			my_vec.y=get_mesh().get_ylen()*1.0
+			my_vec.y=epi.ylen()*1.0
 			my_vec.z=get_mesh().get_zlen()
 
 			t=triangles_mul_vec(s.triangles.data,my_vec)
 
 			my_vec=vec()
 			my_vec.x=0.0
-			my_vec.y=-get_mesh().get_ylen()*3.0
+			my_vec.y=-epi.ylen()*3.0
 			my_vec.z=0.0
 
 			t=triangles_add_vec(t,my_vec)

@@ -58,6 +58,7 @@ from util import wrap_text
 from util_zip import write_lines_to_archive
 from gui_util import dlg_get_text
 from backup import backup
+from scripts import scripts
 
 class ribbon_file(QToolBar):
 	used_files_click= pyqtSignal(str)
@@ -93,6 +94,9 @@ class ribbon_file(QToolBar):
 
 		self.home_export_xls.clicked.connect(self.callback_export_xls)
 
+		self.tb_script_editor = QAction_lock("script", _("Script\nEditor"), self,"script_editor")
+		self.tb_script_editor.clicked.connect(self.callback_script)
+		self.addAction(self.tb_script_editor)
 
 		spacer = QWidget()
 		spacer.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
@@ -134,10 +138,10 @@ class ribbon_file(QToolBar):
 		self.home_backup.setEnabled(val)
 		self.home_export_xls.setEnabled(val)
 
-
 	def setEnabled_other(self,val):
 		self.home_backup.setEnabled(val)
 		self.home_export_xls.setEnabled(val)
+		self.tb_script_editor.setEnabled(val)
 
 	def on_new_backup(self):
 		new_backup_name=dlg_get_text( _("New backup:"), _("New backup name"),"add_backup")
@@ -166,4 +170,11 @@ class ribbon_file(QToolBar):
 
 		self.dialog.viewer.show_inp_files=False
 		ret=self.dialog.exec_()
+
+	def callback_script(self):
+
+		self.scripts=scripts()
+
+		self.scripts.show()
+
 

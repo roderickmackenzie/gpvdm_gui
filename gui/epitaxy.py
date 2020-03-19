@@ -78,6 +78,8 @@ class epi_layer():
 		self.start=0.0
 		self.end=0.0
 		self.Gnp=0.0
+		self.solve_optical_problem=True
+		self.solve_thermal_problem=True
 
 	def set_dy(self,data):
 		if type(data)==float or type(data)==int:
@@ -308,6 +310,10 @@ class epitaxy():
 			lines.append(epi.layers[i].homo_file)
 			lines.append("#layer_electrical_file"+str(layer))
 			lines.append(epi.layers[i].electrical_file)
+			lines.append("#solve_optical_problem"+str(layer))
+			lines.append(str(epi.layers[i].solve_optical_problem))
+			lines.append("#solve_thermal_problem"+str(layer))
+			lines.append(str(epi.layers[i].solve_thermal_problem))
 
 			layer=layer+1
 
@@ -318,7 +324,6 @@ class epitaxy():
 
 	def save(self):
 		lines=self.gen_output()
-
 		inp_save(os.path.join(get_sim_path(),"epitaxy.inp"),lines,id="epitaxy")
 
 		ymesh=get_mesh().y
@@ -440,6 +445,14 @@ class epitaxy():
 
 		return tot
 
+	def get_opticaly_active_ylen(self):
+		tot=0
+		for a in epi.layers:
+			if a.solve_optical_problem==True:
+				tot=tot+a.dy
+
+		return tot
+
 	def get_layer_by_cordinate(self,y):
 		tot=0
 		for i in range(0,len(self.layers)):
@@ -489,43 +502,48 @@ class epitaxy():
 
 		y_pos=0.0
 		if f.load(os.path.join(path,"epitaxy.inp"))!=False:
-
 			number_of_layers=int(f.get_next_val())
+			f.to_sections(start="#layer_name")
 
-			for i in range(0, number_of_layers):
+			for s in f.sections:
 				a=epi_layer()
 
-				a.name=f.get_next_val()
-				a.layer_type=f.get_next_val()
+				a.name=s.layer_name
+				a.layer_type=s.layer_type
 
-				a.dy=float(f.get_next_val())
+				a.dy=float(s.layer_width)
 
-				temp=f.get_next_val().replace("\\", "/")
+				temp=s.layer_material_file.replace("\\", "/")
 				a.set_mat_file(temp)
 
-				a.dos_file=f.get_next_val()
+				a.dos_file=s.layer_dos_file
 
-				a.pl_file=f.get_next_val()
+				a.pl_file=s.layer_pl_file
 
 				#shape
-				temp=f.get_next_val()		#value
+				temp=s.layer_shape		#value
 				if temp=="none":
 					a.shapes=[]
 				else:
 					files=temp.split(",")
-					for s in files:
+					for sh in files:
 						my_shape=shape(callback=self.callback_changed)
-						my_shape.load(s)
+						my_shape.load(sh)
 						a.shapes.append(my_shape)
 
 				#lumo
-				a.lumo_file=f.get_next_val()
+				a.lumo_file=s.layer_lumo
 
 				#lumo
-				a.homo_file=f.get_next_val()
+				a.homo_file=s.layer_homo
 
 				#lumo
-				a.electrical_file=f.get_next_val()
+				a.electrical_file=s.layer_electrical_file
+
+
+				a.solve_optical_problem=s.solve_optical_problem
+
+				a.solve_thermal_problem=s.solve_thermal_problem
 
 				a.start=y_pos
 

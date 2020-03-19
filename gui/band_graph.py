@@ -129,16 +129,11 @@ class band_graph(QWidget):
 		x_pos=0.0
 		layer=0
 		color =['r','g','b','y','o','r','g','b','y','o','r','g','b','y','o','r','g','b','y','o']
-		start=0.0
 
 		epi=get_epi()
-		device_start=epi.get_device_start()
-		if device_start!=None:
-			start=start-device_start
 
-		start=start*1e9
 
-		x_pos=start
+		x_pos=0.0
 		for i in range(0,epitaxy_get_layers()):
 
 #			label=epitaxy_get_mat_file(i)
@@ -223,7 +218,7 @@ class band_graph(QWidget):
 			ax1.set_ylabel(state.data_label+" ("+state.data_units+")")
 			ax1.set_xlabel(_("Position")+" (nm)")
 			ax2.set_ylabel(_("Energy")+" (eV)")
-			ax2.set_xlim([start, x_pos])
+			ax2.set_xlim([0.0, x_pos])
 			#ax2.axis(max=)#autoscale(enable=True, axis='x', tight=None)
 
 			for i in range(0,len(state.y_scale)):

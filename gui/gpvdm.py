@@ -138,6 +138,7 @@ from epitaxy import get_epi
 from cache import cache
 from cal_path import get_scripts_path
 from cal_path import get_base_scripts_path
+from icon_lib import icon_init_db
 import shutil
 
 def do_import():
@@ -150,9 +151,6 @@ def do_import():
 	global ver_check_compatibility
 	global update_now
 
-	global gen_workbook
-
-	global plot_dlg_class
 	global yes_no_dlg
 	global isfiletype
 	global dbus
@@ -179,9 +177,6 @@ def do_import():
 	from PyQt5.QtCore import QSize, Qt,QFile,QIODevice
 	from PyQt5.QtWidgets import QWidget,QSizePolicy,QVBoxLayout,QHBoxLayout,QPushButton,QDialog,QFileDialog,QToolBar,QMessageBox, QLineEdit, QToolButton
 	
-	from icon_lib import icons_load
-
-	icons_load()
 	#windows
 	from new_simulation import new_simulation
 	from dlg_export import dlg_export
@@ -194,13 +189,8 @@ def do_import():
 	#ver
 	from ver import ver_check_compatibility
 
-	from workbook import gen_workbook
-
-	from plot_dlg import plot_dlg_class
 	from gui_util import yes_no_dlg
 	from util import isfiletype
-
-
 
 	#gobject.threads_init()
 
@@ -502,6 +492,8 @@ class gpvdm_main_window(QMainWindow):
 
 	def __init__(self):
 		super(gpvdm_main_window,self).__init__()
+		icon_init_db()
+
 		self.splash=splash_window()
 
 		self.splash.inc_value()
@@ -624,6 +616,8 @@ class gpvdm_main_window(QMainWindow):
 		#self.ribbon.home.stop.setEnabled(False)
 
 		self.ribbon.home.scan.setEnabled(False)
+		self.ribbon.thermal.setEnabled(False)
+
 		
 		self.ribbon.home.help.triggered.connect(self.callback_on_line_help)
 

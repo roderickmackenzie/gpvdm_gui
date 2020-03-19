@@ -58,9 +58,11 @@ lib=[]
 def build_token_lib():
 	global lib
 	#light.inp
-	lib.append(my_data("light.inp","#lpoints","au",_("Mesh points (lambda)"),"e",1.0,"QLineEdit"))
-	lib.append(my_data("light.inp","#lstart","m",_("Lambda start"),"e",1.0,"QLineEdit"))
-	lib.append(my_data("light.inp","#lstop","m",_("Lambda stop"),"e",1.0,"QLineEdit"))
+	lib.append(my_data("","#light_wavelength_auto_mesh",_("True/False"),_("Automatically mesh wavelength space"),"e",1.0,"gtkswitch"))
+	lib.append(my_data("light.inp","#lpoints","au",_("Mesh points (lambda)"),"e",1.0,"QLineEdit",hide_on_true_token="#light_wavelength_auto_mesh"))
+	lib.append(my_data("light.inp","#lstart","m",_("Lambda start"),"e",1.0,"QLineEdit",hide_on_true_token="#light_wavelength_auto_mesh"))
+	lib.append(my_data("light.inp","#lstop","m",_("Lambda stop"),"e",1.0,"QLineEdit",hide_on_true_token="#light_wavelength_auto_mesh"))
+
 	lib.append(my_data("light.inp","#electron_eff","0-1",_("Electron generation efficiency"),"e",1.0,"QLineEdit"))
 	lib.append(my_data("light.inp","#hole_eff","0-1",_("Hole generation efficiency"),"e",1.0,"QLineEdit"))
 	lib.append(my_data("light.inp","#sun",_("filename"),_("Sun's spectra"),"e",1.0,"QLineEdit"))
@@ -194,6 +196,9 @@ def build_token_lib():
 	lib.append(my_data("","#pce","Percent",_("Power conversion efficiency"),"e",1.0,"QLineEdit"))
 	lib.append(my_data("","#ff","a.u.",_("Fill factor"),"e",1.0,"QLineEdit"))
 	lib.append(my_data("","#Pmax","W m^{-2}",_("Max power"),"e",1.0,"QLineEdit"))
+	lib.append(my_data("","#v_pmax","V",_("Voltage at max power"),"e",1.0,"QLineEdit"))
+	lib.append(my_data("","#j_pmax","Am^{-2}",_("Current density at max power"),"e",1.0,"QLineEdit"))
+
 	lib.append(my_data("","#voc_nt","m^{-3}",_("Trapped electrons at Voc"),"e",1.0,"QLineEdit"))
 	lib.append(my_data("","#voc_pt","m^{-3}",_("Trapped holes at Voc"),"e",1.0,"QLineEdit"))
 	lib.append(my_data("","#voc_nf","m^{-3}",_("Free electrons at Voc"),"e",1.0,"QLineEdit"))
@@ -289,21 +294,49 @@ def build_token_lib():
 
 
 	#thermal.inp
-	lib.append(my_data("","#Ty0","Kelvin",_("Device temperature at y_{min}"),"e",1.0,"QLineEdit"))
-	lib.append(my_data("","#Ty1","Kelvin",_("Device temperature at y_{max}"),"e",1.0,"QLineEdit"))
-	lib.append(my_data("","#Tx0","Kelvin",_("Device temperature at x_{min}"),"e",1.0,"QLineEdit"))
-	lib.append(my_data("","#Tx1","Kelvin",_("Device temperature at x_{max}"),"e",1.0,"QLineEdit"))
-	lib.append(my_data("","#Tz0","Kelvin",_("Device temperature at z_{min}"),"e",1.0,"QLineEdit"))
-	lib.append(my_data("","#Tz1","Kelvin",_("Device temperature at z_{max}"),"e",1.0,"QLineEdit"))
-	lib.append(my_data("","#thermal",_("True/False"),_("Enable thermal solver"),"e",1.0,"gtkswitch"))
-	lib.append(my_data("","#thermal_l",_("True/False"),_("Lattice heat model"),"e",1.0,"gtkswitch"))
-	lib.append(my_data("","#thermal_e",_("True/False"),_("Electron heat model"),"e",1.0,"gtkswitch"))
-	lib.append(my_data("","#thermal_h",_("True/False"),_("Hole heat model"),"e",1.0,"gtkswitch"))
-	lib.append(my_data("","#thermal_kl","W m^{-1} C^{-1}",_("Thermal conductivity"),"e",1.0,"QLineEdit"))
-	lib.append(my_data("","#Tliso",_("True/False"),_("Isothermal boundary on left"),"e",1.0,"gtkswitch"))
-	lib.append(my_data("","#Triso",_("True/False"),_("Isothermal boundary on right"),"e",1.0,"gtkswitch"))
-	lib.append(my_data("","#thermal_tau_e","s",_("Electron relaxation time"),"e",1.0,"QLineEdit"))
-	lib.append(my_data("","#thermal_tau_h","s",_("Hole relaxation time"),"e",1.0,"QLineEdit"))
+	lib.append(my_data("thermal.inp","#thermal_model_type","au",_("Thermal model type"),"s",1.0,"QComboBoxLang",defaults=[["thermal_hydrodynamic",_("Hydrodynamic")],["thermal_lattice",_("Lattice heat")]], hide_on_false_token=["#thermal"]))
+
+	lib.append(my_data("thermal.inp","#Ty0","Kelvin",_("Device temperature at y_{min}"),"e",1.0,"QLineEdit", hide_on_false_token=["#thermal"],  hide_on_token_eq=[["#Ty0_boundry", "neumann"]]))
+	lib.append(my_data("thermal.inp","#Ty0_boundry","au",_("Boundry condition for y_{min}"),"s",1.0,"QComboBoxLang",defaults=[["isothermal",_("Isothermal")],["neumann",_("Neumann (==0)")],["heatsink",_("Heatsink")]], hide_on_false_token=["#thermal"]))
+	lib.append(my_data("thermal.inp","#heatsink_y0","W m^{-}K^{-1}",_("Conductivity of heat sink y_{min}"),"e",1.0,"QLineEdit", hide_on_false_token=["#thermal"],  hide_on_token_eq=[["#Ty0_boundry", "neumann"],["#Ty0_boundry", "isothermal"]]))
+	lib.append(my_data("thermal.inp","#heatsink_length_y0","m",_("Heat sink length y_{min}"),"e",1.0,"QLineEdit", hide_on_false_token=["#thermal"],  hide_on_token_eq=[["#Ty0_boundry", "neumann"],["#Ty0_boundry", "isothermal"]]))
+
+	lib.append(my_data("thermal.inp","#Ty1","Kelvin",_("Device temperature at y_{max}"),"e",1.0,"QLineEdit", hide_on_false_token=["#thermal"],  hide_on_token_eq=[["#Ty1_boundry", "neumann"]]))
+	lib.append(my_data("thermal.inp","#Ty1_boundry","au",_("Boundry condition for y_{max}"),"s",1.0,"QComboBoxLang",defaults=[["isothermal",_("Isothermal")],["neumann",_("Neumann (==0)")],["heatsink",_("Heatsink")]], hide_on_false_token=["#thermal"]))
+	lib.append(my_data("thermal.inp","#heatsink_y1","W m^{-2}K^{-1}",_("Conductivity of heat sink y_{max}"),"e",1.0,"QLineEdit", hide_on_false_token=["#thermal"],  hide_on_token_eq=[["#Ty1_boundry", "neumann"],["#Ty1_boundry", "isothermal"]]))
+	lib.append(my_data("thermal.inp","#heatsink_length_y1","m",_("Heat sink length y_{max}"),"e",1.0,"QLineEdit", hide_on_false_token=["#thermal"],  hide_on_token_eq=[["#Ty1_boundry", "neumann"],["#Ty1_boundry", "isothermal"]]))
+
+	lib.append(my_data("thermal.inp","#Tx0","Kelvin",_("Device temperature at x_{min}"),"e",1.0,"QLineEdit", hide_on_false_token=["#thermal"],  hide_on_token_eq=[["#Tx0_boundry", "neumann"]]))
+	lib.append(my_data("thermal.inp","#Tx0_boundry","au",_("Boundry condition for x_{min}"),"s",1.0,"QComboBoxLang",defaults=[["isothermal",_("Isothermal")],["neumann",_("Neumann (==0)")],["heatsink",_("Heatsink")]], hide_on_false_token=["#thermal"]))
+	lib.append(my_data("thermal.inp","#heatsink_x0","W m^{-2}K^{-1}",_("Conductivity of heat sink x_{min}"),"e",1.0,"QLineEdit", hide_on_false_token=["#thermal"],  hide_on_token_eq=[["#Tx0_boundry", "neumann"],["#Tx0_boundry", "isothermal"]]))
+	lib.append(my_data("thermal.inp","#heatsink_length_x0","m",_("Heat sink length x_{min}"),"e",1.0,"QLineEdit", hide_on_false_token=["#thermal"],  hide_on_token_eq=[["#Tx0_boundry", "neumann"],["#Tx0_boundry", "isothermal"]]))
+
+	lib.append(my_data("thermal.inp","#Tx1","Kelvin",_("Device temperature at x_{max}"),"e",1.0,"QLineEdit", hide_on_false_token=["#thermal"],  hide_on_token_eq=[["#Tx1_boundry", "neumann"]]))
+	lib.append(my_data("thermal.inp","#Tx1_boundry","au",_("Boundry condition for x_{max}"),"s",1.0,"QComboBoxLang",defaults=[["isothermal",_("Isothermal")],["neumann",_("Neumann (==0)")],["heatsink",_("Heatsink")]], hide_on_false_token=["#thermal"]))
+	lib.append(my_data("thermal.inp","#heatsink_x1","W m^{-2}K^{-1}",_("Conductivity of heat sink x_{max}"),"e",1.0,"QLineEdit", hide_on_false_token=["#thermal"],  hide_on_token_eq=[["#Tx1_boundry", "neumann"],["#Tx1_boundry", "isothermal"]]))
+	lib.append(my_data("thermal.inp","#heatsink_length_x1","m",_("Heat sink length x_{max}"),"e",1.0,"QLineEdit", hide_on_false_token=["#thermal"],  hide_on_token_eq=[["#Tx1_boundry", "neumann"],["#Tx1_boundry", "isothermal"]]))
+
+	lib.append(my_data("thermal.inp","#Tz0","Kelvin",_("Device temperature at z_{min}"),"e",1.0,"QLineEdit", hide_on_false_token=["#thermal"],  hide_on_token_eq=[["#Tz0_boundry", "neumann"]]))
+	lib.append(my_data("thermal.inp","#Tz0_boundry","au",_("Boundry condition for z_{min}"),"s",1.0,"QComboBoxLang",defaults=[["isothermal",_("Isothermal")],["neumann",_("Neumann (==0)")],["heatsink",_("Heatsink")]], hide_on_false_token=["#thermal"]))
+	lib.append(my_data("thermal.inp","#heatsink_z0","W m^{-2}K^{-1}",_("Conductivity of heat sink z_{min}"),"e",1.0,"QLineEdit", hide_on_false_token=["#thermal"],  hide_on_token_eq=[["#Tz0_boundry", "neumann"],["#Tz0_boundry", "isothermal"]]))
+	lib.append(my_data("thermal.inp","#heatsink_length_z0","m",_("Heat sink length z_{min}"),"e",1.0,"QLineEdit", hide_on_false_token=["#thermal"],  hide_on_token_eq=[["#Tz0_boundry", "neumann"],["#Tz0_boundry", "isothermal"]]))
+
+	lib.append(my_data("thermal.inp","#Tz1","Kelvin",_("Device temperature at z_{max}"),"e",1.0,"QLineEdit", hide_on_false_token=["#thermal"],  hide_on_token_eq=[["#Tz1_boundry", "neumann"]]))
+	lib.append(my_data("thermal.inp","#Tz1_boundry","au",_("Boundry condition for z_{max}"),"s",1.0,"QComboBoxLang",defaults=[["isothermal",_("Isothermal")],["neumann",_("Neumann (==0)")],["heatsink",_("Heatsink")]], hide_on_false_token=["#thermal"]))
+	lib.append(my_data("thermal.inp","#heatsink_z1","W m^{-2}K^{-1}",_("Conductivity of heat sink z_{max}"),"e",1.0,"QLineEdit", hide_on_false_token=["#thermal"],  hide_on_token_eq=[["#Tz1_boundry", "neumann"],["#Tz1_boundry", "isothermal"]]))
+	lib.append(my_data("thermal.inp","#heatsink_length_z1","m",_("Heat sink length z_{max}"),"e",1.0,"QLineEdit", hide_on_false_token=["#thermal"],  hide_on_token_eq=[["#Tz1_boundry", "neumann"],["#Tz1_boundry", "isothermal"]]))
+
+
+	lib.append(my_data("thermal.inp","#thermal_l",_("True/False"),_("Lattice heat model"),"e",1.0,"gtkswitch",hide_on_token_eq=[["#thermal_model_type", "thermal_lattice"]], hide_on_false_token=["#thermal"]))
+	lib.append(my_data("thermal.inp","#thermal_e",_("True/False"),_("Electron heat model"),"e",1.0,"gtkswitch",hide_on_token_eq=[["#thermal_model_type", "thermal_lattice"]], hide_on_false_token=["#thermal"]))
+	lib.append(my_data("thermal.inp","#thermal_h",_("True/False"),_("Hole heat model"),"e",1.0,"gtkswitch",hide_on_token_eq=[["#thermal_model_type", "thermal_lattice"]], hide_on_false_token=["#thermal"]))
+	lib.append(my_data("thermal.inp","#thermal_tau_e","s",_("Electron relaxation time"),"e",1.0,"QLineEdit",hide_on_token_eq=[["#thermal_model_type", "thermal_lattice"]], hide_on_false_token=["#thermal"]))
+	lib.append(my_data("thermal.inp","#thermal_tau_h","s",_("Hole relaxation time"),"e",1.0,"QLineEdit",hide_on_token_eq=[["#thermal_model_type", "thermal_lattice"]], hide_on_false_token=["#thermal"]))
+
+	lib.append(my_data("thermal.inp","#thermal_kl","W m^{-1} C^{-1}",_("Thermal conductivity"),"e",1.0,"QLineEdit", hide_on_false_token=["#thermal"]))
+	lib.append(my_data("thermal.inp","#Tliso",_("True/False"),_("Isothermal boundary on left"),"e",1.0,"gtkswitch", hide_on_false_token=["#thermal"]))
+	lib.append(my_data("thermal.inp","#Triso",_("True/False"),_("Isothermal boundary on right"),"e",1.0,"gtkswitch", hide_on_false_token=["#thermal"]))
+
 
 	#dump.inp
 	lib.append(my_data("dump.inp","#newton_dump",_("True/False"),_("Dump from newton solver"),"e",1.0,"gtkswitch"))

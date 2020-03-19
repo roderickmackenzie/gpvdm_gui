@@ -22,8 +22,8 @@
 #
 #
 
-## @package ribbon_configure
-#  The configure ribbon.
+## @package ribbon_electrical
+#  The electrical ribbon.
 #
 
 
@@ -44,81 +44,66 @@ from PyQt5.QtCore import QSize, Qt,QFile,QIODevice
 from PyQt5.QtWidgets import QWidget,QSizePolicy,QVBoxLayout,QHBoxLayout,QPushButton,QDialog,QFileDialog,QToolBar,QMessageBox, QLineEdit, QToolButton
 from PyQt5.QtWidgets import QTabWidget
 
-from config_window import class_config_window
+from doping import doping_window
+from emesh import tab_electrical_mesh
 
 from help import help_window
 
-from global_objects import global_object_register
-from emesh import tab_electrical_mesh
-
-from gpvdm_open import gpvdm_open
-from QAction_lock import QAction_lock
 from gui_util import dlg_get_text
 from inp import inp_get_token_value
 from inp import inp_update_token_value
 
 from QAction_lock import QAction_lock
-from solar_spectrum_gen_window import solar_spectrum_gen_window
+from thermal_isothermal_button import thermal_isothermal_button
+from config_window import class_config_window
 
 from inp import inp
+from str2bool import str2bool
+from cal_path import get_sim_path
+from file_watch import get_watch
+from dos_main import dos_main
 
-class ribbon_configure(QToolBar):
+class ribbon_electrical(QToolBar):
 	def __init__(self):
 		QToolBar.__init__(self)
-		self.config_window=None
 		self.electrical_mesh=None
+		self.doping_window=None
+		self.electrical_editor=None
 
 		self.setToolButtonStyle( Qt.ToolButtonTextUnderIcon)
 		self.setIconSize(QSize(42, 42))
 
-		self.configwindow = QAction_lock("preferences-system", _("Configure"), self,"ribbon_config_config")
-		self.configwindow.triggered.connect(self.callback_config_window)
-		self.addAction(self.configwindow)
-
-		self.dump = dump_io(self)
-		global_object_register("ribbon_configure_dump_refresh",self.dump.refresh)
-		self.addAction(self.dump)
-
-		self.solar = QAction_lock("weather-few-clouds", _("Solar spectrum\ngenerator"), self,"solar_spectrum_tool")
-		self.solar.clicked.connect(self.callback_solar)
-		if inp().isfile("spectral2.inp")==True:
-			self.addAction(self.solar)
-
+		self.doping = QAction_lock("doping", _("Doping/\nIons"), self,"ribbon_device_doping")
+		self.doping.clicked.connect(self.callback_doping)
+		self.addAction(self.doping)
 
 		self.mesh = QAction_lock("mesh", _("Electrical\nmesh"), self,"ribbon_config_mesh")
 		self.mesh.triggered.connect(self.callback_edit_mesh)
 		self.addAction(self.mesh)
 
+		self.tb_electrical_editor = QAction_lock("electrical", _("Electrical\nparameters"), self,"ribbon_device_electrical")
+		self.tb_electrical_editor.clicked.connect(self.callback_electrical_editor)
+		self.addAction(self.tb_electrical_editor)
+
+		get_watch().add_call_back("diagram.inp",self.callback_circuit_diagram)
+		self.callback_circuit_diagram()
+
 	def update(self):
 		if self.electrical_mesh!=None:
 			self.electrical_mesh.update()
 
-		if self.config_window!=None:
-			del self.config_window
-			self.config_window=None
+		if self.doping_window!=None:
+			del self.doping_window
+			self.doping_window=None
+
+		if self.electrical_editor!=None:
+			del self.electrical_editor
+			self.electrical_editor=None
 
 	def setEnabled(self,val):
-		self.configwindow.setEnabled(val)
-		self.dump.setEnabled(val)
 		self.mesh.setEnabled(val)
-
-	def callback_config_window(self):
-
-		self.config_window=gpvdm_open("/gpvdmroot/gpvdm_configure",show_inp_files=False,title=_("Configure"))
-		self.config_window.toolbar.hide()
-		self.config_window.show_directories=False
-		ret=self.config_window.exec_()
-		#self.config_window.changed.connect(self.dump.refresh)
-
-		help_window().help_set_help(["preferences-system.png",_("<big><b>Configuration editor</b></big><br> Use this window to control advanced simulation parameters.")])
-
-
-	def callback_solar(self):
-
-		self.solar_window=solar_spectrum_gen_window()
-
-		self.solar_window.show()
-
+		self.doping.setEnabled(val)
+		self.tb_electrical_editor.setEnabled(val)
 
 	def callback_edit_mesh(self):
 		help_window().help_set_help(["mesh.png",_("<big><b>Mesh editor</b></big>\nUse this window to setup the mesh, the window can also be used to change the dimensionality of the simulation.")])
@@ -129,4 +114,30 @@ class ribbon_configure(QToolBar):
 			self.electrical_mesh.hide()
 		else:
 			self.electrical_mesh.show()
+
+	def callback_doping(self):
+		help_window().help_set_help(["doping.png",_("<big><b>Doping window</b></big>\nUse this window to add doping to the simulation")])
+
+		if self.doping_window==None:
+			self.doping_window=doping_window()
+
+		if self.doping_window.isVisible()==True:
+			self.doping_window.hide()
+		else:
+			self.doping_window.show()
+
+	def callback_electrical_editor(self):
+		help_window().help_set_help(["electrical.png",_("<big><b>Electrical parameters</b></big>\nUse this window to change the electrical parameters of each layer.")])
+
+		if self.electrical_editor!=None:
+			del self.electrical_editor
+
+		self.electrical_editor=dos_main()
+		self.electrical_editor.show()
+
+	def callback_circuit_diagram(self):
+		if inp().isfile(os.path.join(get_sim_path(),"diagram.inp"))==True:
+			self.tb_electrical_editor.setEnabled(False)
+		else:
+			self.tb_electrical_editor.setEnabled(True)
 

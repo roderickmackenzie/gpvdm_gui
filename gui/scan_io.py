@@ -97,10 +97,13 @@ def scan_archive(sim_dir):
 
 
 def build_scan(scan_path,base_path,parent_window=None):
+	#print(">>>>",os.getcwd())
 	scan_clean_dir(scan_path,parent_window=parent_window)
-
+	#print(">>>>",os.getcwd())
 	flat_simulation_list=[]
+	#print(">>>>",os.getcwd())
 	program_list=tree_load_program(scan_path)
+	#print(">>>>",os.getcwd())
 	path=os.getcwd()
 
 	if tree_gen(scan_path,flat_simulation_list,program_list,base_path)==False:

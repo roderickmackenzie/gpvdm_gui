@@ -252,6 +252,12 @@ def build_token_lib():
 	lib.append(my_data("","#nodes","au",_("Remote node list"),"e",1.0,"QLineEdit"))
 
 
+	#triangle mesh editor
+	lib.append(my_data("","#x_triangles","au",_("x-triangles"),"e",1.0,"QLineEdit"))
+	lib.append(my_data("","#y_triangles","au",_("y-triangles"),"e",1.0,"QLineEdit"))
+	lib.append(my_data("","#shape_import_blur","width pixels",_("Gaussian blur"),"e",1.0,"QLineEdit"))
+	lib.append(my_data("","#shape_import_y_norm_percent","percent",_("Percent of histogram to ignore"),"e",1.0,"QLineEdit"))
+
 	#math.inp
 	lib.append(my_data("math.inp","#maxelectricalitt_first","au",_("Max Electrical itterations (first step)"),"e",1.0,"QLineEdit"))
 	lib.append(my_data("math.inp","#electricalclamp_first","au",_("Electrical clamp (first step)"),"e",1.0,"QLineEdit"))
@@ -392,9 +398,6 @@ def build_token_lib():
 	lib.append(my_data("ray.inp","#ray_lambda_stop","nm",_("Stop wavelength"),"e",1.0,"QLineEdit",hide_on_true_token="#ray_auto_wavelength_range"))
 	
 	lib.append(my_data("ray.inp","#ray_emission_source","au",_("Emit from"),"s",1.0,"QComboBoxLang",defaults=[[("ray_emission_electrical_mesh"),_("Each electrical mesh point")],["ray_emission_single_point",_("Center of each layer")]]))
-
-
-
 
 
 

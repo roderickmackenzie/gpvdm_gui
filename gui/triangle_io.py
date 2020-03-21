@@ -181,3 +181,29 @@ def triangles_scale_for_gl(data):
 	ret=triangles_sub_vec(ret,v)
 	return ret
 
+def triangles_norm_y(data,min_value,mav_value):
+	v=vec()
+	v.y=triangles_get_min(data)
+	v.x=0.0
+	v.z=0.0
+
+	triangles_sub_vec(data,v)
+
+	v.y=triangles_get_min(data)
+	v.x=0.0
+	v.z=0.0
+	triangles_add_vec(data,min_value)
+
+	v.y=triangles_get_max(data)
+	v.x=0.0
+	v.z=0.0
+
+	triangles_div_vec(data,v)
+
+	v.y=mav_value
+	v.x=0.0
+	v.z=0.0
+
+	triangles_mul_vec(data,v)
+
+	return data

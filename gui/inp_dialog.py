@@ -55,11 +55,12 @@ from cal_path import get_image_file_path
 
 class inp_dialog(QDialog):
 
-	def __init__(self,title="gpvdm"):
+	def __init__(self,title="gpvdm",icon="icon"):
 		QWidget.__init__(self)
 		self.editable=True
 		self.setWindowTitle(title)
-		self.setWindowIcon(QIcon(os.path.join(get_image_file_path(),"image.jpg")))		
+		self.setWindowIcon(icon_get(icon))
+		#self.setWindowIcon(QIcon(os.path.join(get_image_file_path(),"image.jpg")))		
 
 		self.scroll=QScrollArea()
 		self.main_box_widget=QWidget()

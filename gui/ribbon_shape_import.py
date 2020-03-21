@@ -40,7 +40,7 @@ from cal_path import get_css_path
 from PyQt5.QtWidgets import QMainWindow, QTextEdit, QAction, QApplication
 from PyQt5.QtGui import QIcon
 from PyQt5.QtCore import QSize, Qt,QFile,QIODevice
-from PyQt5.QtWidgets import QWidget,QSizePolicy,QVBoxLayout,QHBoxLayout,QPushButton,QDialog,QFileDialog,QToolBar,QMessageBox, QLineEdit, QToolButton
+from PyQt5.QtWidgets import QWidget,QSizePolicy,QVBoxLayout,QHBoxLayout,QPushButton,QDialog,QFileDialog,QToolBar, QToolButton,QMenu
 from PyQt5.QtWidgets import QTabWidget
 
 from plot_gen import plot_gen
@@ -74,8 +74,54 @@ class ribbon_shape_import(ribbon_base):
 		self.save_data= QAction_lock("document-save-as", wrap_text(_("Import data"),4), self,"ribbon_shape_import_save")
 		toolbar.addAction(self.save_data)
 
-		self.xy_triangles= QAction_lock("shape", wrap_text(_("xy triangles"),2), self,"ribbon_shape_xy_tri")
-		toolbar.addAction(self.xy_triangles)
+		#self.xy_triangles= QAction_lock("shape", wrap_text(_("xy triangles"),2), self,"ribbon_shape_xy_tri")
+		#toolbar.addAction(self.xy_triangles)
+
+		#mesh
+		self.show_mesh= QAction_lock("mesh_tri", wrap_text(_("Show\nMesh"),2), self,"ribbon_shape_mesh")
+		self.show_mesh.setCheckable(True)
+		self.show_mesh.setChecked(True)
+
+		self.menu_mesh = QMenu(self)
+		self.show_mesh.setMenu(self.menu_mesh)
+
+		self.edit_mesh=QAction(_("Edit mesh"), self)
+		self.menu_mesh.addAction(self.edit_mesh)
+
+		toolbar.addAction(self.show_mesh)
+
+		#blur
+		self.tb_blur= QAction_lock("blur", wrap_text(_("Blur"),2), self,"ribbon_shape_blur")
+		self.tb_blur.setCheckable(True)
+		#self.tb_blur.setChecked(True)
+
+		self.menu_blur = QMenu(self)
+		self.tb_blur.setMenu(self.menu_blur)
+
+		self.edit_blur=QAction(_("Edit Gaussian"), self)
+		self.menu_blur.addAction(self.edit_blur)
+
+		toolbar.addAction(self.tb_blur)
+
+		#norm y
+		self.tb_norm_y= QAction_lock("plot_norm", wrap_text(_("Normalize\ny"),2), self,"ribbon_shape_norm_y")
+		self.tb_norm_y.setCheckable(True)
+		#self.tb_norm_y.setChecked(True)
+
+		self.menu_norm_y = QMenu(self)
+		self.tb_norm_y.setMenu(self.menu_norm_y)
+
+		self.edit_norm_y=QAction(_("Edit histogram"), self)
+		self.menu_norm_y.addAction(self.edit_norm_y)
+
+		toolbar.addAction(self.tb_norm_y)
+
+		#norm z
+		self.tb_norm_z= QAction_lock("plot_norm", wrap_text(_("Normalize\nz"),2), self,"ribbon_shape_norm_z")
+		self.tb_norm_z.setCheckable(True)
+		#self.tb_norm_z.setChecked(True)
+		toolbar.addAction(self.tb_norm_z)
+
 
 		spacer = QWidget()
 		spacer.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)

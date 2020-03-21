@@ -658,9 +658,13 @@ class gpvdm_main_window(QMainWindow):
 
 		self.cache=cache(only_open_if_full=True)
 
-		#from shape_editor import shape_editor
-		#self.shape_window=shape_editor("/home/rod/gpvdm_local/shape/sin4")
-		#self.shape_window.show()
+		from shape_editor import shape_editor
+		self.shape_window=shape_editor("/home/rod/gpvdm_local/shape/pedot")
+		self.shape_window.show()
+
+		from shape_import import shape_import
+		self.shape_import=shape_import("/home/rod/gpvdm_local/shape/pedot")
+		self.shape_import.show()
 
 	def dragEnterEvent(self, event):
 		if event.mimeData().hasUrls:

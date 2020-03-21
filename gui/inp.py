@@ -179,6 +179,7 @@ class inp():
 		if type(replace)==str:
 			for i in range(0, len(self.lines)):
 				if self.lines[i]==token:
+					print(self.lines[i],token,replace)
 					if i+1<len(self.lines):
 						self.lines[i+1]=replace
 						replaced=True

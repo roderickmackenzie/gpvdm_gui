@@ -31,7 +31,7 @@ from icon_lib import icon_get
 
 #qt
 from PyQt5.QtCore import QSize, Qt 
-from PyQt5.QtWidgets import QWidget,QVBoxLayout,QToolBar,QSizePolicy,QAction,QTabWidget
+from PyQt5.QtWidgets import QWidget,QVBoxLayout,QToolBar,QSizePolicy,QAction,QTabWidget, QDialog
 from PyQt5.QtGui import QPainter,QIcon,QPixmap,QPen,QColor
 
 #python modules
@@ -53,7 +53,6 @@ from ref import ref_window
 from ref import get_ref_text
 from ref_io import ref
 
-from triangle_xy_editor import triangle_xy_editor
 from open_save_dlg import open_as_filter
 
 from shutil import copyfile
@@ -64,9 +63,11 @@ from triangle_io import triangles_get_min
 from triangle_io import triangles_get_max
 
 from PyQt5.QtCore import pyqtSignal
-from PIL import Image
-
+from PIL import Image, ImageFilter,ImageOps 
+from PIL.ImageQt import ImageQt
 from inp import inp
+from inp_dialog import inp_dialog
+from str2bool import str2bool
 
 class image_widget(QWidget):
 	changed = pyqtSignal()
@@ -79,25 +80,38 @@ class image_widget(QWidget):
 		self.len_x=800e-9
 		self.len_y=800e-9
 		self.len_z=800e-9
+		self.im=None
 
 		self.triangles=[]
+		self.show_mesh=True
+		self.gaussian_blur=0
+		self.blur_enable=False
+		self.y_norm=False
+		self.x_norm=False
+		self.z_norm=False
+
+		self.load_image()
 		self.build_mesh()
 
 	def m2px_x(self,x):
-		ret=self.im.width()*(x/self.len_x)
-		if ret>=self.im.width():
-			return self.im.width()-1
+		width, height = self.im.size
+		ret=width*(x/self.len_x)
+		if ret>=width:
+			return width-1
 		return int(ret)
 
 	def m2px_z(self,z):
-		ret=self.im.height()*(z/self.len_z)
+		width, height = self.im.size
 
-		if ret>=self.im.height():
-			return self.im.height()-1
+		ret=height*(z/self.len_z)
+
+		if ret>=height:
+			return height-1
 
 		return int(ret)
 
 	def force_update(self):
+		self.load_image()
 		self.build_mesh()
 		self.repaint()
 
@@ -128,24 +142,83 @@ class image_widget(QWidget):
 		self.changed.emit()
 
 	def get_color(self,x,z):
-		c = self.im.pixel(self.m2px_x(x),self.m2px_z(z))
-		colors = QColor(c).getRgbF()
-		return (colors[0]+colors[1]+colors[2])/3.0
+		colors = self.im.getpixel((self.m2px_x(x),self.m2px_z(z)))
+		c=(colors[0]+colors[1]+colors[2])/3.0
+		if c<self.y_min:
+			self.y_min=c
 
-	def build_mesh(self):
+		if c>self.y_max:
+			self.y_max=c
+
+		return c
+
+	def load_image(self):
 		if os.path.isfile(self.image_path)==False:
+			self.im=None
 			return
 
-		pixmap = QPixmap(self.image_path)
+		img=Image.open(self.image_path)
 
-		self.im=pixmap.toImage()
 		f=inp()
 		f.load(os.path.join(self.path,"shape_import.inp"))
-		x_segs=int(f.get_token("#x_trianges"))
-		z_segs=int(f.get_token("#y_trianges"))
+		self.x_segs=int(f.get_token("#x_triangles"))
+		self.z_segs=int(f.get_token("#y_triangles"))
+		self.gaussian_blur=int(f.get_token("#shape_import_blur"))
+		self.y_norm=str2bool(f.get_token("#shape_import_y_norm"))
+		self.z_norm=str2bool(f.get_token("#shape_import_z_norm"))
+		self.blur_enable=str2bool(f.get_token("#shape_import_blur_enabled"))
+		self.y_norm_percent=int(f.get_token("#shape_import_y_norm_percent"))
 
-		dx=self.len_x/x_segs
-		dz=self.len_z/z_segs
+		if self.blur_enable==True:
+			img = img.filter(ImageFilter.GaussianBlur(radius = self.gaussian_blur))
+
+		if self.y_norm==True:
+			img=ImageOps.autocontrast(img, cutoff=self.y_norm_percent, ignore=None)
+
+		if self.z_norm==True:
+			img2 = img.resize((1, 1))
+			color = img2.getpixel((0, 0))
+			avg_pixel=(color[0]+color[1]+color[2])/3
+			width, height = img.size
+			for z in range(0,height):
+				x_avg=0
+				for x in range(0,width):
+					color=img.getpixel((x, z))
+					c=(color[0]+color[1]+color[2])/3
+					x_avg=x_avg+c
+				x_avg=x_avg/width
+				delta=avg_pixel-x_avg
+				for x in range(0,width):
+					color=img.getpixel((x, z))
+					c=(color[0]+color[1]+color[2])/3
+					img.putpixel((x,z),(int(c+delta),int(c+delta),int(c+delta)))
+
+				print(x_avg)
+
+			print("avg color>>",c)
+
+		self.im = img.convert('RGB')
+
+
+	def build_mesh(self):
+		if self.im==None:
+			return
+
+		self.y_min=255
+		self.y_max=0
+
+		#pixmap = QPixmap(self.image_path)
+
+		#self.im=pixmap.toImage()
+
+		#im = Image.open(self.image_path)
+		#qim = ImageQt(im)
+		#pixmap = QPixmap.fromImage(qim)
+
+		#self.im=Image.open(self.image_path)	#pixmap.toImage()
+
+		dx=self.len_x/self.x_segs
+		dz=self.len_z/self.z_segs
 
 		#add top
 		x=0
@@ -153,9 +226,9 @@ class image_widget(QWidget):
 		self.triangles=[]
 		ix=0
 		iz=0
-		for ix in range(0,x_segs):
+		for ix in range(0,self.x_segs):
 			z=0
-			for iz in range(0,z_segs):
+			for iz in range(0,self.z_segs):
 				t0=triangle()
 
 				t0.xyz0.x=x
@@ -185,9 +258,9 @@ class image_widget(QWidget):
 				t1.xyz2.z=z
 				self.triangles.append(t1)
 
-				if iz==z_segs-1 or iz==0:
+				if iz==self.z_segs-1 or iz==0:
 					zadd=0.0
-					if iz==z_segs-1:
+					if iz==self.z_segs-1:
 						zadd=dz
 
 					td0=triangle()
@@ -221,9 +294,9 @@ class image_widget(QWidget):
 					td0.xyz2.z=z+zadd
 					self.triangles.append(td0)
 
-				if ix==0 or ix==x_segs-1:
+				if ix==0 or ix==self.x_segs-1:
 					xadd=0.0
-					if ix==x_segs-1:
+					if ix==self.x_segs-1:
 						xadd=dx
 
 					td0=triangle()
@@ -346,11 +419,13 @@ class image_widget(QWidget):
 	def paintEvent(self, event):
 		painter = QPainter(self)
 
-		if os.path.isfile(self.image_path)==False:
+		if self.im==None:
 			return
 
-		pixmap = QPixmap(self.image_path)
-		self.im=pixmap.toImage()
+		qim = ImageQt(self.im)
+		pixmap = QPixmap.fromImage(qim)
+		#pixmap = QPixmap(self.image_path)
+		#self.im=pixmap.toImage()
 		x_mul=self.width()/pixmap.width()
 		z_mul=self.height()/pixmap.height()
 
@@ -358,10 +433,11 @@ class image_widget(QWidget):
 		pen = QPen(Qt.red, 3)
 		painter.setPen(pen)
 
-		for b in self.triangles:
-			painter.drawLine(self.m2px_x(b.xyz0.x)*x_mul, self.m2px_z(b.xyz0.z)*z_mul, self.m2px_x(b.xyz1.x)*x_mul, self.m2px_z(b.xyz1.z)*z_mul)
-			painter.drawLine(self.m2px_x(b.xyz1.x)*x_mul, self.m2px_z(b.xyz1.z)*z_mul, self.m2px_x(b.xyz2.x)*x_mul, self.m2px_z(b.xyz2.z)*z_mul)
-			painter.drawLine(self.m2px_x(b.xyz2.x)*x_mul, self.m2px_z(b.xyz2.z)*z_mul, self.m2px_x(b.xyz0.x)*x_mul, self.m2px_z(b.xyz0.z)*z_mul)
+		if self.show_mesh==True:
+			for b in self.triangles:
+				painter.drawLine(self.m2px_x(b.xyz0.x)*x_mul, self.m2px_z(b.xyz0.z)*z_mul, self.m2px_x(b.xyz1.x)*x_mul, self.m2px_z(b.xyz1.z)*z_mul)
+				painter.drawLine(self.m2px_x(b.xyz1.x)*x_mul, self.m2px_z(b.xyz1.z)*z_mul, self.m2px_x(b.xyz2.x)*x_mul, self.m2px_z(b.xyz2.z)*z_mul)
+				painter.drawLine(self.m2px_x(b.xyz2.x)*x_mul, self.m2px_z(b.xyz2.z)*z_mul, self.m2px_x(b.xyz0.x)*x_mul, self.m2px_z(b.xyz0.z)*z_mul)
 
 
 class shape_import(QWidgetSavePos):
@@ -372,16 +448,74 @@ class shape_import(QWidgetSavePos):
 	def update(self):
 		self.alpha.update()
 
-	def callback_xy_triangles(self):
-		self.xy_triangles=triangle_xy_editor(self.path)
-		self.xy_triangles.show()
-		self.xy_triangles.changed.connect(self.image_widget.force_update)
+	def callback_norm_y(self):
+		f=inp()
+		f.load(os.path.join(self.path,"shape_import.inp"))
+		f.replace("#shape_import_y_norm",str(self.ribbon.tb_norm_y.isChecked()))
+		f.save()
+		self.image_widget.force_update()
+
+	def callback_norm_z(self):
+		f=inp()
+		f.load(os.path.join(self.path,"shape_import.inp"))
+		f.replace("#shape_import_z_norm",str(self.ribbon.tb_norm_z.isChecked()))
+		f.save()
+		self.image_widget.force_update()
+
+	def callback_blur_enable(self):
+		f=inp()
+		f.load(os.path.join(self.path,"shape_import.inp"))
+		f.replace("#shape_import_blur_enabled",str(self.ribbon.tb_blur.isChecked()))
+		f.save()
+		self.image_widget.force_update()
+
+	def callback_menu_blur(self):
+		f=inp()
+		f.load(os.path.join(self.path,"shape_import.inp"))
+		blur=f.get_token("#shape_import_blur")
+
+		self.a=inp_dialog(title=_("Gaussian blur editor"),icon="blur")
+		ret=self.a.run(["#shape_import_blur",blur,"#end"])
+		if ret==QDialog.Accepted:
+			f.replace("#shape_import_blur",self.a.tab.f.get_token("#shape_import_blur"))
+
+			f.save()
+			self.image_widget.force_update()
+
+	def callback_mesh_editor(self):
+		f=inp()
+		f.load(os.path.join(self.path,"shape_import.inp"))
+		x_triangles=f.get_token("#x_triangles")
+		y_triangles=f.get_token("#y_triangles")
+
+		self.a=inp_dialog(title=_("Triangle editor"),icon="shape")
+		ret=self.a.run(["#x_triangles",x_triangles,"#y_triangles",y_triangles,"#end"])
+		if ret==QDialog.Accepted:
+			f.replace("#x_triangles",self.a.tab.f.get_token("#x_triangles"))
+			f.replace("#y_triangles",self.a.tab.f.get_token("#y_triangles"))
+
+			f.save()
+			self.image_widget.force_update()
+
+	def callback_edit_norm_y(self):
+		f=inp()
+		f.load(os.path.join(self.path,"shape_import.inp"))
+		shape_import_y_norm_percent=f.get_token("#shape_import_y_norm_percent")
+
+		self.a=inp_dialog(title=_("Normalization editor"),icon="shape")
+		ret=self.a.run(["#shape_import_y_norm_percent",shape_import_y_norm_percent,"#end"])
+		if ret==QDialog.Accepted:
+			f.replace("#shape_import_y_norm_percent",self.a.tab.f.get_token("#shape_import_y_norm_percent"))
+			f.save()
+			self.image_widget.force_update()
+
 
 	def callback_open_image(self):
 		file_name=open_as_filter(self,"png (*.png);;jpg (*.jpg)",path=self.path)
 		if file_name!=None:
 			im = Image.open(file_name)
 			im.save(os.path.join(self.path,"image.png"))
+			self.image_widget.load_image()
 			self.image_widget.build_mesh()
 
 	def __init__(self,path):
@@ -399,9 +533,23 @@ class shape_import(QWidgetSavePos):
 
 		self.ribbon=ribbon_shape_import()
 
-		self.ribbon.xy_triangles.clicked.connect(self.callback_xy_triangles)
+		f=inp()
+		f.load(os.path.join(self.path,"shape_import.inp"))
+		self.ribbon.tb_norm_y.setChecked(str2bool(f.get_token("#shape_import_y_norm")))
+		self.ribbon.tb_norm_z.setChecked(str2bool(f.get_token("#shape_import_z_norm")))
+		self.ribbon.tb_blur.setChecked(str2bool(f.get_token("#shape_import_blur_enabled")))
+
+		#self.ribbon.xy_triangles.clicked.connect(self.callback_mesh_editor)
+		self.ribbon.edit_mesh.triggered.connect(self.callback_mesh_editor)
+		self.ribbon.edit_norm_y.triggered.connect(self.callback_edit_norm_y)
+		self.ribbon.menu_blur.triggered.connect(self.callback_menu_blur)
+		self.ribbon.tb_norm_y.triggered.connect(self.callback_norm_y)
+		self.ribbon.tb_norm_z.triggered.connect(self.callback_norm_z)
+		self.ribbon.tb_blur.triggered.connect(self.callback_blur_enable)
+
 		self.ribbon.import_image.clicked.connect(self.callback_open_image)
 		self.ribbon.save_data.clicked.connect(self.callback_import)
+		self.ribbon.show_mesh.clicked.connect(self.callback_show_mesh)
 
 
 		#self.ribbon.help.triggered.connect(self.callback_help)
@@ -429,6 +577,10 @@ class shape_import(QWidgetSavePos):
 		self.setLayout(self.main_vbox)
 		
 		#self.notebook.currentChanged.connect(self.changed_click)
+
+	def callback_show_mesh(self):
+		self.image_widget.show_mesh=self.ribbon.show_mesh.isChecked()
+		self.image_widget.repaint()
 
 	def callback_import(self):
 		self.image_widget.save_mesh()

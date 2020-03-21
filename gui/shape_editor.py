@@ -146,6 +146,7 @@ class shape_editor(QWidgetSavePos):
 		self.three_d_shape.enable_draw_ray_mesh=True
 		self.three_d_shape.enable_draw_light_source=False
 		self.three_d_shape.enable_draw_rays=False
+		self.three_d_shape.view.render_photons=False
 
 		self.load_data()
 

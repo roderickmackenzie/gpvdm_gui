@@ -46,11 +46,11 @@ from inp import inp
 from cal_path import get_sim_path
 from util_zip import archive_merge_file
 from mesh import get_mesh
-from shape import shape
 from inp import inp_update_token_value
 
 from util import is_numbered_file
 from contacts_io import contacts_io
+from shape import shape
 
 from gui_enable import gui_get
 if gui_get()==True:
@@ -58,20 +58,14 @@ if gui_get()==True:
 	from PyQt5.QtCore import pyqtSignal
 	from PyQt5.QtWidgets import QWidget
 
-class epi_layer():
+class epi_layer(shape):
 	def __init__(self):
-
-		self.dy=0
-		self.mat_file=""
-		self.name=""
+		super().__init__()
 		self.pl_file=""
+		self.shape_file_name="none"
 		self.shapes=[]
-		self.r=0
-		self.g=0
-		self.b=0
 		self.dos_file="none"
 		self.layer_type="other"
-		self.alpha=1.0
 		self.lumo_file="none"
 		self.homo_file="none"
 		self.electrical_file="none"
@@ -92,14 +86,10 @@ class epi_layer():
 
 		return True
 
-	def set_mat_file(self,mat_file):
-		self.mat_file=mat_file
-		self.cal_rgb()
-
 	def cal_rgb(self):
-		path=os.path.join(os.path.join(get_materials_path(),self.mat_file),"mat.inp")
+		path=os.path.join(os.path.join(get_materials_path(),self.optical_material),"mat.inp")
 
-		zip_file=os.path.basename(self.mat_file)+".zip"
+		zip_file=os.path.basename(self.optical_material)+".zip"
 
 		mat_lines=inp_load_file(path,archive=zip_file)
 
@@ -121,6 +111,14 @@ class epitaxy():
 		self.layers=[]
 		self.callbacks=[]
 		self.contacts=contacts_io()
+		self.loaded=False
+
+	def dump_tree(self):
+		for i in range(0,len(self.layers)):
+			l=self.layers[i]
+			print("layer:"+str(i)+" "+str(l.name)+","+l.dos_file)
+			for s in l.shapes:
+				print(s.name,s.shape_dos)
 
 	def dump(self):
 		lines=self.gen_output()
@@ -149,6 +147,10 @@ class epitaxy():
 			if l.dos_file.startswith("dos"):
 				tab.append(l.dos_file+".inp")
 
+			#pl files
+			if l.shape_file_name!="none":
+				tab.append(l.shape_file_name+".inp")
+
 			if len(l.shapes)!=0:
 				for s in l.shapes:
 					if s.shape_dos!="none":
@@ -156,6 +158,9 @@ class epitaxy():
 
 					if s.file_name!="none":
 						tab.append(s.file_name+".inp")
+
+					if s.shape_electrical!="none":
+						tab.append(s.shape_electrical+".inp")
 
 			#pl files
 			if l.pl_file!="none":
@@ -229,15 +234,18 @@ class epitaxy():
 			pos=self.layer_to_index(pos)
 
 		a=epi_layer()
-		a.dy=100e-9
-		a.mat_file="blends/p3htpcbm"
-		a.name=self.get_new_material_name()
 		a.pl_file="none"
+		a.shape_file_name=self.gen_new_electrical_file("shape")
+		a.load(os.path.join(get_sim_path(),a.shape_file_name))
+		a.name=self.get_new_material_name()
+		a.optical_material="blends/p3htpcbm"
+		a.save()
+		a.dy=100e-9
 		a.shapes=[]
 		a.lumo_file="none"
 		a.homo_file="none"
 		a.dos_file="other"
-		a.electrical_file=self.new_electrical_file("electrical")
+		a.electrical_file=self.gen_new_electrical_file("electrical")
 
 		a.r=1.0
 		a.g=0
@@ -282,18 +290,14 @@ class epitaxy():
 
 		layer=0
 		for i in range(0,len(epi.layers)):
-			lines.append("#layer_name"+str(layer))
-			lines.append(str(epi.layers[i].name))
 			lines.append("#layer_type"+str(layer))
 			lines.append(str(epi.layers[i].layer_type))
-			lines.append("#layer_width"+str(layer))
-			lines.append(str(epi.layers[i].dy))
-			lines.append("#layer_material_file"+str(layer))
-			lines.append(epi.layers[i].mat_file)
 			lines.append("#layer_dos_file"+str(layer))
 			lines.append(epi.layers[i].dos_file)
 			lines.append("#layer_pl_file"+str(layer))
 			lines.append(epi.layers[i].pl_file)
+			lines.append("#layer_base_shape"+str(layer))
+			lines.append(epi.layers[i].shape_file_name)
 			lines.append("#layer_shape"+str(layer))
 			if len(epi.layers[i].shapes)==0:
 				lines.append("none")
@@ -325,6 +329,8 @@ class epitaxy():
 	def save(self):
 		lines=self.gen_output()
 		inp_save(os.path.join(get_sim_path(),"epitaxy.inp"),lines,id="epitaxy")
+		for l in epi.layers:
+			l.save()
 
 		ymesh=get_mesh().y
 		ymesh.do_remesh(self.ylen_active())
@@ -336,7 +342,7 @@ class epitaxy():
 
 			l.dos_file=self.new_electrical_file("dos")
 
-			mat_dir=os.path.join(get_materials_path(),l.mat_file)
+			mat_dir=os.path.join(get_materials_path(),l.optical_material)
 
 			new_dos_file=l.dos_file+".inp"
 
@@ -388,6 +394,9 @@ class epitaxy():
 			shape_file=shape_file[:-4]
 
 		for l in self.layers:
+			if l.file_name==shape_file:
+				return l
+
 			for s in l.shapes:
 				if s.file_name==shape_file:
 					return s
@@ -484,17 +493,12 @@ class epitaxy():
 	def reload_shapes(self):
 		for a in self.layers:
 			for s in a.shapes:
-				print(s.file_name)
+				#print(s.file_name)
 				s.load(s.file_name)
 
 	def add_callback(self,fn):
 		self.callbacks.append(fn)
 
-	def callback_changed(self):
-		print("callback_changed",len(self.callbacks))
-		for f in self.callbacks:
-			print("bing")
-			f()
 
 	def load(self,path):
 		self.layers=[]
@@ -503,22 +507,26 @@ class epitaxy():
 		y_pos=0.0
 		if f.load(os.path.join(path,"epitaxy.inp"))!=False:
 			number_of_layers=int(f.get_next_val())
-			f.to_sections(start="#layer_name")
+			f.to_sections(start="#layer_type")
 
 			for s in f.sections:
 				a=epi_layer()
 
-				a.name=s.layer_name
+
 				a.layer_type=s.layer_type
-
-				a.dy=float(s.layer_width)
-
-				temp=s.layer_material_file.replace("\\", "/")
-				a.set_mat_file(temp)
 
 				a.dos_file=s.layer_dos_file
 
 				a.pl_file=s.layer_pl_file
+
+				a.shape_file_name=s.layer_base_shape
+				if a.shape_file_name!="none":
+					a.load(os.path.join(get_sim_path(),a.shape_file_name))
+				else:
+					a.name=s.layer_name
+
+
+				a.cal_rgb()
 
 				#shape
 				temp=s.layer_shape		#value
@@ -527,7 +535,7 @@ class epitaxy():
 				else:
 					files=temp.split(",")
 					for sh in files:
-						my_shape=shape(callback=self.callback_changed)
+						my_shape=shape()
 						my_shape.load(sh)
 						a.shapes.append(my_shape)
 
@@ -553,7 +561,8 @@ class epitaxy():
 				self.layers.append(a)
 
 			self.contacts.load()
-
+			self.loaded=True
+			self.dump_tree()
 
 	def find_layer_index_from_file_name(self,input_file):
 		if input_file.endswith(".inp")==True:
@@ -561,6 +570,7 @@ class epitaxy():
 
 		for i in range(0,len(self.layers)):
 			l=self.layers[i]
+
 			for s in l.shapes:
 				if s.file_name==input_file:
 					return i
@@ -605,17 +615,18 @@ class epitaxy():
 
 		return None
 
+	def get_next_dos_layer(self,layer):
+		layer=layer+1
+		for i in range(layer,len(self.layers)):
+			if self.layers[i].dos_file.startswith("dos")==True:
+				return i
+
+		return False
 
 epi=epitaxy()
 
 
 
-def epitay_get_next_dos_layer(layer):
-	global epi
-	layer=layer+1
-	for i in range(layer,len(epi.layers)):
-		if epi.layers[i].dos_file.startswith("dos")==True:
-			return i
 
 
 def epitaxy_get_layer(i):
@@ -633,7 +644,10 @@ def epitaxy_get_epi():
 def epitaxy_dos_file_to_layer_name(dos_file):
 	global epi
 	i=epi.find_layer_index_from_file_name(dos_file)
+	#print(dos_file,i)
+
 	if i!=False:
+		#print(epi.layers[i].name)
 		return epi.layers[i].name
 
 	return False
@@ -656,10 +670,6 @@ def epitaxy_get_dy(i):
 	global epi
 	return epi.layers[i].dy
 
-def epitaxy_get_mat_file(i):
-	global epi
-	return epi.layers[i].mat_file
-
 def epitaxy_get_pl_file(i):
 	global epi
 	return epi.layers[i].pl_file
@@ -673,3 +683,14 @@ def epitaxy_get_name(i):
 	global epi
 	return epi.layers[i].name
 
+#def on_change(self):
+#	self.do_load()
+#	#print("oh")
+#	if self.callback!=None:
+#		self.callback()
+
+#from gui_enable import gui_get
+#if gui_get()==True:
+#	from file_watch import get_watch
+#		if gui_get()==True:
+#			get_watch().add_call_back(self.file_name+".inp",self.on_change)

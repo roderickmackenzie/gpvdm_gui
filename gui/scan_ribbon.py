@@ -72,6 +72,14 @@ class scan_ribbon(ribbon_base):
 		self.tb_rename = QAction(icon_get("rename"), wrap_text(_("Rename scan"),3), self)
 		toolbar.addAction(self.tb_rename)
 
+		self.tb_clean = QAction(icon_get("clean"), wrap_text(_("Clean all"),4), self)
+		toolbar.addAction(self.tb_clean)
+
+		toolbar.addSeparator()
+
+		self.tb_run_all =  play(self,"scan_play_all",play_icon="forward2",run_text=wrap_text(_("Run all scans"),5))#QAction(icon_get("forward2"), wrap_text(_("Run all scans"),3), self)
+		toolbar.addAction(self.tb_run_all)
+
 		spacer = QWidget()
 		spacer.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
 		toolbar.addWidget(spacer)
@@ -81,57 +89,6 @@ class scan_ribbon(ribbon_base):
 
 		return toolbar
 
-	def simulations(self):
-		toolbar = QToolBar()
-		toolbar.setToolButtonStyle( Qt.ToolButtonTextUnderIcon)
-		toolbar.setIconSize(QSize(42, 42))
-
-		self.tb_simulate = play(self,"scan_play",play_icon="forward",run_text=wrap_text(_("Run scan"),2))#QAction(icon_get("build_play2"), wrap_text(_("Run scan"),2), self)
-		toolbar.addAction(self.tb_simulate)
-
-		self.tb_run_all =  play(self,"scan_play_all",play_icon="forward2",run_text=wrap_text(_("Run all scans"),5))#QAction(icon_get("forward2"), wrap_text(_("Run all scans"),3), self)
-		toolbar.addAction(self.tb_run_all)
-
-		toolbar.addSeparator()
-
-		self.tb_plot = QAction(icon_get("plot"), wrap_text(_("Plot"),4), self)
-		toolbar.addAction(self.tb_plot)
-	
-		#self.tb_plot_time = QAction(icon_get("plot_time"), wrap_text(_("Time domain plot"),6), self)
-		#toolbar.addAction(self.tb_plot_time)
-
-
-		self.box_widget=QWidget()
-		self.box=QVBoxLayout()
-		self.box_widget.setLayout(self.box)
-		self.box_tb0=QToolBar()
-		self.box_tb0.setIconSize(QSize(32, 32))
-		self.box.addWidget(self.box_tb0)
-		self.box_tb1=QToolBar()
-		self.box_tb1.setIconSize(QSize(32, 32))
-		self.box.addWidget(self.box_tb1)
-		
-		self.tb_build = QAction(icon_get("cog"), wrap_text(_("Build scan"),2), self)
-		self.box_tb0.addAction(self.tb_build)
-
-		self.tb_rerun = QAction(icon_get("play-green"), wrap_text(_("Rerun"),2), self)
-		#self.box_tb0.addAction(self.tb_rerun)
-
-		self.tb_zip = QAction(icon_get("package-x-generic"), wrap_text(_("Archive simulations"),2), self)
-		self.box_tb0.addAction(self.tb_zip)
-
-
-		self.tb_clean = QAction(icon_get("clean"), wrap_text(_("Clean simulation"),4), self)
-		self.box_tb1.addAction(self.tb_clean )
-
-
-
-		self.tb_notes = QAction(icon_get("text-x-generic"), wrap_text(_("Notes"),3), self)
-		toolbar.addAction(self.tb_notes)
-
-		toolbar.addWidget(self.box_widget)
-		
-		return toolbar
 
 	def advanced(self):
 		toolbar = QToolBar()
@@ -200,8 +157,8 @@ class scan_ribbon(ribbon_base):
 		w=self.scan()
 		self.addTab(w,_("Scan"))
 		
-		w=self.simulations()
-		self.addTab(w,_("Simulations"))
+		#w=self.simulations()
+		#self.addTab(w,_("Simulations"))
 
 
 		w=self.advanced()

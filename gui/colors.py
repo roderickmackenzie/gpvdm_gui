@@ -29,7 +29,6 @@ import os
 import io
 from numpy import *
 from plot_io import plot_load_info
-from plot_export import plot_export
 
 color=[]
 color_black=[]

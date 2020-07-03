@@ -61,12 +61,12 @@ from cal_path import get_sim_path
 from mesh import get_mesh
 
 from epitaxy import epitaxy_get_epi
-from epitaxy import epitay_get_next_dos_layer
 from epitaxy import epitaxy_get_layer
 from error_dlg import error_dlg
 
 from file_watch import get_watch
 from gpvdm_tab import gpvdm_tab
+from epitaxy import get_epi
 
 class doping_window(QWidgetSavePos):
 	lines=[]
@@ -76,7 +76,7 @@ class doping_window(QWidgetSavePos):
 		print("save")
 		pos=-1
 		for i in range(0,self.tab.rowCount()):
-			pos=epitay_get_next_dos_layer(pos)
+			pos=self.epi.get_next_dos_layer(pos)
 			dos_file=epitaxy_get_dos_file(pos)+".inp"
 			file_name=os.path.join(get_sim_path(),dos_file)
 
@@ -183,52 +183,35 @@ class doping_window(QWidgetSavePos):
 
 		return
 
-	def project(self,start_values,stop_values):
+	def project(self,col0,col1):
 		mesh=get_mesh().y
 		x,y =	mesh.calculate_points()
-
-		epi=epitaxy_get_epi()
-		pos=0
-		pos=epitay_get_next_dos_layer(-1)
-		start_of_layer=0.0
-		dy=epi[pos].dy
-		end_of_layer=dy
-
-		processed_layer=0
+		lay=mesh.mesh_cal_epi_layers(self.epi)
+		device_start=self.epi.get_device_start()
+		line=0
+		layer=self.epi.get_next_dos_layer(-1)
 
 		for i in range(0,len(x)):
-			y[i]=start_values[processed_layer]+(stop_values[processed_layer]-start_values[processed_layer])*(x[i]-start_of_layer)/dy
-			#print(pos,x[i],start_of_layer,end_of_layer,epi[pos].dy)
-			if x[i]>end_of_layer:
-				start_of_layer=x[i]
-				pos=epitay_get_next_dos_layer(pos)
-				processed_layer=processed_layer+1
-				dy=epi[pos].dy
-				end_of_layer=end_of_layer+epi[pos].dy
+			if x[i]+device_start>self.epi.layers[layer].end:
+				layer=layer+1
+				line=line+1
 
+			try:
+				Nad0=float(self.tab.item(line, col0).text())
+				Nad1=float(self.tab.item(line, col1).text())
+			except:
+				Nad0=0.0
+				Nad1=0.0
 
+			dy=self.epi.layers[layer].dy
+			y[i]=Nad0+(Nad1-Nad0)*(x[i]-self.epi.layers[layer].start+device_start)/dy
 
 		return x,y
 
 	def build_mesh(self):
-		start_values=[]
-		stop_values=[]
 
-		for i in range(0,self.tab.rowCount()):
-			start_values.append(float(self.tab.item(i, 2).text()))
-			stop_values.append(float(self.tab.item(i, 3).text()))
-
-		self.x_pos,self.doping=self.project(start_values,stop_values)
-
-
-		start_values=[]
-		stop_values=[]
-
-		for i in range(0,self.tab.rowCount()):
-			start_values.append(float(self.tab.item(i, 4).text()))
-			stop_values.append(float(self.tab.item(i, 4).text()))
-
-		self.x_pos,self.ions=self.project(start_values,stop_values)
+		self.x_pos,self.doping=self.project(2,3)
+		self.x_pos,self.ions=self.project(4,4)
 
 		return True
 
@@ -249,7 +232,9 @@ class doping_window(QWidgetSavePos):
 		QWidgetSavePos.__init__(self,"doping")
 		self.setMinimumSize(900, 600)
 		self.setWindowIcon(icon_get("doping"))
-		self.setWindowTitle(_("Doping/Mobilie ion profile editor")+" (https://www.gpvdm.com)") 
+		self.setWindowTitle(_("Doping/Mobilie ion profile editor")+" (https://www.gpvdm.com)")
+
+		self.epi=get_epi()
 
 		self.main_vbox=QVBoxLayout()
 

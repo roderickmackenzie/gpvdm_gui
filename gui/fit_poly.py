@@ -27,12 +27,10 @@
 
 import os
 import sys
-from scan_item import scan_item_add
 from gui_util import dlg_get_text
 import webbrowser
 from util import fx_with_units
 from icon_lib import icon_get
-from scan_item import scan_remove_file
 
 import i18n
 _ = i18n.language.gettext

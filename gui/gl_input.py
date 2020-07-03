@@ -97,9 +97,10 @@ class gl_input():
 		y = self.height()-event.y()
 		set_false_color(True)
 
-		self.enable_render_text=False
+		old_val=self.view.text
+		self.view.text=False
 		self.render()
-		self.enable_render_text=True
+		self.view.text=old_val
 
 		data=glReadPixelsub(x, y, 1, 1, GL_RGBA,GL_FLOAT)
 
@@ -160,9 +161,9 @@ class gl_input():
 
 			if gl_obj_id_starts_with(self.obj,"layer")==True:
 				self.selected_layer=gl_obj_id_extract_starts_with(self.obj,"layer")
-				#self.enable_render_text=False
+				#self.view.text=False
 				self.update()
-				#self.enable_render_text=True
+				#self.view.text=True
 		return
 
 		if event.buttons()==Qt.LeftButton:
@@ -171,9 +172,12 @@ class gl_input():
 			x = event.x()
 			y = self.height()-event.y()
 			set_false_color(True)
-			self.enable_render_text=False
+
+			old_val=self.view.text
+			self.view.text=False
 			self.render()
-			self.enable_render_text=True
+			self.view.text=old_val
+
 			data=glReadPixelsub(x, y, 1, 1, GL_RGBA,GL_FLOAT)
 			set_false_color(False)
 

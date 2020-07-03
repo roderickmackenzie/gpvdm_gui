@@ -77,19 +77,23 @@ class mesh_zxy:
 					layer_mul=l.mul
 					layer_left_right=l.left_right
 					dx=layer_length/layer_points
-					pos=dx/2
+					pos=0.0
 					ii=0
 					temp_x=[]
 					temp_mag=[]
 					while(pos<layer_length):
+						pos=pos+dx/2
 						temp_x.append(pos)
 						temp_mag.append(1.0)
+						pos=pos+dx/2
 
-						pos=pos+dx*pow(layer_mul,ii)
+						#pos=pos+dx*pow(layer_mul,ii)
 
 						ii=ii+1
-						#dx=dx*layer_mul
+						dx=dx*layer_mul
 						self.tot_points=self.tot_points+1
+						if dx==0 or self.tot_points>2000:
+							break
 
 					for i in range(0,len(temp_x)):
 						if layer_left_right=="left":
@@ -104,6 +108,18 @@ class mesh_zxy:
 
 		self.points=out_x
 		return out_x,out_y
+
+	def mesh_cal_epi_layers(self,epi):
+		ret=[]
+		device_start=epi.get_device_start()
+		layer=epi.get_next_dos_layer(-1)
+		for p in self.points:
+			if p+device_start>epi.layers[layer].end:
+				layer=layer+1
+
+			ret.append(layer)
+
+		return ret
 
 	def check_curcuit_sim(self,epi):
 		newton_solver=newton_solver_get_type()

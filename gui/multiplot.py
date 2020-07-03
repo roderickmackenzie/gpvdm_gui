@@ -42,6 +42,9 @@ from inp import inp
 from plot_window import plot_window
 from util import peek_data
 from cal_path import get_sim_path
+from dat_file import dat_file
+from dat_files_to_gnuplot import dat_file_to_gnuplot_header
+from cal_path import subtract_paths
 
 class sim_dir:
 	def __init__(self):
@@ -55,8 +58,10 @@ class sim_dir:
 
 class multiplot:
 
-	def __init__(self):
+	def __init__(self,gnuplot=False,exp_data=""):
 		self.sims=[]
+		self.exp_data=exp_data
+		self.gnuplot=gnuplot
 
 	def find_files(self,path):
 		self.path=os.path.abspath(path)
@@ -95,8 +100,39 @@ class multiplot:
 			f.lines.append("multi_plot_dir")
 			f.lines.append("#end")
 			f.save_as(os.path.join(path,"mat.inp"),mode="l",dest="file")
-			
+	
+	def gen_gnu_plot_files(self):
+		path=self.path
+		if len(self.sims)>0:
+			for cur_file in self.sims[0].files:
+				dat=dat_file()
+				dat.load(os.path.join(self.sims[0].path,cur_file))
+				found_files=[]
+				found_files.extend(dat_file_to_gnuplot_header(dat))
+				found_files.append("plot \\")
+				for s in self.sims:
+					if cur_file in s.files:
+						full_path_name=os.path.join(s.path,cur_file)
+						title=os.path.dirname(subtract_paths(self.path,full_path_name))
+						found_files.append("\'"+full_path_name+"' using ($1):($2) with l lw 3 title '"+title+"',\\")
+
+				if self.exp_data=="":
+					found_files[-1]=found_files[-1][:-1]
+				else:
+					found_files.append("\'"+self.exp_data+"' using ($1):($2) with p title '"+"Experimental"+"'")
+
+				out_file=os.path.join(path,cur_file)
+				out_file=os.path.splitext(out_file)[0]+".plot"
+
+				self.make_dirs(out_file)
+				f=inp()
+				f.lines=found_files
+				f.save_as(out_file)
+
 	def save(self):
+		if self.gnuplot==True:
+			self.gen_gnu_plot_files()
+			return
 		path=self.path
 		if len(self.sims)>0:
 			for cur_file in self.sims[0].files:
@@ -109,7 +145,7 @@ class multiplot:
 
 				#print("save to>",os.path.join(path,cur_file))
 				out_file=os.path.join(path,cur_file)
-				self.make_dirs(out_file)
+				self.make_dirs(os.path.splitext(out_file)[0]+".plot")
 				f=inp()
 				f.lines=found_files
 				f.save_as(out_file)

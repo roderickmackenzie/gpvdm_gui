@@ -49,6 +49,7 @@ from epitaxy import get_epi
 from inp import inp
 from dos_io import gen_fermi_from_np
 from dos_io import gen_np_from_fermi
+import decimal
 
 import i18n
 _ = i18n.language.gettext
@@ -141,6 +142,9 @@ class energy_to_charge(QWidget):
 		self.changed.emit()
 
 	def setText(self,text):
+		val=float(text)
+		text='%.2e' % val
+		text=str(decimal.Decimal(text).normalize()).lower().replace('+', '')
 		self.edit_m3.setText(text)
 		#self.edit_eV.setText(text)
 

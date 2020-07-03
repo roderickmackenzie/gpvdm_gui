@@ -29,7 +29,7 @@
 import sys
 import os
 import shutil
-from scan_io import get_scan_dirs
+from scans_io import scans_io
 
 from util import copy_scan_dir
 
@@ -65,11 +65,12 @@ class file_type():
 	IGNORE=3
 
 	
-	def __init__(self,name="fit_data",dest="archive",copy_opp=JUST_COPY,base_file=""):
+	def __init__(self,name="fit_data",dest="archive",copy_opp=JUST_COPY,base_file="",needed=True):
 		self.name=name
 		self.dest=dest
 		self.copy_opp=copy_opp
 		self.base_file=base_file
+		self.needed=needed		#needed in every simulation
 		if base_file=="":
 			self.base_file=name
 		if name.endswith(".inp")==True:
@@ -110,7 +111,7 @@ file_list.append(file_type(name="dump_file.inp",dest="archive",copy_opp=file_typ
 file_list.append(file_type(name="time_mesh_config",dest="archive",copy_opp=file_type().CHECK_VER_THEN_COPY,base_file="time_mesh_config0.inp"))
 
 
-file_list.append(file_type(name="dos",dest="archive",copy_opp=file_type().MERGE,base_file=os.path.join(get_default_material_path(),"dos.inp")))
+file_list.append(file_type(name="dos",dest="archive",copy_opp=file_type().MERGE,base_file=os.path.join(get_default_material_path(),"dos.inp"),needed=False))
 file_list.append(file_type(name="electrical",dest="archive",copy_opp=file_type().MERGE,base_file=os.path.join(get_default_material_path(),"electrical.inp")))
 file_list.append(file_type(name="shape",dest="archive",copy_opp=file_type().MERGE,base_file=os.path.join(get_default_material_path(),"shape.inp")))
 file_list.append(file_type(name="pl",dest="archive",copy_opp=file_type().MERGE,base_file=os.path.join(get_default_material_path(),"pl.inp")))
@@ -121,15 +122,16 @@ file_list.append(file_type(name="laser",dest="archive",copy_opp=file_type().MERG
 file_list.append(file_type(name="jv",dest="archive",copy_opp=file_type().MERGE,base_file="jv0.inp"))
 file_list.append(file_type(name="pl_ss",dest="archive",copy_opp=file_type().MERGE,base_file="pl_ss0.inp"))
 file_list.append(file_type(name="is",dest="archive",copy_opp=file_type().MERGE,base_file="is0.inp"))
-file_list.append(file_type(name="is_fxdomain_data",dest="archive",copy_opp=file_type().MERGE,base_file="is_fxdomain_data0.inp"))
+file_list.append(file_type(name="is_fxdomain_data",dest="archive",copy_opp=file_type().MERGE,base_file="is_fxdomain_data0.inp",needed=False))
 file_list.append(file_type(name="cv",dest="archive",copy_opp=file_type().MERGE,base_file="cv0.inp"))
 file_list.append(file_type(name="cv_fxdomain_data",dest="archive",copy_opp=file_type().MERGE,base_file="cv_fxdomain_data0.inp"))
 
 file_list.append(file_type(name="spectral2.inp",copy_opp=file_type().MERGE))
 
 file_list.append(file_type(name="ver.inp",copy_opp=file_type().MERGE))
-file_list.append(file_type(name="sim.ref",copy_opp=file_type().JUST_COPY))
+file_list.append(file_type(name="sim.bib",copy_opp=file_type().JUST_COPY))
 file_list.append(file_type(name="sim.inp",copy_opp=file_type().MERGE))
+file_list.append(file_type(name="eqe.inp",copy_opp=file_type().MERGE))
 file_list.append(file_type(name="device.inp",copy_opp=file_type().MERGE))
 file_list.append(file_type(name="parasitic.inp",copy_opp=file_type().MERGE))
 file_list.append(file_type(name="ray.inp",copy_opp=file_type().MERGE))
@@ -204,7 +206,7 @@ def remove_non_used_index_files(dest_archive,src_archive):
 				if file_info.index_file==True:
 					if ls_src.count(my_file)==0:
 						zip_remove_file(dest_archive,my_file)
-						print("remove=",dest_archive,my_file,src_archive)
+						#print("remove=",dest_archive,my_file,src_archive)
 
 
 def merge_archives(src_archive,dest_archive,only_over_write):
@@ -305,8 +307,8 @@ def import_archive(src_archive,dest_archive,only_over_write):
 	import_scan_dirs(dest_dir,src_dir)
 
 def import_scan_dirs(dest_dir,src_dir):
-	sim_dirs=[]
-	get_scan_dirs(sim_dirs,src_dir)
+	scans=scans_io(src_dir)
+	sim_dirs=scans.get_scan_dirs()
 	for my_file in sim_dirs:
 		dest=os.path.join(dest_dir,os.path.basename(my_file))
 		print("copy scan dir",my_file,"to",dest)
@@ -315,22 +317,6 @@ def import_scan_dirs(dest_dir,src_dir):
 			gpvdm_delete_file(dest)
 
 		copy_scan_dir(dest,my_file)
-
-def clean_scan_dirs(path):
-	sim_dirs=[]
-	get_scan_dirs(sim_dirs,path)
-
-	for my_dir in sim_dirs:
-		print("cleaning ",my_dir)
-		files = os.listdir(my_dir)
-		for file in files:
-			file_name=os.path.join(my_dir,file)
-			if file_name.endswith(".dat"):
-				print("Remove",file_name)
-				os.remove(file_name)
-			if os.path.isdir(file_name):
-				print("remove dir",file_name)
-				shutil.rmtree(file_name)
 
 def patch_file(dest_file,base_file,input_file):
 	

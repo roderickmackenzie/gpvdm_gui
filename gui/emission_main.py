@@ -42,8 +42,6 @@ from help import help_window
 from win_lin import desktop_open
 
 from ref import ref_window
-from ref import get_ref_text
-from ref_io import ref
 
 from gpvdm_open import gpvdm_open
 
@@ -168,9 +166,9 @@ class emission_main(QWidgetSavePos):
 	def callback_ref(self):
 		file_name=None
 		if self.notebook.tabText(self.notebook.currentIndex()).strip()==_("Emission"):
-			file_name="spectra.gmat"
+			file_name="spectra.bib"
 
 		if file_name!=None:
-			self.ref_window=ref_window(os.path.join(self.path,file_name))
+			self.ref_window=ref_window(os.path.join(self.path,file_name),"spectra")
 			self.ref_window.show()
 

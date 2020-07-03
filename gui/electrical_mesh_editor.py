@@ -27,7 +27,6 @@
 
 import os
 from code_ctrl import enable_betafeatures
-from scan_item import scan_item_add
 from icon_lib import icon_get
 
 #qt
@@ -138,7 +137,7 @@ class electrical_mesh_editor(QGroupBox):
 		self.x=[]
 		for i in range(0,len(x_ret)):
 			self.x.append(x_ret[i]*mul)
-
+			#print(x_ret[i])
 		c = np.linspace(0, 10, len(self.x))
 		
 		self.ax1.set_ylabel(_("Magnitude"))

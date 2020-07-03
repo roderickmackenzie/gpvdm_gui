@@ -140,7 +140,7 @@ class base_server():
 			max=int(max)
 			self.cpus=max
 
-	def base_server_add_job(self,path,arg):
+	def add_job(self,path,arg):
 		j=job()
 		j.path=path
 		j.args=arg
@@ -194,6 +194,7 @@ class base_server():
 				cmd=cmd+" &"
 
 		cmd=cmd+"\n"
+		#print(cmd)
 		os.system(cmd)
 
 	def base_server_process_jobs(self):
@@ -203,7 +204,6 @@ class base_server():
 			path,command=self.base_server_get_next_job_to_run(lock_file=True)
 			if path!=False:
 				self.exe_command(path,command)
-				
 				if len(self.jobs)>1:
 					jobs_per_second="%.2f" % self.jobs_per_second
 					self.progress_window.set_text(_("Running job ")+path+" jobs/s="+jobs_per_second)
@@ -214,7 +214,7 @@ class base_server():
 
 	def remove_lock_files(self):
 		ls=os.listdir(self.sim_dir)
-		#print(">>>>>>",ls)
+		#print(">>>>>>",self.sim_dir,ls)
 		for i in range(0, len(ls)):
 			if ls[i][:4]=="lock" and ls[i][-4:]==".dat":
 				del_file=os.path.join(self.sim_dir,ls[i])
@@ -230,6 +230,7 @@ class base_server():
 
 		while(1):
 			ls=os.listdir(self.sim_dir)
+			#print(self.sim_dir,ls)
 			for i in range(0, len(ls)):
 				if ls[i][:4]=="lock" and ls[i][-4:]==".dat":
 					lock_file=ls[i]
@@ -260,6 +261,8 @@ class base_server():
 			if self.callback!=None:
 				self.callback()
 			self.callback=None
+
+		self.progress_window.set_fraction(float(self.jobs_run)/float(len(self.jobs)))
 
 	def base_server_set_callback(self,callback):
 		self.callback=callback
@@ -364,7 +367,7 @@ if gui_get()==True:
 
 		def add_job(self,path,arg):
 			if self.cluster==False:
-				self.base_server_add_job(path,arg)
+				super().add_job(path,arg)
 				self.jobs_update.emit()
 			else:
 				self.add_remote_job(path)

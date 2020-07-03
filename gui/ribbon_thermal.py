@@ -120,11 +120,17 @@ class ribbon_thermal(QToolBar):
 		self.update()
 
 	def callback_thermal(self):
-		temp=inp_get_token_value("thermal_boundry.inp", "#Ty0")
+		f=inp().load("thermal_boundry.inp")
+		temp=f.get_token("#Ty0")
 		new_temp=dlg_get_text( _("Enter the new temperature"), temp,"thermal.png")
 		if new_temp.ret!=None:
-			inp_update_token_value("thermal_boundry.inp", "#Ty0", new_temp.ret)
-			print(new_temp.ret)
+			f.set_token("#Ty0",new_temp.ret)
+			f.set_token("#Ty1",new_temp.ret)
+			f.set_token("#Tx0",new_temp.ret)
+			f.set_token("#Tx1",new_temp.ret)
+			f.set_token("#Tz0",new_temp.ret)
+			f.set_token("#Tz1",new_temp.ret)
+			f.save()
 
 	def update(self):
 		self.thermal_isothermal_button.refresh()

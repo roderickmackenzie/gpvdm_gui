@@ -28,11 +28,11 @@
 import os
 import zipfile
 import shutil
-from inp import inp_search_token_value
-from inp import inp_get_token_value
-from util_zip import read_lines_from_archive
+
 from cal_path import get_materials_path
+from cal_path import get_base_material_path
 from dir_decode import get_dir_type
+from inp import inp
 
 def archive_materials(path):
 	for root, dirs, files in os.walk(path):
@@ -58,7 +58,14 @@ def archive_materials(path):
 				print(mat_dir)
 
 
-def find_materials(mat_path=get_materials_path(),file_type="material"):
+def materials_delete_from_vendor(vendor):
+	materials=find_materials(mat_path=get_base_material_path(),from_src=vendor)
+	for m in materials:
+		path=os.path.join(get_base_material_path(),m)
+		print("delete",path)
+		shutil.rmtree(path)
+
+def find_materials(mat_path=get_materials_path(),file_type="material",from_src=None):
 	ret=[]
 
 	for root, dirs, files in os.walk(mat_path):
@@ -67,14 +74,17 @@ def find_materials(mat_path=get_materials_path(),file_type="material"):
 		#print(root)
 		if get_dir_type(root)==file_type:
 			
-			#if os.path.isdir(root)==True:
-			#	path=os.path.dirname(root)
-			#else:
-			#	path=path[:-4]
-			s=os.path.relpath(root, mat_path)
-			s=s.replace("\\","/")
-			ret.append(s)
+			add=True
+			if from_src!=None:
+				f=inp()
+				f.load(os.path.join(root,"mat.inp"))
+				if f.get_token("#mat_src")!=from_src:
+					add=False
+
+			if add==True:
+				s=os.path.relpath(root, mat_path)
+				s=s.replace("\\","/")
+				ret.append(s)
 
 	return ret
-
 

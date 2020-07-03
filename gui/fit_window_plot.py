@@ -27,7 +27,6 @@
 
 import os
 from numpy import *
-from scan_item import scan_item_add
 from plot_widget import plot_widget
 import i18n
 _ = i18n.language.gettext

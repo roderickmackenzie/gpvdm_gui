@@ -31,7 +31,7 @@ from icon_lib import icon_get
 
 #qt
 from PyQt5.QtCore import QSize, Qt 
-from PyQt5.QtWidgets import QWidget,QVBoxLayout,QToolBar,QSizePolicy,QAction,QTabWidget
+from PyQt5.QtWidgets import QWidget,QVBoxLayout,QToolBar,QSizePolicy,QAction,QTabWidget, QStatusBar
 from PyQt5.QtGui import QPainter,QIcon
 
 #python modules
@@ -48,8 +48,6 @@ from inp import inp_copy_file
 
 from shape import shape
 from cal_path import get_sim_path
-from inp import inp_get_token_value
-from inp import inp_update_token_value
 from inp import inp_ls_seq_files
 from inp import inp_remove_file
 
@@ -57,6 +55,11 @@ from gui_util import dlg_get_text
 from error_dlg import error_dlg
 from gui_util import yes_no_dlg
 from cal_path import get_default_material_path
+from mesh import get_mesh
+from tick_cross import tick_cross
+from inp import inp
+from str2bool import str2bool
+from global_objects import global_object_run
 
 articles = []
 mesh_articles = []
@@ -68,15 +71,16 @@ class object_editor(QWidgetSavePos):
 
 	def __init__(self):
 		QWidgetSavePos.__init__(self,"shape_editor")
-		self.setMinimumSize(40, 200)
-		self.setWindowIcon(icon_get("diode"))
+		self.setMinimumSize(600, 700)
+		self.setWindowIcon(icon_get("shape"))
 
-		self.setWindowTitle(_("Obejct editor")+"  (https://www.gpvdm.com)") 
+		self.setWindowTitle(_("Object editor")+"  (https://www.gpvdm.com)") 
 		
 
 		self.main_vbox = QVBoxLayout()
 
 		toolbar=QToolBar()
+		toolbar.setToolButtonStyle( Qt.ToolButtonTextUnderIcon)
 		toolbar.setIconSize(QSize(48, 48))
 
 		self.tb_new = QAction(icon_get("document-new"), wrap_text("New shape",2), self)
@@ -93,6 +97,13 @@ class object_editor(QWidgetSavePos):
 		self.tb_rename.triggered.connect(self.callback_rename_shape)
 		toolbar.addAction(self.tb_rename)
 
+		self.tb_clone = QAction(icon_get("clone"), wrap_text("Clone shape",3), self)
+		self.tb_clone.triggered.connect(self.callback_clone_shape)
+		toolbar.addAction(self.tb_clone)
+
+		self.enable=tick_cross(enable_text=_("Shape\nenabled"),disable_text=_("Shape\ndisabled"))
+		self.enable.changed.connect(self.callback_enable_disable)
+		toolbar.addAction(self.enable)
 
 		spacer = QWidget()
 		spacer.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
@@ -113,55 +124,126 @@ class object_editor(QWidgetSavePos):
 
 		self.main_vbox.addWidget(self.notebook)
 
+		self.notebook.currentChanged.connect(self.changed_click)
+
+		self.status_bar=QStatusBar()
+		self.main_vbox.addWidget(self.status_bar)
 
 		self.setLayout(self.main_vbox)
+		self.epi=get_epi()
 
 	def load(self,layer_index):
 		self.layer_index=layer_index
-		shapes=get_epi().get_shapes(self.layer_index)
+		shapes=self.epi.get_shapes(self.layer_index)
 		for s in shapes:
-			shape_name=inp_get_token_value(s.file_name+".inp", "#shape_name")
-
 			my_tab=tab_class(s.file_name+".inp")
+			my_tab.changed.connect(self.callback_edit)
+			self.notebook.addTab(my_tab,s.name)	
 
-			self.notebook.addTab(my_tab,shape_name)	
+	def callback_edit(self):
+		tab = self.notebook.currentWidget()
+		s=self.epi.find_shape_by_file_name(tab.file_name)
+		s.do_load()
+		global_object_run("gl_force_redraw")
+
+	def callback_enable_disable(self):
+		tab = self.notebook.currentWidget()
+		if tab!=None:
+			tab.setEnabled(self.enable.enabled)
+			s=self.epi.find_shape_by_file_name(tab.file_name)
+			if s!=None:
+				s.shape_enabled=self.enable.enabled
+				s.save()
+				global_object_run("gl_force_redraw")
+			#f=inp()
+			#if f.load(tab.file_name)!=False:
+			#	f.replace("#shape_enabled",str(self.enable.enabled))
+			#	f.save()
+			
+
+	def changed_click(self):
+		tab = self.notebook.currentWidget()
+		if tab!=None:
+			s=self.epi.find_shape_by_file_name(tab.file_name)
+			if s!=None:
+				tab.setEnabled(s.shape_enabled)
+				self.enable.setState(s.shape_enabled)
+				self.status_bar.showMessage(tab.file_name)
 
 	def callback_add_shape(self):
-		new_filename=get_epi().new_electrical_file("shape")+".inp"
+		new_filename=self.epi.new_electrical_file("shape")+".inp"
 		orig_filename=os.path.join(get_default_material_path(),"shape.inp")
 		inp_copy_file(os.path.join(get_sim_path(),new_filename),os.path.join(get_sim_path(),orig_filename))
 
+		mesh=get_mesh()
 		my_shape=shape()
 		my_shape.load(new_filename)
-		get_epi().layers[self.layer_index].shapes.append(my_shape)
-		get_epi().save()
+		my_shape.dy=get_epi().layers[self.layer_index].dy
+		my_shape.dx=mesh.get_xlen()
+		my_shape.dz=mesh.get_zlen()
+		my_shape.shape_electrical=get_epi().gen_new_electrical_file("electrical")
+		my_shape.shape_nx=1
+		my_shape.shape_ny=1
+		my_shape.shape_nz=1
+		my_shape.name="New shape"
+		my_shape.save()
 
-		shape_name=inp_get_token_value(new_filename, "#shape_name")
+		self.epi.layers[self.layer_index].shapes.append(my_shape)
+		self.epi.save()
 
 		my_tab=tab_class(new_filename)
-		self.notebook.addTab(my_tab,shape_name)
+		self.notebook.addTab(my_tab,my_shape.name)
+		my_tab.changed.connect(self.callback_edit)
 		global_object_run("gl_force_redraw")
 
 	def callback_rename_shape(self):
 		tab = self.notebook.currentWidget()
-		name=inp_get_token_value(tab.file_name, "#shape_name")
+		s=self.epi.find_shape_by_file_name(tab.file_name)
 
-		new_sim_name=dlg_get_text( "Rename the shape:", name,"rename.png")
+		new_sim_name=dlg_get_text( "Rename the shape:", s.name,"rename.png")
 
 		new_sim_name=new_sim_name.ret
 
 		if new_sim_name!=None:
-			inp_update_token_value(tab.file_name, "#shape_name", new_sim_name)
+			s.name=new_sim_name
+			s.save()
 			index=self.notebook.currentIndex() 
 			self.notebook.setTabText(index, new_sim_name)
 
+	def callback_clone_shape(self):
+		tab = self.notebook.currentWidget()
+		s=self.epi.find_shape_by_file_name(tab.file_name)
+		name=s.name+"_new"
+
+		new_sim_name=dlg_get_text( "Clone the shape:", name,"clone.png")
+		new_sim_name=new_sim_name.ret
+
+		if new_sim_name!=None:
+			old_name=os.path.join(get_sim_path(),tab.file_name)
+			new_name=get_epi().new_electrical_file("shape")
+			my_shape=shape()
+			my_shape.load(old_name)
+			my_shape.name=new_sim_name
+			my_shape.x0=my_shape.x0-my_shape.dx
+			my_shape.shape_electrical=get_epi().gen_new_electrical_file("electrical")
+			my_shape.file_name=new_name
+			my_shape.save()
+
+			get_epi().layers[self.layer_index].shapes.append(my_shape)
+			get_epi().save()
+
+			my_tab=tab_class(my_shape.file_name+".inp")
+			self.notebook.addTab(my_tab,my_shape.name)
+			my_tab.changed.connect(self.callback_edit)
+			global_object_run("gl_force_redraw")
 
 	def callback_delete_shape(self):
 		files=inp_ls_seq_files(os.path.join(get_sim_path(),"sim.gpvdm"),"shape")
 
 		tab = self.notebook.currentWidget()
-		name=inp_get_token_value(tab.file_name, "#shape_name")
-
+		s=self.epi.find_shape_by_file_name(tab.file_name)
+		name=s.name
+		
 		response=yes_no_dlg(self,"Do you really want to delete the file: "+name)
 
 		if response == True:
@@ -173,6 +255,7 @@ class object_editor(QWidgetSavePos):
 			for i in range(0,len(get_epi().layers[self.layer_index].shapes)):
 				if get_epi().layers[self.layer_index].shapes[i].file_name+".inp"==tab.file_name:
 					get_epi().layers[self.layer_index].shapes.pop(i)
+					get_epi().clean_unused_files()
 					get_epi().save()
 					break
 

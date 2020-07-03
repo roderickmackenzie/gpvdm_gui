@@ -41,7 +41,7 @@ import webbrowser
 from help import help_window
 
 from epitaxy import epitaxy_get_layers
-from epitaxy import epitaxy_get_mat_file
+from epitaxy import get_epi
 
 work_book_enabled=False
 try:
@@ -101,6 +101,7 @@ class cost(QWidgetSavePos):
 
 
 		self.setLayout(self.main_vbox)
+		self.epi=get_epi()
 
 		self.update()
 
@@ -123,8 +124,8 @@ class cost(QWidgetSavePos):
 		for i in range(0,epitaxy_get_layers()):
 			
 			volume=epitaxy_get_dy(i)*1.0*1.0
-			name=epitaxy_get_mat_file(i)
-			xls_file_name=os.path.join(get_materials_path(),epitaxy_get_mat_file(i),"cost.xlsx")
+			name=self.epi.layers[i].shape.optical_material
+			xls_file_name=os.path.join(get_materials_path(),self.epi.layers[i].shape.optical_material,"cost.xlsx")
 			if os.path.isfile(xls_file_name):
 				wb = load_workbook(xls_file_name)
 				ws= wb.get_sheet_by_name("results")

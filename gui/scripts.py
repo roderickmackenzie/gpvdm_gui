@@ -33,7 +33,6 @@ from plot_gen import plot_gen
 from icon_lib import icon_get
 import zipfile
 import glob
-from scan_item import scan_item_add
 from tab import tab_class
 import webbrowser
 from progress_class import progress_class
@@ -70,9 +69,16 @@ from gui_util import dlg_get_text
 from cal_path import get_scripts_path
 from os import listdir
 
+from gpvdm_api import gpvdm_api
+
 class scripts(QWidgetSavePos):
 
-	def __init__(self):
+	def __init__(self,path="",api_callback=None):
+		if path=="":
+			self.path=get_scripts_path()
+		else:
+			self.path=path
+
 		QWidgetSavePos.__init__(self,"scripts")
 
 		self.setWindowIcon(icon_get("script"))
@@ -98,7 +104,7 @@ class scripts(QWidgetSavePos):
 		self.ribbon.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Minimum)
 
 		self.main_vbox.addWidget(self.ribbon)
-
+		self.api_callback=api_callback
 
 
 		self.notebook = QTabWidget()
@@ -106,18 +112,20 @@ class scripts(QWidgetSavePos):
 		self.notebook.setMovable(True)
 
 		added=0
-		for f in listdir(get_scripts_path()):
+		for f in listdir(self.path):
 			if f.endswith(".py"):
-				file_name=os.path.join(get_scripts_path(),f)
+				file_name=os.path.join(self.path,f)
 				a=script_editor()
+				a.api_callback=self.api_callback
 				a.load(file_name)
 				a.status_changed.connect(self.callback_tab_changed)
 				self.notebook.addTab(a,f)
 				added=added+1
 		if added==0:
-			file_name=os.path.join(get_scripts_path(),"example.py")
+			file_name=os.path.join(self.path,"example.py")
 			self.new_script(file_name)
 			a=script_editor()
+			a.api_callback=self.api_callback
 			a.load(file_name)
 			a.status_changed.connect(self.callback_tab_changed)
 			self.notebook.addTab(a,"example.py")
@@ -149,7 +157,7 @@ class scripts(QWidgetSavePos):
 	def callback_add_page(self):
 		new_sim_name=dlg_get_text( "Add a new script:", "exampe.py","document-new.png")
 		if new_sim_name.ret!=None:
-			name=os.path.join(get_scripts_path(),new_sim_name.ret)
+			name=os.path.join(self.path,new_sim_name.ret)
 			self.new_script(name)
 			a=script_editor()
 			a.load(name)

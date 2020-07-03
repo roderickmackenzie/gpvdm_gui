@@ -82,8 +82,8 @@ class ray_trace_editor(QWidgetSavePos):
 		self.main_vbox.addWidget(self.notebook)
 
 
-		files=["ray.inp"]
-		description=[_("Ray trace")]
+		files=["ray.inp","view_point.inp"]
+		description=[_("Ray trace"),_("Observer viewpoint")]
 
 
 		for i in range(0,len(files)):

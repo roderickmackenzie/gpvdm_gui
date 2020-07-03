@@ -28,8 +28,6 @@
 import os
 from str2bool import str2bool
 from inp import inp_search_token_value
-from scan_item import scan_item_add
-from scan_item import scan_remove_file
 from icon_lib import icon_get
 from gpvdm_open import gpvdm_open
 from cal_path import get_materials_path

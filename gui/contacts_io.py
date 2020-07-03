@@ -37,17 +37,18 @@ from shape import shape
 from gui_enable import gui_get
 
 
-class segment():
+class contact():
 	def __init__(self):
 		self.name=""
 		self.position=""
-		self.active=False
-		self.resistance_sq=0.0
-		self.voltage=0.0
+		self.applied_voltage_type="constant"
+		self.applied_voltage="-2.0"
+		self.contact_resistance_sq=0.0
+		self.shunt_resistance_sq=0.0
 		self.np=1e20
 		self.charge_type="electron"
 		self.shape=None
-		self.ingress=0.0
+		self.physical_model="ohmic"
 
 	def save(self):
 		self.shape.save()
@@ -72,35 +73,36 @@ class contacts_io():
 		pos=0
 		contact_file=inp()
 		if contact_file.load(os.path.join(get_sim_path(),"contacts.inp"))!=False:
-			layers=int(contact_file.get_next_val())
+			contact_file.to_sections(start="#contact_position")
 
-			for i in range(0, layers):
-				name=contact_file.get_next_val()
+			for s in contact_file.sections:
+				c=contact()
 
-				position=contact_file.get_next_val()
+				c.position=s.contact_position
 
-				active=str2bool(contact_file.get_next_val())
+				c.applied_voltage_type=s.contact_applied_voltage_type
 
-				voltage=contact_file.get_next_val()
+				c.applied_voltage=s.contact_applied_voltage
 
-				charge_density=contact_file.get_next_val()
+				c.np=s.contact_charge_density
 
-				charge_type=contact_file.get_next_val()
+				c.charge_type=s.contact_charge_type
 
-				shape_file_name=contact_file.get_next_val()
+				c.contact_resistance_sq=s.contact_resistance_sq
 
-				resistance_sq=contact_file.get_next_val()
+				c.shunt_resistance_sq=s.shunt_resistance_sq
 
-				ingress=contact_file.get_next_val()
+				c.physical_model=s.physical_model
 
-				contact_type=contact_file.get_next_val()
+				c.ve0=s.contact_ve
+				c.vh0=s.contact_vh
 
-				ve0=contact_file.get_next_val()
+				c.shape=shape()
+				c.shape.shape_dos="none"
+				c.shape.load(s.contact_shape_file_name)
 
-				vh0=contact_file.get_next_val()
+				self.contacts.append(c)
 
-
-				self.contact_load(name,position,active,float(voltage),float(charge_density), charge_type,shape_file_name,ingress,contact_type,ve0,vh0)
 
 	def get_shape_files(self):
 		ret=[]
@@ -110,43 +112,24 @@ class contacts_io():
 
 	def print():
 		for s in self.contacts:
-			print(s.shape.x0, s.shape.dx,s.depth,s.voltage,s.active)
+			print(s.shape.x0, s.shape.dx,s.depth,s.contact_applied_voltage,s.contact_applied_voltage_type)
 
 	def clear():
 		self.contacts=[]
 
-	def contact_load(self,name,position,active,voltage,np,charge_type,shape_file_name,ingress,contact_type,ve0,vh0):
-		s=segment()
-		s.name=name
-		s.position=position
-		s.active=active
-		s.voltage=voltage
-		s.np=np
-		s.type=contact_type
-		s.ve0=ve0
-		s.vh0=vh0
-		s.charge_type=charge_type
-		s.shape=shape()
-		s.shape.shape_dos="none"
-		s.shape.load(shape_file_name)
-		s.ingress=float(ingress)
-
-		self.contacts.append(s)
 
 	def gen_file(self):
 		lines=[]
-		lines.append("#contacts")
+		lines.append("#sections")
 		lines.append(str(len(self.contacts)))
 		i=0
 		for s in self.contacts:
-			lines.append("#contact_name"+str(i))
-			lines.append(str(s.name))
 			lines.append("#contact_position"+str(i))
 			lines.append(str(s.position))
-			lines.append("#contact_active"+str(i))
-			lines.append(str(s.active))
-			lines.append("#contact_voltage"+str(i))
-			lines.append(str(s.voltage))
+			lines.append("#contact_applied_voltage_type"+str(i))
+			lines.append(str(s.applied_voltage_type))
+			lines.append("#contact_applied_voltage"+str(i))
+			lines.append(str(s.applied_voltage))
 			lines.append("#contact_charge_density"+str(i))
 			lines.append(str(s.np))
 			lines.append("#contact_charge_type"+str(i))
@@ -154,11 +137,11 @@ class contacts_io():
 			lines.append("#contact_shape_file_name"+str(i))
 			lines.append(s.shape.file_name)
 			lines.append("#contact_resistance_sq"+str(i))
-			lines.append(str(s.resistance_sq))
-			lines.append("#contact_ingress"+str(i))
-			lines.append(str(s.ingress))
-			lines.append("#contact_type"+str(i))
-			lines.append(s.type)
+			lines.append(str(s.contact_resistance_sq))
+			lines.append("#shunt_resistance_sq"+str(i))
+			lines.append(str(s.shunt_resistance_sq))
+			lines.append("#physical_model"+str(i))
+			lines.append(s.physical_model)
 			lines.append("#contact_ve"+str(i))
 			lines.append(str(s.ve0))
 			lines.append("#contact_vh"+str(i))
@@ -197,22 +180,21 @@ class contacts_io():
 		return layers
 
 	def insert(self,pos,shape_file_name):
-		s=segment()
-		s.name="new_contact"
+		s=contact()
 		s.position="top"
-		s.active=False
-		s.voltage=0.0
+		s._applied_voltage="ground"
 		s.np=1e25
-		s.type="ohmic"
+		s.physical_model="ohmic"
+		s.contact_resistance_sq="0.0"
+		s.shunt_resistance_sq="1e7"
 		s.ve0=1e7
 		s.vh0=1e7
 		s.charge_type="electron"
 		s.shape=shape()
 		s.shape.load(shape_file_name)
+		s.shape.name="new_contact"
 		s.shape.type="box"
 		s.shape.shape_dos="none"
-
-		s.ingress=0.0
 		self.contacts.insert(pos,s)
 		return self.contacts[pos]
 

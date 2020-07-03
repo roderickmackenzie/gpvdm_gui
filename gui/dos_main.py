@@ -105,10 +105,15 @@ class dos_main(QWidget,tab_base):
 				if l.dos_file.startswith("dos")==True:
 					
 						name="DoS of "+l.name
-
 						widget=tab_class(l.dos_file+".inp")
-
 						self.notebook.addTab(widget,name)
+
+						for s in l.shapes:
+							if s.shape_dos!="none":
+								name="DoS of "+s.name
+								widget=tab_class(s.shape_dos+".inp")
+								self.notebook.addTab(widget,name)
+								#tab.append(s.shape_dos+".inp")
 			else:
 				name="Electrical "+l.name
 

@@ -60,11 +60,15 @@ def search_color(input_color):
 def set_false_color(value):
 	global false_color
 	false_color=value
+	if false_color==True:
+		glDisable(GL_LIGHTING)
+	else:
+		glEnable(GL_LIGHTING)
 
 def set_color(r,g,b,name,alpha=-1):
 	global color_list
 	global false_color
-
+	lit=True
 	if r==None or g==None or b==None:
 		r=255
 		g=0
@@ -89,9 +93,17 @@ def set_color(r,g,b,name,alpha=-1):
 		alpha=alpha
 
 	if alpha==-1:
-		glColor3f(r,g,b)
+		if false_color==False:
+			col = [r, g, b, 1.0]
+			glMaterialfv(GL_FRONT, GL_DIFFUSE, col)
+		else:
+			glColor3f(r,g,b)
 	else:
-		glColor4f(r,g,b, alpha)
+		if false_color==False:
+			col = [r, g, b, alpha]
+			glMaterialfv(GL_FRONT, GL_DIFFUSE, col)
+		else:
+			glColor4f(r,g,b, alpha)
 
 def clear_color():
 	global color_list

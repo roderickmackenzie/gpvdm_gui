@@ -71,7 +71,7 @@ class tb_pulse_load_type(QWidget):
 		self.sim_mode.addItem("ideal_diode_ideal_load")
 
 
-		token=inp_get_token_value(self.file_name, "#pulse_sim_mode")
+		token=inp_get_token_value(self.file_name, token)
 
 		all_items  = [self.sim_mode.itemText(i) for i in range(self.sim_mode.count())]
 		for i in range(0,len(all_items)):
@@ -83,7 +83,7 @@ class tb_pulse_load_type(QWidget):
 
 	def call_back_sim_mode_changed(self):
 		mode=self.sim_mode.currentText()
-		print("write to:",self.file_name)
+		#print("write to:",self.file_name)
 		inp_update_token_value(self.file_name, self.token, mode)
 		self.changed.emit()
 

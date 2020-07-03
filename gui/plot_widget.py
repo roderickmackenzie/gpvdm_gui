@@ -31,7 +31,6 @@ import os
 import io
 from numpy import *
 from plot_io import plot_load_info
-from plot_export import plot_export
 
 
 #matplotlib
@@ -367,20 +366,24 @@ class plot_widget(QWidget):
 				if self.data[i].logy==True:
 					self.ax[i].set_yscale("log")
 
+				#if self.data[i].key_text!="":
+				key="$"+numbers_to_latex(str(self.data[i].key_text))+ " "+pygtk_to_latex_subscript(self.data[0].key_units) +"$"
+
 				X, Y = meshgrid( self.data[i].y_scale,self.data[i].x_scale)
 				Z = self.data[i].data[0]
 
 				# Plot the surface
 				col=get_color(i)
-				print(self.data[i].plot_type,"here")
+				#print(self.data[i].plot_type,"here")
 				if self.data[i].plot_type=="wireframe" or self.data[i].plot_type=="":
-					im=self.ax[0].plot_wireframe( Y,X, array(Z),color=col)
+					im=self.ax[0].plot_wireframe( Y,X, array(Z),color=col, label=key, clip_on=True)
 				elif self.data[i].plot_type=="contour":
 					im=self.ax[0].contourf( Y,X, array(Z),color=col)
 				elif self.data[i].plot_type=="heat":
 					my_max,my_min=dat_file_max_min(self.data[0])
 					im=self.ax[0].plot_surface(Y,X, array(Z), linewidth=0, vmin=my_min, vmax=my_max,cmap="hot", antialiased=False)
 
+				self.ax[0].legend()
 				#im=self.ax[0].contourf( Y,X, Z,color=col)
 
 #cset = ax.contourf(X, Y, Z, zdir='y', offset=40, cmap=cm.coolwarm)
@@ -506,7 +509,7 @@ class plot_widget(QWidget):
 
 	def set_labels(self,labels):
 		if len(self.data)!=len(labels):
-			print("oops",len(self.data),len(labels))
+			#print("oops",len(self.data),len(labels))
 			return
 
 		for i in range(0,len(self.data)):
@@ -514,11 +517,11 @@ class plot_widget(QWidget):
 
 	def set_plot_types(self,plot_types):
 		if len(self.data)!=len(plot_types):
-			print("oops",len(self.data),len(plot_types))
+			#print("oops",len(self.data),len(plot_types))
 			return
 
 		for i in range(0,len(self.data)):
-			print("setting",plot_types[i])
+			#print("setting",plot_types[i])
 			self.data[i].plot_type=plot_types[i]
 
 	def reload(self):

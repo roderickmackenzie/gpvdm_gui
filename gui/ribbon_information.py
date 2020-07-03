@@ -52,7 +52,7 @@ from inp import inp
 from cal_path import get_sim_path
 from util import wrap_text
 
-from ref_io import load_ref
+from bibtex import bibtex
 
 class ribbon_information(QToolBar):
 	def __init__(self):
@@ -102,7 +102,7 @@ class ribbon_information(QToolBar):
 		self.addAction(self.man)
 
 	def update(self):
-		if inp().isfile(os.path.join(get_sim_path(),"sim.ref"))==True:
+		if inp().isfile(os.path.join(get_sim_path(),"sim.bib"))==True:
 			self.paper.setVisible(True)
 		else:
 			self.paper.setVisible(False)
@@ -124,11 +124,12 @@ class ribbon_information(QToolBar):
 		webbrowser.open("https://twitter.com/gpvdm_info")
 
 	def callback_paper(self):
-		r=load_ref(os.path.join(get_sim_path(),"sim.ref"))
-		print("open,",r.website)
-		if r!=None:
-			if r.website!="":
-				webbrowser.open(r.website)#
+		b=bibtex()
+		if b.load(os.path.join(get_sim_path(),"sim.bib"))==True:
+			ref=b.get_ref("simulation")
+			if ref!=False:
+				if r.url!="":
+					webbrowser.open(r.url)#
 
 
 	def callback_ref(self):

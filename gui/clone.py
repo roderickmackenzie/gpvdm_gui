@@ -41,6 +41,7 @@ from materials_io import find_materials
 from cal_path import find_light_source
 from cal_path import get_spectra_path
 from cal_path import get_base_spectra_path
+from win_lin import running_on_linux
 
 def gpvdm_clone(path,src_archive="",copy_dirs=False,dest="archive"):
 	#print("Cloning from",get_inp_file_path())
@@ -59,7 +60,8 @@ def gpvdm_clone(path,src_archive="",copy_dirs=False,dest="archive"):
 		if files[i].endswith(".inp"):
 			lines=read_lines_from_archive(src_archive,files[i],mode="b")
 			write_lines_to_archive(dest_archive,files[i],lines,dest=dest,mode="b")
-
+			#if (files[i]=="dos0.inp"):
+			#	asdsa
 
 	if copy_dirs==True:
 		if os.path.isdir(os.path.join(src_dir,"plot")):
@@ -70,14 +72,13 @@ def gpvdm_clone(path,src_archive="",copy_dirs=False,dest="archive"):
 
 		#if os.path.isdir(os.path.join(src_dir,"materials")):
 		#	shutil.copytree(os.path.join(src_dir,"materials"), os.path.join(path,"materials"))
-
 		#clone_materials(path)
 		#clone_spectras(path)
 
 def clone_spectra(dest_spectra_dir,src_spectra_dir):
 	#print(dest_spectra_dir,src_spectra_dir)
 	if os.path.isdir(dest_spectra_dir)==False:
-		os.mkdir(dest_spectra_dir)
+		os.makedirs(dest_spectra_dir)
 
 	for copy_file in ["spectra_gen.inp","spectra.inp","mat.inp","spectra_eq.inp"]:
 		src_spectra_file=os.path.join(src_spectra_dir,copy_file)
@@ -86,15 +87,19 @@ def clone_spectra(dest_spectra_dir,src_spectra_dir):
 			
 
 def clone_spectras(dest):
-	src_dir=os.path.join(get_base_spectra_path())
-	dest_dir=dest
+	if running_on_linux()==False:
+		src_dir=os.path.join(get_base_spectra_path())
+		dest_dir=dest
 
-	if os.path.isdir(dest_dir)==False:
-		os.mkdir(dest_dir)
+		if os.path.isdir(dest_dir)==False:
+			os.mkdir(dest_dir)
 
-	files=find_light_source(get_base_spectra_path())
+		files=find_light_source(get_base_spectra_path())
 
-	for i in range(0,len(files)):
-		src_file=os.path.join(src_dir,files[i])
-		dest_file=os.path.join(dest_dir,files[i])
-		clone_spectra(dest_file,src_file)
+		for i in range(0,len(files)):
+			src_file=os.path.join(src_dir,files[i])
+			dest_file=os.path.join(dest_dir,files[i])
+			clone_spectra(dest_file,src_file)
+	else:
+		os.symlink(get_base_spectra_path(), dest)
+

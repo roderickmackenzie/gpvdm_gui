@@ -26,21 +26,21 @@
 #
 
 import os
-from scan_item import scan_item_add
 from gui_util import dlg_get_text
 from inp import inp_save
 import webbrowser
 from util import fx_with_units
 from icon_lib import icon_get
-from scan_item import scan_remove_file
+from scan_human_labels import get_scan_human_labels
 
 import i18n
 _ = i18n.language.gettext
 
 #inp
 from inp import inp_search_token_value
-from inp import inp_load_file
 from inp import inp_read_next_item
+
+from inp import inp
 
 #matplotlib
 import matplotlib
@@ -51,7 +51,7 @@ from matplotlib.backends.backend_qt5agg import NavigationToolbar2QT as Navigatio
 
 #qt
 from PyQt5.QtCore import QSize, Qt 
-from PyQt5.QtWidgets import QWidget,QVBoxLayout,QToolBar,QSizePolicy,QAction,QTabWidget,QTableWidget,QAbstractItemView,QApplication
+from PyQt5.QtWidgets import QWidget,QVBoxLayout,QHBoxLayout,QToolBar,QSizePolicy,QAction,QTabWidget,QTableWidget,QAbstractItemView,QApplication
 from PyQt5.QtGui import QPainter,QIcon
 
 #windows
@@ -79,25 +79,25 @@ class tab_fxmesh(QWidget):
 
 	def save_data(self):
 		file_name="fxmesh"+str(self.index)+".inp"
-		scan_remove_file(file_name)
+		self.get_scan_human_labels.remove_file(file_name)
 
 		out_text=[]
 
 		for i in range(0,self.tab.rowCount()):
 			out_text.append("#fx_segment"+str(i)+"_start")
-			scan_item_add(file_name,out_text[len(out_text)-1],_("Part ")+str(i)+" "+_("start"),1)
+			self.get_scan_human_labels.add_item(file_name,out_text[len(out_text)-1],_("Part ")+str(i)+" "+_("start"))
 			out_text.append(str(self.tab.get_value(i, 0)))
 
 			out_text.append("#fx_segment"+str(i)+"_stop")
-			scan_item_add(file_name,out_text[len(out_text)-1],_("Part ")+str(i)+" "+_("stop"),1)
+			self.get_scan_human_labels.add_item(file_name,out_text[len(out_text)-1],_("Part ")+str(i)+" "+_("stop"))
 			out_text.append(str(self.tab.get_value(i, 1)))
 
 			out_text.append("#fx_segment"+str(i)+"_points")
-			scan_item_add(file_name,out_text[len(out_text)-1],_("Part ")+str(i)+" "+_("points"),1)
+			self.get_scan_human_labels.add_item(file_name,out_text[len(out_text)-1],_("Part ")+str(i)+" "+_("points"))
 			out_text.append(str(self.tab.get_value(i, 2)))
 
 			out_text.append("#fx_segment"+str(i)+"_mul")
-			scan_item_add(file_name,out_text[len(out_text)-1],_("Part ")+str(i)+" "+_("mul"),1)
+			self.get_scan_human_labels.add_item(file_name,out_text[len(out_text)-1],_("Part ")+str(i)+" "+_("mul"))
 			out_text.append(str(self.tab.get_value(i, 3)))
 
 		out_text.append("#ver")
@@ -109,13 +109,13 @@ class tab_fxmesh(QWidget):
 
 	def update_scan_tokens(self):
 		file_name="fxmesh"+str(self.index)+".inp"
-		scan_remove_file(file_name)
+		self.get_scan_human_labels.remove_file(file_name)
 
 		for i in range(0,len(self.list)):
-			scan_item_add(file_name,"#fx_segment"+str(i)+"_start",_("Part ")+str(i)+" "+_("start"),1)
-			scan_item_add(file_name,"#fx_segment"+str(i)+"_stop",_("Part ")+str(i)+" "+_("stop"),1)
-			scan_item_add(file_name,"#fx_segment"+str(i)+"_points",_("Part ")+str(i)+" "+_("points"),1)
-			scan_item_add(file_name,"#fx_segment"+str(i)+"_mul",_("Part ")+str(i)+" "+_("mul"),1)
+			self.get_scan_human_labels.add_item(file_name,"#fx_segment"+str(i)+"_start",_("Part ")+str(i)+" "+_("start"))
+			self.get_scan_human_labels.add_item(file_name,"#fx_segment"+str(i)+"_stop",_("Part ")+str(i)+" "+_("stop"))
+			self.get_scan_human_labels.add_item(file_name,"#fx_segment"+str(i)+"_points",_("Part ")+str(i)+" "+_("points"))
+			self.get_scan_human_labels.add_item(file_name,"#fx_segment"+str(i)+"_mul",_("Part ")+str(i)+" "+_("mul"))
 
 
 	def callback_add_section(self):
@@ -173,11 +173,11 @@ class tab_fxmesh(QWidget):
 				if self.fx[i][ii]<my_min:
 					my_min=self.fx[i][ii]
 	
-		if (len(self.fx)>0):
-			mul,unit=fx_with_units(float(my_max-my_min))
-		else:
-			mul=1.0
-			unit="Hz"
+		#if (len(self.fx)>0):
+		#	mul,unit=fx_with_units(float(my_max-my_min))
+		#else:
+		mul=1.0
+		unit="Hz"
 
 		fx=[]
 		mag=[]
@@ -218,18 +218,18 @@ class tab_fxmesh(QWidget):
 	def load_data(self):
 		self.tab.clear()
 		self.tab.setColumnCount(4)
-		self.tab.setSelectionBehavior(QAbstractItemView.SelectRows)
+		#self.tab.setSelectionBehavior(QAbstractItemView.SelectRows)
 		self.tab.setHorizontalHeaderLabels([_("Frequency start"),_("Frequency stop"), _("Max points"), _("Multiply")])
 		self.tab.setColumnWidth(0, 200)
 		self.tab.setColumnWidth(1, 200)
 
-		lines=[]
 		self.start_fx=0.0
 
 		file_name="fxmesh"+str(self.index)+".inp"
 
-		lines=inp_load_file(os.path.join(get_sim_path(),file_name))
-		if lines!=False:
+		f=inp().load(os.path.join(get_sim_path(),file_name))
+		lines=f.lines
+		if f!=False:
 			if inp_search_token_value(lines, "#ver")=="1.1":
 				pos=0
 
@@ -283,6 +283,7 @@ class tab_fxmesh(QWidget):
 				#local_mag.append(1.0)
 			self.mag.append(local_mag)
 			self.fx.append(local_fx)
+			print(	self.fx)
 			local_mag=[]
 			local_fx=[]
 
@@ -303,18 +304,19 @@ class tab_fxmesh(QWidget):
 			self.fig.savefig(file_name)
 
 	def paste_action(self):
-		cb = QApplication.clipboard()
-		text=cb.text()
-		lines=text.rstrip().split()
-		for l in lines:
-			self.tab.add([l,l,"1","1.0"])
+		return
+		#cb = QApplication.clipboard()
+		#text=cb.text()
+		#lines=text.rstrip().split()
+		#for l in lines:
+		#	self.tab.add([l,l,"1","1.0"])
 
-		self.build_mesh()
-		self.draw_graph()
-		self.fig.canvas.draw()
-		self.save_data()
+		#self.build_mesh()
+		#self.draw_graph()
+		#self.fig.canvas.draw()
+		#self.save_data()
 
-		print("paste>>",lines)
+		#print("paste>>",lines)
 
 	def __init__(self,index):
 		QWidget.__init__(self)
@@ -330,14 +332,13 @@ class tab_fxmesh(QWidget):
 		self.canvas = FigureCanvas(self.fig)
 		self.canvas.figure.patch.set_facecolor('white')
 
-		gui_pos=0
+		self.get_scan_human_labels=get_scan_human_labels()
 
-		print("index=",index)
+		self.main_vbox = QHBoxLayout()
 
-		self.main_vbox = QVBoxLayout()
 
 		self.main_vbox.addWidget(self.canvas)
-
+		self.canvas.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
 
 
 
@@ -362,7 +363,11 @@ class tab_fxmesh(QWidget):
 		self.tb_move_up.triggered.connect(self.callback_move_up)
 		toolbar2.addAction(self.tb_move_up)
 
-		self.main_vbox.addWidget(toolbar2)
+		tab_holder=QWidget()
+		tab_vbox_layout= QVBoxLayout()
+		tab_holder.setLayout(tab_vbox_layout)
+
+		tab_vbox_layout.addWidget(toolbar2)
 
 		self.tab = gpvdm_tab()
 		self.tab.resizeColumnsToContents()
@@ -376,11 +381,12 @@ class tab_fxmesh(QWidget):
 		self.update_scan_tokens()
 
 		self.tab.cellChanged.connect(self.on_cell_edited)
+		#self.tab.paste_callback=self.paste_action
 
-		self.main_vbox.addWidget(self.tab)
+		tab_vbox_layout.addWidget(self.tab)
+		self.main_vbox.addWidget(tab_holder)
 
 		self.setLayout(self.main_vbox)
-
 		self.tab.menu_paste.triggered.connect(self.paste_action)
 
 

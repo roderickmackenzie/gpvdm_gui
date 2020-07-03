@@ -42,7 +42,6 @@ from help import help_window
 from plot_widget import plot_widget
 from win_lin import desktop_open
 
-from ref import get_ref_text
 from QWidgetSavePos import QWidgetSavePos
 
 from ribbon_spectra import ribbon_spectra
@@ -50,8 +49,7 @@ from ribbon_spectra import ribbon_spectra
 from import_data import import_data
 
 from ref import ref_window
-from ref import get_ref_text
-from ref_io import ref
+from bibtex import bibtex
 
 articles = []
 mesh_articles = []
@@ -61,10 +59,10 @@ class spectra_main(QWidgetSavePos):
 	def changed_click(self):
 
 		if self.notebook.tabText(self.notebook.currentIndex()).strip()==_("Refractive index"):
-			text=get_ref_text(os.path.join(self.path,"n.ref"))
-			if text==None:
-				text=""
-			help_window().help_set_help(["n.png",_("<big><b>Refractive index</b></big><br>"+text)])
+			b=bibtex()
+			if b.load(os.path.join(self.path,"spectra.bib"))!=False:
+				text=b.get_text()
+				help_window().help_set_help(["spectra_file.png",_("<big><b>Spectra</b></big><br>"+text)])
 
 	def callback_help(self):
 		webbrowser.open("https://www.gpvdm.com/docs.html")
@@ -73,7 +71,7 @@ class spectra_main(QWidgetSavePos):
 		self.alpha.update()
 
 	def callback_ref(self):
-		self.ref_window=ref_window(os.path.join(self.path,"spectra.inp"))
+		self.ref_window=ref_window(os.path.join(self.path,"spectra.inp"),"spectra")
 		self.ref_window.show()
 
 	def callback_import(self):

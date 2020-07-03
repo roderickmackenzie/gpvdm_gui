@@ -153,7 +153,7 @@ class Highlighter(QSyntaxHighlighter):
 class script_editor(code_editor):
 	status_changed = pyqtSignal()
 
-	def __init__(self):
+	def __init__(self,):
 		code_editor.__init__(self)
 		font = QFont()
 		font.setFamily('Monospace')
@@ -168,7 +168,7 @@ class script_editor(code_editor):
 		shortcut.activated.connect(self.save)
 
 		self.not_saved=False
-
+		self.api_callback=None
 
 	def callback_edit(self):
 
@@ -191,7 +191,10 @@ class script_editor(code_editor):
 	def run(self):
 		print("Running:",self.file_name)
 		mod = imp.load_source("hi",self.file_name)
-		a=mod.gpvdm_plugin(gpvdm_api(verbose=True))
+		api=gpvdm_api(verbose=True)
+		api.callback=self.api_callback
+		api.path=os.path.dirname(self.file_name)
+		a=mod.gpvdm_plugin(api)
 		del mod
 		#sys.path.insert(1, os.path.dirname(self.file_name))
 		#import_name=os.path.splitext(os.path.basename(self.file_name))[0]

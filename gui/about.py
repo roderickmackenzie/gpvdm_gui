@@ -39,7 +39,7 @@ from PyQt5.QtCore import QSize
 from PyQt5.QtGui import QIcon
 
 from materials_io import find_materials
-from ref import get_ref_text
+from bibtex import bibtex
 from icon_lib import icon_get
 
 from cal_path import get_materials_path, get_default_material_path, get_device_lib_path, get_bin_path, get_plugins_path, get_exe_path, get_exe_command, get_exe_name
@@ -190,13 +190,14 @@ class about_dlg(QDialog):
 		
 	def fill_store(self):
 		self.materials.clear()
-		print(get_materials_path())
 		all_files=find_materials()
 		for fl in all_files:
-			text=get_ref_text(os.path.join(get_materials_path(),fl,"n.gmat"),html=False)
-			if text!=None:
-				itm = QListWidgetItem(os.path.basename(fl)+" "+text)
-				itm.setIcon(self.mat_icon)
-				itm.setToolTip(text)
-				self.materials.addItem(itm)
+			b=bibtex()
+			if b.load(os.path.join(get_materials_path(),fl,"mat.bib"))!=False:
+				text=b.get_text(html=False)
+				if text!="":
+					itm = QListWidgetItem(os.path.basename(fl)+" "+text)
+					itm.setIcon(self.mat_icon)
+					itm.setToolTip(text)
+					self.materials.addItem(itm)
 

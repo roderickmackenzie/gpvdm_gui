@@ -30,11 +30,7 @@ import os
 from scan_select import select_param
 
 from icon_lib import icon_get
-from scan_item import scan_items_get_file
-from scan_item import scan_items_get_token
 from str2bool import str2bool
-
-from scan_item import scan_items_lookup_item
 
 import i18n
 _ = i18n.language.gettext

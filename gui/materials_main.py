@@ -42,8 +42,7 @@ from help import help_window
 from win_lin import desktop_open
 
 from ref import ref_window
-from ref import get_ref_text
-from ref_io import ref
+from bibtex import bibtex
 
 from gpvdm_open import gpvdm_open
 
@@ -72,18 +71,22 @@ class materials_main(QWidgetSavePos):
 			self.ribbon.import_data.setEnabled(False)
 
 		if self.notebook.tabText(self.notebook.currentIndex()).strip()==_("Absorption"):
-			text=get_ref_text(os.path.join(self.path,"alpha.ref"))
-			if text==None:
-				text=""
-			help_window().help_set_help(["alpha.png",_("<big><b>Absorption</b></big><br>"+text)])
+			b=bibtex()
+			if b.load(os.path.join(self.path,"mat.bib"))!=False:
+				text=b.get_text_of_token("alpha",html=True)
+				if text!=False:
+					help_window().help_set_help(["alpha.png",_("<big><b>Absorption</b></big><br>"+text)])
+
 			self.ribbon.tb_save.setEnabled(True)
 			self.ribbon.import_data.setEnabled(True)
 
 		if self.notebook.tabText(self.notebook.currentIndex()).strip()==_("Refractive index"):
-			text=get_ref_text(os.path.join(self.path,"n.ref"))
-			if text==None:
-				text=""
-			help_window().help_set_help(["n.png",_("<big><b>Refractive index</b></big><br>"+text)])
+			b=bibtex()
+			if b.load(os.path.join(self.path,"mat.bib"))!=False:
+				text=b.get_text_of_token("n",html=True)
+				if text!=False:
+					help_window().help_set_help(["n.png",_("<big><b>Refractive index</b></big><br>"+text)])
+
 			self.ribbon.tb_save.setEnabled(True)
 			self.ribbon.import_data.setEnabled(True)
 
@@ -106,7 +109,7 @@ class materials_main(QWidgetSavePos):
 		self.main_vbox = QVBoxLayout()
 
 		self.ribbon=ribbon_materials()
-		
+
 		self.ribbon.cost.triggered.connect(self.callback_cost)
 		self.ribbon.folder_open.triggered.connect(self.callback_dir_open)
 		self.ribbon.import_data.clicked.connect(self.import_data)
@@ -224,15 +227,15 @@ class materials_main(QWidgetSavePos):
 		self.alpha.update()
 
 	def callback_ref(self):
-		file_name=None
+		token=None
 		if self.notebook.tabText(self.notebook.currentIndex()).strip()==_("Absorption"):
-			file_name="alpha.gmat"
+			token="alpha"
 
 		if self.notebook.tabText(self.notebook.currentIndex()).strip()==_("Refractive index"):
-			file_name="n.gmat"
+			token="n"
 
-		if file_name!=None:
-			self.ref_window=ref_window(os.path.join(self.path,file_name))
+		if token!=None:
+			self.ref_window=ref_window(os.path.join(self.path,"mat.bib"),token)
 			self.ref_window.show()
 
 	def callback_dir_open(self):

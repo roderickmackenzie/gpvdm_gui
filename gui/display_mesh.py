@@ -124,7 +124,7 @@ class display_mesh(QWidget):
 			
 			self.display=glWidget(self)
 			self.display.draw_electrical_mesh=True
-			self.display.enable_draw_device=False
+			self.display.view.draw_device=False
 			self.display.enable_cordinates=False
 			self.display.view.render_photons=False
 			#self.display.force_redraw()

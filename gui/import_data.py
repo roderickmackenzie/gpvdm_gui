@@ -68,6 +68,7 @@ from ribbon_import import ribbon_import
 
 from str2bool import str2bool
 import shutil
+from error_dlg import error_dlg
 
 class import_data(QDialog):
 
@@ -420,6 +421,10 @@ class import_data(QDialog):
 		if self.file_names!=None:
 			file_name=self.file_names[0]
 			data=self.transform(file_name)
+			if data==False:
+				error_dlg(self,_("Can not load file "+file_name))
+				return
+
 			text="\n".join(data.gen_output_data())
 			self.out_data.setText(text)
 

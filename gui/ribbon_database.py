@@ -94,11 +94,6 @@ class ribbon_database(QToolBar):
 		self.spectra_file.clicked.connect(self.callback_view_optical)
 		self.addAction(self.spectra_file)
 
-		if enable_betafeatures()==True:
-			self.tb_import_pvlighthouse = QAction_lock("sync", _("Update materials\nfrom PVLighthouse"), self,"ribbion_db_sync")
-			self.tb_import_pvlighthouse.clicked.connect(self.callback_pvlighthouse)
-			self.addAction(self.tb_import_pvlighthouse)
-
 		self.tb_update = QAction_lock("update", _("Download extra\nmaterials"), self,"ribbion_db_update")
 		self.tb_update.clicked.connect(self.callback_update_window)
 		self.addAction(self.tb_update)
@@ -136,8 +131,6 @@ class ribbon_database(QToolBar):
 		self.user.setEnabled(val)
 		self.shape.setEnabled(val)
 
-		if enable_betafeatures()==True:
-			self.tb_import_pvlighthouse.setEnabled(val)
 
 
 	def on_new_materials_clicked(self):
@@ -197,10 +190,6 @@ class ribbon_database(QToolBar):
 		self.dialog.toolbar.addAction(self.new_materials)
 		self.dialog.show_inp_files=False
 		ret=self.dialog.exec_()
-
-	def callback_pvlighthouse(self):
-		from pvlighthouse import pvlighthouse_sync
-		pvlighthouse_sync()
 
 	def callback_update_window(self):
 		from update import update_window_show

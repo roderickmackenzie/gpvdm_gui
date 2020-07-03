@@ -40,7 +40,7 @@ from i18n import get_language
 from cal_path import get_flag_file_path
 from i18n import get_full_desired_lang_path
 
-from ref_io import load_ref
+from bibtex import bibtex
 
 from icon_lib import icon_get
 my_help_class=None
@@ -250,10 +250,10 @@ def language_advert():
 	lang=get_language()
 	f=os.path.join(get_flag_file_path(),lang+".png")
 	if os.path.isfile(f)==True:
-		print(os.path.join(get_full_desired_lang_path(),"ref.ref"))
-		r=load_ref(os.path.join(get_full_desired_lang_path(),"ref.ref"))
+		b=bibtex()
+		loaded=b.load(os.path.join(get_full_desired_lang_path(),"ref.bib"))
 
-		if r==None or r.author=="":
+		if loaded==False or r.author=="":
 			my_help_class.help_append([f,"<big><b>"+_("gpvdm in your language!")+"</b></big><br>"+"Would you like gpvdm to be translated into your native language?  If so please help with the gpvdm <a href=\"https://gpvdm.com/translation.html\">translation project.</a>"])
 		else:
 			my_help_class.help_append([f,"<big><b>"+_("gpvdm translated by:")+"</b></big><br>"+r.author])

@@ -43,13 +43,18 @@ from energy_to_charge import energy_to_charge
 from gtkswitch import gtkswitch
 from leftright import leftright
 from gpvdm_select_material import gpvdm_select_material
-
+from gpvdm_applied_voltage import gpvdm_applied_voltage
+from str2bool import str2bool
 
 class gpvdm_tab(QTableWidget):
 
 	def __init__(self,toolbar=None):
 		QTableWidget.__init__(self)
 		self.toolbar=toolbar
+		self.paste_callback=None
+		self.setSelectionBehavior(QAbstractItemView.SelectItems)
+		self.SelectionMode (QAbstractItemView.SingleSelection)
+		
 		if self.toolbar!=None:
 			self.toolbar.setIconSize(QSize(32, 32))
 			self.tb_add = QAction(icon_get("list-add"), _("Add"), self)
@@ -68,9 +73,14 @@ class gpvdm_tab(QTableWidget):
 		self.menu_copy = QAction(_("Copy"), self)
 		self.menu_copy.triggered.connect(self.callback_menu_copy)
 		self.menu.addAction(self.menu_copy)
+
 		self.menu_paste = QAction(_("Paste"), self)
 		self.menu.addAction(self.menu_paste)
 		self.menu_paste.triggered.connect(self.callback_menu_paste)
+
+		self.menu_delete = QAction(icon_get("list-remove"),_("Delete"), self)
+		self.menu.addAction(self.menu_delete)
+		self.menu_delete.triggered.connect(self.remove)
 
 	def callback_menu_copy(self):
 		if self.rowCount()==0:
@@ -114,7 +124,26 @@ class gpvdm_tab(QTableWidget):
 
 
 	def callback_menu_paste(self):
-		print("paste")
+		self.blockSignals(True)
+		cb = QApplication.clipboard()
+		text=cb.text()
+		lines=text.rstrip().split()
+		item=self.selectedIndexes()[0]
+		y=item.row()
+		x_start=item.column()
+
+		for l in lines:
+			if (y==self.rowCount()):
+				self.insertRow(y)
+
+			self.set_value(y,x_start,l)
+			y=y+1
+
+		#for item in self.selectedIndexes():
+		#	print("selectedIndexes",  )
+		#if self.paste_callback!=None:
+		#	self.paste_callback()
+		self.blockSignals(False)
 
 	def contextMenuEvent(self, event):
 		self.menu.popup(QCursor.pos())
@@ -141,6 +170,10 @@ class gpvdm_tab(QTableWidget):
 			self.cellWidget(y, x).setText(value)
 			self.cellWidget(y, x).blockSignals(False)
 		elif type(self.cellWidget(y,x))==gpvdm_select_material:
+			self.cellWidget(y, x).blockSignals(True)
+			self.cellWidget(y, x).setText(value)
+			self.cellWidget(y, x).blockSignals(False)
+		elif type(self.cellWidget(y,x))==gpvdm_applied_voltage:
 			self.cellWidget(y, x).blockSignals(True)
 			self.cellWidget(y, x).setText(value)
 			self.cellWidget(y, x).blockSignals(False)
@@ -202,6 +235,8 @@ class gpvdm_tab(QTableWidget):
 		elif type(self.cellWidget(y,x))==gtkswitch:
 			return self.cellWidget(y, x).get_value()
 		elif type(self.cellWidget(y,x))==gpvdm_select_material:
+			return self.cellWidget(y, x).text()
+		elif type(self.cellWidget(y,x))==gpvdm_applied_voltage:
 			return self.cellWidget(y, x).text()
 		elif type(self.cellWidget(y, x))==QComboBoxShape:
 			return self.cellWidget(y, x).currentText()

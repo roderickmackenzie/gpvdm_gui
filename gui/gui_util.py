@@ -51,9 +51,9 @@ if gui_get()==True:
 	from QComboBoxShape import QComboBoxShape
 	from QChangeLog import QChangeLog
 	from QParasitic import QParasitic
-	from dos_complex_switch import dos_complex_switch
+	from generic_switch import generic_switch
 	from shape_dos_switch import shape_dos_switch
-
+	from mobility_widget import mobility_widget
 
 #windows
 from cal_path import get_ui_path
@@ -93,21 +93,6 @@ def yes_no_dlg(parent,text):
 	else:
 		return False
 
-def yes_no_cancel_dlg(parent,text):
-	msgBox = QMessageBox(parent)
-	msgBox.setIcon(QMessageBox.Question)
-	msgBox.setText("Question")
-	msgBox.setInformativeText(text)
-	msgBox.setStandardButtons(QMessageBox.Yes| QMessageBox.No| QMessageBox.Cancel  )
-	msgBox.setDefaultButton(QMessageBox.No)
-	reply = msgBox.exec_()
-	if reply == QMessageBox.Yes:
-		return "yes"
-	elif reply == QMessageBox.No:
-		return "no"
-	else:
-		return "cancel"
-
 def widget_get_value(widget):
 	if type(widget)==QLineEdit:
 		return widget.text()
@@ -135,10 +120,12 @@ def widget_get_value(widget):
 		return widget.currentText()
 	elif type(widget)==QParasitic:
 		return widget.text()
-	elif type(widget)==dos_complex_switch:
+	elif type(widget)==generic_switch:
 		return widget.get_value()
 	elif type(widget)==shape_dos_switch:
 		return widget.get_value()
+	elif type(widget)==mobility_widget:
+		return widget.get_values()
 	else:
 		return None
 
@@ -175,10 +162,12 @@ def widget_set_value(widget,value):
 		widget.setValue(value)
 	elif type(widget)==QParasitic:
 		widget.setValue(value)
-	elif type(widget)==dos_complex_switch:
+	elif type(widget)==generic_switch:
 		widget.set_value(value)
 	elif type(widget)==shape_dos_switch:
 		widget.set_value(value)
+	elif type(widget)==mobility_widget:
+		widget.set_values(value)
 	else:
 		print("ooops")
 

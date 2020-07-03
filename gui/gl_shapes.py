@@ -48,6 +48,9 @@ from gl_scale import scale_get_xmul
 from gl_scale import scale_get_ymul
 from gl_scale import scale_get_zmul
 
+from gl_lib import val_to_rgb
+from triangle_io import triangles_get_min
+from triangle_io import triangles_get_max
 
 def pyrmid(o):
 	x=o.x
@@ -105,8 +108,47 @@ def paint_from_array(o):
 
 	glEnd()
 
-def paint_open_triangles_from_array(o):
+def paint_from_array_cut_through(o):
 	set_color(o.r,o.g,o.b,o.id,alpha=o.alpha)
+
+	min_vec=triangles_get_min(o.triangles)
+	max_vec=triangles_get_max(o.triangles)
+
+	x=o.x
+	y=o.y
+	z=o.z
+	i=0;
+	glBegin(GL_TRIANGLES)
+	#for t in o.triangles:
+
+	for t in o.triangles:
+		plot=True
+		if t.xyz0.x==min_vec.x and t.xyz1.x==min_vec.x and t.xyz2.x==min_vec.x:
+			plot=False
+
+		if t.xyz0.y==max_vec.y and t.xyz1.y==max_vec.y and t.xyz2.y==max_vec.y:
+			plot=False
+
+		if t.xyz0.y==min_vec.y and t.xyz1.y==min_vec.y and t.xyz2.y==min_vec.y:
+			plot=False
+
+		if t.xyz0.z==min_vec.z and t.xyz1.z==min_vec.z and t.xyz2.z==min_vec.z:
+			plot=False
+
+		if plot==True:
+			glVertex3f(o.x+t.xyz0.x,o.y+t.xyz0.y,o.z+t.xyz0.z)
+			glVertex3f(o.x+t.xyz1.x,o.y+t.xyz1.y,o.z+t.xyz1.z)
+			glVertex3f(o.x+t.xyz2.x,o.y+t.xyz2.y,o.z+t.xyz2.z)
+
+	glEnd()
+
+
+def paint_open_triangles_from_array(o,colored=False):
+	set_color(o.r,o.g,o.b,o.id,alpha=o.alpha)
+
+	#if colored==True:
+	#	min_y=triangles_get_min(o.triangles).y
+	#	max_y=triangles_get_max(o.triangles).y
 
 	dx=o.dx/2
 	dy=o.dy/2
@@ -121,13 +163,31 @@ def paint_open_triangles_from_array(o):
 
 	for t in o.triangles:
 
+		#if colored==True:
+		#	ratio=(t.xyz0.y-min_y)/(max_y-min_y)
+		#	r,g,b=val_to_rgb(ratio)
+			#print(ratio,r,g,b)
+		#	glColor4f(r,g,b, 1.0)
+
 		glVertex3f(o.x+t.xyz0.x,o.y+t.xyz0.y,o.z+t.xyz0.z)
 		glVertex3f(o.x+t.xyz1.x,o.y+t.xyz1.y,o.z+t.xyz1.z)
 
 
 		if t.points==3:
+			#if colored==True:
+			#	ratio=(t.xyz1.y-min_y)/(max_y-min_y)
+			#	r,g,b=val_to_rgb(ratio)
+			#	#print(ratio,r,g,b)
+			#	glColor4f(r,g,b, 1.0)
+
 			glVertex3f(o.x+t.xyz1.x,o.y+t.xyz1.y,o.z+t.xyz1.z)
 			glVertex3f(o.x+t.xyz2.x,o.y+t.xyz2.y,o.z+t.xyz2.z)
+
+			#if colored==True:
+			#	ratio=(t.xyz2.y-min_y)/(max_y-min_y)
+			#	r,g,b=val_to_rgb(ratio)
+			#	#print(ratio,r,g,b)
+			#	glColor4f(r,g,b, 1.0)
 
 			glVertex3f(o.x+t.xyz2.x,o.y+t.xyz2.y,o.z+t.xyz2.z)
 			glVertex3f(o.x+t.xyz0.x,o.y+t.xyz0.y,o.z+t.xyz0.z)
@@ -220,7 +280,7 @@ def half_cyl(x0,y0,z0,dx,dy0,dz,name="name"):
 		glEnd()
 
 
-def box(x,y,z,w,h,d,r,g,b,alpha,name=["box"]):
+def box(x,y,z,w,h,d,r,g,b,alpha,name=["box"],cut_through=False):
 	red=r
 	green=g
 	blue=b
@@ -229,17 +289,18 @@ def box(x,y,z,w,h,d,r,g,b,alpha,name=["box"]):
 	#btm
 	set_color(red,green,blue,name,alpha=alpha)
 	glBegin(GL_QUADS)
-
-	glVertex3f(x+0.0,y+0.0,z+0.0)
-	glVertex3f(x+w,y+ 0.0,z+0.0)
-	glVertex3f(x+w,y+ 0.0,z+d)
-	glVertex3f(x+ 0.0, y+0.0,z+ d) 
+	if cut_through==False:
+		glVertex3f(x+0.0,y+0.0,z+0.0)
+		glVertex3f(x+w,y+ 0.0,z+0.0)
+		glVertex3f(x+w,y+ 0.0,z+d)
+		glVertex3f(x+ 0.0, y+0.0,z+ d) 
 	
 	#top
-	glVertex3f(x+0.0,y+h,z+0.0)
-	glVertex3f(x+w,y+ h,z+0.0)
-	glVertex3f(x+w,y+ h,z+d)
-	glVertex3f(x+ 0.0, y+h,z+ d) 
+	if cut_through==False:
+		glVertex3f(x+0.0,y+h,z+0.0)
+		glVertex3f(x+w,y+ h,z+0.0)
+		glVertex3f(x+w,y+ h,z+d)
+		glVertex3f(x+ 0.0, y+h,z+ d) 
 
 	#right
 
@@ -249,25 +310,24 @@ def box(x,y,z,w,h,d,r,g,b,alpha,name=["box"]):
 	glVertex3f(x+w, y,z+d) 
 
 	#left
-
-	glVertex3f(x,y,z)
-	glVertex3f(x,y+ h,z)
-	glVertex3f(x,y+ h,z+d)
-	glVertex3f(x, y,z+d) 
+	if cut_through==False:
+		glVertex3f(x,y,z)
+		glVertex3f(x,y+ h,z)
+		glVertex3f(x,y+ h,z+d)
+		glVertex3f(x, y,z+d) 
 	
-	#front
-	
+	#back
 	glVertex3f(x,y,z+d)
 	glVertex3f(x+w,y,z+d)
 	glVertex3f(x+w,y+h,z+d)
 	glVertex3f(x, y+h,z+d) 
 
-	#back
-
-	glVertex3f(x,y,z)
-	glVertex3f(x,y+ h,z)
-	glVertex3f(x+w,y+ h,z)
-	glVertex3f(x+w, y,z)
+	#front
+	if cut_through==False:
+		glVertex3f(x,y,z)
+		glVertex3f(x,y+ h,z)
+		glVertex3f(x+w,y+ h,z)
+		glVertex3f(x+w, y,z)
 
 	glEnd()
 

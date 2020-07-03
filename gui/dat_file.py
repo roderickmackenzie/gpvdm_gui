@@ -625,7 +625,6 @@ class dat_file():
 					s=list(map(float, s))
 					build.append(s)
 
-
 			if len(build)!=0 and len(s)==0:
 
 				#This is to account for the forth xyz vector required by gnuplot and to remove it if it exists.

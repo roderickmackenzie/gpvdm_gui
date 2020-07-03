@@ -35,8 +35,6 @@ try:
 	from PyQt5 import QtOpenGL
 	from PyQt5.QtOpenGL import QGLWidget
 	from gl_color import set_color
-	from gl_shapes import pyrmid
-	from gl_shapes import half_cyl
 	open_gl_ok=True
 except:
 	print("opengl error from gl_lib",sys.exc_info()[0])
@@ -346,11 +344,21 @@ def val_to_rgb(v):
 	if v>1.0:
 		v=0.99
 
+	mesh=[   0.0, 0.5, 1.0]
 	colors = [(0, 0, 1.0), (0, 1.0, 0), (1.0, 0, 0)]
-	dx=1.0/(len(colors)-1)
-	i0 = int(v * float(len(colors)-2))
+	i0=0
+	while(1):
+		if mesh[i0]<v:
+			i0=i0+1
+		else:
+			i0=i0-1
+			break
+
 	i1 = i0+1
-	f=(v-(i0*dx))/dx
+	dx=1.0/(len(colors)-1)
+	#print(i0,v)
+
+	f=(v-mesh[i0])/dx
 	#print(i0)
 	#print(i1)
 	#print(f)
@@ -361,5 +369,6 @@ def val_to_rgb(v):
 	#print(f)
 	(r0, g0, b0) = colors[i0]
 	(r1, g1, b1) = colors[i1]
+	#print(i0,i1,f,v,mesh[i0])
 	return r0 + f*(r1-r0), g0 + f*(g1-g0), b0 + f*(b1-b0)
 

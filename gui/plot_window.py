@@ -74,7 +74,7 @@ class plot_window(QWidget):
 			#self.plot.triangle_file=input_files[0]
 
 			self.plot.draw_electrical_mesh=False
-			self.plot.enable_draw_device=False
+			self.plot.view.draw_device=False
 			self.plot.enable_draw_ray_mesh=False
 			self.plot.enable_draw_light_source=False
 			self.plot.enable_draw_rays=False
@@ -94,7 +94,7 @@ class plot_window(QWidget):
 			#self.plot.triangle_file=input_files[0]
 
 			self.plot.draw_electrical_mesh=False
-			self.plot.enable_draw_device=False
+			self.plot.view.draw_device=False
 			self.plot.enable_draw_ray_mesh=False
 			self.plot.enable_draw_light_source=False
 			self.plot.enable_draw_rays=False
@@ -114,7 +114,7 @@ class plot_window(QWidget):
 			#self.plot.triangle_file=input_files[0]
 
 			self.plot.draw_electrical_mesh=False
-			self.plot.enable_draw_device=False
+			self.plot.view.draw_device=False
 			self.plot.enable_draw_ray_mesh=True
 			self.plot.enable_draw_light_source=False
 			self.plot.enable_draw_rays=False

@@ -30,12 +30,9 @@ import shutil
 from icon_lib import icon_get
 from gui_util import dlg_get_text
 from util import gpvdm_delete_file
-from util import copy_scan_dir
 from search import return_file_list
 import webbrowser
 from search import find_fit_log
-from scan_io import get_scan_dirs
-from code_ctrl import enable_betafeatures
 from inp import inp_update_token_value
 from inp import inp_get_token_value
 from gui_util import yes_no_dlg
@@ -60,7 +57,12 @@ from QWidgetSavePos import QWidgetSavePos
 from scan_ribbon import scan_ribbon
 from css import css_apply
 from error_dlg import error_dlg
-from scan_item import scan_items_populate_from_files
+from scan_human_labels import scan_human_labels
+from gpvdm_viewer import gpvdm_viewer
+from scans_io import scans_io
+from scan_io import scan_io
+from server import server_get
+from scan_human_labels import get_scan_human_labels
 
 class scan_class(QWidgetSavePos):
 
@@ -68,46 +70,17 @@ class scan_class(QWidgetSavePos):
 		tab = self.notebook.currentWidget()
 		tab.gen_report()
 
-	def callback_change_dir(self):
-		dialog = gtk.FileChooserDialog(_("Change directory"),
-                               None,
-                               gtk.FILE_CHOOSER_ACTION_OPEN,
-                               (gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL,
-                                gtk.STOCK_OK, gtk.RESPONSE_OK))
-		dialog.set_default_response(gtk.RESPONSE_OK)
-		dialog.set_action(gtk.FILE_CHOOSER_ACTION_CREATE_FOLDER)
-
-		filter = gtk.FileFilter()
-		filter.set_name(_("All files"))
-		filter.add_pattern("*")
-		dialog.add_filter(filter)
-
-
-		response = dialog.run()
-		if response == gtk.RESPONSE_OK:
-			self.sim_dir=dialog.get_filename()
-
-			a = open("scan_window.inp", "w")
-			a.write(self.sim_dir)
-			a.close()
-
-			self.clear_pages()
-			self.load_tabs()
-			dialog.destroy()
-
-		return True
-
 	def callback_help(self):
 		webbrowser.open('http://www.gpvdm.com/man/index.html')
 
-	def callback_add_page(self):
+	def callback_new_scan(self):
 		new_sim_name=dlg_get_text( _("New simulation name:"), _("Simulation ")+str(self.notebook.count()+1),"document-new.png")
 		new_sim_name=new_sim_name.ret
 
 		if new_sim_name!=None:
-			new_sim_name=self.remove_invalid(new_sim_name)
-			name=os.path.join(os.getcwd(),new_sim_name)
-			self.add_page(name)
+			scans=scans_io(self.sim_dir)
+			scans.new(new_sim_name)
+			self.viewer.fill_store()
 
 	def callback_cluster_fit_log(self):
 		tab = self.notebook.currentWidget()
@@ -118,23 +91,10 @@ class scan_class(QWidgetSavePos):
 		os.system("gnuplot -persist ./fit.dat &\n")
 
 
-	def callback_copy_page(self):
-		tab = self.notebook.currentWidget()
-		index=self.notebook.currentIndex()
-		name=self.notebook.tabText(index)
-		old_dir=os.path.join(self.sim_dir,name)
-		new_sim_name=dlg_get_text( _("Clone the current simulation to a new simulation called:"), name,"clone.png")
-		new_sim_name=new_sim_name.ret
-
-		if new_sim_name!=None:
-			new_sim_name=self.remove_invalid(new_sim_name)
-			new_dir=os.path.join(self.sim_dir,new_sim_name)
-			if os.path.isdir(new_dir)==True:
-				error_dlg(self,_("This directory already exists."))
-				return
-
-			copy_scan_dir(new_dir,old_dir)
-			self.add_page(new_sim_name)
+	def callback_clone(self):
+		if len(self.viewer.selected)==1:
+			self.viewer.clone()
+			self.viewer.fill_store()
 
 	def callback_run_simulation(self):
 		tab = self.notebook.currentWidget()
@@ -164,10 +124,12 @@ class scan_class(QWidgetSavePos):
 		tab = self.notebook.currentWidget()
 		tab.plot_fits()
 
-
-	def callback_clean_simulation(self):
-		tab = self.notebook.currentWidget()
-		tab.clean_scan_dir()
+	def callback_clean_all(self):
+		s=scans_io(self.sim_dir)
+		scans=s.get_scans()
+		for scan in scans:
+			scan.parent_window=self
+			scan.clean_dir()
 
 	def callback_clean_unconverged_simulation(self):
 		tab = self.notebook.currentWidget()
@@ -185,72 +147,44 @@ class scan_class(QWidgetSavePos):
 	def remove_invalid(self,input_name):
 		return input_name.replace (" ", "_")
 
-	def callback_rename_page(self):
-		tab = self.notebook.currentWidget()
+	def callback_selection_changed(self):
+		if len(self.viewer.selected)==1:
+			self.ribbon.tb_delete.setEnabled(True)
+			self.ribbon.tb_clone.setEnabled(True)
+			self.ribbon.tb_rename.setEnabled(True)
+		else:
+			self.ribbon.tb_delete.setEnabled(False)
+			self.ribbon.tb_clone.setEnabled(False)
+			self.ribbon.tb_rename.setEnabled(False)
+		#print(self.viewer.selected)
 
-		index=self.notebook.currentIndex()
-		name=self.notebook.tabText(index)
-		old_dir=os.path.join(self.sim_dir,name)
-
-		new_sim_name=dlg_get_text( _("Rename the simulation to be called:"), name,"rename.png")
-		new_sim_name=new_sim_name.ret
-
-		if new_sim_name!=None:
-			new_sim_name=self.remove_invalid(new_sim_name)
-			new_dir=os.path.join(self.sim_dir,new_sim_name)
-			shutil.move(old_dir, new_dir)
-			tab.rename(new_dir)
-			index=self.notebook.currentIndex() 
-			self.notebook.setTabText(index, new_sim_name)
+	def callback_rename(self):
+		if len(self.viewer.selected)==1:
+			self.viewer.rename()
+			self.viewer.fill_store()
 
 	def callback_delete_page(self):
-		tab = self.notebook.currentWidget()
-		index=self.notebook.currentIndex()
-		name=self.notebook.tabText(index)
-		
-		dir_to_del=os.path.join(self.sim_dir,name)
-
-		response=yes_no_dlg(self,_("Should I remove the simulation directory ")+dir_to_del)
-
-		if response==True:
-			index=self.notebook.currentIndex() 
-			self.notebook.removeTab(index)
-			gpvdm_delete_file(dir_to_del)
+		if len(self.viewer.selected)==1:
+			self.viewer.delete()
+			self.viewer.fill_store()
 
 
 	def callback_run_all_simulations(self):
-		for i in range(0,self.notebook.count()):
-			tab = self.notebook.widget(i)
-			tab.simulate(True,True,"")
+		scansio=scans_io(self.sim_dir)
+		scans=scansio.get_scans()
+		for s in scans:
+			s.parent_window=self
+			s.myserver=server_get()
+			s.set_base_dir(get_sim_path())
+			s.run()
+
+			#print(s.scan_dir)
+			#tab = self.notebook.widget(i)
+			#tab.simulate(True,True,"")
 
 	def callback_stop_simulation(self,widget):
 		tab = self.notebook.currentWidget()
 		tab.stop_simulation()
-
-	def load_tabs(self):
-		sim_dirs=[]
-
-		get_scan_dirs(sim_dirs,self.sim_dir)
-
-
-		if len(sim_dirs)==0:
-			sim_dirs.append("scan1")
-		else:
-			for i in range(0,len(sim_dirs)):
-				sim_dirs[i]=sim_dirs[i]
-
-		for i in range(0,len(sim_dirs)):
-			self.add_page(sim_dirs[i])
-
-		if self.notebook.count()!=0:
-			self.ribbon.goto_page(_("Simulations"))
-
-	def clear_pages(self):
-		self.notebook.clear()
-
-	def add_page(self,name):
-		tab=scan_vbox(self.myserver,self.status_bar,self.sim_dir,name)
-		self.notebook.addTab(tab,os.path.basename(name))
 
 	def callback_mb_build_vectors(self):
 		tab = self.notebook.currentWidget()
@@ -280,45 +214,42 @@ class scan_class(QWidgetSavePos):
 
 		self.ribbon.single_fit.triggered.connect(self.callback_run_single_fit)
 
-		self.ribbon.tb_clean.triggered.connect(self.callback_clean_simulation)
-
 		self.ribbon.clean_unconverged.triggered.connect(self.callback_clean_unconverged_simulation)
 
 		self.ribbon.clean_sim_output.triggered.connect(self.callback_clean_simulation_output)
 
 		self.ribbon.push_unconverged_to_hpc.triggered.connect(self.callback_push_unconverged_to_hpc)
 
-		self.ribbon.change_dir.triggered.connect(self.callback_change_dir)
 		
 		self.ribbon.report.triggered.connect(self.callback_report)
 
-
-		self.ribbon.tb_new.triggered.connect(self.callback_add_page)
+		self.ribbon.tb_new.triggered.connect(self.callback_new_scan)
 
 		self.ribbon.tb_delete.triggered.connect(self.callback_delete_page)
 
-		self.ribbon.tb_clone.triggered.connect(self.callback_copy_page)
+		self.ribbon.tb_clone.triggered.connect(self.callback_clone)
 
-		self.ribbon.tb_rename.triggered.connect(self.callback_rename_page)
+		self.ribbon.tb_rename.triggered.connect(self.callback_rename)
 		
-		self.ribbon.tb_simulate.start_sim.connect(self.callback_run_simulation)
+		#self.ribbon.tb_simulate.start_sim.connect(self.callback_run_simulation)
 
-		self.ribbon.tb_build.triggered.connect(self.callback_build_scan)
+		#self.ribbon.tb_build.triggered.connect(self.callback_build_scan)
 
-		self.ribbon.tb_rerun.triggered.connect(self.callback_scan_run)
+		#self.ribbon.tb_rerun.triggered.connect(self.callback_scan_run)
 
-		self.ribbon.tb_zip.triggered.connect(self.callback_scan_archive)
+		#self.ribbon.tb_zip.triggered.connect(self.callback_scan_archive)
 
 		self.ribbon.tb_run_all.triggered.connect(self.callback_run_all_simulations)
 
-		self.ribbon.tb_plot.triggered.connect(self.callback_plot)
+		#self.ribbon.tb_plot.triggered.connect(self.callback_plot)
 	
 		#self.ribbon.tb_plot_time.triggered.connect(self.callback_examine)
 
 		self.ribbon.tb_ml_build_vectors.triggered.connect(self.callback_mb_build_vectors)
 
-		self.ribbon.tb_notes.triggered.connect(self.callback_notes)
+		#self.ribbon.tb_notes.triggered.connect(self.callback_notes)
 
+		self.ribbon.tb_clean.triggered.connect(self.callback_clean_all)
 
 		spacer = QWidget()
 		spacer.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
@@ -332,16 +263,29 @@ class scan_class(QWidgetSavePos):
 		self.notebook.setMovable(True)
 
 
-		self.main_vbox.addWidget(self.notebook)
+		#self.main_vbox.addWidget(self.notebook)
 
+		self.viewer=gpvdm_viewer(self.sim_dir)
+		self.viewer.allow_navigation=True
+		self.viewer.set_directory_view(True)
+		self.viewer.set_back_arrow(False)
+		self.viewer.show_only=["scan_dir"]
+		self.viewer.set_multi_select()
+		self.viewer.selection_changed.connect(self.callback_selection_changed)
+		self.callback_selection_changed()
+
+		self.main_vbox.addWidget(self.viewer)
 
 		self.status_bar=QStatusBar()
 		self.main_vbox.addWidget(self.status_bar)		
 
-		self.load_tabs()
-
-		scan_items_populate_from_files()
+		
+		print("!!!!!!!!!!!!>>>>>>>>>>>>>>>>>>>>>")
+		get_scan_human_labels().populate_from_files()
 		self.setLayout(self.main_vbox)
+		#print(">>>>>>>>>>>>>>>>>>>>>")
+		#get_scan_human_labels().dump()
+		#asdsd
 
 	def callback_plot(self):
 		tab = self.notebook.currentWidget()

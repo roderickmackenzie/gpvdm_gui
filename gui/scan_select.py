@@ -26,9 +26,6 @@
 #
 
 import os
-from scan_item import scan_items_get_list
-from scan_item import scan_items_get_file
-from scan_item import scan_items_get_token
 
 import i18n
 _ = i18n.language.gettext
@@ -41,7 +38,8 @@ from PyQt5.QtGui import QFont
 
 from icon_lib import icon_get
 from error_dlg import error_dlg
-from scan_item import scan_items_populate_from_files
+from scan_human_labels import get_scan_human_labels
+
 class select_param(QWidget):
 
 	def set_save_function(self,save_function):
@@ -64,6 +62,7 @@ class select_param(QWidget):
 
 
 		self.tab = QTreeWidget()
+		self.scan_human_labels=get_scan_human_labels()
 		#self.tab.setHeaderItem("Scan items")
 
 		self.font = QFont()
@@ -100,7 +99,7 @@ class select_param(QWidget):
 		self.tab.header().close() 
 		self.update()
 
-		return
+
 
 	def make_entry(self,root,text):
 		depth=0
@@ -119,10 +118,10 @@ class select_param(QWidget):
 
 	def update(self):
 		self.tab.clear()
-		scan_items_populate_from_files()
+		self.scan_human_labels.populate_from_files()
 		root = QTreeWidgetItem(self.tab, [_("Simulation parameters")])
 		root.setExpanded(True)
-		param_list=scan_items_get_list()
+		param_list=self.scan_human_labels.list
 		i=0
 		for item in range(0, len(param_list)):
 			div_str=param_list[item].human_label.replace("\\", "/")
@@ -158,10 +157,9 @@ class select_param(QWidget):
 		if len(index)>0:
 			#print("row=",index[0].row(),len(index))
 			pos=index[0].row()
-			#print(path,scan_items_get_file(path),scan_items_get_token(path))
 			path=self.cal_path()
-			file_name=scan_items_get_file(path)
-			token=scan_items_get_token(path)
+			file_name=self.scan_human_labels.get_file_from_human_label(path)
+			token=self.scan_human_labels.get_token_from_human_label(path)
 
 			self.dest_treeview.set_value(pos,self.file_name_tab_pos,file_name)
 			self.dest_treeview.set_value(pos,self.token_tab_pos,token)

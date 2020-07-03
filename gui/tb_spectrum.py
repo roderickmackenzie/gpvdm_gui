@@ -99,5 +99,4 @@ class tb_spectrum(QWidget):
 			inp_update_token_value("light.inp", "#sun","sun")
 
 		self.cb.setCurrentIndex(self.cb.findText(used_model))
-		#scan_item_add("light.inp","#sun","Light source",1)
 		self.cb.blockSignals(False)

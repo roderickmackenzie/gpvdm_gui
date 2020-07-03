@@ -29,14 +29,11 @@ import os
 
 from scan_select import select_param
 from token_lib import tokens
-from scan_item import scan_items_get_list
 
 from scan_io import scan_push_to_hpc
 from scan_io import scan_import_from_hpc
 from cal_path import get_exe_command
 from icon_lib import icon_get
-from scan_item import scan_items_get_file
-from scan_item import scan_items_get_token
 
 from gpvdm_select import gpvdm_select
 
@@ -92,12 +89,18 @@ class duplicate(QWidget):
 		self.tab.blockSignals(False)
 
 	def callback_show_list_src(self):
-		self.select_param_window_src.update()
-		self.select_param_window_src.show()
+		#self.select_param_window_src.update()
+		self.select_param_window.file_name_tab_pos=1
+		self.select_param_window.token_tab_pos=2
+		self.select_param_window.path_tab_pos=3
+		self.select_param_window.show()
 
 	def callback_show_list_dest(self):
-		self.select_param_window_dest.update()
-		self.select_param_window_dest.show()
+		#self.select_param_window_dest.update()
+		self.select_param_window.file_name_tab_pos=4
+		self.select_param_window.token_tab_pos=5
+		self.select_param_window.path_tab_pos=6
+		self.select_param_window.show()
 		
 	def callback_add_item(self):
 		self.insert_row(self.tab.rowCount(),_("Enabled"),_("Source file"),_("Source token"),_("Source path"),_("Destination file"),_("Destination token"),_("Destination path"))
@@ -142,7 +145,13 @@ class duplicate(QWidget):
 		self.tab.setColumnCount(7)
 		self.tab.setSelectionBehavior(QAbstractItemView.SelectRows)
 		self.tab.setHorizontalHeaderLabels([_("Enabled"),_("Source File"), _("Source Token"), _("Source path"),_("Destination File"), _("Destination Token"), _("Destination path")])
-		self.tab.setColumnWidth(3, 200)
+		self.tab.setColumnWidth(2, 150)		#token
+		self.tab.setColumnWidth(3, 400)		#description
+		self.tab.setColumnWidth(4, 150)		#file
+		self.tab.setColumnWidth(5, 150)		#token
+		self.tab.setColumnWidth(6, 400)		#description
+
+
 		self.tab.setColumnWidth(6, 200)
 		self.file_name="fit_duplicate.inp"
 
@@ -230,19 +239,14 @@ class duplicate(QWidget):
 
 		self.tab.cellChanged.connect(self.tab_changed)
 
-		self.select_param_window_src=select_param(self.tab)
-		self.select_param_window_src.set_save_function(self.save_combo)
-		self.select_param_window_src.file_name_tab_pos=1
-		self.select_param_window_src.token_tab_pos=2
-		self.select_param_window_src.path_tab_pos=3
+		self.select_param_window=select_param(self.tab)
+		self.select_param_window.set_save_function(self.save_combo)
+		self.select_param_window.update()
 
+		#self.select_param_window_dest=select_param(self.tab)
+		#self.select_param_window_dest.set_save_function(self.save_combo)
+		#self.select_param_window_dest.update()
 
-		self.select_param_window_dest=select_param(self.tab)
-		self.select_param_window_dest.set_save_function(self.save_combo)
-		self.select_param_window_dest.file_name_tab_pos=4
-		self.select_param_window_dest.token_tab_pos=5
-		self.select_param_window_dest.path_tab_pos=6
-		
 		self.vbox.addWidget(self.tab)
 
 

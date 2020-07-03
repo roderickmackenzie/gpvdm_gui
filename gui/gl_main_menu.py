@@ -55,13 +55,13 @@ from PyQt5.QtWidgets import QApplication
 from PyQt5.QtGui import QImage
 
 class gl_main_menu():
-	def menu(self,event):
+	def build_main_menu(self):
 		view_menu = QMenu(self)
 		
 
-		menu = QMenu(self)
+		self.main_menu = QMenu(self)
 
-		export=menu.addMenu(_("Export"))
+		export=self.main_menu.addMenu(_("Export"))
 
 		action=export.addAction(_("Save image"))
 		action.triggered.connect(self.save_image_as)
@@ -70,15 +70,37 @@ class gl_main_menu():
 		action.triggered.connect(self.callback_copy)
 
 
-		view=menu.addMenu(_("View"))
+		view=self.main_menu.addMenu(_("View"))
 
-		action=view.addAction(_("Electrical mesh"))
-		action.triggered.connect(self.menu_toggle_view)
+		self.menu_view_draw_electrical_mesh=view.addAction(_("Electrical mesh"))
+		self.menu_view_draw_electrical_mesh.triggered.connect(self.menu_toggle_view)
+		self.menu_view_draw_electrical_mesh.setCheckable(True)
+
+		self.menu_view_draw_device_cut_through=view.addAction(_("Device cut through"))
+		self.menu_view_draw_device_cut_through.triggered.connect(self.menu_toggle_view)
+		self.menu_view_draw_device_cut_through.setCheckable(True)
+
+		self.menu_view_render_photons=view.addAction(_("Show photons"))
+		self.menu_view_render_photons.triggered.connect(self.menu_toggle_view)
+		self.menu_view_render_photons.setCheckable(True)
+
+		self.menu_view_draw_device=view.addAction(_("Show device"))
+		self.menu_view_draw_device.triggered.connect(self.menu_toggle_view)
+		self.menu_view_draw_device.setCheckable(True)
+
+		self.menu_view_grid=view.addAction(_("Grid"))
+		self.menu_view_grid.triggered.connect(self.menu_toggle_view)
+		self.menu_view_grid.setCheckable(True)
+
+		self.menu_view_optical_mode=view.addAction(_("Optical mode"))
+		self.menu_view_optical_mode.triggered.connect(self.menu_toggle_view)
+		self.menu_view_optical_mode.setCheckable(True)
+
+		self.menu_view_text=view.addAction(_("Show text"))
+		self.menu_view_text.triggered.connect(self.menu_toggle_view)
+		self.menu_view_text.setCheckable(True)
 
 		action=view.addAction(_("Ray tracing mesh"))
-		action.triggered.connect(self.menu_toggle_view)
-
-		action=view.addAction(_("Device view"))
 		action.triggered.connect(self.menu_toggle_view)
 
 		action=view.addAction(_("Light source"))
@@ -87,39 +109,28 @@ class gl_main_menu():
 		action=view.addAction(_("Rays"))
 		action.triggered.connect(self.menu_toggle_view)
 
-		action=view.addAction(_("Font"))
-		action.triggered.connect(self.menu_toggle_view)
+		action=view.addAction(_("Stars"))
+		action.triggered.connect(self.menu_stars)
 
-		plot=menu.addMenu(_("Plot"))
+		plot=self.main_menu.addMenu(_("Plot"))
 
 		action=plot.addAction(_("Open"))
 		action.triggered.connect(self.menu_plot_open)
 
 
-		show=menu.addMenu(_("Show"))
-		action=show.addAction(_("Grid"))
-		action.triggered.connect(self.menu_toggle_grid)
+		edit=self.main_menu.addMenu(_("Edit"))
 
-		action=show.addAction(_("Backgroud color"))
+		action=edit.addAction(_("Font"))
+		action.triggered.connect(self.menu_toggle_view)
+
+		action=edit.addAction(_("Backgroud color"))
 		action.triggered.connect(self.menu_background_color)
 
-		action=show.addAction(_("Stars"))
-		action.triggered.connect(self.menu_stars)
-
-		action=show.addAction(_("Device"))
-		action.triggered.connect(self.menu_draw_device)
-
-
-		#menu.exec_(self.emailbtn.mapToGlobal(QtCore.QPoint(0,0)))
-		menu.exec_(event.globalPos())
+	def menu(self,event):
+		self.main_menu.exec_(event.globalPos())
 
 	def callback_copy(self):
-		#buf = io.BytesIO()
-		
 		QApplication.clipboard().setImage(self.grabFrameBuffer())
-		#buf.close()
-
-
 
 	def save_image_as(self):
 		#self.random_device()
@@ -139,9 +150,14 @@ class gl_main_menu():
 	def menu_toggle_view(self):
 		action = self.sender()
 		text=action.text()
-		print(text)
-		if text==_("Electrical mesh"):
-			self.draw_electrical_mesh=not self.draw_electrical_mesh
+		self.draw_electrical_mesh=self.menu_view_draw_electrical_mesh.isChecked()
+		self.draw_device_cut_through=self.menu_view_draw_device_cut_through.isChecked()
+		self.view.render_photons=self.menu_view_render_photons.isChecked()
+		self.view.render_grid=self.menu_view_grid.isChecked()
+		self.view.draw_device=self.menu_view_draw_device.isChecked()
+		self.view.optical_mode=self.menu_view_optical_mode.isChecked()
+		self.view.text=self.menu_view_text.isChecked()
+
 		if text==_("Ray tracing mesh"):
 			self.enable_draw_ray_mesh= not self.enable_draw_ray_mesh
 			if self.enable_draw_ray_mesh==False:
@@ -160,13 +176,6 @@ class gl_main_menu():
 
 		self.force_redraw()
 
-	def menu_toggle_grid(self):
-		self.view.render_grid=not self.view.render_grid
-		self.force_redraw()
-
-	def menu_draw_device(self):
-		self.enable_draw_device = not self.enable_draw_device
-		self.force_redraw()
 
 	def menu_stars(self):
 		if self.view.stars_distance==60:
@@ -186,4 +195,13 @@ class gl_main_menu():
 				#print(self.graph_path)
 				self.graph_data.data_max,self.graph_data.data_min=dat_file_max_min(self.graph_data)
 				#print(self.graph_z_max,self.graph_z_min)
+
+	def menu_update(self):
+		self.menu_view_draw_electrical_mesh.setChecked(self.draw_electrical_mesh)
+		self.menu_view_draw_device_cut_through.setChecked(self.draw_device_cut_through)
+		self.menu_view_render_photons.setChecked(self.view.render_photons)
+		self.menu_view_grid.setChecked(self.view.render_grid)
+		self.menu_view_draw_device.setChecked(self.view.draw_device)
+		self.menu_view_optical_mode.setChecked(self.view.optical_mode)
+		self.menu_view_text.setChecked(self.view.text)
 

@@ -52,11 +52,12 @@ from util import wrap_text
 from ribbon_base import ribbon_base
 from play import play
 from QAction_lock import QAction_lock
-from inp import inp_get_token_value
-from inp import inp_update_token_value
+from inp import inp
 from cal_path import get_sim_path
 from gui_util import dlg_get_text
 from generation_rate_editor import generation_rate_editor
+from tab import tab_class
+from str2bool import str2bool
 
 class mode_button(QAction_lock):
 	def __init__(self,image,text,s,name):
@@ -122,8 +123,10 @@ class ribbon_optical_models(QToolBar):
 
 
 	def set_mode(self):
-		self.blockSignals(True)	
-		used_model=inp_get_token_value(os.path.join(get_sim_path(),"light.inp"), "#light_model")
+		self.blockSignals(True)
+		f=inp()
+		f.load(os.path.join(get_sim_path(),"light.inp"))
+		used_model=f.get_token("#light_model")
 		for a in self.actions:
 			a.setChecked(False)
 			if a.mode==used_model:
@@ -138,39 +141,72 @@ class ribbon_optical_models(QToolBar):
 			a.setChecked(False)
 
 		w.setChecked(True)
-		inp_update_token_value(os.path.join(get_sim_path(),"light.inp"), "#light_model",w.mode)
+		f=inp()
+		f.load(os.path.join(get_sim_path(),"light.inp"))
+		used_model=f.set_token("#light_model",w.mode)
+		f.save()
+		#inp_update_token_value(os.path.join(get_sim_path(),"light.inp"), "#light_model",w.mode)
 		self.blockSignals(False)
 
 
-class optics_ribbon(ribbon_base):
+class ribbon_optics_files(QToolBar):
+	def __init__(self):
+		QToolBar.__init__(self)
 
-	def optics(self):
-		toolbar = QToolBar()
-		toolbar.setToolButtonStyle( Qt.ToolButtonTextUnderIcon)
-		toolbar.setIconSize(QSize(42, 42))
+		self.setToolButtonStyle( Qt.ToolButtonTextUnderIcon)
+		self.setIconSize(QSize(42, 42))
 		
 		self.run = play(self,"optics_ribbon_run",run_text=wrap_text(_("Run optical simulation"),5))
-		toolbar.addAction(self.run)
+		self.addAction(self.run)
 
 		self.fx_box=mode_selector()
 		self.fx_box.show_all=True
 		self.fx_box.update()
-		toolbar.addWidget(self.fx_box)
+		self.addWidget(self.fx_box)
 		
 		self.spectrum=tb_spectrum()
-		toolbar.addWidget(self.spectrum)
+		self.addWidget(self.spectrum)
 
 		self.configwindow = QAction(icon_get("preferences-system"), _("Configure"), self)
-		toolbar.addAction(self.configwindow)
+		self.addAction(self.configwindow)
+
+		self.optical_filter = QAction(icon_get("optical_filter"), _("Optical\nFilter"), self)
+		self.optical_filter.setCheckable(True)
+		self.optical_filter.triggered.connect(self.callback_filter_clicked)
+
+		self.menu_optical_filter = QMenu(self)
+		self.optical_filter.setMenu(self.menu_optical_filter)
+
+		self.filter_edit=QAction(_("Edit"), self)
+		self.filter_edit.triggered.connect(self.callback_filter_window)
+		self.menu_optical_filter.addAction(self.filter_edit)
+		self.addAction(self.optical_filter)
 
 		spacer = QWidget()
 		spacer.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
-		toolbar.addWidget(spacer)
+		self.addWidget(spacer)
 
 
 		self.help = QAction(icon_get("help"), _("Help"), self)
-		toolbar.addAction(self.help)
-		return toolbar
+		self.addAction(self.help)
+
+	def callback_filter_clicked(self):
+		f=inp()
+		f.load(os.path.join(get_sim_path(),"filter.inp"))
+		enabled=f.set_token("#filter_enabled",str(self.optical_filter.isChecked()))
+		f.save()
+
+	def callback_filter_window(self):
+		widget=tab_class(os.path.join(get_sim_path(),"filter.inp"))
+		widget.setWindowIcon(icon_get("optical_wheel"))
+
+		widget.setWindowTitle(_("Filter editor")+" (https://www.gpvdm.com)")    
+
+		widget.show()
+
+
+
+class optics_ribbon(ribbon_base):
 
 	def export_data(self):
 		toolbar = QToolBar()
@@ -183,7 +219,17 @@ class optics_ribbon(ribbon_base):
 		return toolbar
 
 	def update(self):
-		self.fx_box.update()
+		self.blockSignals(True)
+
+		self.optics.fx_box.update()
+
+		f=inp()
+		f.load(os.path.join(get_sim_path(),"filter.inp"))
+		enabled=f.get_token("#filter_enabled")
+		self.optics.optical_filter.setChecked(str2bool(enabled))
+
+		self.blockSignals(False)
+
 
 	def callback_about_dialog(self):
 		dlg=about_dlg()
@@ -199,8 +245,8 @@ class optics_ribbon(ribbon_base):
 
 		self.setCornerWidget(self.about)
 
-		w=self.optics()
-		self.addTab(w,_("Optics"))
+		self.optics=ribbon_optics_files()
+		self.addTab(self.optics,_("Optics"))
 
 		w=ribbon_optical_models()
 		self.addTab(w,_("Optical models"))
@@ -213,3 +259,4 @@ class optics_ribbon(ribbon_base):
 			sheet=str(sheet,'utf-8')
 			self.setStyleSheet(sheet)
 
+		self.update()

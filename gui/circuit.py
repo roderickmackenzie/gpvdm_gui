@@ -94,28 +94,6 @@ class circuit(QWidget):
 		self.load_type.changed.connect(self.update)
 		self.update()
 
-	#def paintEvent(self, QPaintEvent):
-	#	y_offset=100
-	#	x_offset=50
-
-	#	painter = QPainter()
-	#	painter.begin(self)
-
-	#	if self.load_type.sim_mode.currentText()=="load":
-	#		painter.drawPixmap(x_offset,y_offset, self.diode)
-
-	#		painter.drawPixmap(x_offset+620,y_offset+67, self.load)
-	#	elif self.load_type.sim_mode.currentText()=="ideal_diode_ideal_load":
-	#		painter.drawPixmap(x_offset,y_offset, self.ideal_diode)
-
-	#		painter.drawPixmap(x_offset+620,y_offset+68, self.ideal_load)
-	#	else:
-	#		painter.drawPixmap(x_offset,y_offset, self.diode)
-
-	#		painter.drawPixmap(x_offset+620,y_offset+57, self.voc)
-
-	#	painter.end()
-
 	def update(self):
 		self.diagram.clear()
 		if self.load_type.sim_mode.currentText()=="load":

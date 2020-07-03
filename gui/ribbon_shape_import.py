@@ -63,7 +63,7 @@ from ribbon_base import ribbon_base
 from QAction_lock import QAction_lock
 
 class ribbon_shape_import(ribbon_base):
-	def main_toolbar(self):
+	def file_toolbar(self):
 		toolbar = QToolBar()
 		toolbar.setToolButtonStyle( Qt.ToolButtonTextUnderIcon)
 		toolbar.setIconSize(QSize(42, 42))
@@ -76,6 +76,26 @@ class ribbon_shape_import(ribbon_base):
 
 		#self.xy_triangles= QAction_lock("shape", wrap_text(_("xy triangles"),2), self,"ribbon_shape_xy_tri")
 		#toolbar.addAction(self.xy_triangles)
+
+		self.tb_script= QAction_lock("script", wrap_text(_("Generate\nImage"),2), self,"ribbon_shape_script")
+		toolbar.addAction(self.tb_script)
+
+		spacer = QWidget()
+		spacer.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+		toolbar.addWidget(spacer)
+
+		self.tb_help = QAction(icon_get("help"), _("Help"), self)
+		self.tb_help.setStatusTip(_("Help"))
+		toolbar.addAction(self.tb_help)
+
+
+		return toolbar
+
+
+	def image_toolbar(self):
+		toolbar = QToolBar()
+		toolbar.setToolButtonStyle( Qt.ToolButtonTextUnderIcon)
+		toolbar.setIconSize(QSize(42, 42))
 
 		#mesh
 		self.show_mesh= QAction_lock("mesh_tri", wrap_text(_("Show\nMesh"),2), self,"ribbon_shape_mesh")
@@ -123,23 +143,16 @@ class ribbon_shape_import(ribbon_base):
 		toolbar.addAction(self.tb_norm_z)
 
 
-		spacer = QWidget()
-		spacer.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
-		toolbar.addWidget(spacer)
-
-		self.tb_help = QAction(icon_get("help"), _("Help"), self)
-		self.tb_help.setStatusTip(_("Help"))
-		toolbar.addAction(self.tb_help)
 
 		return toolbar
-
-
 	def __init__(self):
 		ribbon_base.__init__(self)
 		self.setMaximumHeight(140)
-		w=self.main_toolbar()
-		self.addTab(w,_("Load/Import"))
+		w=self.file_toolbar()
+		self.addTab(w,_("File"))
 
+		w=self.image_toolbar()
+		self.addTab(w,_("Image"))
 
 		sheet=self.readStyleSheet(os.path.join(get_css_path(),"style.css"))
 		if sheet!=None:

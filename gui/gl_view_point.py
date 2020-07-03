@@ -59,6 +59,9 @@ class view_point():
 		self.render_grid=True
 		self.render_photons=True
 		self.render_text=True
+		self.draw_device=True
+		self.optical_mode=True
+		self.text=True
 		self.bg_color=[0.0,0.0,0.0]
 		self.stars_distance=60
 

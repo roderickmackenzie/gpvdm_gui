@@ -29,7 +29,7 @@ from tab import tab_class
 
 #qt
 from PyQt5.QtCore import QSize, Qt 
-from PyQt5.QtWidgets import QWidget,QVBoxLayout,QToolBar,QSizePolicy,QAction,QTabWidget,QSlider,QHBoxLayout,QLabel,QComboBox,QAbstractItemView,QSizePolicy
+from PyQt5.QtWidgets import QWidget,QVBoxLayout,QToolBar,QSizePolicy,QAction,QTabWidget,QSlider,QHBoxLayout,QLabel,QComboBox,QAbstractItemView
 from PyQt5.QtGui import QPainter,QIcon
 from PyQt5.QtCore import pyqtSignal
 
@@ -42,6 +42,7 @@ from icon_lib import icon_get
 from util import wrap_text
 
 from gpvdm_tab import gpvdm_tab
+from inp import inp
 
 class snapshot_slider(QWidget):
 
@@ -92,9 +93,12 @@ class snapshot_slider(QWidget):
 		self.tab.setHorizontalHeaderLabels([ _("File to plot"),_("Plot type")])
 
 		self.tab.setColumnWidth(0, 400)
-		pos=self.tab.insert_row()
+
 		self.tab.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
-		self.insert_row(pos)
+
+		if self.load_state()==False:
+			pos=self.tab.insert_row()
+			self.insert_row(pos)
 
 	def slider0_change(self):
 		value = self.slider0.value()
@@ -138,13 +142,13 @@ class snapshot_slider(QWidget):
 		self.slider_max=30
 		
 		self.slider0 = QSlider(Qt.Horizontal)
-		self.slider0.setMinimum(0)
-		self.slider0.setMaximum(self.slider_max)
+		#self.slider0.setMinimum(0)
+		#self.slider0.setMaximum(self.slider_max)
 
 		self.slider0.setTickPosition(QSlider.TicksBelow)
 		self.slider0.setTickInterval(5)
 		self.slider0.valueChanged.connect(self.slider0_change)
-		self.slider0.setMinimumSize(300, 80)
+		#self.slider0.setMinimumSize(300, 80)
 
 		self.slider_hbox0.addWidget(self.slider0)
 
@@ -209,8 +213,37 @@ class snapshot_slider(QWidget):
 		combo.blockSignals(False)
 		return True
 
-		
+	def save_state(self):
+		f=inp()
+		for i in range(0,self.tab.rowCount()):
+			f.lines.append(self.tab.get_value(i,0))
+
+		f.save_as(os.path.join(self.path,"last.inp"))
+
+	def load_state(self):
+		f=inp()
+		if f.load(os.path.join(self.path,"last.inp"))==False:
+			return False
+
+		if len(f.lines)==0:
+			return False
+		print("bing")
+		for i in range(0,len(f.lines)):
+			line=f.lines[i]
+			print(line)
+			#pos=self.tab.insert_row()
+			pos=self.tab.insert_row()
+			self.insert_row(pos)
+			self.tab.blockSignals(True)
+			self.tab.set_value(i,0,line)
+			self.tab.blockSignals(False)
+			#f.lines.append(self.tab.get_value(i,0))
+
+		return True
+
+
 	def files_combo_changed(self):
+		self.save_state()		
 		self.changed.emit()
 
 	def insert_row(self,i):

@@ -100,7 +100,7 @@ class gl_contacts():
 					a.b=epi.layers[0].b
 					a.alpha=1.0
 					my_vec=vec()
-					my_vec.x=sticking_out_bit/scale_get_xmul()+c.ingress
+					my_vec.x=sticking_out_bit/scale_get_xmul()#+c.ingress
 					my_vec.y=c.shape.dy
 					my_vec.z=get_mesh().get_zlen()
 
@@ -119,12 +119,16 @@ class gl_contacts():
 						xstart=project_m2screen_x(c.shape.x0)
 						box.x=c.shape.dx
 
-					box.y=epi.layers[0].dy+c.ingress
+					box.y=epi.layers[0].dy#+c.ingress
 					box.z=get_mesh().get_zlen()
 
 					a=gl_base_object()
 					a.id=["layer:"+epi.layers[0].name,"contact"]
-					a.type="solid_and_mesh"
+					if self.draw_device_cut_through==False:
+						a.type="solid_and_mesh"
+					else:
+						a.type="solid_and_mesh_cut_through"
+
 					a.x=xstart
 					a.y=project_m2screen_y(epi.get_layer_start(0))
 					a.z=project_m2screen_z(0)
@@ -149,7 +153,7 @@ class gl_contacts():
 					xstart=project_m2screen_x(c.shape.x0)
 					box.x=c.shape.dx
 
-				box.y=epi.layers[len(epi.layers)-1].dy+c.ingress 
+				box.y=epi.layers[len(epi.layers)-1].dy#+c.ingress 
 				box.z=get_mesh().get_zlen()
 
 				a=gl_base_object()

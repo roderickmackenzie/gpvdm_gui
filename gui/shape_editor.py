@@ -42,7 +42,6 @@ from help import help_window
 from plot_widget import plot_widget
 from win_lin import desktop_open
 
-from ref import get_ref_text
 from QWidgetSavePos import QWidgetSavePos
 
 from ribbon_shape import ribbon_shape
@@ -50,12 +49,12 @@ from ribbon_shape import ribbon_shape
 from import_data import import_data
 
 from ref import ref_window
-from ref import get_ref_text
-from ref_io import ref
 
 from gl import glWidget
 from shape_import import shape_import
 from dat_file import dat_file
+
+from bibtex import bibtex
 
 from gl_list import gl_base_object
 from gl_scale import project_trianges_m2screen
@@ -73,11 +72,11 @@ class shape_editor(QWidgetSavePos):
 
 	def changed_click(self):
 
-		if self.notebook.tabText(self.notebook.currentIndex()).strip()==_("Refractive index"):
-			text=get_ref_text(os.path.join(self.path,"n.ref"))
-			if text==None:
-				text=""
-			help_window().help_set_help(["n.png",_("<big><b>Refractive index</b></big><br>"+text)])
+		if self.notebook.tabText(self.notebook.currentIndex()).strip()==_("Shape"):
+			b=bibtex()
+			if b.load(os.path.join(self.path,"shape.bib"))!=False:
+				text=b.get_text()
+				help_window().help_set_help(["shape.png",_("<big><b>Shape file</b></big><br>"+text)])
 
 	def callback_help(self):
 		webbrowser.open("https://www.gpvdm.com/docs.html")
@@ -85,7 +84,7 @@ class shape_editor(QWidgetSavePos):
 	def callback_import_image(self):
 		self.shape_import=shape_import(self.path)
 		self.shape_import.show()
-		self.shape_import.image_widget.changed.connect(self.reload)
+		self.shape_import.discretizer.changed.connect(self.reload)
 
 	def reload(self):
 		self.load_data()
@@ -98,7 +97,7 @@ class shape_editor(QWidgetSavePos):
 			self.three_d_shape.gl_objects_remove_regex("bing")
 			a=gl_base_object()
 			a.id=["bing"]
-			a.type="solid_and_mesh"
+			a.type="solid_and_mesh_color"
 			a.r=data.r
 			a.g=data.g
 			a.b=data.b
@@ -114,7 +113,7 @@ class shape_editor(QWidgetSavePos):
 		self.setMinimumSize(900, 600)
 		self.setWindowIcon(icon_get("shape"))
 
-		self.setWindowTitle(_("Shape editor")+" (https://www.gpvdm.com)"+" "+os.path.basename(self.path)) 
+		self.setWindowTitle(os.path.basename(self.path)+" "+_("Shape editor")) 
 		
 
 		self.main_vbox = QVBoxLayout()
@@ -142,7 +141,7 @@ class shape_editor(QWidgetSavePos):
 		self.three_d_shape.triangle_file=""
 
 		self.three_d_shape.draw_electrical_mesh=False
-		self.three_d_shape.enable_draw_device=False
+		self.three_d_shape.view.draw_device=False
 		self.three_d_shape.enable_draw_ray_mesh=True
 		self.three_d_shape.enable_draw_light_source=False
 		self.three_d_shape.enable_draw_rays=False

@@ -84,8 +84,6 @@ class gl_mesh():
 		y=project_m2screen_y(y)
 		z=project_m2screen_z(z)
 
-
-
 		set_color(1.0,0.0,0.0,"mesh",alpha=0.5)
 
 		glLineWidth(3)
@@ -99,7 +97,7 @@ class gl_mesh():
 		y=[]
 		z=[]
 		epi=get_epi()
-		device_start=epi.get_device_start()
+		#device_start=epi.get_device_start()
 		mesh=get_mesh()
 
 		y,temp=mesh.y.calculate_points()
@@ -110,16 +108,24 @@ class gl_mesh():
 		components=[]
 		component=""
 
-		for i in range(0,len(y)):
-			y[i]=y[i]+device_start
-			layer=epi.get_layer_by_cordinate(y[i])
-			if old_layer!=layer:
-				old_layer=layer
-				f=inp()
-				f.load(epi.layers[layer].electrical_file+".inp")
-				component=f.get_token("#electrical_component")
-				if component=="resistance":
-					component="resistor"
+		#for i in range(0,len(y)):
+		#	y[i]=y[i]+device_start
+		#	layer=epi.get_layer_by_cordinate(y[i])
+		#	if old_layer!=layer:
+		#		old_layer=layer
+		#		f=inp()
+		#		f.load(epi.layers[layer].electrical_file+".inp")
+		#		component=f.get_token("#electrical_component")
+		#		if component=="resistance":
+		#			component="resistor"
+		#	components.append(component)
+
+		for l in epi.layers:
+			f=inp()
+			f.load(l.electrical_file+".inp")
+			component=f.get_token("#electrical_component")
+			if component=="resistance":
+				component="resistor"
 			components.append(component)
 
 		x=project_m2screen_x(x)

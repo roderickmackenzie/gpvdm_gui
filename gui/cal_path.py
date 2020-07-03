@@ -55,6 +55,7 @@ atmosphere_path=None
 shape_base_path=None
 scripts_base_path=None
 html_path=None
+fonts_path=None
 video_path=None
 cluster_path=None
 cluster_libs_path=None
@@ -244,6 +245,7 @@ def calculate_paths():
 	global shape_base_path
 	global scripts_base_path
 	global html_path
+	global fonts_path
 	global video_path
 	global cluster_path
 	global cluster_libs_path
@@ -276,6 +278,7 @@ def calculate_paths():
 
 
 	html_path=search_known_paths("html",[""],"info0.html",True)
+	fonts_path=search_known_paths("fonts",[""],"LiberationSans-Regular.ttf",True)
 	video_path=search_known_paths("video",[""],"welcome.wmv",True)
 	components_path=search_known_paths("components",[""],"resistor.inp",True)
 
@@ -362,6 +365,10 @@ def get_cache_path():
 def get_html_path():
 	global html_path
 	return html_path
+
+def get_fonts_path():
+	global fonts_path
+	return fonts_path
 
 def get_materials_path():
 	return os.path.join(get_user_settings_dir(),"materials")
@@ -490,9 +497,12 @@ def get_exe_args():
 def get_home_path():
 	global home_path
 	if home_path==None:
-		home_path=str(Path.home())
-		if home_path.endswith("NTUSER.DAT")==True:
-			home_path=os.path.dirname(home_path)
+		if running_on_linux()==True:
+			home_path=str(Path.home())
+		else:
+			home_path=str(os.environ['USERPROFILE'])
+			if home_path.endswith("NTUSER.DAT")==True:
+				home_path=os.path.dirname(home_path)
 
 	return home_path
 

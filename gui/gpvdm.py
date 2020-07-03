@@ -64,8 +64,6 @@ import i18n
 _ = i18n.language.gettext
 
 from cal_path import get_inp_file_path
-from token_lib import build_token_lib
-build_token_lib()
 
 from code_ctrl import enable_betafeatures
 from code_ctrl import code_ctrl_load
@@ -90,14 +88,10 @@ from import_archive import update_simulaton_to_new_ver
 
 from inp import inp_get_token_value
 
-from scan_item import scan_items_clear
-from scan_item import scan_items_populate_from_known_tokens
-
 from plot_gen import plot_gen
 from help import help_window
 from help import help_init
 from help import language_advert
-from scan_item import scan_item_add
 from window_list import resize_window_to_be_sane
 
 
@@ -139,7 +133,9 @@ from cache import cache
 from cal_path import get_scripts_path
 from cal_path import get_base_scripts_path
 from icon_lib import icon_init_db
+from scan_human_labels import get_scan_human_labels
 import shutil
+from check_lib_in_bash_rc import check_lib_in_bash_rc
 
 def do_import():
 	global new_simulation
@@ -373,12 +369,12 @@ class gpvdm_main_window(QMainWindow):
 
 	def change_dir_and_refresh_interface(self,new_dir):
 		used_files_add(os.path.join(new_dir,"sim.gpvdm"))
-		scan_items_clear()
+		self.scan_human_labels.clear()
 		inp_callbacks_clear()
 		get_watch().reset()
 		self.splash.inc_value()
 
-		scan_items_populate_from_known_tokens()
+		self.scan_human_labels.populate_from_known_tokens()
 		self.splash.inc_value()
 
 		self.splash.inc_value()
@@ -418,8 +414,8 @@ class gpvdm_main_window(QMainWindow):
 			self.my_server.set_display_function(self.notebook.update_display_function)
 
 
-		scan_item_add("sim.inp","#simmode","sim mode",1)
-		scan_item_add("light.inp","#Psun","light intensity",1)
+		self.scan_human_labels.add_item("sim.inp","#simmode","sim mode")
+		self.scan_human_labels.add_item("light.inp","#Psun","light intensity")
 		#scan_populate_from_file("light.inp")
 
 		self.ribbon.update()
@@ -493,8 +489,14 @@ class gpvdm_main_window(QMainWindow):
 	def __init__(self):
 		super(gpvdm_main_window,self).__init__()
 		icon_init_db()
-
+		#from scans_io import scans_io
+		#from cal_path import get_sim_path
+		#scans=scans_io(get_sim_path())
+		#sims=scans.get_scan_dirs()
+		#print(sims)
+		#asdsa
 		self.splash=splash_window()
+		self.scan_human_labels=get_scan_human_labels()
 
 		self.splash.inc_value()
 		process_events()
@@ -658,13 +660,14 @@ class gpvdm_main_window(QMainWindow):
 
 		self.cache=cache(only_open_if_full=True)
 
-		from shape_editor import shape_editor
-		self.shape_window=shape_editor("/home/rod/gpvdm_local/shape/pedot")
-		self.shape_window.show()
+		#from shape_editor import shape_editor
+		#self.shape_window=shape_editor("/home/rod/gpvdm_local/shape/pedot")
+		#self.shape_window.show()
 
-		from shape_import import shape_import
-		self.shape_import=shape_import("/home/rod/gpvdm_local/shape/pedot")
-		self.shape_import.show()
+		#from shape_import import shape_import
+		#self.shape_import=shape_import("/home/rod/gpvdm_local/shape/pedot")
+		#self.shape_import.show()
+		check_lib_in_bash_rc()
 
 	def dragEnterEvent(self, event):
 		if event.mimeData().hasUrls:

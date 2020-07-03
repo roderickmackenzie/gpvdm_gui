@@ -50,14 +50,6 @@ from PyQt5.QtCore import QSize, Qt
 from PyQt5.QtWidgets import QWidget,QVBoxLayout,QToolBar,QSizePolicy,QAction,QTabWidget,QSystemTrayIcon,QMenu,QApplication
 from PyQt5.QtGui import QIcon,QPixmap,QImage
 
-#epitaxy
-from epitaxy import epitaxy_get_layers
-from epitaxy import epitaxy_get_mat_file
-from epitaxy import epitaxy_get_dos_file
-from epitaxy import epitaxy_get_name
-from epitaxy import epitaxy_get_dy
-from epitaxy import get_epi
-
 #inp
 from inp import inp_load_file
 from inp import inp_search_token_value
@@ -71,6 +63,8 @@ from cal_path import get_materials_path
 from cal_path import get_default_material_path
 
 from lock import get_lock
+
+from epitaxy import get_epi
 
 class band_graph(QWidget):
 	def __init__(self):
@@ -92,6 +86,7 @@ class band_graph(QWidget):
 
 		self.setLayout(self.main_vbox)
 
+		self.epi=get_epi()
 
 	def press(self,event):
 		#print('press', event.key)
@@ -127,23 +122,21 @@ class band_graph(QWidget):
 		ax1 = self.my_figure.add_subplot(111)
 		ax2 = ax1.twinx()
 		x_pos=0.0
-		layer=0
+		nlayer=0
 		color =['r','g','b','y','o','r','g','b','y','o','r','g','b','y','o','r','g','b','y','o']
 
-		epi=get_epi()
+		self.epi=get_epi()
 
 
 		x_pos=0.0
-		for i in range(0,epitaxy_get_layers()):
-
-#			label=epitaxy_get_mat_file(i)
-			layer_ticknes=epitaxy_get_dy(i)
-			layer_material=epitaxy_get_mat_file(i)
+		for layer in self.epi.layers:
+			layer_ticknes=layer.dy
+			layer_material=layer.optical_material
 			lumo=0.0
 			homo=0.0
 			
 			delta=float(layer_ticknes)*1e9
-			#print(epitaxy_get_dos_file(i))
+
 			lines=[]
 			#we could have zipped the file
 			mat_file=os.path.join(get_materials_path(),layer_material,'mat.inp')
@@ -152,7 +145,7 @@ class band_graph(QWidget):
 			material_type=inp_get_token_value(mat_file, "#material_type",archive=archive)
 			unknown_lumo_eg=False
 
-			if epitaxy_get_dos_file(i).startswith("dos")==False:
+			if layer.dos_file.startswith("dos")==False:
 				dos_file=os.path.join(get_materials_path(),layer_material,'dos.inp')
 				if os.path.isfile(dos_file)==False:
 					unknown_lumo_eg=True
@@ -164,7 +157,7 @@ class band_graph(QWidget):
 					lumo=-float(inp_search_token_value(lines, "#Xi"))
 					Eg=float(inp_search_token_value(lines, "#Eg"))
 			else:
-				lines=inp_load_file(os.path.join(get_sim_path(),epitaxy_get_dos_file(i)+".inp"))
+				lines=inp_load_file(os.path.join(get_sim_path(),layer.dos_file+".inp"))
 				#print(lines)
 				if lines!=False:
 					lumo=-float(inp_search_token_value(lines, "#Xi"))
@@ -192,25 +185,25 @@ class band_graph(QWidget):
 			self.layer_name.append(layer_material)
 
 			rot=0
-			if epitaxy_get_layers()>5:
+			if len(self.epi.layers)>5:
 				rot=90
-			item=ax2.text(x_pos-delta/1.5, y_name_pos, epitaxy_get_name(i), rotation=rot)
+			item=ax2.text(x_pos-delta/1.5, y_name_pos, layer.name, rotation=rot)
 			item.set_fontsize(15)
 
 			lumo_shape = [lumo,lumo,lumo_delta,lumo_delta]
-			ax2.fill(x,lumo_shape, color[layer],alpha=0.4)
+			ax2.fill(x,lumo_shape, color[nlayer],alpha=0.4)
 			if unknown_lumo_eg==False:
 				item=ax2.text(x_pos-delta/1.5, lumo+0.1, "%.2f eV" % lumo)
 				item.set_fontsize(15)
 
 			if draw_homo==True:
 				homo_shape = [homo,homo,homo_delta,homo_delta]
-				ax2.fill(x,homo_shape, color[layer],alpha=0.4)
+				ax2.fill(x,homo_shape, color[nlayer],alpha=0.4)
 				if unknown_lumo_eg==False:
 					item=ax2.text(x_pos-delta/1.5, lumo-Eg-0.4, "%.2f eV" % homo)
 					item.set_fontsize(15)
 
-			layer=layer+1
+			nlayer=nlayer+1
 
 		state=dat_file()
 		if state.load(self.optical_mode_file)==True:

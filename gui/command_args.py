@@ -34,12 +34,11 @@ from export_as import export_as
 from import_archive import import_archive
 from util import gpvdm_copy_src
 
-from import_archive import clean_scan_dirs
+from scan_io import scan_io
 from ver import ver
 from ver import version
 from import_archive import import_scan_dirs
 from make_man import make_man
-from scan_tree import tree_load_program
 from scan_tree import tree_gen
 
 from server import base_server
@@ -54,30 +53,16 @@ from code_ctrl import enable_cluster
 from win_lin import running_on_linux
 from inp import inp_update_token_value
 from device_lib_io import device_lib_replace
-from device_lib_io import device_lib_delete
 from cal_path import test_arg_for_sim_file
 from cal_path import set_sim_path
 from import_archive import patch_file
 from util_zip import archive_decompress
 from util_zip import archive_compress
-from scan_io import build_scan
 from scan_tree import tree_load_flat_list
 
-from scan_item import scan_items_clear
-from scan_item import scan_items_populate_from_known_tokens
-from scan_item import scan_items_populate_from_files
-from device_lib_io import device_lib_token_change
-from device_lib_io import device_lib_token_delete
-from device_lib_io import device_lib_token_insert
-from device_lib_io import device_lib_token_duplicate
-from device_lib_io import device_lib_fix_ver
-
-from scan_io import scan_archive
 
 from gui_enable import set_gui
 from gui_enable import gui_get
-
-from device_lib_io import device_lib_token_repair
 
 from materials_io import archive_materials
 
@@ -108,7 +93,6 @@ parser.add_argument("--encrypt", help=_("Encrypt a gpvdm file --file sim.gpvdm")
 parser.add_argument("--unpack", help=_("Extract the sim.gpvdm archive --unpack"), action='store_true')
 parser.add_argument("--pack", help=_("Extract the sim.gpvdm archive --pack"), action='store_true')
 parser.add_argument("--matcompress", help=_("Compresses the materials dir"), action='store_true')
-parser.add_argument("--ri_sync", help=_("Sync to ri"), action='store_true')
 
 if test_arg_for_sim_file()==False:
 	args = parser.parse_args()
@@ -133,9 +117,6 @@ def command_args(argc,argv):
 		elif args.replace:
 			device_lib_replace(args.replace[0],dir_name=args.replace[1])
 			exit(0)
-		elif args.delete:
-			device_lib_delete(args.delete[0],dir_name=args.delete[1])
-			exit(0)
 		elif args.clean:
 			clean_sim_dir()
 			sys.exit(0)
@@ -146,7 +127,8 @@ def command_args(argc,argv):
 			make_man()
 			sys.exit(0)
 		elif args.cleanscandirs:
-			clean_scan_dirs(os.getcwd())
+			scan=scans_io(os.getcwd())
+			scan.clean_all()
 			sys.exit(0)
 		elif args.importfile:
 			import_archive(args.importfile[0],os.path.join(os.getcwd(),"sim.gpvdm"),False)
@@ -184,9 +166,6 @@ def command_args(argc,argv):
 		elif args.pack:
 			archive_compress(os.path.join(os.getcwd(),"sim.gpvdm"))
 			sys.exit(0)
-		elif args.ri_sync:
-			from refractiveindex_info import refractiveindex_info_sync
-			refractiveindex_info_sync()
 		elif args.scanplot:
 			plot_token=dat_file()
 			oplot_file=args.scan-plot[0]

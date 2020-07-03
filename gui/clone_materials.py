@@ -34,6 +34,7 @@ from cal_path import subtract_paths
 from materials_io import find_materials
 from progress_class import progress_class
 from process_events import process_events
+from win_lin import running_on_linux
 
 def clone_material(dest_material_dir,src_material_dir):
 	if os.path.isdir(dest_material_dir)==False:
@@ -59,26 +60,29 @@ def clone_material(dest_material_dir,src_material_dir):
 	return True
 
 def clone_materials(dest,src_dir,file_type):
-	progress_window=progress_class()
-	progress_window.show()
-	progress_window.start()
+	if running_on_linux()==False:
+		progress_window=progress_class()
+		progress_window.show()
+		progress_window.start()
 
-	process_events()
-
-	if os.path.isdir(dest)==False:
-		os.makedirs(dest)
-
-	files=find_materials(mat_path=src_dir,file_type=file_type)
-	for i in range(0,len(files)):
-
-		src_file=os.path.join(src_dir,files[i])
-		dest_file=os.path.join(dest,files[i])
-		
-		clone_material(dest_file,src_file)
-
-		progress_window.set_fraction(float(i)/float(len(files)))
-		progress_window.set_text("Configuring "+files[i])
 		process_events()
 
-	progress_window.stop()
+		if os.path.isdir(dest)==False:
+			os.makedirs(dest)
+
+		files=find_materials(mat_path=src_dir,file_type=file_type)
+		for i in range(0,len(files)):
+
+			src_file=os.path.join(src_dir,files[i])
+			dest_file=os.path.join(dest,files[i])
+			
+			clone_material(dest_file,src_file)
+
+			progress_window.set_fraction(float(i)/float(len(files)))
+			progress_window.set_text("Configuring "+files[i])
+			process_events()
+
+		progress_window.stop()
+	else:
+		os.symlink(src_dir, dest)
 

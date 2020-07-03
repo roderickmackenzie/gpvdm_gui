@@ -32,6 +32,7 @@ from gl_shapes import box
 from gl_shapes import paint_from_array
 from gl_shapes import paint_open_triangles_from_array
 from gl_shapes import pyrmid
+from gl_shapes import paint_from_array_cut_through
 from gl_lib import box_lines
 from gl_lib import plane
 from gl_lib import raw_ray
@@ -63,6 +64,7 @@ class gl_base_object():
 		self.selected=False
 		self.selectable=False
 		self.moveable=False
+		self.allow_cut_view=True
 		self.triangles=[]
 
 	def dump(self):
@@ -178,6 +180,11 @@ class gl_objects():
 			elif o.type=="solid_and_mesh":
 				paint_from_array(o)
 				paint_open_triangles_from_array(o)
+			elif o.type=="solid_and_mesh_cut_through":
+				paint_from_array_cut_through(o)
+			elif o.type=="solid_and_mesh_color":
+				paint_from_array(o)
+				paint_open_triangles_from_array(o,colored=True)
 			elif o.type=="box":
 				box(o.x,o.y,o.z,o.dx,o.dy,o.dz,o.r,o.g,o.b,o.alpha,name=o.id)
 			else:

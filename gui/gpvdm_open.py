@@ -43,7 +43,6 @@ from help import help_window
 
 from error_dlg import error_dlg
 
-from ref import get_ref_text
 from gui_util import dlg_get_text
 from gui_util import yes_no_dlg
 

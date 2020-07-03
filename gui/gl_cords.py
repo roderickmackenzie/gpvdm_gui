@@ -56,14 +56,15 @@ class gl_cords():
 		leng=1.0
 		start_x=scale_get_start_x()-2.0
 		start_z=scale_get_start_z()-2.0
+		start_y=1.0
 		quad=gluNewQuadric()
 
 
 
 		glPushMatrix()
 		set_color(0.7,0.7,0.7,"cordinates",alpha=1.0)
-		glTranslatef(start_x,0.0,start_z)
-
+		glTranslatef(start_x,start_y,start_z)
+		self.render_text (leng+0.2,0.0,0.0, "x",font)
 		quad=gluNewQuadric()
 		glRotatef(90, 0.0, 1.0, 0.0)
 		gluCylinder(quad, width, width, leng, 10, 1)
@@ -71,27 +72,28 @@ class gl_cords():
 		gluCylinder(quad, 0.1, 0.00, 0.2, 10, 1)
 		set_color(1.0,1.0,1.0,"cordinates",alpha=1.0)
 		#if self.view.zoom<20:
-		#	self.render_text (0.2,0.0,0.0, "x",font)
 		glPopMatrix()
+
 
 		glPushMatrix()
 		set_color(0.7,0.7,0.7,"cordinates",alpha=1.0)
-		glTranslatef(start_x,0.0,start_z)
+		glTranslatef(start_x,start_y,start_z)
+		self.render_text (0.0,-leng-0.4,0.0, "y",font)
 		quad=gluNewQuadric()
 		#glTranslatef(0.0,0.0,0.0)
-		glRotatef(90, -1.0, 0.0, 0.0)
+		glRotatef(270, -1.0, 0.0, 0.0)
 		gluCylinder(quad, width, width, leng, 10, 1)
 		glTranslatef(0.0,0.0,leng)
 		gluCylinder(quad, 0.1, 0.00, 0.2, 10, 1)
 		set_color(1.0,1.0,1.0,"cordinates",alpha=1.0)
 		#if self.view.zoom<20:
-		#	self.render_text (0.2,0.0,0.0, "y",font)
 		glPopMatrix()
+
 
 		glPushMatrix()
 		set_color(0.7,0.7,0.7,"cordinates",alpha=1.0)
-		glTranslatef(start_x,0.0,start_z)
-
+		glTranslatef(start_x,start_y,start_z)
+		self.render_text (-0.0,0.0,leng+0.2, "z",font)
 		quad=gluNewQuadric()
 		glRotatef(0, 0.0, 1.0, 0.0)
 		gluCylinder(quad, width, width, leng, 10, 1)
@@ -101,8 +103,8 @@ class gl_cords():
 		gluSphere(quad,0.08,32,32)
 		set_color(1.0,1.0,1.0,"cordinates",alpha=1.0)
 		#if self.view.zoom<20:
-		#	self.render_text (-0.2,0.0,0.0, "z",font)
 		glPopMatrix()
+
 		#self.draw_numbers()
 
 	def draw_numbers(self):

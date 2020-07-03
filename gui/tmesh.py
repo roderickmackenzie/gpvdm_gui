@@ -28,13 +28,12 @@
 
 import os
 from numpy import *
-from scan_item import scan_item_add
 from gui_util import dlg_get_text
 import webbrowser
 from util import time_with_units
 from cal_path import get_icon_path
-from scan_item import scan_remove_file
 from code_ctrl import enable_betafeatures
+from scan_human_labels import get_scan_human_labels
 
 #inp
 from inp import inp_load_file
@@ -67,14 +66,9 @@ import i18n
 _ = i18n.language.gettext
 
 
-mesh_articles = []
-
-
 class tab_time_mesh(QWidget):
 
 	def save_data(self):
-		scan_remove_file(self.file_name)
-
 		out_text=[]
 		out_text.append("#start_time")
 		out_text.append(str(float(self.start_time)))
@@ -113,16 +107,16 @@ class tab_time_mesh(QWidget):
 		self.update_scan_tokens()
 
 	def update_scan_tokens(self):
-		scan_remove_file(self.file_name)
+		self.scan_human_labels.remove_file(self.file_name)
 
 		for i in range(0,len(self.list)):
-			scan_item_add(self.file_name,"#time_segment"+str(i)+"_len",_("Part ")+str(i)+_(" period"),1)
-			scan_item_add(self.file_name,"#time_segment"+str(i)+"_dt",_("Part ")+str(i)+_(" dt"),1)
-			scan_item_add(self.file_name,"#time_segment"+str(i)+"_voltage_start",_("Part ")+str(i)+_(" start voltage"),1)
-			scan_item_add(self.file_name,"#time_segment"+str(i)+"_voltage_stop",_("Part ")+str(i)+_(" stop voltage"),1)
-			scan_item_add(self.file_name,"#time_segment"+str(i)+"_mul",_("Part ")+str(i)+_(" mul"),1)
-			scan_item_add(self.file_name,"#time_segment"+str(i)+"_sun",_("Part ")+str(i)+_(" Sun"),1)
-			scan_item_add(self.file_name,"#time_segment"+str(i)+"_laser",_("Part ")+str(i)+_(" CW laser"),1)
+			self.scan_human_labels.add_item(self.file_name,"#time_segment"+str(i)+"_len",_("Part ")+str(i)+_(" period"))
+			self.scan_human_labels.add_item(self.file_name,"#time_segment"+str(i)+"_dt",_("Part ")+str(i)+_(" dt"))
+			self.scan_human_labels.add_item(self.file_name,"#time_segment"+str(i)+"_voltage_start",_("Part ")+str(i)+_(" start voltage"))
+			self.scan_human_labels.add_item(self.file_name,"#time_segment"+str(i)+"_voltage_stop",_("Part ")+str(i)+_(" stop voltage"))
+			self.scan_human_labels.add_item(self.file_name,"#time_segment"+str(i)+"_mul",_("Part ")+str(i)+_(" mul"))
+			self.scan_human_labels.add_item(self.file_name,"#time_segment"+str(i)+"_sun",_("Part ")+str(i)+_(" Sun"))
+			self.scan_human_labels.add_item(self.file_name,"#time_segment"+str(i)+"_laser",_("Part ")+str(i)+_(" CW laser"))
 
 
 	def callback_add_section(self):
@@ -403,6 +397,7 @@ class tab_time_mesh(QWidget):
 	def __init__(self,index):
 		self.index=index
 		self.file_name=os.path.join(get_sim_path(),"time_mesh_config"+str(self.index)+".inp")
+		self.scan_human_labels=get_scan_human_labels()
 		QWidget.__init__(self)
 		self.main_vbox = QVBoxLayout()
 		self.time=[]
@@ -488,7 +483,7 @@ class tab_time_mesh(QWidget):
 
 		self.setLayout(self.main_vbox)
 
-		return
+
 
 
 

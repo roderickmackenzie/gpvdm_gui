@@ -48,6 +48,9 @@ def get_dir_type(path):
 		if os.path.isfile(os.path.join(path,"wavelengths.dat"))==True:
 			return "light"
 
+		if os.path.isfile(os.path.join(path,"scan_config.inp"))==True:
+			return "scan_dir"
+
 		mat_file=os.path.join(path,"mat.inp")
 		token=inp_get_token_value(os.path.join(path,"mat.inp"), "#gpvdm_file_type")
 		if token=="mat":

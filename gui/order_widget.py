@@ -34,8 +34,6 @@ from token_lib import tokens
 from icon_lib import icon_get
 from str2bool import str2bool
 
-from scan_item import scan_items_lookup_item
-
 from util import wrap_text
 
 from gui_util import yes_no_dlg
@@ -84,6 +82,7 @@ class order_widget(QToolBar):
 		file_list=zip_lsdir(os.path.join(get_sim_path(),"sim.gpvdm"))
 		for i in range(0,len(file_list)):
 			if inp_issequential_file(file_list[i],self.base_file_name[0])==True:
+				print("search>>",file_list[i],self.name_token)
 				name=inp_get_token_value(file_list[i], self.name_token)
 				name=name.split("@")[0]
 

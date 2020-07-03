@@ -32,7 +32,6 @@ import shutil
 from util import gpvdm_delete_file
 from inp import inp_get_token_value
 from scan_tree import tree_load_flat_list
-from util import copy_scan_dir
 
 from server_io import server_find_simulations_to_run
 from util_zip import read_lines_from_archive
@@ -54,28 +53,11 @@ import zipfile
 import random
 import string
 import numpy as np
-
+from scans_io import scans_io
 from gui_util import yes_no_dlg
-
+from scan_io import scan_io
 from yes_no_cancel_dlg import yes_no_cancel_dlg
 
-tindex=[]
-
-def tindex_add(token,value):
-	global tindex
-	for i in range(0,len(tindex)):
-		if tindex[i][0]==token:
-			return
-	tindex.append([token,value])		
-	return
-
-def tindex_dump(fname):
-	global tindex
-
-	f = open(fname, 'w')
-	for i in range(0,len(tindex)):
-		f.write(tindex[i][0]+" "+tindex[i][1]+'\n')
-	f.close()
 
 def make_vector_from_file(file_name,x_values):
 	if os.path.isfile(file_name)==True:
@@ -151,343 +133,258 @@ def get_vectors(file_name,x_values,dolog=False,div=1.0,fabs=False,do_norm=False,
 
 	return s
 
-	
 
-def scan_ml_build_token_abs(file_name,token0,token1,min_max="",dolog=False,mul=1.0,lim=-1.0):
 
-	if token0==token1 and min_max=="min":
-		return ""
+class scan_ml:
 
-	if token0==token1 and min_max=="max":
-		return ""
+	def __init__(self,scan_dir):
+		self.scan_dir=scan_dir
+		self.fx_points=[1,3,10,30,1e2,3e2,1e3,3e3,1e4,3e4,7e5,8e5,1e5,2e5,3e5,4e5,5e5,7e5,8e5,9e5,1e6]
+		self.jv_sample_points=[0.0,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1.0]
+		self.eqe_sample_points=[]
+		start=300e-9
+		stop=670e-9
+		dl=(stop-start)/10.0
+		pos=start
+		while(pos<stop):
+			self.eqe_sample_points.append(pos)
+			pos=pos+dl
+			
+		scans=scans_io(os.path.dirname(scan_dir))
+		config_file=scans.find_path_by_name(os.path.basename(scan_dir))
 
-	if min_max=="":
-		temp=inp_get_token_value(file_name, token0)
-		if temp==None:
-			return False
-		val=abs(float(temp))
-	elif min_max=="max":
-		temp=inp_get_token_value(file_name, token0)
-		if temp==None:
-			return False
-		v0=abs(float(temp))
+		self.scan=scan_io()
+		self.scan.load(config_file)
 
-		temp=inp_get_token_value(file_name, token1)
-		if temp==None:
-			return False
-		v1=abs(float(temp))
+	def get_sub_sims(self,archive_path):
+		sub_sims=[]
+		zf = zipfile.ZipFile(archive_path, 'r')
+		items=zf.namelist()
+		for file_name in items:
+			if "sim.gpvdm" in file_name:
+				parts=file_name.split("/")
+				found_sim="/".join(parts[1:-1])
 
-		val=v0
-		if v1>v0:
-			val=v1
-	elif min_max=="min":
-		temp=inp_get_token_value(file_name, token0)
-		if temp==None:
-			return False
-		v0=abs(float(temp))
+				if sub_sims.count(found_sim)==False:
+					sub_sims.append(found_sim)
+
+		return sub_sims
+
+	def make_tmp_dir(self):
+		rnd = [random.choice(string.ascii_letters + string.digits) for n in range(0,32)]
+		rnd = "".join(rnd)
+		tmp_dir="/dev/shm/gpvdm_"+rnd
+		if os.path.isdir(tmp_dir)==True:
+			shutil.rmtree(tmp_dir)
+
+		os.mkdir(tmp_dir)
+
+		return tmp_dir
+
+	def build_vector(self):
+		output_file=os.path.join(self.scan_dir,"vectors.dat")
+		if os.path.isfile(output_file)==True:
+			response=yes_no_cancel_dlg(None,"The file "+output_file+" already exists.  Continue? ")
+
+			if response!="yes":
+				sys.exit(0)
+
 		
-		temp=inp_get_token_value(file_name, token1)
-		if temp==None:
-			return False
-		v1=abs(float(temp))
+		out=open(output_file,'wb')
 
-		val=v0
-		if v1<v0:
-			val=v1
-	elif min_max=="avg":
-		temp=inp_get_token_value(file_name, token0)
-		if temp==None:
-			return False
-		v0=abs(float(temp))
+		progress_window=progress_class()
+		progress_window.show()
+		progress_window.start()
 
-		temp=inp_get_token_value(file_name, token1)
-		if temp==None:
-			return False
-		v1=abs(float(temp))
+		tot_archives=0
+		for archive_name in os.listdir(self.scan_dir):
+			if archive_name.startswith("archive")==True and archive_name.endswith(".zip")==True:
+				tot_archives=tot_archives+1
 
-		val=(v0+v1)/2.0
+		done=0
 
-	v=[]
-	s=""
+		errors=0
+		for archive_name in os.listdir(self.scan_dir):
 
-	if lim!=-1:
-		if val<lim:
-			return False
+			if archive_name.startswith("archive")==True and archive_name.endswith(".zip")==True:
 
-	if dolog==True:
-		if val!=0.0:
-			#print("value=",val)
-			val=log10(val)
-			val=abs(val)
-		else:
-			val=0.0
+				archive_path=os.path.join(self.scan_dir,archive_name)
 
-	val=val*mul
-	if isnan(val)==True:
-		return False
+				if done==0:		#on the first archive search it for sub sims and build a list
+					sub_sims=self.get_sub_sims(archive_path)
+					
 
-	s=token0+"_"+min_max+"_abs\n"
-	s=s+str(val)+"\n"
-
-	full_token=token0+"_"+min_max+"_abs"
-
-	tindex_add(full_token,str(-1))
-
-	return s
-
-
-
-
-def scan_ml_build_vector(sim_dir):
-	output_file=os.path.join(sim_dir,"vectors.dat")
-	if os.path.isfile(output_file)==True:
-		response=yes_no_cancel_dlg(None,"The file "+output_file+" already exists.  Continue? ")
-
-		if response!="yes":
-			sys.exit(0)
-
-	fx_points=[1,3,10,30,1e2,3e2,1e3,3e3,1e4,3e4,7e5,8e5,1e5,2e5,3e5,4e5,5e5,7e5,8e5,9e5,1e6]
-	out=open(output_file,'wb')
-	progress_window=progress_class()
-	progress_window.show()
-	progress_window.start()
-
-	tot_archives=0
-	for archive_name in os.listdir(sim_dir):
-		if archive_name.startswith("archive")==True and archive_name.endswith(".zip")==True:
-			tot_archives=tot_archives+1
-
-	done=0
-
-	errors=0
-	for archive_name in os.listdir(sim_dir):
-
-		if archive_name.startswith("archive")==True and archive_name.endswith(".zip")==True:
-
-			archive_path=os.path.join(sim_dir,archive_name)
-
-			if done==0:		#Find the measurment files and determine which ones are needed
-				sub_sims=[]
 				zf = zipfile.ZipFile(archive_path, 'r')
-				items=zf.namelist()
-				for l in items:
-					if l.endswith("scan.inp")==True:		#if it's scan file then strip out the hex dir name and the scan.inp part
-						parts=l.split("/")
-						found_sim="/".join(parts[1:-1])
+				simulations=zip_lsdir(archive_path,zf=zf,sub_dir="/")
 
-						if sub_sims.count(found_sim)==False:
-							sub_sims.append(found_sim)
+				for simulation in simulations:
 
-			zf = zipfile.ZipFile(archive_path, 'r')
-			dirs=zip_lsdir(archive_path,zf=zf,sub_dir="/")
+					tmp_dir=self.make_tmp_dir()
 
-			items=len(dirs)
-			for i in range(0,len(dirs)):
-				rnd = [random.choice(string.ascii_letters + string.digits) for n in range(0,32)]
-				rnd = "".join(rnd)
+					extract_dir_from_archive(tmp_dir,"",simulation,zf=zf)
+					
+					written=False
+					#print(simulation)
 
-				tmp_dir="/dev/shm/gpvdm_"+rnd
-				if os.path.isdir(tmp_dir)==True:
+					error=False
+					v=[]
+					v.append("#ml_id")
+					v.append(simulation)
+
+					sub_sim_folder=None
+					for scan_folder in sub_sims:
+						sub_sim_folder=os.path.join(tmp_dir,scan_folder)
+						#print(sub_sim_folder,tmp_dir)
+						dolog=False
+						div=1.0
+						mul=1.0
+						do_fabs=False
+
+						sim_mode=inp_get_token_value(os.path.join(sub_sim_folder,"sim.inp"), "#simmode")
+						if sim_mode==None:
+							error=True
+							break
+
+						sim_mode=sim_mode.lower()
+
+						light=float(inp_get_token_value(os.path.join(tmp_dir,scan_folder,"light.inp"), "#Psun"))
+						scan_folder_token=scan_folder.replace("/","_")
+
+						if sim_mode.endswith("jv") or sim_mode.startswith("jv"):
+							file_name=["jv.dat"]
+							sim_mode="jv"
+							vector=[self.jv_sample_points]
+							token_ext=[scan_folder_token]
+							#if light>0.0:
+							#	div=1e2
+
+							#if light==0.0:
+							#	dolog=True
+						elif sim_mode.startswith("eqe") or sim_mode.endswith("qe"):
+							file_name=["qe.dat"]
+							sim_mode="eqe"
+							vector=[self.eqe_sample_points]
+							token_ext=[scan_folder_token]
+
+						elif sim_mode=="sun_voc":
+							file_name=["suns_voc.dat"]
+							vector=[[0.02,0.04,0.05,0.1,0.5,0.7,1.0]]
+							token_ext=[scan_folder_token]
+							#dolog=True
+							#mul=-10.0
+
+						elif sim_mode.startswith("cv"):
+							file_name=["cv.dat"]
+							vector=[[-2.0, -1.8 ,-1.6,-1.4,-1.2,-1.0,-0.8,-0.6,-0.4,-0.2,0.0,0.2,0.4]]
+							token_ext=[scan_folder_token]
+
+						elif sim_mode.startswith("is"):
+							file_name=["fx_imag.dat"]
+							vector=[self.fx_points]
+							token_ext=[scan_folder_token+"_fx_imag"]
+
+							file_name.append("fx_real.dat")
+							vector.append(self.fx_points)
+							token_ext.append(scan_folder_token+"_fx_real")
+
+						elif sim_mode.startswith("imps"):
+							file_name=["fx_imag.dat"]
+							vector=[self.fx_points]
+							token_ext=[scan_folder_token+"_fx_imag"]
+
+							file_name.append("fx_real.dat")
+							vector.append(self.fx_points)
+							token_ext.append(scan_folder_token+"_fx_real")
+
+						elif sim_mode.startswith("imvs"):
+							file_name=["fx_imag.dat"]
+							vector=[self.fx_points]
+							token_ext=[scan_folder_token+"_fx_imag"]
+
+							file_name.append("fx_real.dat")
+							vector.append(self.fx_points)
+							token_ext.append(scan_folder_token+"_fx_real")
+
+						elif sim_mode.startswith("tpc")==True:
+							file_name=["time_i.dat"]
+							vector=[[1.1e-6,2e-6,2e-5,1e-4,0.02,0.1]]
+							token_ext=[scan_folder_token]
+							#dolog=True
+							#do_fabs=True
+
+						elif sim_mode.startswith("celiv")==True:
+							file_name=["time_i.dat"]
+							vector=[[2e-6,3e-6,4e-6,5e-6,6e-6,7e-6,8e-6]]
+							token_ext=[scan_folder_token]
+							#do_fabs=True
+							#mul=1000.0
+
+						elif sim_mode.startswith("tpv")==True:
+							file_name=["time_v.dat"]
+							vector=[[10e-6,20e-6,30e-6,40e-6,50e-6,60e-6,80e-6]]
+							token_ext=[scan_folder_token]
+							#do_fabs=True
+							#mul=10.0
+						else:
+							print(sim_mode)
+							asdas
+
+						for c in range(0,len(file_name)):
+							ret=get_vectors(os.path.join(tmp_dir,scan_folder,file_name[c]),vector[c], dolog=dolog,div=div,mul=mul, fabs=do_fabs)
+							#print(ret)
+							if ret==False:
+								error=True
+								break
+
+							v.append("#ml_input_"+token_ext[c])
+							v.append(ret)
+
+						if sim_mode=="jv" and light>0.0:
+							for t in ["#jv_pmax_tau","#jv_pmax_mue","#pce"]:
+								ret=inp_get_token_value(os.path.join(tmp_dir,scan_folder,"sim_info.dat"), t)
+								if ret==False:
+									error=True
+									break
+
+								v.append(t+"_"+scan_folder)
+								v.append(ret)
+
+					for p in self.scan.program_list:
+						if p.values.count("random")>0:
+							full_inp_file_name=os.path.join(tmp_dir,sub_sims[0],p.file)
+
+							temp=inp_get_token_value(full_inp_file_name, p.token)
+							if temp==False:
+								error=True
+								break
+							else:
+								v.append(p.token)
+								v.append(temp)
+
+					if error==False:
+						out.write(str.encode("\n".join(v)+"\n"))
+						written=True
+					else:
+						errors=errors+1
+
+					done=done+1
+
+					progress_window.set_fraction(float(done)/float(len(simulations)*tot_archives))
+					if written==True:
+						progress_window.set_text(simulation)
+					else:
+						progress_window.set_text("                         /Last error: "+simulation+" tot errors="+str(errors)+" "+str(round(100.0*errors/done,1))+"%")
+
+					progress_window.set_text(simulation)
+
+					#if server_break()==True:
+					#	break
+					process_events()
+					#return
+
 					shutil.rmtree(tmp_dir)
 
-				os.mkdir(tmp_dir)
-
-				extract_dir_from_archive(tmp_dir,"",dirs[i],zf=zf)
-	
-				full_name=tmp_dir
-				written=False
-				#print(dirs[i])
-
-				error=False
-				v="#ml_id\n"
-				v=v+dirs[i]+"\n"
-
-
-				for scan_folder in sub_sims:
-
-					dolog=False
-					div=1.0
-					mul=1.0
-					do_fabs=False
-					sim_mode=inp_get_token_value(os.path.join(full_name,scan_folder,"sim.inp"), "#simmode")
-					if sim_mode==None:
-						error=True
-						break
-
-					sim_mode=sim_mode.lower()
-
-					light=float(inp_get_token_value(os.path.join(full_name,scan_folder,"light.inp"), "#Psun"))
-					scan_folder_token=scan_folder.replace("/","_")
-
-					if sim_mode.endswith("jv") or sim_mode.startswith("jv"):
-						file_name=["jv.dat"]
-						sim_mode=["jv"]
-						vector=[[0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1.0]]
-						token_ext=[scan_folder_token]
-						#if light>0.0:
-						#	div=1e2
-
-						#if light==0.0:
-						#	dolog=True
-
-					elif sim_mode=="sun_voc":
-						file_name=["suns_voc.dat"]
-						vector=[[0.02,0.04,0.05,0.1,0.5,0.7,1.0]]
-						token_ext=[scan_folder_token]
-						#dolog=True
-						#mul=-10.0
-
-					elif sim_mode.startswith("cv"):
-						file_name=["cv.dat"]
-						vector=[[-2.0, -1.8 ,-1.6,-1.4,-1.2,-1.0,-0.8,-0.6,-0.4,-0.2,0.0,0.2,0.4]]
-						token_ext=[scan_folder_token]
-
-					elif sim_mode.startswith("is"):
-						file_name=["fx_imag.dat"]
-						vector=[fx_points]
-						token_ext=[scan_folder_token+"_fx_imag"]
-
-						file_name.append("fx_real.dat")
-						vector.append(fx_points)
-						token_ext.append(scan_folder_token+"_fx_real")
-
-					elif sim_mode.startswith("imps"):
-						file_name=["fx_imag.dat"]
-						vector=[fx_points]
-						token_ext=[scan_folder_token+"_fx_imag"]
-
-						file_name.append("fx_real.dat")
-						vector.append(fx_points)
-						token_ext.append(scan_folder_token+"_fx_real")
-
-					elif sim_mode.startswith("imvs"):
-						file_name=["fx_imag.dat"]
-						vector=[fx_points]
-						token_ext=[scan_folder_token+"_fx_imag"]
-
-						file_name.append("fx_real.dat")
-						vector.append(fx_points)
-						token_ext.append(scan_folder_token+"_fx_real")
-
-					elif sim_mode.startswith("tpc")==True:
-						file_name=["time_i.dat"]
-						vector=[[1.1e-6,2e-6,2e-5,1e-4,0.02,0.1]]
-						token_ext=[scan_folder_token]
-						#dolog=True
-						#do_fabs=True
-
-					elif sim_mode.startswith("celiv")==True:
-						file_name=["time_i.dat"]
-						vector=[[2e-6,3e-6,4e-6,5e-6,6e-6,7e-6,8e-6]]
-						token_ext=[scan_folder_token]
-						#do_fabs=True
-						#mul=1000.0
-
-					elif sim_mode.startswith("tpv")==True:
-						file_name=["time_v.dat"]
-						vector=[[10e-6,20e-6,30e-6,40e-6,50e-6,60e-6,80e-6]]
-						token_ext=[scan_folder_token]
-						#do_fabs=True
-						#mul=10.0
-					else:
-						print(sim_mode)
-						asdas
-
-					for c in range(0,len(file_name)):
-						ret=get_vectors(os.path.join(full_name,scan_folder,file_name[c]),vector[c], dolog=dolog,div=div,mul=mul, fabs=do_fabs)
-						#print(ret)
-						if ret==False:
-							error=True
-							break
-
-						token="#ml_input_"+token_ext[c]
-						v=v+token+"\n"
-						v=v+ret+"\n"
-
-					if sim_mode=="jv" and light>0.0:
-						ret=scan_ml_build_token_abs(os.path.join(full_name,scan_folder,"sim_info.dat"),"#jv_pmax_tau","#jv_pmax_tau",min_max="avg",dolog=True)
-						if ret==False:
-							error=True
-							break
-						v=v+ret
-
-						ret=scan_ml_build_token_abs(os.path.join(full_name,scan_folder,"sim_info.dat"),"#jv_pmax_mue","#jv_pmax_mue",min_max="avg",dolog=True)
-						if ret==False:
-							error=True
-							break
-
-						v=v+ret
-
-						ret=scan_ml_build_token_abs(os.path.join(full_name,scan_folder,"sim_info.dat"),"#pce","#pce",min_max="avg",lim=0.1)
-						if ret==False:
-							error=True
-							break
-
-						v=v+ret
-
-					#print(a.experiment,a.measurement_file,a.token)
-
-
-				for min_max in ["min","max","avg"]:
-					a=scan_ml_build_token_abs(os.path.join(full_name,"dos0.inp"),"#Etrape","#Etraph",min_max=min_max) #,mul=1e3
-					if a==False:
-						error=True
-						break
-					v=v+a
-
-					a=scan_ml_build_token_abs(os.path.join(full_name,"dos0.inp"),"#mueffe","#mueffh",min_max=min_max) #,dolog=True
-					if a==False:
-						error=True
-						break
-					v=v+a
-
-					a=scan_ml_build_token_abs(os.path.join(full_name,"dos0.inp"),"#Ntraph","#Ntrape",min_max=min_max) #,dolog=True
-					if a==False:
-						error=True
-						break
-					v=v+a
-
-				a=scan_ml_build_token_abs(os.path.join(full_name,"parasitic.inp"),"#Rshunt","#Rshunt",min_max="avg") #,dolog=True
-				if a==False:
-					error=True
-					break
-				v=v+a
-
-				a=scan_ml_build_token_abs(os.path.join(full_name,"parasitic.inp"),"#Rcontact","#Rcontact",min_max="avg")
-				if a==False:
-					error=True
-					break
-				v=v+a
-		
-				v=v+"#break\n"
-
-				if error==False:
-					out.write(str.encode(v))
-					written=True
-				else:
-					errors=errors+1
-
-				done=done+1
-
-
-				progress_window.set_fraction(float(done)/float(len(dirs)*tot_archives))
-				if written==True:
-					progress_window.set_text(dirs[i])
-				else:
-					progress_window.set_text("                         /Last error: "+dirs[i]+" tot errors="+str(errors)+" "+str(round(100.0*errors/done,1))+"%")
-
-				progress_window.set_text(dirs[i])
-
-				#if server_break()==True:
-				#	break
-				process_events()
-				#return
-
-				shutil.rmtree(tmp_dir)
-
-	out.close()
-	progress_window.stop()
-
-	tindex_dump(os.path.join(sim_dir,"index.dat"))
+		out.close()
+		progress_window.stop()
 
 

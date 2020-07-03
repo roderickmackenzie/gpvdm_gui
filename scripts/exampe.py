@@ -21,4 +21,4 @@ class gpvdm_plugin:
 	def finished(self):
 		print("Finished!")
 		self.api.build_multiplot("scan")			#Build the plot files
-		self.api.graph_from_tokens("output_plot.dat","scan","dos0.inp","#mueffe","sim_info.dat","#voc")		#plot the tokens #mueffe against #voc
+		self.api.graph_from_tokens("output_plot.dat","scan","dos0.inp","#mueffe","sim_info.dat","#voc")

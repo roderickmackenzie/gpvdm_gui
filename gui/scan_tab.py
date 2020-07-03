@@ -25,7 +25,6 @@
 #  A scan tab - sub widget.
 #
 
-import gc
 import os
 from inp import inp_get_token_value
 from plot import check_info_file
@@ -45,26 +44,19 @@ from icon_lib import icon_get
 from str2bool import str2bool
 
 #scan_io
-from scan_io import scan_clean_dir
 from scan_io import scan_clean_unconverged
 from scan_io import scan_push_to_hpc
 from scan_io import scan_import_from_hpc
 from scan_io import scan_plot_fits
 from scan_io import scan_gen_report
-from scan_io import build_scan
+from scan_io import scan_io
 
 #scan_tree
 from scan_tree import tree_gen
-from scan_tree import tree_load_program
-from scan_tree import tree_load_config
 from scan_tree import tree_load_flat_list
 from scan_tree import tree_save_flat_list
 
-#scan_item
-from scan_item import scan_items_get_file
-from scan_item import scan_items_get_token
-from scan_item import scan_items_get_list
-from scan_item import scan_item_save
+from scan_human_labels import get_scan_human_labels
 
 
 #qt
@@ -75,7 +67,6 @@ from PyQt5.QtGui import QPainter,QIcon,QCursor,QClipboard
 #window
 from plot_dlg import plot_dlg_class
 from scan_select import select_param
-#from notes import notes
 from error_dlg import error_dlg
 from gui_util import yes_no_dlg
 from gpvdm_tab import gpvdm_tab
@@ -89,7 +80,7 @@ from code_ctrl import enable_betafeatures
 
 from cal_path import get_sim_path
 
-from scan_ml import scan_ml_build_vector
+from scan_ml import scan_ml
 
 from progress_class import progress_class
 from process_events import process_events
@@ -101,21 +92,15 @@ from win_lin import desktop_open
 import datetime
 
 from dir_decode import get_dir_type
+from css import css_apply
+from gpvdm_viewer import gpvdm_viewer
+from util import wrap_text
+from server import server_get
+
+from scan_tab_ribbon import scan_tab_ribbon
+from scan_program_line import scan_program_line
 
 class scan_vbox(QWidget):
-
-	def rename(self,new_name):
-		self.sim_name=os.path.basename(new_name)
-		self.sim_dir=new_name
-
-		self.status_bar.showMessage(self.sim_dir)
-		self.load()
-		#self.plotted_graphs.init(self.sim_dir,self.callback_last_menu_click)
-
-	def callback_notes(self, widget, data=None):
-		note=notes()
-		note.init(self.sim_dir)
-		note.show()
 
 	def callback_move_down(self):
 		self.tab.move_down()
@@ -169,7 +154,6 @@ class scan_vbox(QWidget):
 #					self.tab.set_value(row,i,lines[i])
 
 	def callback_show_list(self):
-		self.select_param_window=select_param(self.tab)
 		self.select_param_window.set_save_function(self.save_combo)
 		self.select_param_window.show()
 
@@ -180,9 +164,9 @@ class scan_vbox(QWidget):
 
 	def plot_results(self,data_file):
 		data_file.key_units=self.get_units()
-		#print("scanning",self.sim_dir)
-		plot_files, plot_labels, config_file = scan_gen_plot_data(data_file,self.sim_dir)
-		#print(plot_files, plot_labels)
+		#print("scanning",self.scan_io.scan_dir)
+		plot_files, plot_labels, config_file = scan_gen_plot_data(data_file,self.scan_io.scan_dir)
+		#print("rod>>>>",plot_files, plot_labels)
 		plot_gen(plot_files,plot_labels,config_file)
 
 		self.last_plot_data=data_file
@@ -204,85 +188,44 @@ class scan_vbox(QWidget):
 		return ""
 
 	def gen_report(self):
-		scan_gen_report(self.sim_dir)
-
-	def make_sim_dir(self):
-		if os.path.isdir(self.sim_dir)==False:
-			os.makedirs(self.sim_dir)
-
+		scan_gen_report(self.scan_io.scan_dir)
 
 
 	def clean_scan_dir(self):
-		scan_clean_dir(self.sim_dir,parent_window=self)
+		self.scan_io.clean_dir()
 
 	def scan_clean_unconverged(self):
-		scan_clean_unconverged(self,self.sim_dir)
+		scan_clean_unconverged(self,self.scan_io.scan_dir)
 
 	def scan_clean_simulation_output(self):
-		scan_clean_dir(self.sim_dir,parent_window=self)
+		s=scan_io()
+		s.parent_window=self
+		s.set_path(self.scan_io.scan_dir)
+		s.clean_dir()
 
 	def import_from_hpc(self):
-		scan_import_from_hpc(self.sim_dir)
+		scan_import_from_hpc(self.scan_io.scan_dir)
 
 	def scan_tab_ml_build_vector(self):
-		scan_ml_build_vector(self.sim_dir)
+		scan=scan_ml(self.scan_io.scan_dir)
+		scan.build_vector()
 
 	def plot_fits(self):
-		scan_plot_fits(self.sim_dir)
+		scan_plot_fits(self.scan_io.scan_dir)
 
 	def push_to_hpc(self):
-		scan_push_to_hpc(self.sim_dir,False)
+		scan_push_to_hpc(self.scan_io.scan_dir,False)
 
 	def push_unconverged_to_hpc(self):
-		scan_push_to_hpc(self.sim_dir,True)
-
-	def scan_run(self,args=""):
-		commands=tree_load_flat_list(self.sim_dir)
-		if commands==False:
-			error_dlg(self,_("I can't load flat_list.inp.  This usually means there is a problem with how you have set up your scan."))
-			return
-		self.send_commands_to_server(commands,args)
+		scan_push_to_hpc(self.scan_io.scan_dir,True)
 
 	def scan_archive(self):
-		scan_archive(self.sim_dir)
-
-	def simulate(self,run_simulation,generate_simulations,args=""):
-
-		run=True
-
-		if self.tab.rowCount() == 0:
-			error_dlg(self,_("You have not selected any parameters to scan through.  Use the add button."))
-			return
-
-
-		if self.sim_name=="":
-			error_dlg(self,_("No sim dir name"))
-			return
-
-		self.make_sim_dir()
-
-		tree_load_config(self.sim_dir)
-		if generate_simulations==True:
-			build_scan(self.sim_dir,get_sim_path(),parent_window=self)
-
-		if run_simulation==True:
-			self.scan_run(args=args)
-
-		self.save_combo()
-		os.chdir(get_sim_path())
-		gc.collect()
+		scan_archive(self.scan_io.scan_dir)
 
 	def build_scan(self):
-		build_scan(self.sim_dir,get_sim_path())
+		self.scan_io.set_base_dir(get_sim_path())
+		self.scan_io.build_scan()
 
-	def send_commands_to_server(self,commands,args):
-#		self.myserver.init(self.sim_dir)
-
-		for i in range(0, len(commands)):
-			self.myserver.add_job(commands[i],args)
-			#print("Adding job"+commands[i])
-
-		self.myserver.start()
 
 	def callback_plot_results(self, widget, data=None):
 		self.plot_results(self.last_plot_data)
@@ -305,7 +248,7 @@ class scan_vbox(QWidget):
 				self.plotted_graphs.refresh()
 
 	def callback_gen_plot_command(self):
-		dialog=gpvdm_open(self.sim_dir,act_as_browser=False)
+		dialog=gpvdm_open(self.scan_io.scan_dir,act_as_browser=False)
 		ret=dialog.exec_()
 
 		if ret==QDialog.Accepted:
@@ -324,7 +267,7 @@ class scan_vbox(QWidget):
 			file_name=os.path.basename(full_file_name)
 
 			plot_data=dat_file()
-			plot_data.path=self.sim_dir
+			plot_data.path=self.scan_io.scan_dir
 			plot_data.example_file0=full_file_name
 			plot_data.example_file1=full_file_name
 
@@ -348,31 +291,19 @@ class scan_vbox(QWidget):
 
 
 	def save_combo(self):
-		self.make_sim_dir()
-		a = open(os.path.join(self.sim_dir,"gpvdm_gui_config.inp"), "w")
-		a.write(str(self.tab.rowCount())+"\n")
+		self.scan_io.make_dir()
+		self.scan_io.program_list=[]
 
-		#print(self.tab.rowCount())
-		
 		for i in range(0,self.tab.rowCount()):
-			#print(i)
-			a.write(self.tab.get_value(i,0)+"\n")
-			a.write(self.tab.get_value(i,1)+"\n")
-			a.write(self.tab.get_value(i,2)+"\n")
-			a.write(self.tab.get_value(i,3)+"\n")
-			a.write(self.tab.get_value(i,4)+"\n")
-			a.write("notused\n")
-		a.close()
+			item=scan_program_line()
+			item.file=self.tab.get_value(i,0)
+			item.token=self.tab.get_value(i,1)
+			item.human_name=self.tab.get_value(i,2)
+			item.values=self.tab.get_value(i,3)
+			item.opp=self.tab.get_value(i,4)
+			self.scan_io.program_list.append(item)
 
-		if os.path.isfile(os.path.join(self.sim_dir,"scan_config.inp"))==False:
-			a = open(os.path.join(self.sim_dir,"scan_config.inp"), "w")
-			a.write("#scan_config_args\n")
-			a.write("\n")
-			a.write("#scan_config_compress\n")
-			a.write("false\n")
-			a.write("#end\n")
-
-			a.close()
+		self.scan_io.save()
 
 	def tab_changed(self):
 		self.rebuild_op_type_widgets()
@@ -383,6 +314,9 @@ class scan_vbox(QWidget):
 		for i in range(0,self.tab.rowCount()):
 			found=False
 			value=self.tab.get_value(i,4)
+
+			if value == "none":
+				found=True
 
 			if value == "constant":
 				found=True
@@ -448,32 +382,15 @@ class scan_vbox(QWidget):
 		self.tab.setRowCount(0)
 		self.tab.setHorizontalHeaderLabels([_("File"), _("Token"), _("Parameter to change"), _("Values"), _("Opperation")])
 		self.tab.blockSignals(False)
+
+		self.status_bar.showMessage(self.scan_io.scan_dir+"("+os.path.basename(self.scan_io.config_file)+")")
 		
-		file_name=os.path.join(self.sim_dir,'gpvdm_gui_config.inp')
+		self.scan_io.load(self.scan_io.config_file)
+		for i in range(0,len(self.scan_io.program_list)):
+			l=self.scan_io.program_list[i]
+			self.insert_row(i,l.file,l.token,l.human_name,l.values,l.opp)
 
-		if os.path.isfile(file_name)==True:
-			f=open(file_name)
-			config = f.readlines()
-			f.close()
-
-			for ii in range(0, len(config)):
-				config[ii]=config[ii].rstrip()
-
-			pos=0
-			mylen=int(config[0])
-			pos=pos+1
-			
-			#print(config)
-
-			for i in range(0, mylen):
-				self.insert_row(i,config[pos+0],config[pos+1],config[pos+2],config[pos+3],config[pos+4])
-
-				pos=pos+6
-
-
-		
 		self.rebuild_op_type_widgets()
-
 
 
 	def contextMenuEvent(self, event):
@@ -487,6 +404,7 @@ class scan_vbox(QWidget):
 		items.append("constant")
 		items.append("python_code")
 		items.append("random_file_name")
+		items.append("none")
 
 		for i in range(0,self.tab.rowCount()):
 			items.append(str(self.tab.get_value(i,2)))
@@ -513,26 +431,28 @@ class scan_vbox(QWidget):
 
 
 	def callback_run_simulation(self):
-		args=inp_get_token_value(os.path.join(self.sim_dir,"scan_config.inp"),"#scan_config_args")
-		if args==None:
-			args=""
-		args=args+" --mindbustx"
-		self.simulate(True,True,args)
+		if self.tab.rowCount() == 0:
+			error_dlg(self,_("You have not selected any parameters to scan through.  Use the add button."))
+			return
 
+		self.save_combo()
+		self.scan_io.myserver=server_get()
+		self.scan_io.set_base_dir(get_sim_path())
+		self.scan_io.run()
 
 	def callback_examine(self):
 		mycmp=cmp_class()
-		#ret=mycmp.init(self.sim_dir,get_exe_command())
+		#ret=mycmp.init(self.scan_io.scan_dir,get_exe_command())
 		ret=mycmp.init()
 		if ret==False:
 			error_dlg(self,_("Re-run the simulation with 'dump all slices' set to one to use this tool."))
 			return
 
 	def callback_notes(self):
-		notes_path=os.path.join(self.sim_dir,"notes.txt")
+		notes_path=os.path.join(self.scan_io.scan_dir,"notes.txt")
 		if os.path.isfile(notes_path)==False:
 			out = open(notes_path, 'w')
-			out.write("Notes on the simulation: "+os.path.basename(self.sim_dir)+"\n")
+			out.write("Notes on the simulation: "+os.path.basename(self.scan_io.human_name)+"\n")
 			out.write("Date: "+datetime.datetime.today().strftime('%Y-%m-%d')+"\n")
 			out.write("Generated by: "+os.getusername()+"\n")
 			out.write("\n")
@@ -545,21 +465,27 @@ class scan_vbox(QWidget):
 
 		desktop_open(notes_path)
 
-	def __init__(self,myserver,status_bar,scan_root_dir,sim_name):
+	def __init__(self,scan_file):
 		QWidget.__init__(self)
+		self.notebook=QTabWidget()
+		self.setWindowIcon(icon_get("scan"))
+
 		self.main_vbox = QVBoxLayout()
 
+		self.scan_tab_vbox = QVBoxLayout()
+
 		self.tokens=tokens()
-		self.sim_name=sim_name
-		self.myserver=myserver
-		self.status_bar=status_bar
-		self.param_list=scan_items_get_list()
+		self.myserver=server_get()
+		self.status_bar=QStatusBar()
+		self.param_list=get_scan_human_labels().list
 		#self.tab_label=tab_label
 
-		self.sim_dir=os.path.join(scan_root_dir,sim_name)
+		self.scan_io=scan_io()
+		self.scan_io.parent_window=self
+		#self.scan_io.set_path(self.scan_io.scan_dir)
+		self.scan_io.load(scan_file)
+		self.scan_io.make_dir()
 
-
-		
 		toolbar=QToolBar()
 		toolbar.setIconSize(QSize(32, 32))
 
@@ -579,24 +505,18 @@ class scan_vbox(QWidget):
 		self.tb_up.triggered.connect(self.callback_move_up)
 		toolbar.addAction(self.tb_up)
 		
-		#self.tb_notes = QAction(icon_get("go-down.png"), _("Notes"), self)
-		#self.tb_notes.triggered.connect(self.callback_notes)
-		#toolbar.addAction(self.tb_notes)
-
-		#self.tb_notes = QAction(icon_get("select"), _("Select parameter to change"), self)
-		#self.tb_notes.triggered.connect(self.callback_show_list)
-		#toolbar.addAction(self.tb_notes)
-
 		self.tb_command = QAction(icon_get("utilities-terminal"), _("Insert python command"), self)
 		self.tb_command.triggered.connect(self.callback_insert_command)
 		toolbar.addAction(self.tb_command)
 
-		self.main_vbox.addWidget(toolbar)
+		self.scan_tab_vbox.addWidget(toolbar)
 
 		self.tab = gpvdm_tab()
-		#self.tab.resizeColumnsToContents()
 
-		
+		css_apply(self.notebook,"tab_default.css")
+		self.notebook.setMovable(True)
+
+	
 		self.tab.verticalHeader().setVisible(False)
 
 
@@ -613,45 +533,65 @@ class scan_vbox(QWidget):
 
 		self.tab.cellChanged.connect(self.tab_changed)
 
-		self.main_vbox.addWidget(self.tab)
+		self.scan_tab_vbox.addWidget(self.tab)
 
-		self.popMenu = QMenu(self)
+		self.notebook.popMenu = QMenu(self)
 
 		#self.mp_show_list=QAction(_("Select parameter to scan"), self)
 		#self.mp_show_list.triggered.connect(self.callback_show_list)
 		#self.popMenu.addAction(self.mp_show_list)
 
-		self.popMenu.addSeparator()
+		self.notebook.popMenu.addSeparator()
 
 		self.mp_delete=QAction(_("Delete item"), self)
 		self.mp_delete.triggered.connect(self.callback_delete_item)
-		self.popMenu.addAction(self.mp_delete)
+		self.notebook.popMenu.addAction(self.mp_delete)
 
 		self.mp_copy=QAction(_("Copy"), self)
 		self.mp_copy.triggered.connect(self.callback_copy_item)
-		self.popMenu.addAction(self.mp_copy)
+		self.notebook.popMenu.addAction(self.mp_copy)
 
 		self.mp_paste=QAction(_("Paste"), self)
 		self.mp_paste.triggered.connect(self.callback_paste_item)
-		self.popMenu.addAction(self.mp_paste)
+		self.notebook.popMenu.addAction(self.mp_paste)
 
-		self.popMenu.addSeparator()
+		self.notebook.popMenu.addSeparator()
 
 		self.mp_add=QAction(_("Add item"), self)
 		self.mp_add.triggered.connect(self.callback_add_item)
-		self.popMenu.addAction(self.mp_add)
+		self.notebook.popMenu.addAction(self.mp_add)
 
 		self.mp_down=QAction(_("Move down"), self)
 		self.mp_down.triggered.connect(self.callback_move_down)
-		self.popMenu.addAction(self.mp_down)
+		self.notebook.popMenu.addAction(self.mp_down)
 
 		self.mp_down=QAction(_("Move down"), self)
 		self.mp_down.triggered.connect(self.callback_move_down)
-		self.popMenu.addAction(self.mp_down)
+		self.notebook.popMenu.addAction(self.mp_down)
 
-		self.popMenu.addSeparator()
-		self.setMinimumSize(700,500)
+		self.notebook.popMenu.addSeparator()
+		self.notebook.setMinimumSize(700,500)
 		
+		
+		self.program_widget=QWidget()
+		self.program_widget.setLayout(self.scan_tab_vbox)
+		self.notebook.addTab(self.program_widget,"Commands")
+
+		self.viewer=gpvdm_viewer(self.scan_io.scan_dir)
+		self.viewer.show_back_arrow=True
+		self.notebook.addTab(self.viewer,"Output")
+
+		self.ribbon=scan_tab_ribbon()
+		self.ribbon.tb_simulate.triggered.connect(self.callback_run_simulation)
+		self.ribbon.tb_clean.triggered.connect(self.clean_scan_dir)
+		self.ribbon.tb_plot.triggered.connect(self.callback_gen_plot_command)
+		self.ribbon.tb_notes.triggered.connect(self.callback_notes)
+
+		self.main_vbox.addWidget(self.ribbon)
+		self.main_vbox.addWidget(self.notebook)
+
+
+		self.main_vbox.addWidget(self.status_bar)		
 		self.setLayout(self.main_vbox)
-
-
+		self.select_param_window=select_param(self.tab)
+		

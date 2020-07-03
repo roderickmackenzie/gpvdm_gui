@@ -72,6 +72,11 @@ def build_token_lib():
 	lib.append(my_data("light.inp","#light_file_qe_spectra","au",_("QE spectra file"),"e",1.0,"QLineEdit"))
 	lib.append(my_data("","#light_profile","au",_("Profile of light beam"),"s",1.0,"QComboBoxShape"))
 
+	#filter.inp
+	lib.append(my_data("filter.inp","#filter_material","...",_("Optical filter material"),"e",1.0,"gpvdm_select_material" ,units_widget="QPushButton"))
+	lib.append(my_data("filter.inp","#filter_db","0-1000dB",_("dB"),"e",1.0,"QLineEdit"))
+
+
 	#laser?.inp
 	lib.append(my_data("","#laserwavelength","m",_("Laser wavelength"),"e",1.0,"QLineEdit"))
 	lib.append(my_data("","#laser_pulse_width","s",_("Length of pulse"),"e",1.0,"QLineEdit"))
@@ -82,13 +87,24 @@ def build_token_lib():
 
 
 	#dos?.inp
-	lib.append(my_data("","#dostype","Edit",_("DoS distribution"),"s",1.0,"dos_complex_switch",units_widget="QPushButton"))
+	lib.append(my_data("","#dostype","Edit",_("DoS distribution"),"s",1.0,"generic_switch",units_widget="QPushButton",defaults=[[_("Complex"),"complex"],[_("Exponential"),"exponential"]]))
 	lib.append(my_data("","#dos_free_carrier_stats","type",_("Free carrier statistics"),"e",1.0,"QComboBoxLang",defaults=[[("mb_equation"),_("Maxwell Boltzmann - analytic")],["mb_look_up_table_analytic",_("Maxwell Boltzmann - numerical+analytic")],["mb_look_up_table",_("Maxwell Boltzmann - full numerical")],["fd_look_up_table",_("Ferm-Dirac - numerical")]]))
 
 	lib.append(my_data("","#Nc","m^{-3}",_("Effective density of free electron states (@300K)"),"e",1.0,"QLineEdit",min=1e10,max=1e27 ))
 	lib.append(my_data("","#Nv","m^{-3}",_("Effective density of free hole states (@300K)"),"e",1.0,"QLineEdit",min=1e10,max=1e27 ))
-	lib.append(my_data("","#mueffe","m^{2}V^{-1}s^{-1}",_("Electron mobility"),"e",1.0,"QLineEdit",min=1.0,max=1e-1))
-	lib.append(my_data("","#mueffh","m^{2}V^{-1}s^{-1}",_("Hole mobility"),"e",1.0,"QLineEdit",min=1.0,max=1e-14 ))
+
+	lib.append(my_data("","#symmetric_mobility_e","m^{2}V^{-1}s^{-1}",_("Electron mobility"),"e",1.0,"mobility_widget",min=1.0,max=1e-1,defaults=[True]))
+	lib.append(my_data("","#symmetric_mobility_h","m^{2}V^{-1}s^{-1}",_("Hole mobility"),"e",1.0,"mobility_widget",min=1.0,max=1e-14, defaults=[False] ))
+
+	lib.append(my_data("","#mue_z","m^{2}V^{-1}s^{-1}",_("Electron mobility z"),"e",1.0,"mobility_widget",min=1.0,max=1e-1,hidden=True))
+	lib.append(my_data("","#mue_x","m^{2}V^{-1}s^{-1}",_("Electron mobility x"),"e",1.0,"mobility_widget",min=1.0,max=1e-1,hidden=True))
+	lib.append(my_data("","#mue_y","m^{2}V^{-1}s^{-1}",_("Electron mobility y"),"e",1.0,"mobility_widget",min=1.0,max=1e-1,hidden=True))
+
+	lib.append(my_data("","#muh_z","m^{2}V^{-1}s^{-1}",_("Hole mobility z"),"e",1.0,"mobility_widget",min=1.0,max=1e-1,hidden=True))
+	lib.append(my_data("","#muh_x","m^{2}V^{-1}s^{-1}",_("Hole mobility x"),"e",1.0,"mobility_widget",min=1.0,max=1e-1,hidden=True))
+	lib.append(my_data("","#muh_y","m^{2}V^{-1}s^{-1}",_("Hole mobility y"),"e",1.0,"mobility_widget",min=1.0,max=1e-1,hidden=True))
+
+	lib.append(my_data("","#symmetric_mobility_h","m^{2}V^{-1}s^{-1}",_("Hole mobility"),"e",1.0,"mobility_widget",min=1.0,max=1e-14, defaults=[False] ))
 
 	lib.append(my_data("","#ion_density","m^{-3}",_("Perovskite ion density"),"e",1.0,"QLineEdit",min=1e10,max=1e27,hidden=True))
 	#lib.append(my_data("","#ion_mobility","m^{2}V^{-1}s^{-1}",_("Perovskite ion mobility"),"e",1.0,"QLineEdit"))
@@ -108,9 +124,9 @@ def build_token_lib():
 	lib.append(my_data("","#free_to_free_recombination","m^{3}s^{-1}",_("n_{free} to p_{free} Recombination rate constant"),"e",1.0,"QLineEdit",min=1e-27,max=1e-15 ))
 
 	#electrical?.inp
-	lib.append(my_data("","#electrical_component","type",_("Component"),"e",1.0,"QComboBoxLang",defaults=[[("resistance"),_("Resistance")],["diode",_("Ideal diode")],["shunt_diode",_("Diode with shunt resistor")]]))
-	lib.append(my_data("","#electrical_shunt","Ohm m^{-2}",_("Layer shunt resistance"),"e",1.0,"QLineEdit",min=0.1,max=1e20,hide_on_token_eq=[["#electrical_component","resistance"],["#electrical_component","diode"]] ))
-	lib.append(my_data("","#electrical_series","Ohm m^{-2}",_("Layer series resistance"),"e",1.0,"QLineEdit",min=0.1,max=1e20 ))
+	lib.append(my_data("","#electrical_component","type",_("Component"),"e",1.0,"QComboBoxLang",defaults=[[("resistance"),_("Resistance")],["diode",_("Diode")]]))
+	lib.append(my_data("","#electrical_shunt","Ohm  m",_("Shunt resistivity"),"e",1.0,"QLineEdit",min=0.1,max=1e20, hide_on_token_eq=[["#electrical_component","resistance"]] ))
+	lib.append(my_data("","#electrical_series","Ohm m",_("Series resistivity"),"e",1.0,"QLineEdit",min=0.1,max=1e20 ))
 	lib.append(my_data("","#electrical_n","au",_("Layer ideality factor"),"e",1.0,"QLineEdit",min=0.0,max=1.0, hide_on_token_eq=[["#electrical_component","resistance"]] ))
 	lib.append(my_data("","#electrical_J0","A m^{-2}",_("Reverse bias current"),"e",1.0,"QLineEdit",min=0.0,max=1e6, hide_on_token_eq=[["#electrical_component","resistance"]] ))
 
@@ -128,8 +144,10 @@ def build_token_lib():
 
 
 	lib.append(my_data("","#shape_nx","au",_("Number of objects x"),"e",1.0,"QLineEdit"))
+	lib.append(my_data("","#shape_ny","au",_("Number of objects y"),"e",1.0,"QLineEdit"))
 	lib.append(my_data("","#shape_nz","au",_("Number of objects z"),"e",1.0,"QLineEdit"))
 	lib.append(my_data("","#shape_x0","m",_("x offset"),"e",1.0,"QLineEdit"))
+	lib.append(my_data("","#shape_y0","m",_("y offset"),"e",1.0,"QLineEdit"))
 	lib.append(my_data("","#shape_z0","m",_("z offset"),"e",1.0,"QLineEdit"))
 	lib.append(my_data("","#shape_remove_layer",_("True/False"),_("Remove layer"),"e",1.0,"gtkswitch"))
 	lib.append(my_data("","#shape_dos",_("Edit"),_("Electricaly active"),"e",1.0,"shape_dos_switch",units_widget="QPushButton"))
@@ -152,16 +170,17 @@ def build_token_lib():
 	lib.append(my_data("","#stark_sim_contacts","1/0",_("sim_contacts"),"e",1.0,"QLineEdit"))
 
 	#ref
-	lib.append(my_data("","#ref_website","au",_("Website"),"e",1.0,"QLineEdit"))
-	lib.append(my_data("","#ref_research_group","au",_("Research group"),"e",1.0,"QLineEdit"))
-	lib.append(my_data("","#ref_authors","au",_("Authors"),"e",1.0,"QLineEdit"))
+	lib.append(my_data("","#ref_url","au",_("Website"),"e",1.0,"QLineEdit"))
+	lib.append(my_data("","#ref_author","au",_("Author"),"e",1.0,"QLineEdit"))
 	lib.append(my_data("","#ref_jounral","au",_("Journal"),"e",1.0,"QLineEdit"))
 	lib.append(my_data("","#ref_title","au",_("Title"),"e",1.0,"QLineEdit"))
 	lib.append(my_data("","#ref_volume","au",_("Volume"),"e",1.0,"QLineEdit"))
 	lib.append(my_data("","#ref_pages","au",_("Pages"),"e",1.0,"QLineEdit"))
 	lib.append(my_data("","#ref_year","au",_("Year"),"e",1.0,"QLineEdit"))
-	lib.append(my_data("","#ref_md5","au",_("md5 sum"),"e",1.0,"QLineEdit"))
-	lib.append(my_data("","#ref_doi","au",_("DOI"),"e",1.0,"QLineEdit"))
+	lib.append(my_data("","#ref_DOI","au",_("DOI"),"e",1.0,"QLineEdit"))
+	lib.append(my_data("","#ref_booktitle","au",_("Book title"),"e",1.0,"QLineEdit"))
+	lib.append(my_data("","#ref_publisher","au",_("Publisher"),"e",1.0,"QLineEdit"))
+	lib.append(my_data("","#ref_isbn","au",_("ISBN"),"e",1.0,"QLineEdit"))
 	lib.append(my_data("","#ref_unformatted","au",_("Scraped text"),"e",1.0,"QLineEdit"))
 
 	#pulse
@@ -211,6 +230,12 @@ def build_token_lib():
 
 	#sim_info.dat (optics plugin)
 	lib.append(my_data("","#light_photons_in_active_layer","m^{-2}",_("Photos absorbed in active layer"),"e",1.0,"QLineEdit"))
+
+
+	#object_stats.dat (optics plugin)
+	lib.append(my_data("object_stats.dat","#Rp[0-9]","m",_("Peak height Rp"),"e",1.0,"QLineEdit"))
+	lib.append(my_data("object_stats.dat","#Rq[0-9]","m",_("RMS height Rq"),"e",1.0,"QLineEdit"))
+	lib.append(my_data("object_stats.dat","#Ra[0-9]","m",_("Average height Ra"),"e",1.0,"QLineEdit"))
 
 	#cv?.inp
 	lib.append(my_data("","#cv_start_voltage","Volts",_("Start voltage"),"e",1.0,"QLineEdit"))
@@ -399,6 +424,13 @@ def build_token_lib():
 	
 	lib.append(my_data("ray.inp","#ray_emission_source","au",_("Emit from"),"s",1.0,"QComboBoxLang",defaults=[[("ray_emission_electrical_mesh"),_("Each electrical mesh point")],["ray_emission_single_point",_("Center of each layer")]]))
 
+	#viewpoint.inp
+	lib.append(my_data("view_point.inp","#viewpoint_enabled",_("True/False"),_("Enable viewpoint"),"e",1.0,"gtkswitch"))
+	lib.append(my_data("view_point.inp","#viewpoint_size","au",_("View point size"),"e",1.0,"QLineEdit"))
+	lib.append(my_data("view_point.inp","#viewpoint_dz","au",_("View point dz"),"e",1.0,"QLineEdit"))
+	lib.append(my_data("view_point.inp","#viewpoint_nx","au",_("Mesh points x"),"e",1.0,"QLineEdit"))
+	lib.append(my_data("view_point.inp","#viewpoint_nz","au",_("Mesh points z"),"e",1.0,"QLineEdit"))
+
 
 
 	#led.inp
@@ -410,12 +442,15 @@ def build_token_lib():
 	#lib.append(my_data("","#rcharge","m^{-3}",_("Charge on right contact"),"e",1.0,"QLineEdit"))
 
 	#parasitic.inp
-	lib.append(my_data("parasitic.inp","#Rshunt","Ohms",_("Shunt resistance"),"e",1.0,"QLineEdit",min=1e-3,max=1e6))
+	lib.append(my_data("parasitic.inp","#Rshunt","Ohms m^{2}",_("Shunt resistance"),"e",1.0,"QLineEdit",min=1e-3,max=1e6))
 	lib.append(my_data("parasitic.inp","#Rcontact","Ohms",_("Series resistance"),"e",1.0,"QLineEdit",min=1.0,max=200))
 	lib.append(my_data("parasitic.inp","#otherlayers","m",_("Other layers"),"e",1.0,"QLineEdit"))
+	lib.append(my_data("parasitic.inp","#test_param","m",_("debug (ignore)"),"e",1.0,"QLineEdit",hidden=True))
 
 	#mesh?.inp
 	lib.append(my_data("","#remesh_enable","au",_("Automatic remesh"),"e",1.0,"gtkswitch"))
+	#lib.append(my_data("mesh_y.inp","#mesh_layer_points0","s","Mesh points y0","e",1.0,"QLineEdit"))
+	#lib.append(my_data("mesh_y.inp","#mesh_layer_points1","s","Mesh points y1","e",1.0,"QLineEdit"))
 
 	#pl?.inp
 	lib.append(my_data("","#pl_enabled",_("True/False"),_("Turn on luminescence"),"e",1.0,"gtkswitch"))
@@ -434,16 +469,16 @@ def build_token_lib():
 
 	#fxdomain?.inp
 	lib.append(my_data("","#fxdomain_Rload","Ohms",_("Load resistor"),"e",1.0,"QLineEdit"))
-	lib.append(my_data("","#fxdomain_points","au",_("fx domain mesh points"),"e",1.0,"QLineEdit",hide_on_false_token=["#fxdomain_large_signal"]))
-	lib.append(my_data("","#fxdomain_n","au",_("Cycles to simulate"),"e",1.0,"QLineEdit",hide_on_false_token=["#fxdomain_large_signal"]))
-	lib.append(my_data("","#fxdomain_voltage_modulation_max","V",_("Voltage modulation depth"),"e",1.0,"QLineEdit",hide_on_token_eq=[["#fx_modulation_type","optical"]],hide_on_false_token=["#fxdomain_large_signal"]))
+	lib.append(my_data("","#fxdomain_points","au",_("fx domain mesh points"),"e",1.0,"QLineEdit",hide_on_token_eq=[["#fxdomain_large_signal","small_signal"]]))
+	lib.append(my_data("","#fxdomain_n","au",_("Cycles to simulate"),"e",1.0,"QLineEdit",hide_on_token_eq=[["#fxdomain_large_signal","small_signal"]]))
+	lib.append(my_data("","#fxdomain_voltage_modulation_max","V",_("Voltage modulation depth"),"e",1.0,"QLineEdit",hide_on_token_eq=[["#fx_modulation_type","optical"],["#fxdomain_large_signal","small_signal"]]))
 
 	lib.append(my_data("","#fx_modulation_type","au",_("Excite with"),"e",1.0,"QComboBoxLang",defaults=[[("voltage"),_("Voltage")],[("optical"),_("Light")]]))
 	lib.append(my_data("","#fxdomain_measure","au",_("Measure"),"e",1.0,"QComboBoxLang",defaults=[[("measure_voltage"),_("Voltage")],[("measure_current"),_("Current")]]))
-	lib.append(my_data("","#fxdomain_light_modulation_depth","au",_("Light modulation depth"),"e",1.0,"QLineEdit",hide_on_token_eq=[["#fx_modulation_type","voltage"]],hide_on_false_token=["#fxdomain_large_signal"]))
+	lib.append(my_data("","#fxdomain_light_modulation_depth","au",_("Light modulation depth"),"e",1.0,"QLineEdit",hide_on_token_eq=[["#fx_modulation_type","voltage"]]))
 
-	lib.append(my_data("","#fxdomain_do_fit","au",_("Run fit after simulation"),"e",1.0,"gtkswitch",hide_on_false_token=["#fxdomain_large_signal"]))
-	lib.append(my_data("","#periods_to_fit","au",_("Periods to fit"),"e",1.0,"QLineEdit",hide_on_false_token=["#fxdomain_do_fit", "#fxdomain_large_signal"]))
+	lib.append(my_data("","#fxdomain_do_fit","au",_("Run fit after simulation"),"e",1.0,"gtkswitch",hide_on_token_eq=[["#fxdomain_large_signal","small_signal"],["#fxdomain_large_signal","fourier"]]))
+	lib.append(my_data("","#periods_to_fit","au",_("Periods to fit"),"e",1.0,"QLineEdit",hide_on_token_eq=[["#fxdomain_large_signal","small_signal"],["#fxdomain_large_signal","fourier"]]))
 	lib.append(my_data("","#fxdomain_r","",_("Re(i)"),"e",1.0,"QLineEdit"))
 	lib.append(my_data("","#fxdomain_i","V",_("Im(i)"),"e",1.0,"QLineEdit"))
 	lib.append(my_data("","#fxdomain_Jr","Am^{-2}",_("Re(J)"),"e",1.0,"QLineEdit"))
@@ -453,8 +488,7 @@ def build_token_lib():
 	lib.append(my_data("","#fxdomain_delta_g","s",_("dmodulation"),"e",1.0,"QLineEdit"))
 	lib.append(my_data("","#fxdomain_delta_phase","rads",_("dphase"),"e",1.0,"QLineEdit"))
 
-	lib.append(my_data("","#fxdomain_large_signal","au",_("Large signal simulation"),"e",1.0,"gtkswitch"))
-
+	lib.append(my_data("","#fxdomain_large_signal","au",_("Simulation type"),"e",1.0,"QComboBoxLang",defaults=[[("large_signal"),_("Large signal")],[("fourier"),_("Fourier")]]))		#,[("small_signal"),_("Small signal")]
 	#is?.inp
 	lib.append(my_data("","#is_Vexternal","Volts",_("V_{external}"),"e",1.0,"QLineEdit"))
 
@@ -472,7 +506,7 @@ def build_token_lib():
 	lib.append(my_data("","#function_b_\d+","au","b","e",1.0,"QLineEdit"))
 	lib.append(my_data("","#function_c_\d+","au","c","e",1.0,"QLineEdit"))
 
-	#lib.append(my_data("","#Psun","Sun","Intensity of the sun"),"e",1.0,"QLineEdit"))
+	lib.append(my_data("","#Psun","Sun",_("Intensity of the sun"),"e",1.0,"QLineEdit",hidden=True))
 
 	lib.append(my_data("","#saturation_n0","#saturation_n0",_("#saturation_n0"),"e",1.0,"QLineEdit"))
 	lib.append(my_data("","#saturation_rate","#saturation_rate",_("#saturation_rate"),"e",1.0,"QLineEdit"))
@@ -695,12 +729,12 @@ def build_token_lib():
 	lib.append(my_data("fdtd.inp","#fdtd_lambda_points","m",_("Wavelength steps"),"e",1.0,"QLineEdit"))
 
 	#any files
-	lib.append(my_data("","#dump_verbosity","au",_("Ouput verbosity to disk"),"e",1.0,"QComboBoxLang",defaults=[[("dump_verbosity_everything"),_("Write everything to disk")],["dump_verbosity_key_results",_("Key results")]]))
+	lib.append(my_data("","#dump_verbosity","au",_("Ouput verbosity to disk"),"e",1.0,"QComboBoxLang",defaults=[["0",_("Key results")],[("1"),_("Write everything to disk")],[("2"),_("Write everything to disk every 2nd step")],[("5"),_("Write everything to disk every 5th step")],[("10"),_("Write everything to disk every 10th step")]]))
 	lib.append(my_data("","#dump_screen_verbosity", "au", _("Ouput verbosity to screen"),"e",1.0,"QComboBoxLang",defaults=[[("dump_verbosity_everything"),_("Show lots")],["dump_verbosity_key_results",_("Show key results")]]))
 
 	#circuit diagram
-	lib.append(my_data("","#resistance","Ohms",_("Resistance"),"e",1.0,"QLineEdit"))
-	lib.append(my_data("","#capacitance","F",_("Capacitance"),"e",1.0,"QLineEdit"))
+	lib.append(my_data("","#resistance","Ohms",_("Resistor"),"e",1.0,"QLineEdit"))
+	lib.append(my_data("","#capacitance","F",_("Capacitor"),"e",1.0,"QLineEdit"))
 	lib.append(my_data("","#inductance","H",_("Inductance"),"e",1.0,"QLineEdit"))
 	lib.append(my_data("","#J0","Apms m^{-2}",_("J0"),"e",1.0,"QLineEdit"))
 	lib.append(my_data("","#nid","(a.u.)",_("Ideality factor"),"e",1.0,"QLineEdit"))
@@ -708,8 +742,14 @@ def build_token_lib():
 	
 class tokens:
 
+	def __init__(self):
+		global lib
+		if len(lib)==0:
+			build_token_lib()
+
 	def find(self,token):
 		global lib
+
 		search_token=token.strip()
 		if search_token.startswith("#"):
 			search_token=search_token[1:]

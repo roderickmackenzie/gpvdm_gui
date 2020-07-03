@@ -155,7 +155,7 @@ class gpvdm_notebook(QTabWidget):
 			self.addTab(self.tab_main,_("Device structure"))
 
 			mesh=get_mesh()
-			if mesh.y.circuit_model==True or mesh.x.tot_points!=1 or mesh.z.tot_points!=1:
+			if mesh.y.circuit_model==True:# or mesh.x.tot_points!=1 or mesh.z.tot_points!=1:
 				self.display_mesh=display_mesh()
 
 				if mesh.y.circuit_model==True:

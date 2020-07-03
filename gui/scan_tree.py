@@ -31,15 +31,15 @@ import random
 from random import randint
 
 from inp import inp_update_token_value
-from scan_item import scan_items_index_item
-from inp import inp_get_token_value
 from inp import inp_get_token_array
+from inp import inp
+
 from str2bool import str2bool
 from util import get_cache_path
 from cal_path import get_materials_path
-from scan_item import scan_items_get_file
-from scan_item import scan_items_get_token
+from scan_human_labels import get_scan_human_labels
 from clone import gpvdm_clone
+
 #windows
 import codecs
 from util_zip import archive_decompress
@@ -51,6 +51,77 @@ from progress_class import progress_class
 from process_events import process_events
 import math
 from util_zip import zip_lsdir
+
+from scan_program_line import scan_program_line
+
+def random_log(in_start,in_stop):
+	start=math.log10(in_start)
+	stop=math.log10(in_stop)
+
+	r=random.uniform(start, stop)
+
+	val=math.pow(10,r)
+
+	ret="{:.8E}".format(val)
+	return ret
+
+class scan_tree_leaf:
+
+	def __init__(self):
+		self.scan_human_labels=get_scan_human_labels()
+		#self.scan_human_labels.dump()
+		self.directory=None
+		self.program_list=[]
+
+	def duplicate_params(self):
+		
+		for program_line in self.program_list:
+			#print(program_list[i])
+			if program_line.values=="duplicate":
+				#print(">>>",program_line.opp,"<<",program_line.values)
+				f=self.scan_human_labels.get_file_from_human_label(program_line.opp)
+				src_token=self.scan_human_labels.get_token_from_human_label(program_line.opp)
+
+				src_file=os.path.join(self.directory,f)
+	
+				in_file=inp()
+				in_file.load(src_file)
+				src_value=in_file.get_token(src_token)
+
+				inp_update_token_value(os.path.join(self.directory,program_line.file), program_line.token, src_value)
+
+		return True
+
+	def apply_constants(self):
+		for program_line in self.program_list:
+			if program_line.opp=="constant":
+				if program_line.file.endswith("*"):
+					search_file=program_line.file[:-1]
+					file_list=zip_lsdir(os.path.join(self.directory,"sim.gpvdm"))
+					#print(self.directory,file_list)
+					for f in file_list:
+						if f.startswith(search_file)==True:
+							inp_update_token_value(os.path.join(self.directory,f), program_line.token, program_line.values)
+							#print(">>> edited",f)
+				else:
+					inp_update_token_value(os.path.join(self.directory,program_line.file), program_line.token, program_line.values)
+
+		return True
+
+	def apply_python_scripts(self):
+		for program_line in self.program_list:
+			if program_line.opp=="python_code":
+
+				ret=""
+				command=program_line.values
+				ret=eval(command)
+				file_path=os.path.join(self.directory,program_line.file)
+				#print("EXEC=",command,">",ret,"<")
+				error_status=inp_update_token_value(file_path, program_line.token, ret)
+				if error_status==False:
+					return False
+
+		return True
 
 def tree_load_flat_list(sim_dir):
 	config=[]
@@ -102,41 +173,15 @@ def tree_gen_flat_list(dir_to_search,level=0):
 					found_dirs.append(f)
 	return found_dirs
 
-def tree_load_program(sim_dir):
-
-	program_list=[]
-
-	file_name=os.path.join(sim_dir,'gpvdm_gui_config.inp')
-
-	if os.path.isfile(file_name)==True:
-		f=open(file_name)
-		config = f.readlines()
-		f.close()
-
-		for ii in range(0, len(config)):
-			config[ii]=config[ii].rstrip()
-
-		pos=0
-		mylen=int(config[0])
-		pos=pos+1
-
-		for i in range(0, mylen):
-			program_list.append([config[pos],config[pos+1],config[pos+3], config[pos+4]])
-			pos=pos+6
-	return program_list
-
-def tree_load_config(sim_dir):
-	return
-
 
 def build_scan_tree(program_list):
 	tree_items=[[],[],[]]	#file,token,values,opp
-	for i in range(0,len(program_list)):
-		#print(i,program_list[i][0],program_list[i][1],program_list[i][2],program_list[i][3])
-		if program_list[i][3]=="scan":
-			tree_items[0].append(program_list[i][0])
-			tree_items[1].append(program_list[i][1])
-			values=program_list[i][2]
+	for program_line in program_list:
+		#print(i,program_line.file,program_line.token,program_line.values,line.opp)
+		if program_line.opp=="scan":
+			tree_items[0].append(program_line.file)
+			tree_items[1].append(program_line.token)
+			values=program_line.values
 			#This expands a [ start stop step ] command.
 			if len(values)>0:
 				if values[0]=='[' and values[len(values)-1]==']':
@@ -162,11 +207,11 @@ def tree_gen(output_dir,flat_simulation_list,program_list,base_dir):
 	#print("here",program_list)
 	found_scan=False
 	found_random=False
-	for i in range(0,len(program_list)):
-		if program_list[i][3]=="scan":
+	for program_line in program_list:
+		if program_line.opp=="scan":
 			found_scan=True
 
-		if program_list[i][3]=="random_file_name":
+		if program_line.opp=="random_file_name":
 			found_random=True
 
 	if found_scan==True and found_random==True:
@@ -176,68 +221,13 @@ def tree_gen(output_dir,flat_simulation_list,program_list,base_dir):
 		tree_gen_random_files(output_dir,flat_simulation_list,program_list,base_dir)
 		return
 
-	tree_items=build_scan_tree(program_list)			#tree_items[3].append(program_list[i][3])
+	tree_items=build_scan_tree(program_list)			#tree_items[3].append(program_line.opp)
 
 	ret=tree(flat_simulation_list,program_list,tree_items,base_dir,0,output_dir,"","")
 
 	return ret
 
-def tree_apply_duplicate(directory,program_list):
-	for i in range(0, len(program_list)):
-		#print(program_list[i])
-		if program_list[i][2]=="duplicate":
-			print(program_list[i])
-			f=scan_items_get_file(program_list[i][3])
-			t=scan_items_get_token(program_list[i][3])
 
-			print(os.path.join(directory,f), t)
-			src_value=inp_get_token_value(os.path.join(directory,f), t)
-			print(os.path.join(directory,program_list[i][0]), program_list[i][1], src_value)
-			inp_update_token_value(os.path.join(directory,program_list[i][0]), program_list[i][1], src_value)
-			#print("duplicate to",os.path.join(directory,program_list[i][0]), program_list[i][1])
-	return True
-
-def tree_apply_constant(directory,program_list):
-	for i in range(0, len(program_list)):
-		if program_list[i][3]=="constant":
-			if program_list[i][0].endswith("*"):
-				search_file=program_list[i][0][:-1]
-				file_list=zip_lsdir(os.path.join(directory,"sim.gpvdm"))
-				#print(directory,file_list)
-				for f in file_list:
-					if f.startswith(search_file)==True:
-						inp_update_token_value(os.path.join(directory,f), program_list[i][1], program_list[i][2])
-						#print(">>> edited",f)
-			else:
-				inp_update_token_value(os.path.join(directory,program_list[i][0]), program_list[i][1], program_list[i][2])
-
-	return True
-
-def random_log(in_start,in_stop):
-	start=math.log10(in_start)
-	stop=math.log10(in_stop)
-
-	r=random.uniform(start, stop)
-
-	val=math.pow(10,r)
-
-	ret="{:.8E}".format(val)
-	return ret
-
-def tree_apply_python_script(directory,program_list):
-	for i in range(0, len(program_list)):
-		if program_list[i][3]=="python_code":
-
-			ret=""
-			command=program_list[i][2]
-			ret=eval(command)
-			file_path=os.path.join(directory,program_list[i][0])
-			#print("EXEC=",command,">",ret,"<")
-			error_status=inp_update_token_value(file_path, program_list[i][1], ret)
-			if error_status==False:
-				return False
-
-	return True
 
 def copy_simulation(base_dir,cur_dir):
 	gpvdm_clone(cur_dir,src_archive=os.path.join(base_dir, "sim.gpvdm"),dest="file")
@@ -247,15 +237,17 @@ def copy_simulation(base_dir,cur_dir):
 def tree_gen_random_files(sim_path,flat_simulation_list,program_list,base_dir):
 	length=0
 
-	for i in range(0,len(program_list)):
-		if program_list[i][3]=="random_file_name":
-			length=int(program_list[i][2])
+	for program_line in program_list:
+		if program_line.opp=="random_file_name":
+			length=int(program_line.values)
 
 	progress_window=progress_class()
 	progress_window.show()
 	progress_window.start()
 
 	process_events()
+
+	print("length",length)
 
 	for i in range(0,length):
 		rand=codecs.encode(os.urandom(int(16 / 2)), 'hex').decode()
@@ -267,13 +259,20 @@ def tree_gen_random_files(sim_path,flat_simulation_list,program_list,base_dir):
 
 			os.chdir(cur_dir)
 			archive_decompress(os.path.join(cur_dir,"sim.gpvdm"))
-			if tree_apply_constant(cur_dir,program_list)==False:
+
+			t=scan_tree_leaf()
+			t.program_list=program_list
+			t.directory=cur_dir
+			
+			if t.apply_constants()==False:
 				return False
 
-			if tree_apply_python_script(cur_dir,program_list)==False:
+			if t.apply_python_scripts()==False:
 				return False
 
-			tree_apply_duplicate(cur_dir,program_list)
+
+			t.duplicate_params()
+			#tree_apply_duplicate(cur_dir,program_list)
 			
 			archive_compress(os.path.join(cur_dir,"sim.gpvdm"))
 
@@ -319,10 +318,14 @@ def tree(flat_simulation_list,program_list,tree_items,base_dir,level,path,var_to
 			if os.path.isfile(config_file)==False:	#Don't build a simulation over something that exists already
 				copy_simulation(base_dir,cur_dir)
 				os.chdir(cur_dir)
-				if tree_apply_constant(cur_dir,program_list)==False:
+				t=scan_tree_leaf()
+				t.program_list=program_list
+				t.directory=cur_dir
+
+				if t.apply_constants()==False:
 					return False
 
-				if tree_apply_python_script(cur_dir,program_list)==False:
+				if t.apply_python_scripts()==False:
 					return False
 
 				for i in range(0, len(pos)):
@@ -330,7 +333,10 @@ def tree(flat_simulation_list,program_list,tree_items,base_dir,level,path,var_to
 					inp_update_token_value(file_path, tree_items[1][int(pos[i])], new_values[i])
 					#print("updating", file_path, tree_items[1][int(pos[i])], new_values[i])
 
-				tree_apply_duplicate(cur_dir,program_list)
+
+				t.duplicate_params()
+
+				#tree_apply_duplicate(cur_dir,program_list)
 
 				inp_update_token_value(os.path.join(cur_dir,"dump.inp"), "#plot", "0")
 

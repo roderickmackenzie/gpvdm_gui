@@ -7,6 +7,9 @@ htmlsrcdir = $(pkgdatadir)/html
 htmlsrc_DATA = html/*.html
 endif
 
+fontssrcdir = $(pkgdatadir)/fonts
+fontssrc_DATA = fonts/*.ttf
+
 
 if INCLUDE_VIDEO
 videosrcdir = $(pkgdatadir)/video

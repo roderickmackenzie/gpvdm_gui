@@ -68,7 +68,7 @@ from epitaxy import get_epi
 
 from error_dlg import error_dlg
 
-from inp import inp_callback_add_write_hook
+#from inp import inp_callback_add_write_hook
 
 
 
@@ -174,7 +174,7 @@ class layer_widget(QWidgetSavePos):
 
 		self.tab.itemSelectionChanged.connect(self.layer_selection_changed)
 
-		inp_callback_add_write_hook(os.path.join(get_sim_path(),"epitaxy.inp"),self.create_model,"layer_widget")
+		#inp_callback_add_write_hook(os.path.join(get_sim_path(),"epitaxy.inp"),self.create_model,"layer_widget")
 
 	def create_model(self):
 		self.tab.blockSignals(True)
@@ -198,7 +198,7 @@ class layer_widget(QWidgetSavePos):
 		epi=get_epi()
 		i=0
 		for l in epi.layers:
-			self.add_row(i,l.dy,l.mat_file,l.dos_file,l.pl_file,l.name,l.lumo_file,l.homo_file,l.solve_optical_problem,l.solve_thermal_problem)
+			self.add_row(i,l.dy,l.optical_material,l.dos_file,l.pl_file,l.name,l.lumo_file,l.homo_file,l.solve_optical_problem,l.solve_thermal_problem)
 			i=i+1
 
 		self.tab.blockSignals(False)
@@ -273,7 +273,8 @@ class layer_widget(QWidgetSavePos):
 	def callback_material_select(self):
 		epi=get_epi()
 		for i in range(0,self.tab.rowCount()):
-			epi.layers[i].set_mat_file(self.tab.cellWidget(i, 2).text())
+			epi.layers[i].optical_material=self.tab.cellWidget(i, 2).text()
+			epi.layers[i].cal_rgb()
 
 		self.emit_structure_changed()
 		self.save_model()
@@ -304,7 +305,7 @@ class layer_widget(QWidgetSavePos):
 		row=self.tab.insert_row()
 		epi=get_epi()
 		a=epi.add_new_layer(pos=row)
-		self.add_row(row,str(a.dy),a.mat_file,a.dos_file,a.pl_file,a.name,a.lumo_file,a.homo_file,a.solve_optical_problem,a.solve_thermal_problem)
+		self.add_row(row,str(a.dy),a.optical_material,a.dos_file,a.pl_file,a.name,a.lumo_file,a.homo_file,a.solve_optical_problem,a.solve_thermal_problem)
 		epi.update_layer_type(row,self.tab.get_value(row,3).lower())
 		epi.save()
 		#self.emit_change()

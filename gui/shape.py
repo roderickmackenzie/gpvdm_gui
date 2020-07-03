@@ -28,9 +28,7 @@
 import os
 from cal_path import get_sim_path
 from str2bool import str2bool
-from gui_enable import gui_get
-if gui_get()==True:
-	from file_watch import get_watch
+
 
 from cal_path import get_shape_path
 from dat_file import dat_file
@@ -46,8 +44,9 @@ from inp import inp
 
 class shape():
 
-	def __init__(self,callback=None):
-		self.callback=callback
+	def __init__(self):
+
+		self.shape_enabled=True
 		self.type="none"
 		self.triangles=None
 		self.dx=1e-9
@@ -63,17 +62,21 @@ class shape():
 		self.dz_padding=0.0
 
 		self.shape_nx=1
+		self.shape_ny=1
 		self.shape_nz=1
 		self.file_name=None
 		self.shape_dos="none"
-		self.shape_name="none"
+		self.shape_electrical="none"
+		self.name="none"
 		self.shape_x0=0.0
+		self.shape_y0=0.0
 		self.shape_z0=0.0
 		self.shape_remove_layer=False
 
 		self.r=0.8
 		self.g=0.8
 		self.b=0.8
+		self.alpha=1.0
 
 		self.shape_path=""
 
@@ -86,10 +89,13 @@ class shape():
 
 	def do_load(self):
 		f=inp()
-		
+		print(self.file_name+".inp")
 		if f.load(self.file_name+".inp")==False:
 			print("shape file not found: ",self.file_name)
 			return
+
+		self.shape_enabled=str2bool(f.get_token("#shape_enabled"))
+
 		self.type=f.get_token("#shape_type")
 
 
@@ -111,9 +117,11 @@ class shape():
 
 
 			self.shape_nx=int(f.get_token("#shape_nx"))
+			self.shape_ny=int(f.get_token("#shape_ny"))
 			self.shape_nz=int(f.get_token("#shape_nz"))
-			self.shape_name=f.get_token("#shape_name")
+			self.name=f.get_token("#shape_name")
 			self.shape_dos=f.get_token("#shape_dos")
+			self.shape_electrical=f.get_token("#shape_electrical")
 			self.x0=float(f.get_token("#shape_x0"))
 			self.y0=float(f.get_token("#shape_y0"))
 			self.z0=float(f.get_token("#shape_z0"))
@@ -122,18 +130,13 @@ class shape():
 			self.shape_flip_x=str2bool(f.get_token("#shape_flip_x"))
 
 			self.optical_material=f.get_token("#shape_optical_material")
+			self.optical_material.replace("\\", "/")
 
 			#self.y0=0.0
 
 			self.shape_remove_layer=str2bool(f.get_token("#shape_remove_layer"))
 		except:
 			pass
-
-	def on_change(self):
-		self.do_load()
-		#print("oh")
-		if self.callback!=None:
-			self.callback()
 
 	def load_triangles(self):
 		#print("reload")
@@ -159,11 +162,15 @@ class shape():
 
 		self.file_name=file_name
 		self.do_load()
-		if gui_get()==True:
-			get_watch().add_call_back(self.file_name+".inp",self.on_change)
+
 
 	def save(self):
+		if self.file_name==None:
+			return
+
 		lines=[]
+		lines.append("#shape_enabled")
+		lines.append(str(self.shape_enabled))
 		lines.append("#shape_type")
 		lines.append(self.type)
 		lines.append("#shape_dx")
@@ -180,12 +187,16 @@ class shape():
 		lines.append(str(self.dz_padding))
 		lines.append("#shape_nx")
 		lines.append(str(self.shape_nx))
+		lines.append("#shape_ny")
+		lines.append(str(self.shape_ny))
 		lines.append("#shape_nz")
 		lines.append(str(self.shape_nz))
 		lines.append("#shape_name")
-		lines.append(self.shape_name)
+		lines.append(self.name)
 		lines.append("#shape_dos")
 		lines.append(str(self.shape_dos))
+		lines.append("#shape_electrical")
+		lines.append(str(self.shape_electrical))
 		lines.append("#shape_optical_material")
 		lines.append(self.optical_material)
 		lines.append("#shape_x0")
@@ -211,7 +222,7 @@ class shape():
 		i=inp()
 		i.lines=lines
 		i.save_as(os.path.join(get_sim_path(),self.file_name+".inp"))
-		print("save",os.path.join(get_sim_path(),self.file_name+".inp"))
+		#print("save",os.path.join(get_sim_path(),self.file_name+".inp"))
 
 	def dump(self):
 		print(self.file_name,self.type,self.width)

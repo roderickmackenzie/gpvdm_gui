@@ -163,6 +163,11 @@ from gl_graph import gl_graph
 from gl_draw_circuit import gl_draw_circuit
 from gl_draw_light_profile import gl_draw_light_profile
 
+class open_gl_light:
+	def __init__(self):
+		self.xyz=[0, 5, -10, 1.0]
+		self.number=GL_LIGHT0
+
 if open_gl_ok==True:		
 	class glWidget(QGLWidget,shape_layer, gl_lib_ray,gl_objects, gl_text,gl_move_view,gl_mesh,gl_layer_editor,gl_cords,gl_base_widget,gl_main_menu,gl_input, gl_contacts, gl_draw_light_profile, gl_graph, gl_draw_circuit):
 
@@ -172,9 +177,22 @@ if open_gl_ok==True:
 			gl_base_widget.__init__(self)
 			gl_objects.__init__(self)
 			gl_lib_ray.__init__(self)
+			gl_text.__init__(self)
+			self.lit=True
 			self.setAutoBufferSwap(False)
 
-			self.enable_render_text=True
+			self.lights=[]
+
+			l=open_gl_light()
+			l.xyz=[0, 5, -10, 1.0]
+			l.number=GL_LIGHT0
+			self.lights.append(l)
+
+			l=open_gl_light()
+			l.xyz=[0, 5, 10, 1.0]
+			l.number=GL_LIGHT1
+			self.lights.append(l)
+
 			self.failed=True
 			self.graph_path=None
 			self.scene_built=False
@@ -188,7 +206,7 @@ if open_gl_ok==True:
 			self.dy_layer_offset=0.05
 
 			self.draw_electrical_mesh=False
-			self.enable_draw_device=True
+			self.draw_device_cut_through=False
 			self.enable_draw_ray_mesh=False
 			self.enable_draw_light_source=False
 			self.enable_draw_rays=True
@@ -205,6 +223,7 @@ if open_gl_ok==True:
 			self.font.setPointSize(15)
 			self.called=False
 			self.enable_light_profile=True
+			self.build_main_menu()
 
 		def optics(self):
 			width=0.02
@@ -265,10 +284,10 @@ if open_gl_ok==True:
 				y=-1.5
 				up_photons=True
 			else:
-				y=device_top
+				y=device_top+0.5
 
 			dx=scale_get_device_x()
-			dy=scale_get_device_y()
+
 			if self.suns!=0:
 				if self.suns<=0.01:
 					den=dx/5
@@ -281,11 +300,12 @@ if open_gl_ok==True:
 				else:
 					den=dx/25
 
-				x=np.arange(x0, x0+scale_get_device_x() , den)
-				z=np.arange(z0, z0+scale_get_device_z() , den)
+				x=np.arange(x0+den/2.0, x0+scale_get_device_x() , den)
+				z=np.arange(z0+den/2.0, z0+scale_get_device_z() , den)
+
 				for i in range(0,len(x)):
 					for ii in range(0,len(z)):
-						draw_photon(x[i],y+0.1,z[ii],up_photons,color=[0.0, 1.0, 0.0])
+						draw_photon(x[i],y,z[ii],up_photons,color=[0.0, 1.0, 0.0])
 
 			if self.emission==True and self.ray_model==False:
 				den=1.2
@@ -327,8 +347,7 @@ if open_gl_ok==True:
 				display_name=name
 				alpha=obj.alpha
 				if len(obj.shapes)>0:
-					for s in obj.shapes:
-						self.shape_layer(obj,s, y_padding=dy_shrink/2, name=layer_name)
+					self.shape_layer(obj,obj.shapes, y_padding=dy_shrink/2, name=layer_name)
 
 
 		def draw_device(self,x,z):
@@ -360,7 +379,10 @@ if open_gl_ok==True:
 					contact_layer=True
 
 				if name!="air" and contact_layer==False:
+					if self.draw_device_cut_through==False and l!=len(epi.layers)-1 :
 						box(x,y+dy_shrink/2,z,scale_get_device_x(), y_len-dy_shrink,scale_get_device_z(), obj.r,obj.g,obj.b, alpha,name=[layer_name])
+					else:
+						box(x,y+dy_shrink/2,z,scale_get_device_x(), y_len-dy_shrink,scale_get_device_z(), obj.r,obj.g,obj.b, alpha,name=[layer_name],cut_through=True)
 
 				if obj.dos_file.startswith("dos")==True:
 					tab(x+scale_get_device_x(),y,z,y_len-dy_shrink)
@@ -382,6 +404,7 @@ if open_gl_ok==True:
 
 
 		def render(self):
+
 			self.update_real_to_gl_mul()
 
 			x=project_m2screen_x(0)
@@ -439,8 +462,10 @@ if open_gl_ok==True:
 			if self.enable_draw_ray_mesh==True:
 				self.draw_ray_mesh()
 				
-			if self.enable_draw_device==True:
+			if self.view.draw_device==True:
 				self.draw_device(x,z)
+
+			if self.view.optical_mode==True:
 				draw_mode()
 
 			if self.view.render_photons==True:
@@ -459,7 +484,11 @@ if open_gl_ok==True:
 			if self.plot_graph==True:
 				self.draw_graph()
 
+			#for l in self.lights:
+			#	box(l.xyz[0],l.xyz[1],l.xyz[2],0.5,0.5,0.5,1.0,0,0,0.5)
+
 			self.gl_objects_render()
+			#self.text("Hello world!!!! %^&*(")
 
 		def do_draw(self):
 			self.render()
@@ -491,7 +520,6 @@ if open_gl_ok==True:
 			lines=[]
 
 			val=inp_get_token_value(os.path.join(get_sim_path(),"light.inp"), "#Psun")
-			print(">>>>>>>>",get_sim_path())
 			self.dump_energy_slice_xpos=int(inp_get_token_value(os.path.join(get_sim_path(),"dump.inp"), "#dump_energy_slice_xpos"))
 			self.dump_energy_slice_ypos=int(inp_get_token_value(os.path.join(get_sim_path(),"dump.inp"), "#dump_energy_slice_ypos"))
 			self.dump_energy_slice_zpos=int(inp_get_token_value(os.path.join(get_sim_path(),"dump.inp"), "#dump_energy_slice_zpos"))
@@ -516,7 +544,10 @@ if open_gl_ok==True:
 
 		#This will rebuild the scene from scratch
 		def rebuild_scene(self):
+			self.menu_update()
 			self.gl_objects_clear()
+			self.text_clear_lib()
+
 			x=project_m2screen_x(0)
 			z=project_m2screen_z(0)
 
@@ -557,7 +588,7 @@ if open_gl_ok==True:
 			if self.draw_electrical_mesh==True:
 				self.draw_mesh()
 
-			elif self.enable_draw_device==True:
+			elif self.view.draw_device==True:
 				self.draw_device2(x,z)
 				self.draw_contacts()
 
@@ -567,7 +598,7 @@ if open_gl_ok==True:
 			if self.enable_light_profile==True:
 				self.draw_light_profile()
 
-			print("rebuild")
+			#print("rebuild")
 
 
 		def build_scene(self):
@@ -580,6 +611,7 @@ if open_gl_ok==True:
 		def force_redraw(self):
 			self.build_scene()
 			self.do_draw()
+			self.menu_update()
 
 		def resizeEvent(self,event):
 			if self.failed==False:
@@ -596,7 +628,6 @@ if open_gl_ok==True:
 				gluPerspective(45.0,float(self.width()) / float(self.height()+100),0.1, 1000.0) 
 				glMatrixMode(GL_MODELVIEW)
 
-
 		def initializeGL(self):
 			self.load_data()
 			#try:
@@ -605,27 +636,27 @@ if open_gl_ok==True:
 			glEnable(GL_DEPTH_TEST)
 			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 			glEnable(GL_BLEND);
-			#glEnable(GL_PROGRAM_POINT_SIZE_EXT);
 			glShadeModel(GL_SMOOTH)
 
-			#glEnable(GL_COLOR_MATERIAL)
-			#glEnable(GL_CULL_FACE)
-			#glEnable(GL_DEPTH_TEST)
-			#glEnable(GL_LIGHTING)
-			#lightZeroPosition = [3,-3,3,1.0]
-			#lightZeroColor = [1.0,1.0,1.0,1.0] #green tinged
-			#glLightfv(GL_LIGHT0, GL_POSITION, lightZeroPosition)
-			#glLightfv(GL_LIGHT0, GL_DIFFUSE, lightZeroColor)
-			#glLightf(GL_LIGHT0, GL_CONSTANT_ATTENUATION, 0.01)
-			#glLightf(GL_LIGHT0, GL_LINEAR_ATTENUATION, 0.01)
-			#glEnable(GL_LIGHT0)
 
-			#lightZeroColor = [0.7,0.7,0.7,0.7] #green tinged
-			#glLightfv(GL_LIGHT1, GL_POSITION, lightZeroPosition)
-			#glLightfv(GL_LIGHT1, GL_AMBIENT, lightZeroColor)
-			#glLightf(GL_LIGHT1, GL_CONSTANT_ATTENUATION, 0.01)
-			#glLightf(GL_LIGHT1, GL_LINEAR_ATTENUATION, 0.01)
-			#glEnable(GL_LIGHT1)
+
+				#lightZeroPosition = [0, 0, -10, 1.0]
+				#lightZeroColor = [1.0, 1.0, 1.0, 1.0]
+				#glLightfv(GL_LIGHT1, GL_POSITION, lightZeroPosition)
+				#glLightfv(GL_LIGHT1,  GL_DIFFUSE, lightZeroColor)
+				#glLightf(GL_LIGHT1, GL_CONSTANT_ATTENUATION, 0.1)
+				#glLightf(GL_LIGHT1, GL_LINEAR_ATTENUATION, 0.05)
+				#glEnable(GL_LIGHT1)
+
+				#lightZeroPosition = [10, 10, 0, 1.0]
+				#lightZeroColor = [1.0, 1.0, 1.0, 1.0]
+				#glLightfv(GL_LIGHT2, GL_POSITION, lightZeroPosition)
+				#glLightfv(GL_LIGHT2,  GL_DIFFUSE, lightZeroColor)
+				#glLightf(GL_LIGHT2, GL_CONSTANT_ATTENUATION, 0.1)
+				#glLightf(GL_LIGHT2, GL_LINEAR_ATTENUATION, 0.05)
+				#glEnable(GL_LIGHT2)
+
+#GL_DIFFUSE
 
 			#glEnable(GL_FOG);
 			#fogColor = [0.5, 0.5, 0.5, 1.0];
@@ -636,7 +667,7 @@ if open_gl_ok==True:
 			#glHint (GL_FOG_HINT, GL_DONT_CARE);
 			#glFogf (GL_FOG_START, 1.0);
 			#glFogf (GL_FOG_END, 5.0);
-
+			#self.tex = self.read_texture('/home/rod/images/image.jpg')
 			glViewport(0, 0, self.width(), self.height()+100)
 			glMatrixMode(GL_PROJECTION)
 			glLoadIdentity()
@@ -645,6 +676,18 @@ if open_gl_ok==True:
 			glMatrixMode(GL_MODELVIEW)
 			#self.resizeEvent.connect(self.resize)
 		
+			if self.lit==True:
+				for l in self.lights:
+					glEnable(GL_LIGHTING)
+					lightZeroColor = [1.0, 1.0, 1.0, 1.0]
+					print(l.number,GL_LIGHT1)
+					glLightfv(l.number, GL_POSITION, [l.xyz[0],-l.xyz[1],-l.xyz[2] ])
+					glLightfv(l.number, GL_DIFFUSE, lightZeroColor)
+					#glLightfv(l.number, GL_SPOT_DIRECTION, [ 1,1,1]);
+					glLightf(l.number, GL_CONSTANT_ATTENUATION, 0.1)
+					glLightf(l.number, GL_LINEAR_ATTENUATION, 0.05)
+					glEnable(l.number)
+
 			self.failed=False
 			global_object_register("gl_force_redraw",self.force_redraw)
 			get_watch().add_call_back("light.inp",self.force_redraw)

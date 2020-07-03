@@ -147,7 +147,7 @@ class display_widget(QWidget):
 			self.timer=QTimer()
 			self.timer.setSingleShot(True)
 			self.timer.timeout.connect(self.timer_update)
-			self.timer.start(7000)
+			self.timer.start(20000)
 		else:
 			self.add_fallback()
 			

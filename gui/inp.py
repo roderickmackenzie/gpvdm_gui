@@ -57,16 +57,24 @@ except:
 	pass
 
 class inp():
-	def __init__(self):
+
+	def __init__(self,file_path=None):
 		self.lines=[]
 		self.pos=0
+		if file_path!=None:
+			self.set_file_name(file_path)
 
 	def __str__(self):
+		if self.lines==False:
+			return ""
 		ret=""
 		for i in range(0, len(self.lines)):
 			ret=ret+self.lines[i]+"\n"
 
 		return ret
+
+	def lsdir(self):
+		return zip_lsdir(self.zip_file_path)
 
 	def set_file_name(self,file_path,archive="sim.gpvdm",mode="l"):
 		if file_path==None:
@@ -74,15 +82,28 @@ class inp():
 
 		file_name=default_to_sim_path(file_path)
 
-		self.zip_file_path=search_zip_file(file_name,archive)
+		if file_name.endswith(".gpvdm"):		#we are opperating on just the archive
+			self.zip_file_path=file_name
+			self.file_name=None
+			return
+
+		if os.path.dirname(file_path).endswith(".gpvdm"):		#/handles a/b/sim.gpvdm/jv.inp
+			self.zip_file_path=os.path.dirname(file_path)
+		else:
+			self.zip_file_path=search_zip_file(file_name,archive)
 
 		self.file_name=os.path.basename(file_name)
 
 	def load(self,file_path,archive="sim.gpvdm",mode="l"):
 		self.set_file_name(file_path,archive=archive,mode=mode)
 
-		self.lines=read_lines_from_archive(self.zip_file_path,self.file_name,mode=mode)
-		return self.lines
+		if self.file_name!=None:
+			self.lines=read_lines_from_archive(self.zip_file_path,self.file_name,mode=mode)
+
+		if self.lines==False:
+			return False
+
+		return self
 
 	def isfile(self,file_path,archive="sim.gpvdm"):
 		file_name=default_to_sim_path(file_path)
@@ -146,6 +167,28 @@ class inp():
 					self.sections.append(sec)
 					sec=section_object()
 
+
+	def delta_tokens(self,cmp_file):
+		missing_in_cmp=[]
+		for self_line in self.lines:
+			if self_line.startswith("#"):
+				for cmp_line in cmp_file.lines:
+					found=False
+					if self_line==cmp_line:
+						found=True
+						break
+				if found==False:
+					missing_in_cmp.append(self_line)
+
+		return missing_in_cmp
+
+	def import_tokens(self,in_file):
+		for self_line in self.lines:
+			if self_line.startswith("#") and self_line!="#ver" and self_line!="#end":
+				in_data=in_file.get_token(self_line)
+				if in_data!=False:
+					self.replace(self_line,in_data)
+
 	def get_token(self,token):
 		if self.lines==False:
 			return False
@@ -160,6 +203,9 @@ class inp():
 	def reset(self):
 		self.pos=0
 
+	def get_file_name(self):
+		return os.path.join(self.zip_file_path,self.file_name)
+	
 	def get_tokens(self):
 		ret=[]
 		for l in self.lines:
@@ -167,7 +213,26 @@ class inp():
 				ret.append(l)
 		return ret
 
+	def replace_token_name(self,old_token,new_token):
+		if type(self.lines)!=list:
+			return False
+
+		for i in range(0, len(self.lines)):
+			if self.lines[i].startswith(old_token)==True:
+				delta=self.lines[i][len(old_token):]
+				try:
+					int(delta)
+				except:
+					delta=""
+
+				self.lines[i]=new_token+delta
+				#return
+
+
 	#update a token value
+	def set_token(self,token,value):
+		return self.replace(token,value)
+
 	def replace(self,token,replace):
 		if type(replace)==bool:
 			replace=str(replace)
@@ -179,7 +244,7 @@ class inp():
 		if type(replace)==str:
 			for i in range(0, len(self.lines)):
 				if self.lines[i]==token:
-					print(self.lines[i],token,replace)
+					#print(self.lines[i],token,replace)
 					if i+1<len(self.lines):
 						self.lines[i+1]=replace
 						replaced=True
@@ -202,6 +267,15 @@ class inp():
 			self.lines=ret
 
 		return replaced
+
+	def next_sequential_file(self,prefix):
+		files=zip_lsdir(self.zip_file_path)
+		for i in range(0,100):
+			new_name=prefix+str(i)+".inp"
+			if new_name not in files:
+				return new_name
+
+		return False
 
 	def save(self,mode="l",dest="archive"):
 		"""Write save lines to a file"""
@@ -549,19 +623,19 @@ def inp_insert_duplicate(dest_file_path, dest_token, src_file_path, src_token, a
 	lines_dest=[]
 
 	lines_src=inp_load_file(src_file_path,archive=archive)
-	if lines==False:
+	if lines_src==False:
 		return False
 
 	lines_dest=inp_load_file(dest_file_path,archive=archive)
-	if lines==False:
+	if lines_dest==False:
 		return False
 
 	val=inp_get_token_value_from_list(lines_src, src_token)
-	if val==None:
+	if val==None or val==False:
 		return False
 	
 	ret=inp_replace_token_value(lines_dest,dest_token,val)
-	if ret==False:
+	if ret==False or val==False:
 		return False
 
 	#print(lines_dest)	

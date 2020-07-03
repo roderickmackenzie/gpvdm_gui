@@ -33,7 +33,6 @@ from plot_gen import plot_gen
 from icon_lib import icon_get
 import zipfile
 import glob
-from scan_item import scan_item_add
 from tab import tab_class
 import webbrowser
 from progress_class import progress_class
@@ -93,15 +92,15 @@ class class_optical(QWidgetSavePos):
 
 		self.main_vbox=QVBoxLayout()
 
-		self.ribbon.run.start_sim.connect(self.callback_run)
+		self.ribbon.optics.run.start_sim.connect(self.callback_run)
 
-		self.ribbon.fx_box.cb.currentIndexChanged.connect(self.mode_changed)
+		self.ribbon.optics.fx_box.cb.currentIndexChanged.connect(self.mode_changed)
 
-		self.ribbon.help.triggered.connect(self.callback_help)
+		self.ribbon.optics.help.triggered.connect(self.callback_help)
 
 		self.ribbon.tb_save.clicked.connect(self.callback_save)
 
-		self.ribbon.configwindow.triggered.connect(self.callback_configwindow)
+		self.ribbon.optics.configwindow.triggered.connect(self.callback_configwindow)
 
 		self.ribbon.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Minimum)
 

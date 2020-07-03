@@ -27,9 +27,6 @@
 
 import os
 import fnmatch
-from scan_item import scan_items_get_list
-from scan_item import scan_items_get_file
-from scan_item import scan_items_get_token
 
 import i18n
 _ = i18n.language.gettext
@@ -268,20 +265,21 @@ class dump_select(QWidget):
 			path=path.split('/', 1)[-1]
 			#print(path.encode('utf-8'))
 			if path.count("/")!=0:
-				out.append("#file"+str(count))
-				out.append(path)
-				out.append(str(checked))
-				count=count+1
+				if checked==False:
+					out.append("#file"+str(count))
+					out.append(path)
+					out.append(str(checked))
+					count=count+1
 
 			iterator+=1
 
 		out.append("#ver")
 		out.append("1.0")
 		out.append("#end")
-		if len(out)>10:
-			inp_save("dump_file.inp",out)
-		else:
-			print("************Warning fump_file.inp looks too short to me***********")
+		#if len(out)>10:
+		inp_save("dump_file.inp",out)
+		#else:
+		#	print("************Warning dump_file.inp looks too short to me***********")
 
 	def from_file(self):
 		param_list=[]
@@ -348,7 +346,6 @@ class dump_select(QWidget):
 		root = QTreeWidgetItem(self.tab, [_("Output files")])
 		root.setExpanded(True)
 
-		#param_list=scan_items_get_list()
 		i=0
 		for item in range(0, len(param_list)):
 			div_str=param_list[item].replace("\\", "/")

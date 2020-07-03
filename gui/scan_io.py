@@ -29,14 +29,13 @@
 import sys
 import os
 import shutil
+import gc
 
 from util import gpvdm_delete_file
 from inp import inp_get_token_value
 from scan_tree import tree_load_flat_list
 from scan_tree import tree_gen_flat_list
-from util import copy_scan_dir
 
-from scan_tree import tree_load_program
 from scan_tree import tree_gen
 from scan_tree import tree_save_flat_list
 
@@ -49,6 +48,7 @@ from server import server_break
 from numpy import std
 
 from error_dlg import error_dlg
+from scan_tree import scan_tree_leaf
 
 import i18n
 _ = i18n.language.gettext
@@ -57,6 +57,8 @@ from yes_no_cancel_dlg import yes_no_cancel_dlg
 
 import zipfile
 from util_zip import archive_add_dir
+from inp import inp
+from scan_program_line import scan_program_line
 
 def scan_next_archive(sim_dir):
 	i=0
@@ -80,7 +82,7 @@ def scan_archive(sim_dir):
 	for i in range(0,len(l)):
 		dir_to_zip=os.path.join(sim_dir,l[i])
 		if os.path.isdir(dir_to_zip)==True:
-			archive_add_dir(archive_path,dir_to_zip,sim_dir,zf=zf,remove_src_dir=True)
+			archive_add_dir(archive_path,dir_to_zip,sim_dir,zf=zf,remove_src_dir=True,exclude=["gmon.out"])
 
 		progress_window.set_fraction(float(i)/float(len(l)))
 		progress_window.set_text(_("Adding: ")+l[i])
@@ -96,23 +98,7 @@ def scan_archive(sim_dir):
 	progress_window.stop()
 
 
-def build_scan(scan_path,base_path,parent_window=None):
-	#print(">>>>",os.getcwd())
-	scan_clean_dir(scan_path,parent_window=parent_window)
-	#print(">>>>",os.getcwd())
-	flat_simulation_list=[]
-	#print(">>>>",os.getcwd())
-	program_list=tree_load_program(scan_path)
-	#print(">>>>",os.getcwd())
-	path=os.getcwd()
-
-	if tree_gen(scan_path,flat_simulation_list,program_list,base_path)==False:
-		error_dlg(parent_window,_("Problem generating tree."))
-		return False
-	os.chdir(path)
-
-	tree_save_flat_list(scan_path,flat_simulation_list)
-		
+	
 def scan_delete_files(dirs_to_del,parent_window=None):
 	if parent_window!=None:
 		progress_window=progress_class()
@@ -193,30 +179,32 @@ def scan_list_unconverged_simulations(dir_to_search):
 
 	return found_dirs
 
-def scan_ask_to_delete(parent,dirs_to_del,parent_window=None):
+def scan_ask_to_delete(parent,dirs_to_del,parent_window=None,interactive=True):
 	if (len(dirs_to_del)!=0):
 
+		if interactive==True:
+			text_del_dirs=""
+			if len(dirs_to_del)>30:
+				for i in range(0,30,1):
+					text_del_dirs=text_del_dirs+dirs_to_del[i]+"\n"
+				text_del_dirs=text_del_dirs+_("and ")+str(len(dirs_to_del)-30)+_(" more.")
+			else:
+				for i in range(0,len(dirs_to_del)):
+					text_del_dirs=text_del_dirs+dirs_to_del[i]+"\n"
 
-		text_del_dirs=""
-		if len(dirs_to_del)>30:
-			for i in range(0,30,1):
-				text_del_dirs=text_del_dirs+dirs_to_del[i]+"\n"
-			text_del_dirs=text_del_dirs+_("and ")+str(len(dirs_to_del)-30)+_(" more.")
+			text=_("Should I delete these files?:\n")+"\n"+text_del_dirs
+
+			response = yes_no_cancel_dlg(parent,text)
+
+			if response == "yes":
+				scan_delete_files(dirs_to_del,parent_window)
+				return "yes"
+			elif response == "no":
+				return "no"
+			elif response == "cancel":
+				return "cancel"
 		else:
-			for i in range(0,len(dirs_to_del)):
-				text_del_dirs=text_del_dirs+dirs_to_del[i]+"\n"
-
-		text=_("Should I delete these files?:\n")+"\n"+text_del_dirs
-
-		response = yes_no_cancel_dlg(parent,text)
-
-		if response == "yes":
 			scan_delete_files(dirs_to_del,parent_window)
-			return "yes"
-		elif response == "no":
-			return "no"
-		elif response == "cancel":
-			return "cancel"
 
 class report_token():
 	def __init__(self,file_name,token):
@@ -386,16 +374,6 @@ def scan_clean_nested_simulation(root_simulation,nest_simulation):
 
 	#scan_ask_to_delete(parent_window,files_to_delete)
 
-def scan_clean_dir(dir_to_clean,parent_window=None):
-	dirs_to_del=[]
-	listing=os.listdir(dir_to_clean)
-
-	for i in range(0,len(listing)):
-		full_path=os.path.join(dir_to_clean,listing[i])
-		if os.path.isdir(full_path)==True:
-			dirs_to_del.append(full_path)
-
-	scan_ask_to_delete(parent_window,dirs_to_del,parent_window=parent_window)
 
 def scan_clean_unconverged(parent,dir_to_clean):
 		dirs_to_del=[]
@@ -451,21 +429,160 @@ def scan_import_from_hpc(base_dir):
 	else:
 		print("HPC dir not found",hpc_path)
 
-def get_scan_dirs(scan_dirs,sim_dir):
-	ls=os.listdir(sim_dir)
 
-	for i in range(0, len(ls)):
-		dir_name=os.path.join(sim_dir,ls[i])
-		full_name=os.path.join(sim_dir,ls[i],"gpvdm_gui_config.inp")
-		if os.path.isfile(full_name):
-			scan_dirs.append(dir_name)
+class scan_io:
+
+	def __init__(self):
+		self.parent_window=None
+		self.interactive=True
+		self.scan_dir=None
+		self.base_dir=None
+		self.human_name=None
+		self.config_file=None
+		self.program_list=[]
+		self.myserver=None
+
+	def load(self,file_name):
+		self.program_list=[]
+		self.config_file=file_name
+		f=inp()
+		f.load(self.config_file)
+		self.human_name=f.get_token("#scan_name")
+		self.scan_dir=os.path.join(os.path.dirname(self.config_file),self.human_name)
+
+		pos=2
+		mylen=int(f.lines[pos])
+		pos=pos+1
+
+		for i in range(0, mylen):
+			item=scan_program_line()
+			item.file=f.lines[pos]
+			item.token=f.lines[pos+1]
+			item.human_name=f.lines[pos+2]
+			item.values=f.lines[pos+3]
+			item.opp=f.lines[pos+4]
+			self.program_list.append(item)
+			pos=pos+6
+
+		#print(f.lines)
+
+	def save(self):
+		f=inp()
+		f.lines=[]
+		f.lines.append("#scan_name")
+		f.lines.append(self.human_name)
+		#print(self.tab.rowCount())
+		f.lines.append(str(len(self.program_list)))
+		for item in self.program_list:
+			#print(i)
+			f.lines.append(item.file)
+			f.lines.append(item.token)
+			f.lines.append(item.human_name)
+			f.lines.append(item.values)
+			f.lines.append(item.opp)
+			f.lines.append("notused")
+
+		f.save_as(self.config_file)
 
 
-def delete_scan_dirs(path):
-	sim_dirs=[]
-	get_scan_dirs(sim_dirs,path)
+		if os.path.isfile(os.path.join(self.scan_dir,"scan_config.inp"))==False:
+			a = open(os.path.join(self.scan_dir,"scan_config.inp"), "w")
+			a.write("#scan_config_args\n")
+			a.write("\n")
+			a.write("#scan_config_compress\n")
+			a.write("false\n")
+			a.write("#end\n")
 
-	for my_file in sim_dirs:
-		#print("Deleteing ",my_file)
-		shutil.rmtree(my_file)
+			a.close()
+
+	def set_path(self,scan_dir):
+		self.scan_dir=scan_dir
+
+	def set_base_dir(self,base_dir):
+		self.base_dir=base_dir
+
+	def clean_dir(self):
+		dirs_to_del=[]
+		listing=os.listdir(self.scan_dir)
+
+		for i in range(0,len(listing)):
+			full_path=os.path.join(self.scan_dir,listing[i])
+			if os.path.isdir(full_path)==True:
+				dirs_to_del.append(full_path)
+
+		scan_ask_to_delete(self.parent_window,dirs_to_del,parent_window=self.parent_window,interactive=self.interactive)
+
+	def apply_constants_to_dir(self,folder):
+		leaf=scan_tree_leaf()
+		leaf.directory=folder
+		leaf.program_list=self.program_list
+		leaf.apply_constants()
+		leaf.apply_python_scripts()
+
+	def run(self,run_simulation=True,generate_simulations=True,args=""):
+		f=inp()
+		f.load(os.path.join(self.scan_dir,"scan_config.inp"))
+		args=f.get_token("#scan_config_args")
+
+		if args==False:
+			args=""
+
+		args=args+" --mindbustx"
+
+		if self.scan_dir=="":
+			error_dlg(self.parent_window,_("No sim dir name"))
+			return
+
+		self.make_dir()
+
+		if generate_simulations==True:
+			self.build_scan()
+
+		if run_simulation==True:
+			commands=tree_load_flat_list(self.scan_dir)
+			if commands==False:
+				error_dlg(self.parent_window,_("I can't load flat_list.inp.  This usually means there is a problem with how you have set up your scan."))
+				return
+
+			for i in range(0, len(commands)):
+				self.myserver.add_job(commands[i],args)
+				#print("Adding job"+commands[i])
+
+			self.myserver.start()
+
+		gc.collect()
+
+	def build_scan(self):
+		self.clean_dir()
+
+		flat_simulation_list=[]
+
+		path=os.getcwd()
+
+		#print(self.scan_dir,flat_simulation_list,self.program_list,self.base_dir)
+		if tree_gen(self.scan_dir,flat_simulation_list,self.program_list,self.base_dir)==False:
+			error_dlg(self.parent_window,_("Problem generating tree."))
+			return False
+		os.chdir(path)
+
+		tree_save_flat_list(self.scan_dir,flat_simulation_list)
+
+	def make_dir(self):
+		if os.path.isdir(self.scan_dir)==False:
+			os.makedirs(self.scan_dir)
+
+	def rename(self,new_name):
+		new_path=os.path.join(os.path.dirname(self.scan_dir),new_name)
+		f=inp()
+		f.load(self.config_file)
+		f.set_token("#scan_name",new_name)
+		f.save()
+		self.human_name=new_name
+
+		shutil.move(self.scan_dir, new_path)
+		self.scan_dir=new_path
+
+	def clone(self,new_human,new_config_file):
+		self.scan_dir=os.path.join(os.path.dirname(self.scan_dir),new_name)
+		print(self.config_file)
 

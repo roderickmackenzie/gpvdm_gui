@@ -49,38 +49,21 @@ from inp import inp_add_token
 from inp import inp_load_file
 from inp import inp_save_lines_to_file
 from inp import inp_get_token_value_from_list
-from tab import tab_class
+from inp_viewer import inp_viewer
 
 import webbrowser
 
-from ref_io import ref
-from ref_io import load_ref
+from bibtex import bibtex
+
 from QWidgetSavePos import QWidgetSavePos
 
-def get_ref_text(file_name,html=True):
-	r=load_ref(file_name)
-	text=""
-	if r!=None:
-		if html==True:
-			if r.group!="":
-				text="<b>"+_("Data provided by")+":</b>"+r.group+"<br>"
-			text=text+"<b>"+_("Associated paper")+":</b>"+r.author+", "+r.journal+", "+r.volume+", "+r.pages+", "+r.year+"<br>"
-			text=text+"<b>doi link:</b> <a href=\"http://doi.org/"+r.doi+"\"> http://doi.org/"+r.doi+"</a>"
-		else:
-			if r.group!="":
-				text=_("Data provided by")+": "+r.group+" "
-			#text=text+"Associated paper:"+author+", "+journal+", "+volume+", "+pages+", "+year
-
-		return text
-	return None
-
 class ref_window(QWidgetSavePos):
-	def __init__(self,file_name):
+	def __init__(self,bib_file,token):
 		"""Pass this the file name of the file you want referenced."""
 		QWidgetSavePos.__init__(self,"ref_window")
 		resize_window_to_be_sane(self,0.5,0.5)
-		self.file_name=os.path.splitext(file_name)[0]+".ref"
-		self.gen_file()
+		self.bib_file=bib_file
+		self.token=token
 		self.setWindowIcon(icon_get("ref"))
 		self.setWindowTitle(_("Reference manager")+" (https://www.gpvdm.com)")
 
@@ -100,9 +83,10 @@ class ref_window(QWidgetSavePos):
 		self.toolbar.addAction(self.tb_help)
 
 		self.vbox.addWidget(self.toolbar)
-		tab=tab_class(self.file_name)
-		tab.icon_file="ref.png"
-		self.vbox.addWidget(tab)
+		self.tab=inp_viewer()
+		self.tab.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+		self.vbox.addWidget(self.tab)
+
 
 		self.button_widget=QWidget()
 		self.button_hbox=QHBoxLayout()
@@ -112,71 +96,31 @@ class ref_window(QWidgetSavePos):
 		spacer.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
 		self.button_hbox.addWidget(spacer)
 
-
-		self.button_close=QPushButton(_("Close"))
-		self.button_close.clicked.connect(self.callback_close)
+		self.button_close=QPushButton(_("Save"))
+		self.button_close.clicked.connect(self.callback_save)
 		self.button_hbox.addWidget(self.button_close)
 		self.vbox.addWidget(self.button_widget)
 		self.setLayout(self.vbox)
+		self.b=bibtex()
+		self.b.load(self.bib_file)
+		self.item=self.b.get_ref(self.token)
+		if self.item==False:
+			self.item=self.b.new()
+			self.item.token=token
 
-	def callback_close(self):
+		lines=[]
+		for var in self.item.vars:
+			lines.append("#ref_"+var)
+			lines.append(getattr(self.item, var))
+		lines.append("#end")
+		self.tab.populate(lines)
+
+	def callback_save(self):
+		for var in self.item.vars:
+			setattr(self.item,var,self.tab.get_token("#ref_"+var))
+		#print(self.tab.get_token("#ref_author"))
+		self.b.save(self.bib_file)
 		self.close()
-
-	def gen_file(self):
-		make_new=True
-		lines=inp_load_file(self.file_name)
-		if lines!=False:
-			if inp_check_ver(self.file_name, "1.0")==True:
-				make_new=False
-
-		if make_new==True:
-			lines=[]
-			lines.append("#ref_website")
-			lines.append("")
-			lines.append("#ref_research_group")
-			lines.append("")
-			lines.append("#ref_authors")
-			lines.append("")
-			lines.append("#ref_jounral")
-			lines.append("")
-			lines.append("#ref_title")
-			lines.append("")
-			lines.append("#ref_volume")
-			lines.append("")
-			lines.append("#ref_pages")
-			lines.append("")
-			lines.append("#ref_year")
-			lines.append("")
-			lines.append("#ref_md5")
-			lines.append("")
-			lines.append("#ref_doi")
-			lines.append("")
-			lines.append("#ref_unformatted")
-			lines.append("")
-			lines.append("#ver")
-			lines.append("1.0")
-			lines.append("#end")
-
-			inp_save_lines_to_file(self.file_name,lines)
-
-	def load(self):
-		ret=inp_get_token_array(self.file_name, self.token)
-		if ret!=False:									#We have found the file and got the token
-			self.ui.text.setText("\n".join(ret))
-		else:
-			self.ui.text.setText(_("New file"))
-
-			if inp_check_ver(self.file_name, "1.0")==True:	#The file exists but there is no token.
-				lines=[]
-				lines=inp_load_file(self.file_name)
-				lines=inp_add_token(lines,self.token,self.ui.text.toPlainText())
-				print("written to 1",self.file_name)
-				inp_save_lines_to_file(self.file_name,lines)
-			else:											#The file does not exist or there is an error
-				lines=inp_new_file()
-				lines=inp_add_token(lines,self.token,self.ui.text.toPlainText())
-				print("written to 2",self.file_name,lines)
-				inp_save_lines_to_file(self.file_name,lines)
 
 	def callback_help(self):
 		webbrowser.open('http://www.gpvdm.com/man/index.html')

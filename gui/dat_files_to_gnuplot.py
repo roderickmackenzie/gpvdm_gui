@@ -36,6 +36,22 @@ from str2bool import str2bool
 from triangle import triangle
 from inp import inp_save_lines_to_file
 
+def dat_file_to_gnuplot_header(dat_file):
+	ret=[]
+	ret.append("set title '"+dat_file.title+"'")
+	ret.append("set ylabel '"+dat_file.data_label+" ("+dat_file.data_units+")'")
+	ret.append("set xlabel '"+dat_file.y_label+" ("+dat_file.y_units+")'")
+	ret.append("set key top left")
+	ret.append("set colors classic")
+	if dat_file.logdata==True:
+		ret.append("set logscale y")
+		ret.append("set format y \"%2.0t{/Symbol \\264}10^{%L}\"")
+	else:
+		ret.append("#set logscale y")
+		ret.append("#set format y \"%2.0t{/Symbol \\264}10^{%L}\"")
+
+	return ret
+
 def dat_files_to_gnuplot(out_dir,data):
 	os.mkdir(out_dir)
 	data_dir=os.path.join(out_dir,"data")
@@ -50,16 +66,7 @@ def dat_files_to_gnuplot(out_dir,data):
 
 	plotfile=[]
 	plotfile.append("set term postscript eps enhanced color solid \"Helvetica\" 25")
-	plotfile.append("set ylabel '"+data[0].data_label+" ("+data[0].data_units+")'")
-	plotfile.append("set xlabel '"+data[0].y_label+" ("+data[0].y_units+")'")
-	plotfile.append("set key top left")
-	plotfile.append("set colors classic")
-	if data[0].logdata==True:
-		plotfile.append("set logscale y")
-		plotfile.append("set format y \"%2.0t{/Symbol \\264}10^{%L}\"")
-	else:
-		plotfile.append("#set logscale y")
-		plotfile.append("#set format y \"%2.0t{/Symbol \\264}10^{%L}\"")
+	plotfile.extend(dat_file_to_gnuplot_header(data[i]))
 
 	plotfile.append("plot \\")
 
@@ -94,16 +101,7 @@ def dat_files_to_gnuplot_files(out_dir,data):
 	for i in range(0,len(data)):
 		plotfile=[]
 		plotfile.append("set term postscript eps enhanced color solid \"Helvetica\" 25")
-		plotfile.append("set ylabel '"+data[0].data_label+" ("+data[0].data_units+")'")
-		plotfile.append("set xlabel '"+data[0].y_label+" ("+data[0].y_units+")'")
-		plotfile.append("set key top left")
-		plotfile.append("set colors classic")
-		if data[0].logdata==True:
-			plotfile.append("set logscale y")
-			plotfile.append("set format y \"%2.0t{/Symbol \\264}10^{%L}\"")
-		else:
-			plotfile.append("#set logscale y")
-			plotfile.append("#set format y \"%2.0t{/Symbol \\264}10^{%L}\"")
+		plotfile.extend(dat_file_to_gnuplot_header(data[i]))
 
 		d=data[i]
 		d.save_as_txt(os.path.join(data_dir,str(i)+".txt"))

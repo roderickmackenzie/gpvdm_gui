@@ -63,7 +63,8 @@ from inp import inp_update_token_array
 from error_dlg import error_dlg
 from QParasitic import QParasitic
 from inp import  inp_search_token_array
-from dos_complex_switch import dos_complex_switch
+from generic_switch import generic_switch
+from mobility_widget import mobility_widget
 from shape_dos_switch import shape_dos_switch
 
 from QChangeLog import QChangeLog
@@ -72,6 +73,7 @@ from gui_util import widget_get_value
 from gui_util import widget_set_value
 
 from inp import inp
+from bibtex import bibtex
 
 class tab_line():
 	def __init__(self):
@@ -94,6 +96,7 @@ class inp_viewer(QWidget,tab_base):
 		self.widget_list=[]
 		self.file_name=None
 		self.tab=QGridLayout()
+
 		self.setLayout(self.tab)
 		self.f=inp()
 
@@ -104,7 +107,9 @@ class inp_viewer(QWidget,tab_base):
 		pos=0
 		my_token_lib=tokens()
 		widget_number=0
-
+		bib=bibtex()
+		if self.file_name!=None:
+			bib.load(os.path.splitext(self.file_name)[0]+".bib")
 		while (1):
 			token,values=self.f.get_next_token_array()
 			if token=="#ver":
@@ -132,9 +137,8 @@ class inp_viewer(QWidget,tab_base):
 					description=QLabel_click()
 					description.setText(latex_to_html(text_info))
 					if self.file_name!=None:
-						if os.path.isfile(os.path.splitext(self.file_name)[0]+"_"+token[1:]+".ref"):
+						if bib.get_ref(token)!=False:
 							description.setStyleSheet('color: green')
-
 						description.clicked.connect(functools.partial(self.callback_ref,token,description))
 
 					#units widget
@@ -214,18 +218,27 @@ class inp_viewer(QWidget,tab_base):
 						if self.editable==False:
 							edit_box.setReadOnly(True)
 						edit_box.textChanged.connect(functools.partial(self.callback_edit,token,edit_box,unit,result))
-					elif result.widget=="dos_complex_switch":
-						edit_box=dos_complex_switch()
+					elif result.widget=="generic_switch":
+						edit_box=generic_switch(state0=result.defaults[0][0],state1=result.defaults[1][0],state0_value=result.defaults[0][1],state1_value=result.defaults[1][1],)
 						edit_box.setFixedSize(300, 25)
 						if value=="exponential":
 							unit.setEnabled(False)
+						edit_box.changed.connect(functools.partial(self.callback_edit,token,edit_box,unit,result))
+					elif result.widget=="mobility_widget":
+						edit_box=mobility_widget(electrons=result.defaults[0])
+						edit_box.setFixedSize(400, 25)
+						if token=="#symmetric_mobility_e":
+							value = [self.f.get_token(token),self.f.get_token("#mue_z"),self.f.get_token("#mue_x"),self.f.get_token("#mue_y")]
+						else:
+							value = [self.f.get_token(token),self.f.get_token("#muh_z"),self.f.get_token("#muh_x"),self.f.get_token("#muh_y")]
+							
 						edit_box.changed.connect(functools.partial(self.callback_edit,token,edit_box,unit,result))
 					elif result.widget=="shape_dos_switch":
 						edit_box=shape_dos_switch()
 						edit_box.shape_file=self.file_name
 						edit_box.setFixedSize(300, 25)
 						edit_box.changed.connect(functools.partial(self.callback_edit,token,edit_box,unit,result))
-						if str2bool(value)==False:
+						if value=="none":
 							unit.setEnabled(False)
 
 					else:
@@ -264,6 +277,7 @@ class inp_viewer(QWidget,tab_base):
 		if type(widget)==shape_dos_switch:
 
 			dos_file=inp_get_token_value(self.file_name, "#shape_dos")+".inp"
+			from tab import tab_class
 			self.window=tab_class(dos_file)
 			self.window.show()
 
@@ -296,7 +310,7 @@ class inp_viewer(QWidget,tab_base):
 			if w.hide_on_token_eq!=None:			
 				for ww in self.widget_list:
 					for val in w.hide_on_token_eq:
-						print(ww.token,val[0])
+						#print(ww.token,val[0])
 						if ww.token==val[0]:
 							if widget_get_value(ww.edit_box)==val[1]:
 								w.edit_box.setVisible(False)
@@ -321,6 +335,7 @@ class inp_viewer(QWidget,tab_base):
 							w.label.setVisible(False)
 
 	def callback_edit(self,token,widget,unit,token_class):
+		#print("oh")
 		val=widget_get_value(widget)
 		if val!=None:
 			if token_class.data_type=="float":
@@ -328,8 +343,19 @@ class inp_viewer(QWidget,tab_base):
 					float(widget_get_value(widget))
 				except:
 					return
-
-			self.f.replace(token, val)
+			#print(token)
+			if token.startswith("#symmetric_mobility_e")==True:
+				self.f.replace("#symmetric_mobility_e", val[0])
+				self.f.replace("#mue_z", val[1] )
+				self.f.replace("#mue_x", val[2] )
+				self.f.replace("#mue_y", val[3] )
+			elif token.startswith("#symmetric_mobility_h")==True:
+				self.f.replace("#symmetric_mobility_h", val[0])
+				self.f.replace("#muh_z", val[1] )
+				self.f.replace("#muh_x", val[2] )
+				self.f.replace("#muh_y", val[3] )
+			else:
+				self.f.replace(token, val)
 
 			if type(widget)==QLineEdit:
 				a=undo_list_class()
@@ -339,7 +365,7 @@ class inp_viewer(QWidget,tab_base):
 				a=undo_list_class()
 				if self.file_name!=None:
 					a.add([self.file_name, token, val,widget])
-			elif type(widget)==dos_complex_switch:
+			if token=="#dostype":
 				if widget_get_value(widget)=="complex":
 					unit.setEnabled(True)
 				else:
@@ -359,7 +385,7 @@ class inp_viewer(QWidget,tab_base):
 
 	def callback_ref(self,token,widget):
 		from ref import ref_window
-		self.ref_window=ref_window(os.path.splitext(self.file_name)[0]+"_"+token[1:])
+		self.ref_window=ref_window(os.path.splitext(self.file_name)[0]+".bib",token)
 		self.ref_window.show()
 
 	def update_lines(self,lines):
@@ -372,6 +398,7 @@ class inp_viewer(QWidget,tab_base):
 				widget_set_value(values[0])
 
 
-
+	def get_token(self,token):
+		return self.f.get_token(token)
 
 

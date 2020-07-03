@@ -29,14 +29,11 @@ import os
 
 from scan_select import select_param
 from token_lib import tokens
-from scan_item import scan_items_get_list
 
 from scan_io import scan_push_to_hpc
 from scan_io import scan_import_from_hpc
 from cal_path import get_exe_command
 from icon_lib import icon_get
-from scan_item import scan_items_get_file
-from scan_item import scan_items_get_token
 
 from gpvdm_select import gpvdm_select
 
@@ -55,7 +52,8 @@ from PyQt5.QtGui import QPainter,QIcon
 from inp import inp_save_lines_to_file
 from inp import inp_load_file
 
-from scan_item import scan_items_lookup_item
+from scan_human_labels import get_scan_human_labels
+
 from cal_path import get_sim_path
 
 from gpvdm_tab import gpvdm_tab
@@ -196,7 +194,7 @@ class constraints(QWidget):
 				line=lines[pos].split()
 				print(line)
 				if line[0]=="mm":
-					path=scan_items_lookup_item(line[1],line[2])
+					path=self.get_scan_human_labels.get_human_label(line[1],line[2])
 					self.tab_mm.insertRow(self.tab_mm.rowCount())
 					self.insert_row_mm(self.tab_mm.rowCount()-1,line[1],line[2],path,line[3],line[4],line[5],line[6])
 
@@ -221,8 +219,8 @@ class constraints(QWidget):
 				line=lines[pos].split()
 				if line[0]=="math":
 					print(line)
-					path_a=scan_items_lookup_item(line[1],line[2])
-					path_b=scan_items_lookup_item(line[3],line[4])
+					path_a=self.get_scan_human_labels.get_human_label(line[1],line[2])
+					path_b=self.get_scan_human_labels.get_human_label(line[3],line[4])
 					self.insert_row_math(self.tab_math.rowCount(),line[1],line[2],path_a,line[3],line[4],path_b,line[5])
 
 				pos=pos+1
@@ -311,6 +309,8 @@ class constraints(QWidget):
 		self.vbox.addWidget(self.tab_math)
 		
 		self.setLayout(self.vbox)
+
+		self.get_scan_human_labels=get_scan_human_labels()
 
 	def closeEvent(self, event):
 		self.hide()

@@ -26,17 +26,10 @@
 #
 import os
 
-from scan_select import select_param
 from token_lib import tokens
-from scan_item import scan_items_get_list
 
-from scan_io import scan_push_to_hpc
-from scan_io import scan_import_from_hpc
 from cal_path import get_exe_command
 from icon_lib import icon_get
-from scan_item import scan_items_get_file
-from scan_item import scan_items_get_token
-
 from str2bool import str2bool
 
 import i18n
@@ -58,6 +51,7 @@ from gtkswitch import gtkswitch
 from str2bool import str2bool
 
 from gpvdm_tab import gpvdm_tab
+from scan_select import select_param
 
 class fit_vars(QWidget):
 
@@ -123,7 +117,6 @@ class fit_vars(QWidget):
 			self.save_combo()
 
 	def callback_show_list(self):
-		self.select_param_window.update()
 		self.select_param_window.show()
 
 	def callback_delete_item(self):
@@ -268,6 +261,7 @@ class fit_vars(QWidget):
 		self.select_param_window.file_name_tab_pos=1
 		self.select_param_window.token_tab_pos=2
 		self.select_param_window.path_tab_pos=3
+		self.select_param_window.update()
 
 		self.select_param_window.set_save_function(self.save_combo)
 

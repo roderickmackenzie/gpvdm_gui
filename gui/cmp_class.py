@@ -40,7 +40,7 @@ import webbrowser
 
 #qt
 from PyQt5.QtCore import QSize, Qt 
-from PyQt5.QtWidgets import QWidget,QVBoxLayout,QToolBar,QSizePolicy,QAction,QTabWidget,QHBoxLayout,QLabel,QComboBox
+from PyQt5.QtWidgets import QWidget, QStatusBar, QVBoxLayout,QToolBar,QSizePolicy,QAction,QTabWidget,QHBoxLayout,QLabel,QComboBox
 from PyQt5.QtGui import QPainter,QIcon
 
 from snapshot_slider import snapshot_slider
@@ -257,10 +257,15 @@ class cmp_class(QWidgetSavePos):
 
 		self.main_vbox.addWidget(self.plot)
 
+
 		if self.snapshots_widget!=None:
 			self.main_vbox.addWidget(self.snapshots_widget)
 		
 		self.main_vbox.addWidget(self.slider)
+
+		self.status_bar=QStatusBar()
+		self.status_bar.showMessage(self.snapshot_dirs[0])
+		self.main_vbox.addWidget(self.status_bar)
 
 		self.setLayout(self.main_vbox)
 
@@ -268,6 +273,7 @@ class cmp_class(QWidgetSavePos):
 		#	help_window().help_append(["warning.png",_("No electrical slice data has been stored in the snapshots directory.  To turn this on set Simulation->Configure->Dump->Dump 1D Slices to on.  This will dump a lot of data and slow down your simulations.")])
 		
 		#self.light.currentIndexChanged.connect(self.call_back_light_changed)
+
 		self.update()
 
 	def closeEvent(self, event):

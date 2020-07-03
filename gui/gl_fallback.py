@@ -35,7 +35,6 @@ from str2bool import str2bool
 from tab_base import tab_base
 from epitaxy import epitaxy_get_layers
 from epitaxy import epitaxy_get_dy
-from epitaxy import epitaxy_get_mat_file
 from epitaxy import epitaxy_get_dos_file
 from help import my_help_class
 from epitaxy import epitaxy_get_pl_file
@@ -60,6 +59,7 @@ from global_objects import global_object_register
 from inp import inp_search_token_array
 from cal_path import get_sim_path
 from gl_base_widget import gl_base_widget
+from epitaxy import get_epi
 
 class gl_fallback(QWidget,gl_base_widget):
 
@@ -67,7 +67,7 @@ class gl_fallback(QWidget,gl_base_widget):
 		QWidget.__init__(self)
 		gl_base_widget.__init__(self)
 		#self.setMinimumSize(600, 500)
-
+		self.epi=get_epi()
 		global_object_register("gl_force_redraw",self.force_redraw)
 		
 	def paintEvent(self, e):
@@ -99,7 +99,7 @@ class gl_fallback(QWidget,gl_base_widget):
 		l=epitaxy_get_layers()-1
 		lines=[]
 
-		for i in range(0,epitaxy_get_layers()):
+		for i in range(0,self.epi.layers):
 			
 			red=0.0
 			green=0.0
@@ -107,7 +107,7 @@ class gl_fallback(QWidget,gl_base_widget):
 
 			thick=200.0*epitaxy_get_dy(l-i)/tot
 			pos=pos+thick
-			path=os.path.join(get_materials_path(),epitaxy_get_mat_file(l-i),"mat.inp")
+			path=os.path.join(get_materials_path(),self.epi.layers[l-i].shape.optical_material,"mat.inp")
 			lines=inp_load_file(path)
 			if lines!=False:
 				ret=inp_search_token_array(lines, "#red_green_blue")

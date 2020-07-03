@@ -115,7 +115,6 @@ class new_simulation(QDialog):
 				import_archive(device_lib_sim_file,os.path.join(os.getcwd(),"sim.gpvdm"),False)
 
 				disk_speed=disk_test(file_path)
-				print("disk_speed=",file_path,disk_speed)
 
 				inp_update_token_value(os.path.join(file_path,"dump.inp"), "#dump_optics_verbose", "false")
 				inp_update_token_value(os.path.join(file_path,"dump.inp"), "#dump_print_newtonerror", "false")

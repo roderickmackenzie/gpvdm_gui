@@ -134,10 +134,15 @@ class lock():
 		l.append(get_full_language())
 		l.append("#end")
 
-		l.save_as(os.path.join(get_tmp_path(),"reg.txt"))
+		reg_path=os.path.join(get_tmp_path(),"reg.txt")
+		print("write to",reg_path)
+		l.save_as(reg_path)
+		print(">",l.zip_file_path)
+		print(">>",l.file_name)
 
 		command=multiplatform_exe_command(get_exe_command()+" --register")
 		os.system(command)
+		print("done")
 		#l.delete()
 
 		l=inp()

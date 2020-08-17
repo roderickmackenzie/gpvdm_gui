@@ -29,7 +29,6 @@
 import os
 from inp import inp_update_token_value
 from inp import inp_get_token_value
-from plot_gen import plot_gen
 from icon_lib import icon_get
 import zipfile
 import glob

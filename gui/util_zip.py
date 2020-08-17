@@ -29,7 +29,6 @@ import os
 import shutil
 from tempfile import mkstemp
 import zipfile
-from inp_util import inp_merge
 
 from cal_path import subtract_paths
 import time
@@ -37,6 +36,7 @@ import glob
 import hashlib
 from update_file_info import update_file_info
 from libcrypt import libcrypt_decrypt
+from inp_util import inp_merge2
 
 ## Copy a file from one archive to another.
 def archive_copy_file(dest_archive,dest_file_name,src_archive,file_name,dest="archive"):
@@ -555,9 +555,10 @@ def archive_merge_file(dest_archive,src_archive,dest_file_name,src_file_name):
 		print("Warning: ",dest_archive,dest_file_name," no final copy found")
 		return False
 
-	errors=inp_merge(dest_lines,src_lines)
-	if len(errors)!=0:
-		print("File ",dest_file_name,errors)
+	dest_lines=inp_merge2(dest_lines,src_lines)
+
+	#if len(errors)!=0:
+	#	print("File ",dest_file_name,errors)
 
 	write_lines_to_archive(dest_archive,dest_file_name,dest_lines)
 

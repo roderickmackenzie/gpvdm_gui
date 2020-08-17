@@ -116,6 +116,7 @@ class layer_widget(QWidgetSavePos):
 		self.emit_change()
 		global_object_run("dos_update")
 		global_object_run("pl_update")
+		global_object_run("interface_update")
 
 	def on_move_down(self):
 		layer=self.tab.move_down()
@@ -151,7 +152,7 @@ class layer_widget(QWidgetSavePos):
 
 
 		self.tab.tb_add.triggered.connect(self.on_add_item_clicked)
-		self.tab.tb_remove.triggered.connect(self.on_remove_item_clicked)
+		self.tab.user_remove_rows.connect(self.on_remove_item_clicked)
 		self.tab.tb_down.triggered.connect(self.on_move_down)
 		self.tab.tb_up.triggered.connect(self.on_move_up)
 
@@ -167,7 +168,7 @@ class layer_widget(QWidgetSavePos):
 		self.create_model()
 
 		self.tab.cellChanged.connect(self.cell_changed)
-		self.tab.itemSelectionChanged.connect(self.callback_tab_selection_changed)
+		#self.tab.itemSelectionChanged.connect(self.callback_tab_selection_changed)
 		self.main_vbox.addWidget(self.tab)
 
 		self.setLayout(self.main_vbox)
@@ -179,18 +180,19 @@ class layer_widget(QWidgetSavePos):
 	def create_model(self):
 		self.tab.blockSignals(True)
 		self.tab.clear()
-		self.tab.setColumnCount(10)
+		self.tab.setColumnCount(11)
 		#if enable_betafeatures()==False:
 		#	self.tab.setColumnHidden(4, True)
 		#	self.tab.setColumnHidden(5, True)
 
 		self.tab.setSelectionBehavior(QAbstractItemView.SelectRows)
-		self.tab.setHorizontalHeaderLabels([_("Layer name"), _("Thicknes"), _("Optical material"), _("Layer type"), _("DoS\nfile"), _("PL\nfile"), _("LUMO\nfile"), _("HOMO\nfile"), _("Solve optical\nproblem"), _("Solve thermal\nproblem")])
+		self.tab.setHorizontalHeaderLabels([_("Layer name"), _("Thicknes"), _("Optical material"), _("Layer type"), _("DoS\nfile"), _("PL\nfile"), _("LUMO\nfile"), _("HOMO\nfile"), _("Solve optical\nproblem"), _("Solve thermal\nproblem"), _("ID")])
 		self.tab.setColumnWidth(2, 250)
 		self.tab.setColumnWidth(4, 80)
 		self.tab.setColumnWidth(5, 80)
 		self.tab.setColumnWidth(6, 80)
 		self.tab.setColumnWidth(7, 80)
+		self.tab.setColumnWidth(10, 10)
 
 		self.tab.horizontalHeader().setFixedHeight(40)
 		self.tab.setRowCount(epitaxy_get_layers())
@@ -198,12 +200,12 @@ class layer_widget(QWidgetSavePos):
 		epi=get_epi()
 		i=0
 		for l in epi.layers:
-			self.add_row(i,l.dy,l.optical_material,l.dos_file,l.pl_file,l.name,l.lumo_file,l.homo_file,l.solve_optical_problem,l.solve_thermal_problem)
+			self.add_row(i,l.dy,l.optical_material,l.dos_file,l.pl_file,l.name,l.lumo_file,l.homo_file,l.solve_optical_problem,l.solve_thermal_problem,l.id)
 			i=i+1
 
 		self.tab.blockSignals(False)
 
-	def add_row(self,i,thick,material,dos_layer,pl_file,name,lumo_file,homo_file,solve_optical_problem,solve_thermal_problem):
+	def add_row(self,i,thick,material,dos_layer,pl_file,name,lumo_file,homo_file,solve_optical_problem,solve_thermal_problem,id):
 
 		self.tab.blockSignals(True)
 		
@@ -268,6 +270,9 @@ class layer_widget(QWidgetSavePos):
 		combobox.setValue_using_english(str(solve_thermal_problem).lower())
 		combobox.currentIndexChanged.connect(self.callback_model_select)
 
+		item10 = QTableWidgetItem(id)
+		self.tab.setItem(i,10,item10)
+
 		self.tab.blockSignals(False)
 
 	def callback_material_select(self):
@@ -292,20 +297,25 @@ class layer_widget(QWidgetSavePos):
 
 
 	def on_remove_item_clicked(self):
+		ids=[]
+		rows=self.tab.selectionModel().selectedRows()
+
+		for r in rows:
+			ids.append(self.tab.get_value(r.row(), 10))
+
 		items=self.tab.remove()
-		if items!=[]:
-			pos=items[0]
-			epi=get_epi()
-			epi.remove_layer(pos)
-			epi.save()
-			epi.clean_unused_files()
-			#self.emit_change()
+		epi=get_epi()
+		print(ids)
+		epi.remove_by_id(ids)
+		epi.save()
+		epi.clean_unused_files()
+		global_object_run("gl_force_redraw")
 
 	def on_add_item_clicked(self):
 		row=self.tab.insert_row()
 		epi=get_epi()
 		a=epi.add_new_layer(pos=row)
-		self.add_row(row,str(a.dy),a.optical_material,a.dos_file,a.pl_file,a.name,a.lumo_file,a.homo_file,a.solve_optical_problem,a.solve_thermal_problem)
+		self.add_row(row,str(a.dy),a.optical_material,a.dos_file,a.pl_file,a.name,a.lumo_file,a.homo_file,a.solve_optical_problem,a.solve_thermal_problem,a.id)
 		epi.update_layer_type(row,self.tab.get_value(row,3).lower())
 		epi.save()
 		#self.emit_change()

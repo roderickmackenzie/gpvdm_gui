@@ -43,17 +43,14 @@ from math import fabs
 from lines import lines_read
 from util import wavelength_to_rgb
 from util import isnumber
-from gl_scale import project_m2screen_x
-from gl_scale import project_m2screen_y
-from gl_scale import project_m2screen_z
-from gl_scale import project_trianges_m2screen
+from gl_scale import gl_scale
 from gl_scale import scale_trianges_m2screen
 
 from gl_scale import scale_get_device_y
 from gl_scale import scale_get_device_x
 from gl_scale import scale_get_device_z
 
-from gl_list import gl_base_object
+from gl_base_object import gl_base_object
 
 from dat_file import dat_file
 from epitaxy import epitaxy_get_epi
@@ -69,11 +66,16 @@ from triangle import vec
 from mesh import get_mesh
 
 from triangle_io import triangles_flip_in_box
+from triangle_io import triangles_add_vec
+from triangle_io import triangles_flip
 
 class gl_contacts():
 
 	def draw_contacts(self):
+		#print("draw contacts")
 		epi=get_epi()
+		box=vec()
+		pos=vec()
 		y_mesh=get_mesh().y
 		x_mesh=get_mesh().x
 		z_mesh=get_mesh().z
@@ -81,103 +83,113 @@ class gl_contacts():
 		self.gl_objects_remove_regex("contact")
 
 		for c in epi.contacts.contacts:
+			if c.shape_enabled==True:
+				a=gl_base_object()
+				a.id=[c.id]
 
-			if c.position=="left":
-				if len(x_mesh.points)>1:
-					sticking_out_bit=0.2
-					a=gl_base_object()
-					a.id=["contact"]
-					a.type="solid_and_mesh"
-					a.x=project_m2screen_x(0)-sticking_out_bit
-					a.y=project_m2screen_y(c.shape.y0)
-					a.z=project_m2screen_z(0)
-					a.dx=1.0
-					a.dy=scale_get_ymul()*c.shape.dy
-	
-					a.dz=scale_get_device_z()
-					a.r=epi.layers[0].r
-					a.g=epi.layers[0].g
-					a.b=epi.layers[0].b
-					a.alpha=1.0
-					my_vec=vec()
-					my_vec.x=sticking_out_bit/scale_get_xmul()#+c.ingress
-					my_vec.y=c.shape.dy
-					my_vec.z=get_mesh().get_zlen()
+				if c.position=="left":
+					if len(x_mesh.points)>1:
+						sticking_out_bit=0.2
+						a.type="solid_and_mesh"
+						a.xyz.x=gl_scale.project_m2screen_x(0)-sticking_out_bit
+						a.xyz.y=gl_scale.project_m2screen_y(c.y0)
+						a.xyz.z=gl_scale.project_m2screen_z(0)
+						a.dxyz.x=1.0
+						a.dxyz.y=scale_get_ymul()*c.dy
+						a.dxyz.z=scale_get_device_z()
 
-					if c.shape.triangles!=None:
-						a.triangles=scale_trianges_m2screen(triangles_mul_vec(triangles_flip_in_box(c.shape.triangles.data),my_vec))
+						a.r=epi.layers[0].r
+						a.g=epi.layers[0].g
+						a.b=epi.layers[0].b
+						a.alpha=1.0
+						my_vec=vec()
+						my_vec.x=sticking_out_bit/scale_get_xmul()#+c.ingress
+						my_vec.y=c.dy
+						my_vec.z=get_mesh().get_zlen()
 
-						self.gl_objects_add(a)
+						if c.triangles!=None:
+							a.triangles=triangles_flip_in_box(c.triangles.data)
+							a.triangles=triangles_mul_vec(a.triangles,box)
+							a.triangles=triangles_add_vec(a.triangles,pos)
+							a.triangles=scale_trianges_m2screen(a.triangles)
+							self.gl_objects_add(a)
 
-			elif c.position=="top":
-				if epi.layers[0].name!="air":
-					box=vec()
+				elif c.position=="top":
+					if epi.layers[0].name!="air":
+						box=vec()
+						if len(x_mesh.points)==1 and len(z_mesh.points)==1:
+							xstart=0
+							box.x=get_mesh().get_xlen()
+						else:
+							xstart=c.x0
+							box.x=c.dx
+
+						box.y=epi.layers[0].dy#+c.ingress
+						box.z=get_mesh().get_zlen()
+
+						if self.draw_device_cut_through==False:
+							a.type="solid_and_mesh"
+						else:
+							a.type="solid_and_mesh_cut_through"
+
+
+						a.xyz.x=gl_scale.project_m2screen_x(xstart)
+						a.xyz.y=gl_scale.project_m2screen_y(epi.get_layer_start(0))
+						a.xyz.z=gl_scale.project_m2screen_z(0.0)
+
+						a.dxyz.x=box.x*scale_get_xmul()
+						a.dxyz.y=-box.y*scale_get_ymul()
+						a.dxyz.z=scale_get_device_z()
+						a.r=epi.layers[0].r
+						a.g=epi.layers[0].g
+						a.b=epi.layers[0].b
+						a.alpha=1.0
+
+						if c.triangles!=None:
+							a.triangles=triangles_mul_vec(c.triangles.data,box)
+							a.triangles=scale_trianges_m2screen(a.triangles)
+							self.gl_objects_add(a)
+
+				elif c.position=="bottom":
 					if len(x_mesh.points)==1 and len(z_mesh.points)==1:
-						xstart=project_m2screen_x(0)
+
+						xstart=0
 						box.x=get_mesh().get_xlen()
 					else:
-						xstart=project_m2screen_x(c.shape.x0)
-						box.x=c.shape.dx
+						xstart=c.x0
+						box.x=c.dx
 
-					box.y=epi.layers[0].dy#+c.ingress
+					box.y=epi.layers[len(epi.layers)-1].dy#+c.ingress 
 					box.z=get_mesh().get_zlen()
 
-					a=gl_base_object()
-					a.id=["layer:"+epi.layers[0].name,"contact"]
-					if self.draw_device_cut_through==False:
-						a.type="solid_and_mesh"
-					else:
-						a.type="solid_and_mesh_cut_through"
+					a.type="solid_and_mesh"
 
-					a.x=xstart
-					a.y=project_m2screen_y(epi.get_layer_start(0))
-					a.z=project_m2screen_z(0)
-					a.dx=scale_get_xmul()*box.x
-					a.dy=scale_get_ymul()*box.y
-					a.dz=scale_get_device_z()
-					a.r=epi.layers[0].r
-					a.g=epi.layers[0].g
-					a.b=epi.layers[0].b
+					pos.x=xstart
+					pos.y=epi.get_layer_start(len(epi.layers)-1)
+					pos.z=0
+
+					a.xyz.x=gl_scale.project_m2screen_x(pos.x)
+					a.xyz.y=gl_scale.project_m2screen_y(pos.y)
+					a.xyz.z=gl_scale.project_m2screen_z(pos.z)
+
+					a.dxyz.x=box.x*scale_get_xmul()
+					a.dxyz.y=-box.y*scale_get_ymul()
+					a.dxyz.z=scale_get_device_z()
+
+					a.r=epi.layers[len(epi.layers)-1].r
+					a.g=epi.layers[len(epi.layers)-1].g
+					a.b=epi.layers[len(epi.layers)-1].b
+
 					a.alpha=1.0
+					my_vec=vec()
+					my_vec.x=c.dx
+					my_vec.y=epi.layers[len(epi.layers)-1].dy
+					my_vec.z=get_mesh().get_zlen()
 
-					if c.shape.triangles!=None:
-						a.triangles=scale_trianges_m2screen(triangles_mul_vec(triangles_flip_in_box(c.shape.triangles.data),box))
-						self.gl_objects_add(a)
+					a.triangles=triangles_flip_in_box(c.triangles.data)
+					a.triangles=triangles_mul_vec(a.triangles,box)
+					#a.triangles=triangles_add_vec(a.triangles,pos)
+					a.triangles=scale_trianges_m2screen(a.triangles)
 
-			elif c.position=="bottom":
-				box=vec()
-				if len(x_mesh.points)==1 and len(z_mesh.points)==1:
-					xstart=project_m2screen_x(0)
-					box.x=get_mesh().get_xlen()
-				else:
-					xstart=project_m2screen_x(c.shape.x0)
-					box.x=c.shape.dx
-
-				box.y=epi.layers[len(epi.layers)-1].dy#+c.ingress 
-				box.z=get_mesh().get_zlen()
-
-				a=gl_base_object()
-				a.id=["layer:"+epi.layers[len(epi.layers)-1].name,"contact"]
-				a.type="solid_and_mesh"
-				a.x=xstart
-				a.y=project_m2screen_y(epi.get_layer_start(len(epi.layers)-1))
-				a.z=project_m2screen_z(0)
-
-				a.dx=scale_get_xmul()*box.x
-				a.dy=scale_get_ymul()*box.y
-				a.dz=scale_get_device_z()
-
-				a.r=epi.layers[len(epi.layers)-1].r
-				a.g=epi.layers[len(epi.layers)-1].g
-				a.b=epi.layers[len(epi.layers)-1].b
-
-				a.alpha=1.0
-				my_vec=vec()
-				my_vec.x=c.shape.dx
-				my_vec.y=epi.layers[len(epi.layers)-1].dy
-				my_vec.z=get_mesh().get_zlen()
-
-				a.triangles=scale_trianges_m2screen(triangles_mul_vec(triangles_flip_in_box(c.shape.triangles.data),box))
-
-				self.gl_objects_add(a)
+					self.gl_objects_add(a)
 

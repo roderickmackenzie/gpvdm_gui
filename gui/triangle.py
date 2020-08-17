@@ -93,6 +93,11 @@ class vec():
 		a.z=0.0
 		return a
 
+	def cpy(self,data):
+		self.x=data.x
+		self.y=data.y
+		self.z=data.z
+
 
 class triangle():
 	def __init__(self):

@@ -74,6 +74,7 @@ from gui_util import widget_set_value
 
 from inp import inp
 from bibtex import bibtex
+from newton_solver import newton_solver_get_type
 
 class tab_line():
 	def __init__(self):
@@ -88,7 +89,7 @@ class tab_line():
 
 class inp_viewer(QWidget,tab_base):
 
-	changed = pyqtSignal()
+	changed = pyqtSignal(str)
 
 	def __init__(self):
 		QWidget.__init__(self)
@@ -229,9 +230,11 @@ class inp_viewer(QWidget,tab_base):
 						edit_box.setFixedSize(400, 25)
 						if token=="#symmetric_mobility_e":
 							value = [self.f.get_token(token),self.f.get_token("#mue_z"),self.f.get_token("#mue_x"),self.f.get_token("#mue_y")]
-						else:
+						if token=="#symmetric_mobility_h":
 							value = [self.f.get_token(token),self.f.get_token("#muh_z"),self.f.get_token("#muh_x"),self.f.get_token("#muh_y")]
-							
+						if token=="#electrical_symmetrical_resistance":
+							value = [self.f.get_token(token),self.f.get_token("#electrical_series_z"),self.f.get_token("#electrical_series_x"),self.f.get_token("#electrical_series_y")]
+
 						edit_box.changed.connect(functools.partial(self.callback_edit,token,edit_box,unit,result))
 					elif result.widget=="shape_dos_switch":
 						edit_box=shape_dos_switch()
@@ -275,10 +278,16 @@ class inp_viewer(QWidget,tab_base):
 
 	def callback_unit_click(self,token,widget,unit):
 		if type(widget)==shape_dos_switch:
+			f=inp()
+			f.load(self.file_name)
+			if newton_solver_get_type()=="newton_simple":
+				electrical_file=f.get_token("#shape_electrical")+".inp"
+			else:
+				electrical_file=f.get_token("#shape_dos")+".inp"
 
-			dos_file=inp_get_token_value(self.file_name, "#shape_dos")+".inp"
 			from tab import tab_class
-			self.window=tab_class(dos_file)
+			self.window=tab_class(electrical_file)
+			self.window.setWindowTitle(_("Electrical parameter editor for shape")+" "+f.get_token("#shape_name")+" (https://www.gpvdm.com)") 
 			self.window.show()
 
 		if type(widget)==gpvdm_select_material:
@@ -354,6 +363,11 @@ class inp_viewer(QWidget,tab_base):
 				self.f.replace("#muh_z", val[1] )
 				self.f.replace("#muh_x", val[2] )
 				self.f.replace("#muh_y", val[3] )
+			elif token.startswith("#electrical_symmetrical_resistance")==True:
+				self.f.replace("#electrical_symmetrical_resistance", val[0])
+				self.f.replace("#electrical_series_z", val[1] )
+				self.f.replace("#electrical_series_x", val[2] )
+				self.f.replace("#electrical_series_y", val[3] )
 			else:
 				self.f.replace(token, val)
 
@@ -378,7 +392,7 @@ class inp_viewer(QWidget,tab_base):
 
 
 			self.hide_show_widgets()
-			self.changed.emit()
+			self.changed.emit(token)
 
 	def set_edit(self,editable):
 		self.editable=editable

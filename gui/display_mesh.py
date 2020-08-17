@@ -81,7 +81,7 @@ class display_mesh(QWidget):
 
 			for l in epi.layers:
 				f=inp()
-				f.load(os.path.join(get_sim_path(),l.electrical_file+".inp"))
+				f.load(os.path.join(get_sim_path(),l.shape_electrical+".inp"))
 				component=f.get_token("#electrical_component")
 				if component=="resistance":
 					self.display.ersatzschaltbild.add_object(pos,3,pos+1,3,"resistor")

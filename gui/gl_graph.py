@@ -38,11 +38,8 @@ try:
 	from OpenGL.GLU import *
 	from PyQt5 import QtOpenGL
 	from PyQt5.QtOpenGL import QGLWidget
-	from gl_color import set_color
 	from gl_lib import val_to_rgb
-	from gl_scale import project_m2screen_x
-	from gl_scale import project_m2screen_y
-	from gl_scale import project_m2screen_z
+	from gl_scale import gl_scale
 	from gl_list import gl_base_object
 	from gl_scale import scale_get_xmul
 	from gl_scale import scale_get_ymul
@@ -53,37 +50,7 @@ except:
 
 
 
-def draw_mode():
-	glLineWidth(5)
-	set_color(1.0, 1.0, 1.0,"mode")
-
-	t=[]
-	s=[]
-
-	data=dat_file()
-	
-	path=os.path.join(get_sim_path(),"optical_output","light_1d_photons_tot_norm.dat")
-
-	if data.load(path)==True:
-		glBegin(GL_LINES)
-		array_len=data.y_len
-		s=data.data[0][0]
-		#print(path)
-		#print(data.data)
-		for i in range(1,array_len):
-			x=project_m2screen_x(0)
-			y=project_m2screen_y(data.y_scale[i-1])
-			z=project_m2screen_z(0)-s[i-1]*0.5
-			glVertex3f(x, y, z)
-
-			y=project_m2screen_y(data.y_scale[i])
-			z=project_m2screen_z(0)-s[i]*0.5
-			glVertex3f(x, y, z)
-
-		glEnd()
-
-
-class gl_graph():
+class gl_graph:
 
 	def draw_graph(self):
 		z=0
@@ -109,21 +76,23 @@ class gl_graph():
 		for zi in zi_list:
 			for xi in range(0,len(self.graph_data.x_scale)):
 				for yi in range(0,len(self.graph_data.y_scale)):
-					x0=project_m2screen_x(self.graph_data.x_scale[xi])
-					y0=project_m2screen_y(self.graph_data.y_scale[yi])
-					z0=project_m2screen_z(self.graph_data.z_scale[zi])
-					x1=project_m2screen_x(self.graph_data.x_scale[xi]+dx)
-					y1=project_m2screen_y(self.graph_data.y_scale[yi]+dy)
-					z1=project_m2screen_z(self.graph_data.z_scale[zi])
+					x0=gl_scale.project_m2screen_x(self.graph_data.x_scale[xi])
+					y0=gl_scale.project_m2screen_y(self.graph_data.y_scale[yi])
+					z0=gl_scale.project_m2screen_z(self.graph_data.z_scale[zi])
+					x1=gl_scale.project_m2screen_x(self.graph_data.x_scale[xi]+dx)
+					y1=gl_scale.project_m2screen_y(self.graph_data.y_scale[yi]+dy)
+					z1=gl_scale.project_m2screen_z(self.graph_data.z_scale[zi])
+					if self.graph_data.data[zi][xi][yi]!=0.0:
+						r,g,b=val_to_rgb(self.graph_data.data[zi][xi][yi]/(my_max-my_min))
 
-					r,g,b=val_to_rgb(self.graph_data.data[zi][xi][yi]/(my_max-my_min))
+						#glColor4f(r,g,b, 1.0)
+						col = [r, g, b, 1.0]
+						glMaterialfv(GL_FRONT, GL_DIFFUSE, col)
 
-					glColor4f(r,g,b, 1.0)
-
-					glVertex3f(x0, y0, z0)
-					glVertex3f(x1, y0, z0)
-					glVertex3f(x1, y1, z0)
-					glVertex3f(x0, y1, z0) 
+						glVertex3f(x0, y0, z0)
+						glVertex3f(x1, y0, z0)
+						glVertex3f(x1, y1, z0)
+						glVertex3f(x0, y1, z0) 
 
 		if len(self.graph_data.z_scale)==1:
 			glEnd()
@@ -133,15 +102,17 @@ class gl_graph():
 		for xi in [0, len(self.graph_data.x_scale)-1]:
 			for zi in range(0,len(self.graph_data.z_scale)):
 				for yi in range(0,len(self.graph_data.y_scale)):
-					x0=project_m2screen_x(self.graph_data.x_scale[xi])
-					y0=project_m2screen_y(self.graph_data.y_scale[yi])
-					z0=project_m2screen_z(self.graph_data.z_scale[zi])
-					x1=project_m2screen_x(self.graph_data.x_scale[xi])
-					y1=project_m2screen_y(self.graph_data.y_scale[yi]+dy)
-					z1=project_m2screen_z(self.graph_data.z_scale[zi]+dz)
+					x0=gl_scale.project_m2screen_x(self.graph_data.x_scale[xi])
+					y0=gl_scale.project_m2screen_y(self.graph_data.y_scale[yi])
+					z0=gl_scale.project_m2screen_z(self.graph_data.z_scale[zi])
+					x1=gl_scale.project_m2screen_x(self.graph_data.x_scale[xi])
+					y1=gl_scale.project_m2screen_y(self.graph_data.y_scale[yi]+dy)
+					z1=gl_scale.project_m2screen_z(self.graph_data.z_scale[zi]+dz)
 					r,g,b=val_to_rgb(self.graph_data.data[zi][xi][yi]/(my_max-my_min))
 
-					glColor4f(r,g,b, 1.0)
+					#glColor4f(r,g,b, 1.0)
+					col = [r, g, b, 1.0]
+					glMaterialfv(GL_FRONT, GL_DIFFUSE, col)
 
 					glVertex3f(x0, y0, z0)
 					glVertex3f(x0, y1, z0)
@@ -153,16 +124,18 @@ class gl_graph():
 		for yi in [0,len(self.graph_data.y_scale)-1]:
 			for zi in range(0,len(self.graph_data.z_scale)):
 				for xi in range(0,len(self.graph_data.x_scale)):
-					x0=project_m2screen_x(self.graph_data.x_scale[xi])
-					y0=project_m2screen_y(self.graph_data.y_scale[yi])
-					z0=project_m2screen_z(self.graph_data.z_scale[zi])
-					x1=project_m2screen_x(self.graph_data.x_scale[xi]+dx)
-					y1=project_m2screen_y(self.graph_data.y_scale[yi])
-					z1=project_m2screen_z(self.graph_data.z_scale[zi]+dz)
+					x0=gl_scale.project_m2screen_x(self.graph_data.x_scale[xi])
+					y0=gl_scale.project_m2screen_y(self.graph_data.y_scale[yi])
+					z0=gl_scale.project_m2screen_z(self.graph_data.z_scale[zi])
+					x1=gl_scale.project_m2screen_x(self.graph_data.x_scale[xi]+dx)
+					y1=gl_scale.project_m2screen_y(self.graph_data.y_scale[yi])
+					z1=gl_scale.project_m2screen_z(self.graph_data.z_scale[zi]+dz)
 
 					r,g,b=val_to_rgb((self.graph_data.data[zi][xi][yi]-my_min)/(my_max-my_min))
 
-					glColor4f(r,g,b, 1.0)
+					#glColor4f(r,g,b, 1.0)
+					col = [r, g, b, 1.0]
+					glMaterialfv(GL_FRONT, GL_DIFFUSE, col)
 
 					glVertex3f(x0, y0, z0)
 					glVertex3f(x1, y0, z0)
@@ -170,4 +143,38 @@ class gl_graph():
 					glVertex3f(x0, y0, z1)
 
 		glEnd()
+
+
+
+	def draw_mode(self):
+		if self.false_color==True:
+			return
+
+		glLineWidth(5)
+		glColor3f(1.0, 1.0, 1.0)
+
+		t=[]
+		s=[]
+
+		data=dat_file()
+		
+		path=os.path.join(get_sim_path(),"optical_output","light_1d_photons_tot_norm.dat")
+
+		if data.load(path)==True:
+			glBegin(GL_LINES)
+			array_len=data.y_len
+			s=data.data[0][0]
+			#print(path)
+			#print(data.data)
+			for i in range(1,array_len):
+				x=gl_scale.project_m2screen_x(0)
+				y=gl_scale.project_m2screen_y(data.y_scale[i-1])
+				z=gl_scale.project_m2screen_z(0)-s[i-1]*0.5
+				glVertex3f(x, y, z)
+
+				y=gl_scale.project_m2screen_y(data.y_scale[i])
+				z=gl_scale.project_m2screen_z(0)-s[i]*0.5
+				glVertex3f(x, y, z)
+
+			glEnd()
 

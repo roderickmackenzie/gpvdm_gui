@@ -30,20 +30,16 @@ open_gl_ok=False
 
 import sys
 from math import fabs
-
+from PyQt5.QtWidgets import QApplication
+from PyQt5.QtGui import QCursor
 try:
 	from OpenGL.GL import *
 	from OpenGL.GLU import *
 	from PyQt5 import QtOpenGL
 	from PyQt5.QtOpenGL import QGLWidget
-	from gl_color import set_color
 	from gl_lib import val_to_rgb
-	from gl_color import set_false_color
 	from gl_color import color
-	from gl_color import search_color
-	from gl_scale import project_m2screen_x
-	from gl_scale import project_m2screen_y
-	from gl_scale import project_m2screen_z
+	from gl_lim import gl_obj_id_starts_with
 
 except:
 	pass
@@ -56,7 +52,6 @@ import time
 
 from epitaxy import get_epi
 from gl_lib import gl_obj_id_starts_with
-from gl_lib import gl_obj_id_extract_starts_with
 
 class mouse_event():
 	def __init__(self):
@@ -68,6 +63,9 @@ class mouse_event():
 		return time.time()-self.time
 
 class gl_input():
+
+	def __init__(self):
+		self.cursor=None
 
 	def keyPressEvent(self, event):
 		if type(event) == QtGui.QKeyEvent:
@@ -95,7 +93,7 @@ class gl_input():
 	def event_to_3d_obj(self,event):
 		x = event.x()
 		y = self.height()-event.y()
-		set_false_color(True)
+		self.set_false_color(True)
 
 		old_val=self.view.text
 		self.view.text=False
@@ -104,20 +102,26 @@ class gl_input():
 
 		data=glReadPixelsub(x, y, 1, 1, GL_RGBA,GL_FLOAT)
 
-		#self.swapBuffers()
-		c=color(int(255*data[0][0][0]),int(255*data[0][0][1]),int(255*data[0][0][2]))
-		obj=search_color(c)
+		obj=self.gl_objects_search_by_color(data[0][0][0],data[0][0][1],data[0][0][2])
 
-		set_false_color(False)
+		self.set_false_color(False)
 		return obj
 
 	def mouseDoubleClickEvent(self,event):
 		#thumb_nail_gen()
 		self.obj=self.event_to_3d_obj(event)
-		if gl_obj_id_starts_with(self.obj,"layer")==True:
-			self.selected_layer=gl_obj_id_extract_starts_with(self.obj,"layer")
+		if gl_obj_id_starts_with(self.obj.id,"layer")==True:
+			self.selected_obj=self.obj
 			self.do_draw()
 
+	def set_cursor(self,cursor):
+		if self.cursor!=cursor:
+			if cursor==None:
+				QApplication.restoreOverrideCursor()
+			else:
+				QApplication.setOverrideCursor(cursor)
+			self.cursor=cursor
+		
 	def mouseMoveEvent(self,event):
 		if 	self.timer!=None:
 			self.timer.stop()
@@ -127,21 +131,19 @@ class gl_input():
 			self.lastPos=event.pos()
 		dx = event.x() - self.lastPos.x();
 		dy = event.y() - self.lastPos.y();
-		sel=self.gl_objects_is_selected()
-		if sel==False:
+		obj=self.gl_objects_is_selected()
+		if obj==False:
 			if event.buttons()==Qt.LeftButton:
 				
 				self.view.xRot =self.view.xRot - 1 * dy
 				self.view.yRot =self.view.yRot - 1 * dx
 
 			if event.buttons()==Qt.RightButton:
+				self.set_cursor(QCursor(Qt.SizeAllCursor))
 				self.view.x_pos =self.view.x_pos + 0.1 * dx
 				self.view.y_pos =self.view.y_pos - 0.1 * dy
 		else:
-			#print(sel.moveable)
-			if sel.moveable==True:
-				self.gl_objects_move(sel,dx*0.05,-dy*0.05)
-			#print(dx,dy)
+			self.gl_objects_move(dx*0.05,-dy*0.05)
 		
 		self.lastPos=event.pos()
 		self.setFocusPolicy(Qt.StrongFocus)
@@ -155,83 +157,45 @@ class gl_input():
 		self.mouse_click_event.time=time.time()
 		self.mouse_click_event.x=event.x()
 		self.mouse_click_event.y=event.y()
-		
-		if event.buttons()==Qt.LeftButton:
-			self.obj=self.event_to_3d_obj(event)
+		if event.buttons()==Qt.LeftButton or event.buttons()==Qt.RightButton:
+			obj=self.event_to_3d_obj(event)
+			if obj!=None:
+				self.gl_object_deselect_all()
+				self.gl_objects_select_by_id(obj.id)
+				self.set_cursor(QCursor(Qt.SizeAllCursor))
+				#print("you have selected on=",obj.id)
+				#if gl_obj_id_starts_with(obj,"layer")==True:
 
-			if gl_obj_id_starts_with(self.obj,"layer")==True:
-				self.selected_layer=gl_obj_id_extract_starts_with(self.obj,"layer")
-				#self.view.text=False
 				self.update()
-				#self.view.text=True
-		return
-
-		if event.buttons()==Qt.LeftButton:
-			#thumb_nail_gen()
-			#self.mouse_click_time=time.time()
-			x = event.x()
-			y = self.height()-event.y()
-			set_false_color(True)
-
-			old_val=self.view.text
-			self.view.text=False
-			self.render()
-			self.view.text=old_val
-
-			data=glReadPixelsub(x, y, 1, 1, GL_RGBA,GL_FLOAT)
-			set_false_color(False)
-
-			c=color(int(255*data[0][0][0]),int(255*data[0][0][1]),int(255*data[0][0][2]))
-
-			self.obj=search_color(c)
-			if self.obj=="none":
-				return
-
-			self.gl_objects_select(self.obj)
-			self.update()
-
-			print("you have clicked on=",self.obj)
-
+			else:
+				self.gl_object_deselect_all()
+				self.update()
 
 
 	def mouseReleaseEvent(self,event):
+		self.set_cursor(None)
+
 		delta=time.time() - self.mouse_click_event.time
 
-		self.obj=self.event_to_3d_obj(event)
+		obj=self.event_to_3d_obj(event)
 
 		#print(self.mouse_click_event.y,self.mouse_click_event.delta_time())
 		if event.button()==Qt.RightButton:
-			print(self.obj)
+			#print(self.obj)
 			if (delta)<0.5:
-				if self.obj!="none":
-					if gl_obj_id_starts_with(self.obj,"layer")==True:
-						self.selected_layer=gl_obj_id_extract_starts_with(self.obj,"layer")
-						self.update()
+				if obj!=None:
+					epi=get_epi()
+					#print(obj.id[0])
+					if epi.find_shape_by_id(obj.id[0])!=None:
+						#self.update()
 						self.menu_layer(event)
-
-						return
-					if gl_obj_id_starts_with(self.obj,"mesh")==True:
+					elif gl_obj_id_starts_with(self.obj.id,"mesh")==True:
 						self.mesh_menu(event)
 				else:
 					self.menu(event)
-		obj=self.gl_object_deselect()
-		if obj!=False:
-			if "ray_src" in obj.id:
-				epi=get_epi()
-				x=scale_screen_x2m(obj.x)
-				y=scale_screen_y2m(obj.y)-epi.get_device_start()
-				z=project_m2screen_z(obj.z)
-				inp_update_token_value("ray.inp","#ray_xsrc",str(x))
-				inp_update_token_value("ray.inp","#ray_ysrc",str(y))
-				#inp_update_token_value("ray.inp","#ray_zsrc",str(z))
 
-			self.update()
-	#	self.lastPos=None
-
-
-	def isChecked(self): 
-		""" Prints selected menu labels. """ 
-		[print(action.text()) for action in self.m.actions() if action.isChecked()]
+		if event.button()==Qt.LeftButton:
+			self.gl_objects_save_selected()
 
 
 	def wheelEvent(self,event):

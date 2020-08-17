@@ -26,6 +26,7 @@
 #
 
 import os
+import math
 from inp import inp_save
 from inp import inp_load_file
 from util import isnumber
@@ -62,13 +63,12 @@ class epi_layer(shape):
 	def __init__(self):
 		super().__init__()
 		self.pl_file=""
-		self.shape_file_name="none"
 		self.shapes=[]
 		self.dos_file="none"
 		self.layer_type="other"
 		self.lumo_file="none"
 		self.homo_file="none"
-		self.electrical_file="none"
+		self.interface_file="none"
 		self.start=0.0
 		self.end=0.0
 		self.Gnp=0.0
@@ -87,22 +87,20 @@ class epi_layer(shape):
 		return True
 
 	def cal_rgb(self):
-		path=os.path.join(os.path.join(get_materials_path(),self.optical_material),"mat.inp")
+		print(self.r, self.g,self.b)
+		if self.r==0.0 and self.g==0.8 and self.b==0.0:
 
-		zip_file=os.path.basename(self.optical_material)+".zip"
+			f=inp()
+			if f.load(os.path.join(os.path.join(get_materials_path(),self.optical_material),"mat.inp"))==False:
+				return
 
-		mat_lines=inp_load_file(path,archive=zip_file)
+			ret=f.get_array("#red_green_blue")
 
-		if mat_lines==False:
-			return
-
-		ret=inp_search_token_array(mat_lines, "#red_green_blue")
-
-		if ret!=False:
-			self.r=float(ret[0])
-			self.g=float(ret[1])
-			self.b=float(ret[2])
-			self.alpha=float(inp_search_token_value(mat_lines, "#mat_alpha"))
+			if ret!=False:
+				self.r=float(ret[0])
+				self.g=float(ret[1])
+				self.b=float(ret[2])
+				self.alpha=float(f.get_token( "#mat_alpha"))
 
 class epitaxy():
 
@@ -148,8 +146,8 @@ class epitaxy():
 				tab.append(l.dos_file+".inp")
 
 			#pl files
-			if l.shape_file_name!="none":
-				tab.append(l.shape_file_name+".inp")
+			if l.file_name!="none":
+				tab.append(l.file_name+".inp")
 
 			if len(l.shapes)!=0:
 				for s in l.shapes:
@@ -175,9 +173,12 @@ class epitaxy():
 				tab.append(l.homo_file+".inp")
 
 			#electrical files
-			if l.electrical_file!="none":
-				tab.append(l.electrical_file+".inp")
+			if l.shape_electrical!="none":
+				tab.append(l.shape_electrical+".inp")
 
+			#electrical files
+			if l.interface_file!="none":
+				tab.append(l.interface_file+".inp")
 
 		tab.extend(self.contacts.get_shape_files())
 
@@ -229,23 +230,46 @@ class epitaxy():
 					return i
 		return -1
 
+	def new_shape_file(self,layer):
+		new_filename=self.gen_new_electrical_file("shape")
+
+		mesh=get_mesh()
+		my_shape=shape()
+		my_shape.load(os.path.join(get_sim_path(),new_filename)+".inp")
+
+		if layer!=None:
+			my_shape.dy=layer.dy
+
+		my_shape.dx=mesh.get_xlen()
+		my_shape.dz=mesh.get_zlen()
+		my_shape.shape_electrical=self.gen_new_electrical_file("electrical")
+		my_shape.shape_nx=1
+		my_shape.shape_ny=1
+		my_shape.shape_nz=1
+		my_shape.name="New shape"
+		my_shape.optical_material="blends/p3htpcbm"
+		my_shape.save()
+
+		return my_shape
+
 	def add_new_layer(self,pos=-1):
 		if pos!=-1:
 			pos=self.layer_to_index(pos)
 
 		a=epi_layer()
-		a.pl_file="none"
-		a.shape_file_name=self.gen_new_electrical_file("shape")
-		a.load(os.path.join(get_sim_path(),a.shape_file_name))
-		a.name=self.get_new_material_name()
-		a.optical_material="blends/p3htpcbm"
-		a.save()
 		a.dy=100e-9
+
+		a.pl_file="none"
+		file_name=self.new_shape_file(None).file_name
+		a.load(os.path.join(get_sim_path(),file_name))
+		a.name=self.get_new_material_name()
+		a.interface_file=self.gen_new_electrical_file("interface")
+		a.save()
+
 		a.shapes=[]
 		a.lumo_file="none"
 		a.homo_file="none"
 		a.dos_file="other"
-		a.electrical_file=self.gen_new_electrical_file("electrical")
 
 		a.r=1.0
 		a.g=0
@@ -257,15 +281,17 @@ class epitaxy():
 			self.layers.insert(pos, a)
 		return a
 
-	def rename_layer(self,pos,name):
-		if pos!=-1:
-			pos=self.layer_to_index(pos)
+	def remove_by_id(self,ids):
+		if type(ids)==str:
+			ids=[ids]
 
-		self.layers[pos].name=name
+		for l in self.layers[:]:
+			for s in l.shapes[:]:
+				if s.id in ids:
+					l.shapes.remove(s)
 
-	def remove_layer(self,pos):
-		pos=self.layer_to_index(pos)
-		self.layers.pop(pos)
+			if l.id in ids:
+				self.layers.remove(l)
 
 
 	def move_up(self,pos):
@@ -297,7 +323,7 @@ class epitaxy():
 			lines.append("#layer_pl_file"+str(layer))
 			lines.append(epi.layers[i].pl_file)
 			lines.append("#layer_base_shape"+str(layer))
-			lines.append(epi.layers[i].shape_file_name)
+			lines.append(epi.layers[i].file_name)
 			lines.append("#layer_shape"+str(layer))
 			if len(epi.layers[i].shapes)==0:
 				lines.append("none")
@@ -312,8 +338,8 @@ class epitaxy():
 			lines.append(epi.layers[i].lumo_file)
 			lines.append("#layer_homo"+str(layer))
 			lines.append(epi.layers[i].homo_file)
-			lines.append("#layer_electrical_file"+str(layer))
-			lines.append(epi.layers[i].electrical_file)
+			lines.append("#layer_interface"+str(layer))
+			lines.append(epi.layers[i].interface_file)
 			lines.append("#solve_optical_problem"+str(layer))
 			lines.append(str(epi.layers[i].solve_optical_problem))
 			lines.append("#solve_thermal_problem"+str(layer))
@@ -363,8 +389,8 @@ class epitaxy():
 		if data=="active" and l.homo_file.startswith("homo")==False:
 			l.homo_file=self.gen_new_electrical_file("homo")
 
-		if l.electrical_file=="none" or inp().isfile(l.electrical_file+".inp")==False:
-			l.electrical_file=self.gen_new_electrical_file("electrical")
+		#if l.electrical_file=="none" or inp().isfile(l.electrical_file+".inp")==False:
+		#	l.electrical_file=self.gen_new_electrical_file("electrical")
 
 		l.layer_type=data
 
@@ -389,9 +415,51 @@ class epitaxy():
 
 		return new_file_name
 
+	def find_shape_by_id(self,id):
+
+		for c in self.contacts.contacts:
+			if c.id==id:
+				return c
+
+		for l in self.layers:
+			if l.id==id:
+				return l
+
+			for s in l.shapes:
+				if s.id==id:
+					return s
+		return None
+
+	def find_layer_by_id(self,id):
+
+		nl=0
+		for c in self.contacts.contacts:
+			if c.id==id:
+				if c.position=="top":
+					return 0
+
+				if c.position=="bottom":
+					return len(self.layers)-1
+
+		for l in self.layers:
+
+			if l.id==id:
+				return nl
+
+			for s in l.shapes:
+				if s.id==id:
+					return nl
+
+			nl=nl+1
+
+		return None
+
 	def find_shape_by_file_name(self,shape_file):
 		if shape_file.endswith(".inp"):
 			shape_file=shape_file[:-4]
+		for c in self.contacts.contacts:
+			if c.file_name==shape_file:
+				return c
 
 		for l in self.layers:
 			if l.file_name==shape_file:
@@ -436,12 +504,28 @@ class epitaxy():
 			if name not in files:
 				return prefix+str(i)
 
-	def get_shapes(self,layer):
-		return epi.layers[layer].shapes
+	def get_all_sub_shapes(self,id):
+		ret=[]
+		for l in self.layers:
+			if l.id==id:
+				ret.append(l)
+
+				for s in l.shapes:
+					ret.append(s)
+					#return ret
+
+
+		#if layer==0:
+		#	for c in self.contacts.contacts:
+		#		if c.position=="top":
+		#			ret.append(c)
+
+		#ret.extend(self.layers[layer].shapes)
+		return ret
 
 	def ylen(self):
 		tot=0
-		for a in epi.layers:
+		for a in self.layers:
 			tot=tot+a.dy
 
 		return tot
@@ -466,12 +550,14 @@ class epitaxy():
 		tot=0
 		for i in range(0,len(self.layers)):
 			tot=tot+self.layers[i].dy
-			if tot>=y:
+			#print(tot, y,i)
+			if tot>=y or math.isclose(tot, y, rel_tol=1e-10):
 				return i
 
 		return -1
 
 	def device_mask(self,x,y,z):
+		#print(y)
 		mesh=get_mesh()
 		#1D case
 		if mesh.x.points==1 and mesh.z.points==1:
@@ -479,15 +565,23 @@ class epitaxy():
 
 		#check for contact
 		layer=self.get_layer_by_cordinate(y)
+		#print(y,layer)
 		l=self.layers[layer]
 
 		if l.layer_type=="contact" and layer==0:
 			for c in self.contacts.contacts:
 				if c.position=="top":
-					s=c.shape
-					if x>=s.x0 and x<=s.x0+s.dx:
+					if x>=c.x0 and x<=c.x0+c.dx:
 						return True
 			return False
+
+		if l.layer_type=="contact" and layer==len(self.layers)-1:
+			for c in self.contacts.contacts:
+				if c.position=="bottom":
+					if x>=c.x0 and x<=c.x0+c.dx:
+						return True
+			return False
+
 		return True
 
 	def reload_shapes(self):
@@ -495,6 +589,15 @@ class epitaxy():
 			for s in a.shapes:
 				#print(s.file_name)
 				s.load(s.file_name)
+
+	def get_shapes_between_x(self,x0,x1):
+		shapes=[]
+		for layer in self.layers:
+			for s in layer.shapes:
+				for pos in s.expand_xyz0(layer):
+					if pos.x>x0 and pos.x<x1:
+						shapes.append(s)
+		return shapes
 
 	def add_callback(self,fn):
 		self.callbacks.append(fn)
@@ -519,9 +622,9 @@ class epitaxy():
 
 				a.pl_file=s.layer_pl_file
 
-				a.shape_file_name=s.layer_base_shape
-				if a.shape_file_name!="none":
-					a.load(os.path.join(get_sim_path(),a.shape_file_name))
+				a.file_name=s.layer_base_shape
+				if a.file_name!="none":
+					a.load(os.path.join(get_sim_path(),a.file_name))
 				else:
 					a.name=s.layer_name
 
@@ -545,8 +648,8 @@ class epitaxy():
 				#lumo
 				a.homo_file=s.layer_homo
 
-				#lumo
-				a.electrical_file=s.layer_electrical_file
+				#interface_file
+				a.interface_file=s.layer_interface
 
 
 				a.solve_optical_problem=s.solve_optical_problem
@@ -563,6 +666,14 @@ class epitaxy():
 			self.contacts.load()
 			self.loaded=True
 			self.dump_tree()
+
+			changed=False
+			for l in self.layers:
+				if l.interface_file=="none":
+					l.interface_file=self.gen_new_electrical_file("interface")
+					changed=True
+			if changed==True:
+				self.save()
 
 	def find_layer_index_from_file_name(self,input_file):
 		if input_file.endswith(".inp")==True:
@@ -644,10 +755,8 @@ def epitaxy_get_epi():
 def epitaxy_dos_file_to_layer_name(dos_file):
 	global epi
 	i=epi.find_layer_index_from_file_name(dos_file)
-	#print(dos_file,i)
 
 	if i!=False:
-		#print(epi.layers[i].name)
 		return epi.layers[i].name
 
 	return False
@@ -683,14 +792,4 @@ def epitaxy_get_name(i):
 	global epi
 	return epi.layers[i].name
 
-#def on_change(self):
-#	self.do_load()
-#	#print("oh")
-#	if self.callback!=None:
-#		self.callback()
 
-#from gui_enable import gui_get
-#if gui_get()==True:
-#	from file_watch import get_watch
-#		if gui_get()==True:
-#			get_watch().add_call_back(self.file_name+".inp",self.on_change)

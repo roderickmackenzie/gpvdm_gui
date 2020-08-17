@@ -201,7 +201,7 @@ class display_widget(QWidget):
 	def set_selected_layer(self,n):
 		global open_gl_working
 		if open_gl_working==True:
-			self.display.selected_layer=n
+			self.display.selected_obj=self.display.gl_objects_find("layer:"+str(n))
 
 	#This will reclaculate all the display elements in the display widget.
 	def recalculate(self):

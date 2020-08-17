@@ -78,7 +78,8 @@ class QColorPicker(QWidget):
 		self.edit.setStyleSheet("QLineEdit { border: none;  background-color: rgb(%d,%d,%d)  }" % rgb);
 		
 	def callback_button_click(self):
-		col = QColorDialog.getColor(Qt.white, self)
+		col = QColorDialog.getColor(Qt.white, self, options=QColorDialog.DontUseNativeDialog)
+		#col.setOption(QColorDialog.DontUseNativeDialog)
 		if col.isValid():
 			self.r=col.red()/255
 			self.g=col.green()/255

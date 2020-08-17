@@ -41,6 +41,7 @@ from triangle_io import triangles_mul_vec
 from triangle import vec
 from triangle_io import triangles_print 
 from inp import inp
+import codecs
 
 class shape():
 
@@ -84,12 +85,12 @@ class shape():
 		self.shape_flip_x=False
 
 		self.optical_material="none"
-
+		self.id=codecs.encode(os.urandom(int(16 / 2)), 'hex').decode()
 
 
 	def do_load(self):
 		f=inp()
-		print(self.file_name+".inp")
+		#print(self.file_name+".inp")
 		if f.load(self.file_name+".inp")==False:
 			print("shape file not found: ",self.file_name)
 			return
@@ -160,7 +161,7 @@ class shape():
 		if file_name.endswith(".inp")==True:
 			file_name=file_name[:-4]
 
-		self.file_name=file_name
+		self.file_name=os.path.basename(file_name)
 		self.do_load()
 
 
@@ -226,3 +227,23 @@ class shape():
 
 	def dump(self):
 		print(self.file_name,self.type,self.width)
+
+	def expand_xyz0(self,epi_layer):
+		vectors=[]
+
+		for x in range(0,self.shape_nx):
+			for y in range(0,self.shape_ny):
+				for z in range(0,self.shape_nz):
+					if self.shape_enabled==True:
+						pos=vec()
+						if self.shape_flip_y==True:
+							pos.x=(self.x0+(self.dx+self.dx_padding)*x)
+							pos.y=epi_layer.end-(self.y0+(self.dy+self.dy_padding)*y)
+							pos.z=(self.z0+(self.dz+self.dz_padding)*z)
+						else:
+							pos.x=(self.x0+(self.dx+self.dx_padding)*x)
+							pos.y=(self.y0+(self.dy+self.dy_padding)*y)+epi_layer.start
+							pos.z=(self.z0+(self.dz+self.dz_padding)*z)
+
+						vectors.append(pos)
+		return vectors

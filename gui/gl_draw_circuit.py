@@ -33,12 +33,9 @@ try:
 	from OpenGL.GLU import *
 	from PyQt5 import QtOpenGL
 	from PyQt5.QtOpenGL import QGLWidget
-	from gl_color import set_color
 	from gl_lib import val_to_rgb
 	from PyQt5.QtWidgets import QMenu
-	from gl_scale import project_m2screen_x
-	from gl_scale import project_m2screen_y
-	from gl_scale import project_m2screen_z
+	from gl_scale import gl_scale
 	from gl_scale import scale_get_zmul
 	from gl_scale import scale_get_xmul
 	from gl_scale import scale_get_ymul
@@ -52,8 +49,7 @@ from inp import inp
 
 from epitaxy import get_epi
 from mesh import get_mesh
-from gl_list import gl_base_object
-from gl_lib import gl_obj_id_extract_starts_with
+from gl_base_object import gl_base_object
 
 class gl_draw_circuit():
 	def draw_circuit(self):
@@ -65,12 +61,12 @@ class gl_draw_circuit():
 			elif c.name=="D":
 				a.type="diode"
 			#print(c.z0,c.x0,c.y0,c.z1,c.x1,c.y1)
-			a.x=project_m2screen_x(c.x0)
-			a.y=project_m2screen_y(c.y0)
-			a.z=project_m2screen_z(c.z0)
-			a.dx=project_m2screen_x(c.x1)-project_m2screen_x(c.x0)
-			a.dy=project_m2screen_y(c.y1)-project_m2screen_y(c.y0)
-			a.dz=project_m2screen_z(c.z1)-project_m2screen_z(c.z0)
+			a.x=gl_scale.project_m2screen_x(c.x0)
+			a.y=gl_scale.project_m2screen_y(c.y0)
+			a.z=gl_scale.project_m2screen_z(c.z0)
+			a.dx=gl_scale.project_m2screen_x(c.x1)-gl_scale.project_m2screen_x(c.x0)
+			a.dy=gl_scale.project_m2screen_y(c.y1)-gl_scale.project_m2screen_y(c.y0)
+			a.dz=gl_scale.project_m2screen_z(c.z1)-gl_scale.project_m2screen_z(c.z0)
 			a.r=1.0
 			a.g=0.0
 			a.b=0.0

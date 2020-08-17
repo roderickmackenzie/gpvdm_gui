@@ -53,7 +53,6 @@ from help import help_window
 from materials_main import materials_main
 
 from parasitic import parasitic
-from plot_gen import plot_gen
 from cal_path import get_spectra_path
 
 from spectra_main import spectra_main
@@ -120,7 +119,10 @@ class ribbon_device(QToolBar):
 		self.callback_circuit_diagram()
 
 	def callback_circuit_diagram(self):
-		if inp().isfile(os.path.join(get_sim_path(),"diagram.inp"))==True:
+		f=inp()
+		f.load(os.path.join(get_sim_path(),"math.inp"))
+		solver_name=f.get_token("#newton_name")
+		if inp().isfile(os.path.join(get_sim_path(),"diagram.inp"))==True and solver_name=="newton_simple":
 			self.tb_electrical_editor.setEnabled(False)
 		else:
 			self.tb_electrical_editor.setEnabled(True)

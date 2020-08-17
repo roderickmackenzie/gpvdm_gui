@@ -59,6 +59,7 @@ from util_zip import write_lines_to_archive
 from gui_util import dlg_get_text
 from backup import backup
 from scripts import scripts
+from cite_me import cite_me
 
 class ribbon_file(QToolBar):
 	used_files_click= pyqtSignal(str)
@@ -102,6 +103,9 @@ class ribbon_file(QToolBar):
 		spacer.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
 		self.addWidget(spacer)
 
+		self.cite_me=cite_me()
+		self.addWidget(self.cite_me)
+
 		if get_lock().is_trial()==True and get_lock().is_registered()==True:
 			self.home_cart = QAction(icon_get("upgrade"), _("Upgrade to\ngpvdm professional."), self)
 			self.home_cart.triggered.connect(self.callback_buy)
@@ -109,6 +113,7 @@ class ribbon_file(QToolBar):
 
 		self.home_help = QAction(icon_get("internet-web-browser"), _("Help"), self)
 		self.addAction(self.home_help)
+
 
 	def populate_used_file_menu(self):
 		self.used_files_menu.clear()

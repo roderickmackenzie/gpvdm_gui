@@ -92,24 +92,13 @@ class electrical_mesh_editor(QGroupBox):
 		self.tab.insertRow(pos)
 		self.insert_row(pos,100e-9,20,1.1,"left")
 
-		#self.tab.setItem(pos,3,QTableWidgetItem("left"))
-
 		self.save()
-		#self.redraw()
+
 		self.tab.blockSignals(False)
 		self.changed.emit()
 
-	def on_remove_click(self):
-		self.tab.blockSignals(True)
-		index = self.tab.selectionModel().selectedRows()
-
-		if len(index)>0:
-			pos=index[0].row()
-			self.tab.removeRow(pos)
-
+	def save_and_emit(self):
 		self.save()
-		#self.redraw()
-		self.tab.blockSignals(False)
 		self.changed.emit()
 
 	def save(self):
@@ -151,6 +140,7 @@ class electrical_mesh_editor(QGroupBox):
 		self.ax1.spines['right'].set_visible(False)
 		#self.ax1.spines['bottom'].set_visible(False)
 		self.ax1.spines['left'].set_visible(False)
+		self.ax1.set_xlim(xmin=0.0)
 
 	def update(self):
 		self.load()
@@ -191,6 +181,15 @@ class electrical_mesh_editor(QGroupBox):
 		self.redraw()
 		self.changed.emit()
 
+	def on_move_down(self):
+		self.tab.move_down()
+		self.save()
+		self.redraw()
+
+	def on_move_up(self):
+		self.tab.move_up()
+		self.save()
+		self.redraw()
 
 	def __init__(self,xyz):
 		self.xyz=xyz
@@ -201,20 +200,17 @@ class electrical_mesh_editor(QGroupBox):
 		vbox=QVBoxLayout()
 		self.setLayout(vbox)
 
-		toolbar=QToolBar()
-		toolbar.setIconSize(QSize(32, 32))
+		self.toolbar=QToolBar()
+		self.toolbar.setIconSize(QSize(32, 32))
 
-		add = QAction(icon_get("list-add",size=32),  _("Add "+self.xyz+" mesh layer"), self)
-		add.triggered.connect(self.on_add_mesh_clicked)
-		toolbar.addAction(add)
+		vbox.addWidget(self.toolbar)
 
-		remove = QAction(icon_get("list-remove",size=32),  _("Remove "+self.xyz+" mesh layer"), self)
-		remove.triggered.connect(self.on_remove_click)
-		toolbar.addAction(remove)
+		self.tab = gpvdm_tab(toolbar=self.toolbar)
 
-		vbox.addWidget(toolbar)
-
-		self.tab = gpvdm_tab()
+		self.tab.tb_add.triggered.connect(self.on_add_mesh_clicked)
+		self.tab.tb_down.triggered.connect(self.on_move_down)
+		self.tab.tb_up.triggered.connect(self.on_move_up)
+		self.tab.user_remove_rows.connect(self.callback_remove_rows)
 
 		self.tab.resizeColumnsToContents()
 
@@ -250,10 +246,17 @@ class electrical_mesh_editor(QGroupBox):
 			get_watch().add_call_back("mesh_z.inp",self.load)
 
 		if self.mesh.circuit_model==True:
-			add.setEnabled(False)
-			remove.setEnabled(False)
+			self.tab.tb_add.setEnabled(False)
+			self.tab.tb_remove.setEnabled(False)
+			self.tab.tb_down.setEnabled(False)
+			self.tab.tb_up.setEnabled(False)
 			self.tab.setEnabled(False)
 
 		self.load()
+
+	def callback_remove_rows(self):
+		self.tab.remove()
+		self.save()
+		self.redraw()
 
 

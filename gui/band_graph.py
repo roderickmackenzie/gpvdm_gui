@@ -65,6 +65,44 @@ from cal_path import get_default_material_path
 from lock import get_lock
 
 from epitaxy import get_epi
+from PyQt5.QtCore import pyqtSignal
+
+class band_widget(FigureCanvas):
+	changed = pyqtSignal()
+
+	def __init__(self,figure):
+		FigureCanvas.__init__(self,figure)
+		self.show_labels=True
+		self.show_energies=True
+		self.build_menu()
+
+	def build_menu(self):
+
+		self.menu = QMenu(self)
+
+		self.menu_show_labels=self.menu.addAction(_("Show labels"))
+		self.menu_show_labels.triggered.connect(self.menu_toggle)
+		self.menu_show_labels.setCheckable(True)
+		self.menu_show_labels.setChecked(True)
+
+		self.menu_show_energies=self.menu.addAction(_("Show energies"))
+		self.menu_show_energies.triggered.connect(self.menu_toggle)
+		self.menu_show_energies.setCheckable(True)
+		self.menu_show_energies.setChecked(True)
+
+		self.menu_copy=self.menu.addAction(_("Copy to clipboard"))
+
+	def menu_toggle(self):
+		action = self.sender()
+		text=action.text()
+		self.show_labels=self.menu_show_labels.isChecked()
+		self.show_energies=self.menu_show_energies.isChecked()
+		self.changed.emit()
+
+	def mouseReleaseEvent(self,event):
+		self.menu.exec_(event.globalPos())
+
+
 
 class band_graph(QWidget):
 	def __init__(self):
@@ -72,14 +110,16 @@ class band_graph(QWidget):
 		self.main_vbox = QVBoxLayout()
 
 		self.my_figure=Figure(figsize=(5,4), dpi=100)
-		self.canvas = FigureCanvas(self.my_figure)
-		self.canvas.mpl_connect('key_press_event', self.press)
+		self.canvas = band_widget(self.my_figure)
 		self.canvas.setFocusPolicy( Qt.ClickFocus )
 		self.canvas.setFocus()
 		self.canvas.figure.patch.set_facecolor('white')
 		#self.canvas.set_size_request(600, 400)
-		self.canvas.show()
+		self.canvas.changed.connect(self.draw_graph)
+		self.canvas.menu_copy.triggered.connect(self.do_clip)
 
+		self.canvas.show()
+		
 		self.main_vbox.addWidget(self.canvas)
 
 		#self.canvas.connect('key_press_event', self.on_key_press_event)
@@ -88,25 +128,18 @@ class band_graph(QWidget):
 
 		self.epi=get_epi()
 
-	def press(self,event):
-		#print('press', event.key)
-		sys.stdout.flush()
-		if event.key == "ctrl+c":
-			self.do_clip()
-
-
-	def do_clip(self):
-		buf = io.BytesIO()
-		if get_lock().is_trial()==False:
-			self.my_figure.savefig(buf)
-			QApplication.clipboard().setImage(QImage.fromData(buf.getvalue()))
-			buf.close()
 
 	def save_image(self):
 		response=save_as_filter(self,"png (*.png);;jpg (*.jpg);;svg (*.svg)")
 		if response != None:
 			#print(response)
 			self.my_figure.savefig(response)
+
+	def do_clip(self):
+		buf = io.BytesIO()
+		self.my_figure.savefig(buf)
+		QApplication.clipboard().setImage(QImage.fromData(buf.getvalue()))
+		buf.close()
 
 	def set_data_file(self,file):
 		self.data_file=file
@@ -173,12 +206,12 @@ class band_graph(QWidget):
 			homo_delta=homo-0.1
 
 			draw_homo=True
-			y_name_pos=lumo-Eg/2
+			y_name_pos=lumo-Eg+Eg*0.1
 
 			if Eg==0.0 or material_type=="metal":
 				lumo_delta=-7.0
 				draw_homo=False
-				y_name_pos=lumo-1.0
+				y_name_pos=-6.5#lumo-1.0
 
 			x_pos=x_pos+delta
 			self.layer_end.append(x_pos)
@@ -187,21 +220,25 @@ class band_graph(QWidget):
 			rot=0
 			if len(self.epi.layers)>5:
 				rot=90
-			item=ax2.text(x_pos-delta/1.5, y_name_pos, layer.name, rotation=rot)
-			item.set_fontsize(15)
+
+			if self.canvas.show_labels==True:
+				item=ax2.text(x_pos-delta/1.5, y_name_pos, layer.name, rotation=rot)
+				item.set_fontsize(15)
 
 			lumo_shape = [lumo,lumo,lumo_delta,lumo_delta]
 			ax2.fill(x,lumo_shape, color[nlayer],alpha=0.4)
 			if unknown_lumo_eg==False:
-				item=ax2.text(x_pos-delta/1.5, lumo+0.1, "%.2f eV" % lumo)
-				item.set_fontsize(15)
+				if self.canvas.show_energies==True:
+					item=ax2.text(x_pos-delta/1.5, lumo+0.1, "%.2f eV" % lumo)
+					item.set_fontsize(15)
 
 			if draw_homo==True:
 				homo_shape = [homo,homo,homo_delta,homo_delta]
 				ax2.fill(x,homo_shape, color[nlayer],alpha=0.4)
 				if unknown_lumo_eg==False:
-					item=ax2.text(x_pos-delta/1.5, lumo-Eg-0.4, "%.2f eV" % homo)
-					item.set_fontsize(15)
+					if self.canvas.show_energies==True:
+						item=ax2.text(x_pos-delta/1.5, lumo-Eg-0.4, "%.2f eV" % homo)
+						item.set_fontsize(15)
 
 			nlayer=nlayer+1
 
@@ -229,4 +266,7 @@ class band_graph(QWidget):
 			self.my_figure.text(0.40, 0.20, 'Upgrade to gpvdm proessional.', fontsize=15, color='gray', ha='right', va='bottom', alpha=0.1)
 
 		self.canvas.draw()
+
+
+
 

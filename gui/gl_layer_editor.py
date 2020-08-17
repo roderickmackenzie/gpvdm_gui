@@ -33,15 +33,25 @@ from OpenGL.GLU import *
 from PyQt5 import QtOpenGL
 from PyQt5.QtOpenGL import QGLWidget
 from PyQt5.QtWidgets import QMenu
-from gl_color import set_color
 from gl_lib import val_to_rgb
 from object_editor import object_editor
 
 
 from PyQt5.QtCore import QTimer
 
+import os
 from epitaxy import get_epi
+from epitaxy import epi_layer
 from gui_util import dlg_get_text
+from icon_lib import icon_get
+from gui_util import yes_no_dlg
+from epitaxy import epi_layer
+from cal_path import get_default_material_path
+from mesh import get_mesh
+from cal_path import get_sim_path
+from shape import shape
+from inp import inp_copy_file
+from contacts_io import contact
 
 class gl_layer_editor():
 
@@ -51,22 +61,22 @@ class gl_layer_editor():
 
 		menu = QMenu(self)
 
-		action=menu.addAction(_("Move up"))
+		action=menu.addAction(icon_get("go-up"),_("Move up"))
 		action.triggered.connect(self.layer_move_up)
 
 		action=menu.addAction(_("Move down"))
 		action.triggered.connect(self.layer_move_down)
 
-		action=menu.addAction(_("Delete"))
+		action=menu.addAction(icon_get("list-remove"),_("Delete"))
 		action.triggered.connect(self.layer_delete)
 
-		action=menu.addAction(_("Add"))
+		action=menu.addAction(icon_get("list-add"),_("Add shape"))
 		action.triggered.connect(self.layer_add)
 
-		action=menu.addAction(_("Rename"))
+		action=menu.addAction(icon_get("rename"),_("Rename"))
 		action.triggered.connect(self.layer_rename)
 
-		action=menu.addAction(_("Object editor"))
+		action=menu.addAction(_("Edit"))
 		action.triggered.connect(self.layer_object_editor)
 
 		menu.addSeparator()
@@ -84,55 +94,114 @@ class gl_layer_editor():
 		menu.exec_(event.globalPos())
 
 	def layer_move_up(self):
-		epi=get_epi()
-		epi.move_up(self.selected_layer[len("layer:"):])
-		epi.save()
-		#print("layer_move_up",self.selected_layer[len("layer:"):])
-		self.do_draw() 
+		obj=self.gl_objects_get_first_selected()
+		if obj!=None:
+			name=obj.id_starts_with("layer:")
+			if name!=False:
+				name=name[len("layer:"):]
+
+				epi=get_epi()
+				epi.move_up(name)
+				epi.save()
+				#print("layer_move_up",self.selected_layer[len("layer:"):])
+				self.force_redraw() 
 
 	def layer_add(self):
-		epi=get_epi()
-		pos=self.selected_layer[len("layer:"):]
-		#print(pos)
-		epi.add_new_layer(pos=pos)
-		epi.save()
+		obj=self.gl_objects_get_first_selected()
+		if obj!=None:
+			epi=get_epi()
+			s=epi.find_shape_by_id(obj.id[0])
+			if type(s)==epi_layer or type(s)==shape:
+				layer_index=epi.find_layer_by_id(obj.id[0])
+				new_filename=epi.new_electrical_file("shape")+".inp"
+				orig_filename=os.path.join(get_default_material_path(),"shape.inp")
+				inp_copy_file(os.path.join(get_sim_path(),new_filename),os.path.join(get_sim_path(),orig_filename))
+
+				mesh=get_mesh()
+				my_shape=shape()
+				my_shape.load(new_filename)
+				my_shape.dy=epi.layers[layer_index].dy
+				my_shape.dx=mesh.get_xlen()
+				my_shape.dz=mesh.get_zlen()
+				my_shape.shape_electrical=epi.gen_new_electrical_file("electrical")
+				my_shape.shape_nx=1
+				my_shape.shape_ny=1
+				my_shape.shape_nz=1
+				my_shape.name="New shape"
+				my_shape.save()
+
+				epi.layers[layer_index].shapes.append(my_shape)
+				epi.save()
+				self.force_redraw()
+
 		
 	def layer_move_down(self):
-		epi=get_epi()
-		epi.move_down(self.selected_layer[len("layer:"):])
-		epi.save()
-		#print("layer_move_down",self.selected_layer[len("layer:"):])
-		self.do_draw()
+		obj=self.gl_objects_get_first_selected()
+		if obj!=None:
+			name=obj.id_starts_with("layer:")
+			if name!=False:
+				name=name[len("layer:"):]
+
+				epi=get_epi()
+				epi.move_down(name)
+				epi.save()
+				#print("layer_move_down",self.selected_layer[len("layer:"):])
+				self.force_redraw() 
 
 	def layer_delete(self):
 		epi=get_epi()
-		epi.remove_layer(self.selected_layer[len("layer:"):])
-		epi.save()
-		self.do_draw()
+		obj=self.gl_objects_get_first_selected()
+		if obj!=None:
+			s=epi.find_shape_by_id(obj.id[0])
+			if s!=None:
+				response=yes_no_dlg(self,"Do you really want to delete the object: "+s.name)
+				if response == True:
+					epi=get_epi()
+					epi.remove_by_id(s.id)
+					epi.save()
+					self.force_redraw() 
 
 	def layer_rename(self):
-		old_name=self.selected_layer[len("layer:"):]
+		epi=get_epi()
+		obj=self.gl_objects_get_first_selected()
+		if obj!=None:
+			s=epi.find_shape_by_id(obj.id[0])
+			if s!=None:
+				old_name=s.name
+				name=dlg_get_text( _("Rename the layer:"), old_name,"rename.png")
+				name=name.ret
 
-		name=dlg_get_text( _("Rename the layer:"), old_name,"rename.png")
+				if name!=None:
+					s.name=name
+					epi.save()
 
-		name=name.ret
-
-		if name!=None:
-			epi=get_epi()
-			epi.rename_layer(old_name,name)
-			epi.save()
-
-		self.do_draw()
+			self.force_redraw() 
 
 	def layer_object_editor(self):
-		name=self.selected_layer[len("layer:"):]
-		epi=get_epi()
-		index=epi.layer_to_index(name)
-		
-		print(">>>>>>>loading shapes for >>>>",index)
-		self.shape_edit=object_editor()
-		self.shape_edit.load(index)
-		self.shape_edit.show()
-		#epi.save()
+		obj=self.gl_objects_get_first_selected()
+		if obj!=None:
+			epi=get_epi()
+			s=epi.find_shape_by_id(obj.id[0])
+			if type(s)==shape or type(s)==contact:
+				self.shape_edit=object_editor()
+				self.shape_edit.load(obj.id[0])
+				self.shape_edit.show()
+			elif type(s)==epi_layer:
+				ids=[]
+				sub_shapes=epi.get_all_sub_shapes(obj.id[0])
 
-		#self.do_draw()
+				#ids.append(obj.id[0])
+				for sub in sub_shapes:
+					ids.append(sub.id)
+
+				#print(ids)
+				self.shape_edit=object_editor()
+				self.shape_edit.load(ids)
+				self.shape_edit.show()
+
+				#epi.save()
+
+				#self.do_draw()
+
+
+

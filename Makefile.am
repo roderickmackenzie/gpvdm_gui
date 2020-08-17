@@ -5,6 +5,9 @@ SUBDIRS = @BUILD_DIRS@
 if INCLUDE_HTML
 htmlsrcdir = $(pkgdatadir)/html
 htmlsrc_DATA = html/*.html
+
+bibsrcdir = $(pkgdatadir)/bib
+bibsrc_DATA = bib/*.bib
 endif
 
 fontssrcdir = $(pkgdatadir)/fonts

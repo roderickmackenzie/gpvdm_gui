@@ -21,72 +21,30 @@
 #
 # 
 
-## @package gl_save
-#  Save the OpenGL scene.
+## @package gl_list
+#  An object store from which the 3d scene is rendered
 #
 
 import sys
 import glob
 
-from gl_shapes import box
-from gl_shapes import paint_from_array
-from gl_shapes import paint_open_triangles_from_array
-from gl_shapes import pyrmid
-from gl_shapes import paint_from_array_cut_through
-from gl_lib import box_lines
-from gl_lib import plane
-from gl_lib import raw_ray
-from gl_lib import paint_ball
 from gl_scale import scale_screen_x2m
 from gl_scale import scale_screen_y2m
 
-from gl_lib import gl_obj_id_starts_with
-from gl_lib import paint_line
-from gl_lib import paint_resistor
-from gl_lib import paint_diode
 from OpenGL.GLU import *
 from OpenGL.GL import *
+from gl_lib import gl_obj_id_starts_with
+from gl_base_object import gl_base_object
+from epitaxy import get_epi
+from gl_scale import gl_scale
+from shape import shape
+from triangle import vec
 
-class gl_base_object():
-	def __init__(self,x=0.0,y=0.0,z=0.0,dx=0.0,dy=0.0,dz=0.0,r=1.0,g=1.0,b=1.0):
-		self.id=[]
-		self.type=""
-		self.x=x
-		self.y=y
-		self.z=z
-		self.dx=dx
-		self.dy=dy
-		self.dz=dz
-		self.r=r
-		self.g=g
-		self.b=b
-		self.alpha=0.5
-		self.selected=False
-		self.selectable=False
-		self.moveable=False
-		self.allow_cut_view=True
-		self.triangles=[]
-
-	def dump(self):
-		print(self.id)
-		print(self.type)
-		print(self.x)
-		print(self.y)
-		print(self.z)
-		print(self.dx)
-		print(self.dy)
-		print(self.dz)
-		print(self.dx)
-		print(self.dy)
-		print(self.dz)
-		print(self.r)
-		print(self.g)
-		print(self.b)
-		print(self.alpha)
-		print(self.selected)
-		print(self.selectable)
-		print(self.moveable)
-		print(self.triangles)
+from mesh import get_mesh
+from gl_scale import scale_get_xmul
+from gl_scale import scale_get_ymul
+from gl_scale import scale_get_zmul
+from inp import inp
 
 class gl_objects():
 
@@ -95,14 +53,10 @@ class gl_objects():
 
 	def gl_objects_clear(self):
 		self.objects=[]
-
-	def gl_object_deselect(self):
-		changed=False
-		for i in range(0,len(self.objects)):
-			if self.objects[i].selected==True:
-				self.objects[i].selected=False
-				return self.objects[i]
-		return False
+	
+	def gl_object_deselect_all(self):
+		for o in self.objects:
+			o.selected=False
 
 	def gl_objects_is_selected(self):
 		for i in range(0,len(self.objects)):
@@ -110,10 +64,73 @@ class gl_objects():
 				return self.objects[i]
 		return False
 
+	def gl_objects_selected_min_max_vec(self):
+		min=vec()
+		min.x=1000
+		min.y=1000
+		min.z=1000
+
+		max=vec()
+		max.x=-1
+		max.y=-1
+		max.z=-1
+
+		for i in range(0,len(self.objects)):
+			if self.objects[i].selected==True:
+				#min
+				if self.objects[i].xyz.x<min.x:
+					min.x=self.objects[i].xyz.x
+
+				if self.objects[i].xyz.x+self.objects[i].dxyz.x<min.x:
+					min.x=self.objects[i].xyz.x+self.objects[i].dxyz.x
+
+				if self.objects[i].xyz.y<min.y:
+					min.y=self.objects[i].xyz.y
+
+				#print("screen",self.objects[i].dxyz.y)
+				if self.objects[i].xyz.y+self.objects[i].dxyz.y<min.y:
+					min.y=self.objects[i].xyz.y+self.objects[i].dxyz.y
+
+				if self.objects[i].xyz.z<min.z:
+					min.z=self.objects[i].xyz.z
+
+				if self.objects[i].xyz.z+self.objects[i].dxyz.z<min.z:
+					min.z=self.objects[i].xyz.z+self.objects[i].dxyz.z
+
+				#max
+				if self.objects[i].xyz.x>max.x:
+					max.x=self.objects[i].xyz.x
+
+				if self.objects[i].xyz.x+self.objects[i].dxyz.x>max.x:
+					max.x=self.objects[i].xyz.x+self.objects[i].dxyz.x
+
+				if self.objects[i].xyz.y>max.y:
+					max.y=self.objects[i].xyz.y
+
+				if self.objects[i].xyz.y+self.objects[i].dxyz.y>max.y:
+					max.y=self.objects[i].xyz.y+self.objects[i].dxyz.y
+
+				if self.objects[i].xyz.z>max.z:
+					max.z=self.objects[i].xyz.z
+
+				if self.objects[i].xyz.z+self.objects[i].dxyz.z>max.z:
+					max.z=self.objects[i].xyz.z+self.objects[i].dxyz.z
+
+		return min,max
+
 	def gl_objects_add(self,my_object):
 		if type(my_object.id)==str:
 			print("id should be an array not a string")
 			adsasddsa
+
+		rgb_int=len(self.objects)+1
+		my_object.r_false =  rgb_int & 255
+		my_object.g_false = (rgb_int >> 8) & 255
+		my_object.b_false =   (rgb_int >> 16) & 255
+	
+		my_object.r_false=my_object.r_false/255
+		my_object.g_false=my_object.g_false/255
+		my_object.b_false=my_object.b_false/255
 
 		self.objects.append(my_object)
 
@@ -122,9 +139,80 @@ class gl_objects():
 			print(o.type)
 		print(len(self.objects))
 
-	def gl_objects_move(obj,dx,dy):
-		obj.x=obj.x+dx
-		obj.y=obj.y+dy
+	def gl_objects_move(self,dx,dy):
+		i=0
+		epi=get_epi()
+
+		min,max=self.gl_objects_selected_min_max_vec()
+
+		x_min_new_screen=min.x+dx
+		x_min_new_m=gl_scale.project_screen_x_to_m(x_min_new_screen)
+
+		x_max_new_screen=max.x+dx
+		x_max_new_m=gl_scale.project_screen_x_to_m(x_max_new_screen)
+
+		y_min_new_screen=min.y+dy
+		y_max_new_m=gl_scale.project_screen_y_to_m(y_min_new_screen)
+
+		y_max_new_screen=max.y+dy
+		y_min_new_m=gl_scale.project_screen_y_to_m(y_max_new_screen)
+
+		move_x=True
+		move_y=True
+
+		for obj in self.objects:
+			if obj.selected==True:
+				s=epi.find_shape_by_id(obj.id[0])
+				if type(s)==shape:
+
+					nl=epi.find_layer_by_id(obj.id[0])
+
+					y_start=epi.get_layer_start(nl)
+					y_stop=epi.get_layer_end(nl)
+
+					x_stop=get_mesh().get_xlen()
+
+					if x_min_new_m<0:
+						move_x=False
+
+					if y_min_new_m<y_start:
+						move_y=False
+
+					if y_max_new_m>=y_stop:
+						move_y=False
+
+					if x_max_new_m>=x_stop:
+						move_x=False
+				else:
+					move_x=False
+					move_y=False
+
+		if move_y==True:
+			for obj in self.objects:
+				if obj.selected==True:
+					s=epi.find_shape_by_id(obj.id[0])
+					if type(s)==shape:
+						obj.xyz.y=obj.xyz.y+dy
+						s.y0=gl_scale.project_screen_y_to_m(obj.xyz.y)
+
+		if move_x==True:
+			for obj in self.objects:
+				if obj.selected==True:
+					s=epi.find_shape_by_id(obj.id[0])
+					if type(s)==shape:
+						obj.xyz.x=obj.xyz.x+dx
+
+						if obj.origonal_object==True:
+							s.x0=gl_scale.project_screen_x_to_m(obj.xyz.x)
+							#print(s.x0)
+
+	def gl_objects_save_selected(self):
+		epi=get_epi()
+		for obj in self.objects:
+			if obj.selected==True:
+				s=epi.find_shape_by_id(obj.id[0])
+				if type(s)==shape:
+					s.save()
 
 	def gl_objects_count_regex(self,in_id):
 		count=0
@@ -135,6 +223,14 @@ class gl_objects():
 
 		return count
 
+	def gl_objects_find(self,in_id):
+		count=0
+		for i in range(0,len(self.objects)):
+			for id in self.objects[i].id: 	
+				if id==in_id:
+					return self.objects[i]
+
+		return None
 
 	def gl_objects_remove_regex(self,in_id):
 		new_objects=[]
@@ -151,46 +247,134 @@ class gl_objects():
 				self.objects.pop(i)
 				break
 
-	def gl_objects_select(self,in_id):
-		for i in range(0,len(self.objects)):
-			if gl_obj_id_starts_with(self.objects[i].id,in_id)==True:
-				self.objects[i].selected = not self.objects[i].selected
-			else:
-				self.objects[i].selected =False
+	def gl_objects_select_by_id(self,in_id):
+		for obj in self.objects:
+			if obj.id==in_id:
+				obj.selected=True
 
 	def gl_objects_render(self):
 		#self.gl_objects_dump()
 		for o in self.objects:
 			if o.type=="plane":
-				plane(o)
+				self.plane(o)
 			if o.type=="ball":
-				paint_ball(o)
+				self.paint_ball(o)
 			elif o.type=="ray":
-				raw_ray(o)
+				self.raw_ray(o)
 			elif o.type=="line":
-				paint_line(o)
+				self.paint_line(o)
 			elif o.type=="resistor":
-				paint_resistor(o)
+				self.paint_resistor(o)
 			elif o.type=="diode":
-				paint_diode(o)
+				self.paint_diode(o)
 			elif o.type=="open_triangles":
-				paint_open_triangles_from_array(o)
+				self.paint_open_triangles_from_array(o)
 			elif o.type=="solid":
-				paint_from_array(o)
+				self.paint_from_array(o)
 			elif o.type=="solid_and_mesh":
-				paint_from_array(o)
-				paint_open_triangles_from_array(o)
+				#print("solid_and_mesh>>",o.z)
+				self.paint_from_array(o)
+				self.paint_open_triangles_from_array(o)
 			elif o.type=="solid_and_mesh_cut_through":
-				paint_from_array_cut_through(o)
+				self.paint_from_array_cut_through(o)
 			elif o.type=="solid_and_mesh_color":
-				paint_from_array(o)
-				paint_open_triangles_from_array(o,colored=True)
+				self.paint_from_array(o)
+				self.paint_open_triangles_from_array(o,colored=True)
 			elif o.type=="box":
-				box(o.x,o.y,o.z,o.dx,o.dy,o.dz,o.r,o.g,o.b,o.alpha,name=o.id)
+				#print("box>>",o.z)
+				self.box(o)
+			elif o.type=="marker":
+				self.paint_marker(o)
+			elif o.type=="marker_small":
+				self.paint_marker_small(o)
+			elif o.type=="box_cut_through":
+				self.box(o,cut_through=True)
+			elif o.type=="grid":
+				self.gl_render_grid(o)
+			elif o.type=="text":
+				self.gl_render_text(o)
 			else:
-				paint_from_array(o)
-				paint_open_triangles_from_array(o)
+				self.paint_from_array(o)
+				self.paint_open_triangles_from_array(o)
+
+			#print(o.selected,o.selectable,o.id)
+
 			if o.selected==True:
-				if o.selectable==True:
-					box_lines(o.x,o.y,o.z,o.dx,o.dy,o.dz)
+				sel=gl_base_object()
+				sel.copy(o)
+				sel.r=1.0
+				sel.g=0.0
+				sel.b=0.0
+
+				#sel.dy=sel.dy*1.1
+				#sel.dz=sel.dz*1.1
+				#print(sel.dy)
+				self.gl_render_box_lines(sel)
+
+			if o.text!="":
+				#print(o.type,o.xyz.y)
+				self.gl_render_text(o)
+
+		#self.gl_objects_save("out.dat")
+		#self.gl_objects_load("out.dat")
+	def gl_objects_search_by_color(self,r,g,b):
+		for o in self.objects:
+			#print(o.r_false,r,o.g_false,g,o.b_false,b)
+			if o.match_false_color(r,g,b)==True:
+				return o
+		return None
+
+	def gl_objects_get_first_selected(self):
+		for o in self.objects:
+			if o.selected==True:
+				return o
+		return None
+
+	def gl_objects_save(self,file_name):
+		f=open(file_name,"w")
+		f.write("#gobj\n")
+		for o in self.objects:
+			ret=""
+			ret=ret+o.type
+
+			ret=ret+";;"+"{:e}".format(gl_scale.project_screen_x_to_m(o.xyz.x))
+			ret=ret+";;"+"{:e}".format(gl_scale.project_screen_y_to_m(o.xyz.y))
+			ret=ret+";;"+"{:e}".format(gl_scale.project_screen_z_to_m(o.xyz.z))
+			ret=ret+";;"+"{:e}".format(o.dxyz.x/scale_get_xmul())
+			ret=ret+";;"+"{:e}".format(o.dxyz.y/scale_get_ymul())
+			ret=ret+";;"+"{:e}".format(o.dxyz.z/scale_get_zmul())
+
+			ret=ret+";;"+str(o.r)
+			ret=ret+";;"+str(o.g)
+			ret=ret+";;"+str(o.b)
+
+			ret=ret+";;"+str(o.alpha)
+			ret=ret+";;"+str(o.selected)
+			ret=ret+";;"+str(o.selectable)
+			ret=ret+";;"+str(o.moveable)
+			ret=ret+";;"+str(o.allow_cut_view)
+
+			ret=ret+";;"+str(o.text)
+
+			ret=ret+";;"+str(o.origonal_object)
+			f.write(ret+"\n")
+
+		f.close()
+
+	def gl_objects_load(self,objs):
+		#self.objects=[]
+		for o in objs:
+			self.gl_objects_add(o)
+			#print(self.objects[-1])
+
+		#o=gl_base_object()
+		#o.id=["grid"]
+		#o.r=0.5
+		#o.g=0.5
+		#o.b=0.5
+		#o.type="grid"
+		#self.gl_objects_add(o)
+
+		#self.scene_built=True
+		#self.do_draw()
 

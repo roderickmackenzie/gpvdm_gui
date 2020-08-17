@@ -37,6 +37,27 @@ class bib_item:
 		for var in self.vars:
 			setattr(self, var, "")
 
+	def short_cite(self):
+		build=""
+		if self.title!="":
+			build=build+self.title+", "
+
+		if self.journal!="":
+			build=build+self.journal+", "
+
+		if self.volume!="":
+			build=build+self.volume+", "
+
+		if self.pages!="":
+			build=build+self.pages+", "
+
+		if self.year!="":
+			build=build+self.year+", "
+
+		build=build[:-2]
+
+		return build
+
 	def decode(self,lines):
 		l=lines[0][1:]
 		if l[-1]==",":
@@ -67,6 +88,8 @@ class bib_item:
 
 						text=build_strip
 						if hasattr(self, token):
+							if text.startswith("{") and text.endswith("}"):
+								text=text[1:-1]
 							setattr(self,token,text)
 
 						wait_for="="

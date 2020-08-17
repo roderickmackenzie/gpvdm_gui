@@ -52,7 +52,7 @@ from cal_path import set_sim_path
 
 calculate_paths_init()
 calculate_paths()
-from lock import get_lock
+from lock import get_email
 
 from notice import notice
 print(notice())
@@ -320,7 +320,7 @@ class gpvdm_main_window(QMainWindow):
 				self.ribbon.simulations.qe.setVisible(True)
 		else:
 			self.check_sim_exists.set_dir("")
-			help_window().help_set_help(["icon.png",_("<big><b>Hi!</b></big><br> I'm the on-line help system :).  If you have any questions or find any bugs please send them to <a href=\"mailto:info@gpvdm.com\">info@gpvdm.com</a>."),"document-new.png",_("Click on the new icon to make a new simulation directory.")])
+			help_window().help_set_help(["icon.png",_("<big><b>Hi!</b></big><br> I'm the on-line help system :).  If you have any questions or find any bugs please send them to <a href=\"mailto:"+get_email()+"\">"+get_email()+"</a>."),"document-new.png",_("Click on the new icon to make a new simulation directory.")])
 			language_advert()
 
 			if enable_betafeatures()==True:
@@ -668,6 +668,8 @@ class gpvdm_main_window(QMainWindow):
 		#self.shape_import=shape_import("/home/rod/gpvdm_local/shape/pedot")
 		#self.shape_import.show()
 		check_lib_in_bash_rc()
+
+
 
 	def dragEnterEvent(self, event):
 		if event.mimeData().hasUrls:

@@ -253,7 +253,6 @@ class lock():
 
 		self.status=inp_search_token_value(lines, "#status")
 		self.my_email=inp_search_token_value(lines, "#my_email")
-
 		self.question=inp_search_token_value(lines, "#question")
 
 		ver=float(inp_search_token_value(lines, "#ver"))
@@ -338,4 +337,6 @@ def get_lock():
 	return my_lock
 
 def get_email():
-	return "roderick.mackenzie@nottingham.ac.uk"
+	global my_lock
+	return my_lock.my_email
+

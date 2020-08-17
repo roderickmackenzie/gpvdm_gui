@@ -43,12 +43,10 @@ from math import fabs
 from lines import lines_read
 from util import wavelength_to_rgb
 from util import isnumber
-from gl_scale import project_m2screen_x
-from gl_scale import project_m2screen_y
-from gl_scale import project_m2screen_z
+from gl_scale import gl_scale
 from gl_scale import project_trianges_m2screen
 
-from gl_list import gl_base_object
+from gl_base_object import gl_base_object
 
 from dat_file import dat_file
 
@@ -66,14 +64,14 @@ class gl_lib_ray():
 		if self.ray_data.load(ray_file)==True:
 			self.gl_objects_remove_regex("ray_trace_results")
 			for t in self.ray_data.data:
-				z=project_m2screen_z(t.xyz0.z)
-				dz=project_m2screen_z(t.xyz1.z)-project_m2screen_z(t.xyz0.z)
+				z=gl_scale.project_m2screen_z(t.xyz0.z)
+				dz=gl_scale.project_m2screen_z(t.xyz1.z)-gl_scale.project_m2screen_z(t.xyz0.z)
 
-				x=project_m2screen_x(t.xyz0.x)
-				dx=project_m2screen_x(t.xyz1.x)-project_m2screen_x(t.xyz0.x)
+				x=gl_scale.project_m2screen_x(t.xyz0.x)
+				dx=gl_scale.project_m2screen_x(t.xyz1.x)-gl_scale.project_m2screen_x(t.xyz0.x)
 
-				y=project_m2screen_y(t.xyz0.y)
-				dy=project_m2screen_y(t.xyz1.y)-project_m2screen_y(t.xyz0.y)
+				y=gl_scale.project_m2screen_y(t.xyz0.y)
+				dy=gl_scale.project_m2screen_y(t.xyz1.y)-project_m2screen_y(t.xyz0.y)
 
 				a=gl_base_object()
 				a.id=["ray_trace_results"]

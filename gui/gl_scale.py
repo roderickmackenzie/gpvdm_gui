@@ -45,6 +45,89 @@ y_start=0.0
 z_start=0.0
 
 
+class gl_scale:
+	def project_screen_x_to_m(x):
+		global x_mul
+		global x_start
+		if type(x)==float or type(x)==int:
+			return (x-x_start)/x_mul
+		elif type(x)==list:
+			ret=[]
+			for val in x:
+				ret.append((val-x_start)/x_mul)
+			return ret
+
+	def project_screen_y_to_m(y):
+		global y_mul
+		global y_start
+		if type(y)==float or type(y)==int:
+			return -(y-y_start)/y_mul
+		elif type(y)==list:
+			ret=[]
+			for val in y:
+				ret.append(-(val-y_start)/y_mul)
+			return ret
+
+	def project_screen_z_to_m(z):
+		global z_mul
+		global z_start
+		if type(z)==float or type(z)==int:
+			return (z-z_start)/z_mul
+		elif type(z)==list:
+			ret=[]
+			for val in z:
+				ret.append((val-z_start)/z_mul)
+			return ret
+
+	def project_m2screen_x(x):
+		global x_mul
+		global x_start
+		if type(x)==float or type(x)==int:
+			return x_start+x_mul*x
+		elif type(x)==list:
+			ret=[]
+			for val in x:
+				ret.append(x_start+x_mul*val)
+			return ret
+
+
+	def project_m2screen_y(y):
+		global y_mul
+		global y_start
+		if type(y)==float or type(y)==int :
+			return y_start-y_mul*y
+		elif type(y)==list:
+			ret=[]
+			for val in y:
+				ret.append(y_start-y_mul*val)
+			return ret
+
+		
+	def project_m2screen_z(z):
+		global z_mul
+		global z_start
+
+		if type(z)==float or type(z)==int:
+			return z_start+z_mul*z
+		elif type(z)==list:
+			ret=[]
+			for val in z:
+				ret.append(z_start+z_mul*val)
+			return ret
+
+	def project_base_objects_from_m_2_screen(objs):
+		ret=[]
+		for o in objs:
+			o.xyz.x=gl_scale.project_m2screen_x(o.xyz.x)
+			o.xyz.y=gl_scale.project_m2screen_y(o.xyz.y)
+			o.xyz.z=gl_scale.project_m2screen_z(o.xyz.z)
+
+			o.dxyz.x=o.dxyz.x*scale_get_xmul()
+			o.dxyz.y=-o.dxyz.y*scale_get_ymul()
+			o.dxyz.z=o.dxyz.z*scale_get_zmul()
+			ret.append(o)
+		return ret
+
 def scale(length):
 	mul=1
 	while((length*mul)<5):
@@ -113,57 +196,23 @@ def scale_get_start_z():
 def scale_get_start_y():
 	return 0.0
 
-def project_m2screen_x(x):
-	global x_mul
-	global x_start
-	if type(x)==float or type(x)==int:
-		return x_start+x_mul*x
-	elif type(x)==list:
-		ret=[]
-		for val in x:
-			ret.append(x_start+x_mul*val)
-		return ret
-
-def project_m2screen_y(y):
-	global y_mul
-	global y_start
-	if type(y)==float or type(y)==int :
-		return y_start-y_mul*y
-	elif type(y)==list:
-		ret=[]
-		for val in y:
-			ret.append(y_start-y_mul*val)
-		return ret
-
-	
-def project_m2screen_z(z):
-	global z_mul
-	global z_start
-
-	if type(z)==float or type(z)==int:
-		return z_start+z_mul*z
-	elif type(z)==list:
-		ret=[]
-		for val in z:
-			ret.append(z_start+z_mul*val)
-		return ret
 
 def project_trianges_m2screen(triangles):
 	ret=[]
 	for t in triangles:
 		t0=triangle()
 		t0.points=t.points
-		t0.xyz0.x=project_m2screen_x(t.xyz0.x)
-		t0.xyz0.y=project_m2screen_y(t.xyz0.y)
-		t0.xyz0.z=project_m2screen_z(t.xyz0.z)
+		t0.xyz0.x=gl_scale.project_m2screen_x(t.xyz0.x)
+		t0.xyz0.y=gl_scale.project_m2screen_y(t.xyz0.y)
+		t0.xyz0.z=gl_scale.project_m2screen_z(t.xyz0.z)
 
-		t0.xyz1.x=project_m2screen_x(t.xyz1.x)
-		t0.xyz1.y=project_m2screen_y(t.xyz1.y)
-		t0.xyz1.z=project_m2screen_z(t.xyz1.z)
+		t0.xyz1.x=gl_scale.project_m2screen_x(t.xyz1.x)
+		t0.xyz1.y=gl_scale.project_m2screen_y(t.xyz1.y)
+		t0.xyz1.z=gl_scale.project_m2screen_z(t.xyz1.z)
 
-		t0.xyz2.x=project_m2screen_x(t.xyz2.x)
-		t0.xyz2.y=project_m2screen_y(t.xyz2.y)
-		t0.xyz2.z=project_m2screen_z(t.xyz2.z)
+		t0.xyz2.x=gl_scale.project_m2screen_x(t.xyz2.x)
+		t0.xyz2.y=gl_scale.project_m2screen_y(t.xyz2.y)
+		t0.xyz2.z=gl_scale.project_m2screen_z(t.xyz2.z)
 
 		ret.append(t0)
 

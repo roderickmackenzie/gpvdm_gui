@@ -53,9 +53,6 @@ from cal_path import get_sim_path
 
 
 #epitaxy
-from epitaxy import epitaxy_get_layers
-from epitaxy import epitaxy_get_dos_file
-from epitaxy import epitaxy_get_layer
 from epitaxy import epitaxy_get_epi
 from epitaxy import get_epi
 
@@ -77,12 +74,6 @@ from dat_file import dat_file
 
 import glob
 
-from gl_lib import draw_stars
-from gl_lib import draw_grid
-from gl_lib import draw_photon
-from gl_lib import box_lines
-from gl_shapes import box
-
 from global_objects import global_object_register
 
 from inp import inp_search_token_array
@@ -92,18 +83,6 @@ cube_rotate_x_rate = 0.2
 cube_rotate_y_rate = 0.2
 cube_rotate_z_rate = 0.2
 
-
-from gl_color import set_color
-from gl_color import clear_color
-from gl_color import print_color
-
-
-from gl_save import gl_save_clear
-from gl_save import gl_save_print
-from gl_save import gl_save_save
-from gl_lib import gl_save_draw
-from gl_save import gl_save_load
-
 from OpenGL.GLU import *
 
 import copy
@@ -112,8 +91,6 @@ from thumb import thumb_nail_gen
 
 from gl_view_point import view_point 
 from gl_view_point import gl_move_view
-from gl_graph import draw_mode
-from gl_active_tab import tab	
 
 from gl_lib import val_to_rgb
 
@@ -141,10 +118,6 @@ from gl_scale import scale_get_start_x
 from gl_scale import scale_get_start_z
 from gl_scale import scale_get_start_y
 
-from gl_scale import project_m2screen_x
-from gl_scale import project_m2screen_z
-from gl_scale import project_m2screen_y
-
 from gl_main_menu import gl_main_menu
 
 from gl_list import gl_objects
@@ -162,6 +135,12 @@ from gl_contacts import gl_contacts
 from gl_graph import gl_graph
 from gl_draw_circuit import gl_draw_circuit
 from gl_draw_light_profile import gl_draw_light_profile
+from gl_color import gl_color
+from gl_shapes import gl_shapes
+from gl_base_object import gl_base_object
+from gl_render_obj import gl_render_obj
+from gl_photons import gl_photons
+from gl_scale import gl_scale
 
 class open_gl_light:
 	def __init__(self):
@@ -169,8 +148,8 @@ class open_gl_light:
 		self.number=GL_LIGHT0
 
 if open_gl_ok==True:		
-	class glWidget(QGLWidget,shape_layer, gl_lib_ray,gl_objects, gl_text,gl_move_view,gl_mesh,gl_layer_editor,gl_cords,gl_base_widget,gl_main_menu,gl_input, gl_contacts, gl_draw_light_profile, gl_graph, gl_draw_circuit):
-
+	class glWidget(QGLWidget,shape_layer, gl_lib_ray,gl_objects, gl_text,gl_move_view,gl_mesh,gl_layer_editor,gl_cords,gl_base_widget,gl_main_menu,gl_input, gl_contacts, gl_draw_light_profile, gl_graph, gl_draw_circuit, gl_color, gl_shapes, gl_render_obj, gl_photons):
+ 
 		def __init__(self, parent):
 			QGLWidget.__init__(self, parent)
 			gl_move_view.__init__(self)
@@ -178,6 +157,10 @@ if open_gl_ok==True:
 			gl_objects.__init__(self)
 			gl_lib_ray.__init__(self)
 			gl_text.__init__(self)
+			gl_color.__init__(self)
+			gl_render_obj.__init__(self)
+			gl_input.__init__(self)
+
 			self.lit=True
 			self.setAutoBufferSwap(False)
 
@@ -198,7 +181,6 @@ if open_gl_ok==True:
 			self.scene_built=False
 			#view pos
 
-			self.selected_layer=""
 			self.graph_data=dat_file()
 
 
@@ -224,136 +206,23 @@ if open_gl_ok==True:
 			self.called=False
 			self.enable_light_profile=True
 			self.build_main_menu()
-
-		def optics(self):
-			width=0.02
-			leng=0.5
-			start_x=-4
-			start_z=10
-
-			quad=gluNewQuadric()
-
-			glPushMatrix()
-			set_color(1.0,0.0,0.0,"cordinates",alpha=1.0)
-			glTranslatef(start_x,0.0,start_z)
-
-			quad=gluNewQuadric()
-			glRotatef(90, 0.0, 1.0, 0.0)
-			gluCylinder(quad, width, width, leng, 10, 1)
-			glTranslatef(0.0,0.0,leng)
-			gluCylinder(quad, 0.1, 0.00, 0.2, 10, 1)
-			set_color(1.0,1.0,1.0,"cordinates",alpha=1.0)
-			if self.view.zoom>-20:
-				self.render_text (0.2,0.0,0.0, "x",self.font)
-			glPopMatrix()
-
-			glPushMatrix()
-			set_color(0.7,0.7,0.7,"cordinates",alpha=1.0)
-			glTranslatef(start_x,0.0,start_z)
-			quad=gluNewQuadric()
-			#glTranslatef(0.0,0.0,0.0)
-			glRotatef(90, -1.0, 0.0, 0.0)
-			gluCylinder(quad, width, width, leng, 10, 1)
-			glTranslatef(0.0,0.0,leng)
-			gluCylinder(quad, 0.1, 0.00, 0.2, 10, 1)
-			set_color(1.0,1.0,1.0,"cordinates",alpha=1.0)
-			if self.view.zoom>-20:
-				self.render_text (0.2,0.0,0.0, "y",self.font)
-			glPopMatrix()
-
-			glPushMatrix()
-			set_color(0.7,0.7,0.7,"cordinates",alpha=1.0)
-			glTranslatef(start_x,0.0,start_z)
-
-			quad=gluNewQuadric()
-			glRotatef(180, 0.0, 1.0, 0.0)
-			gluCylinder(quad, width, width, leng, 10, 1)
-			glTranslatef(0.0,0.0,leng)
-			gluCylinder(quad, 0.1, 0.00, 0.2, 10, 1)
-
-			gluSphere(quad,0.08,32,32)
-			set_color(1.0,1.0,1.0,"cordinates",alpha=1.0)
-			if self.view.zoom>-20:
-				self.render_text (-0.2,0.0,0.0, "z",self.font)
-			glPopMatrix()
-
-		def draw_photons(self,x0,z0):
-			up_photons=False
-			device_top=scale_get_device_y()
-			if self.light_illuminate_from=="bottom":
-				y=-1.5
-				up_photons=True
-			else:
-				y=device_top+0.5
-
-			dx=scale_get_device_x()
-
-			if self.suns!=0:
-				if self.suns<=0.01:
-					den=dx/5
-				elif self.suns<=0.1:
-					den=dx/8
-				elif self.suns<=1.0:
-					den=dx/10
-				elif self.suns<=10.0:
-					den=dx/20
-				else:
-					den=dx/25
-
-				x=np.arange(x0+den/2.0, x0+scale_get_device_x() , den)
-				z=np.arange(z0+den/2.0, z0+scale_get_device_z() , den)
-
-				for i in range(0,len(x)):
-					for ii in range(0,len(z)):
-						draw_photon(x[i],y,z[ii],up_photons,color=[0.0, 1.0, 0.0])
-
-			if self.emission==True and self.ray_model==False:
-				den=1.2
-				#x=np.arange(0, max_gui_device_x , den)
-				#y=np.arange(0, max_gui_device_z , den)
-				x=np.arange(x0, x0+scale_get_device_x() , den)
-				z=np.arange(z0, z0+scale_get_device_z() , den)
-
-				for i in range(0,len(x)):
-					for ii in range(0,len(z)):
-						draw_photon(x[i]+0.1,y+0.1,z[ii],True,color=[0.0, 0.0, 1.0])
+			self.pre_built_scene=None
 
 
-		def bix_axis(self):
-			for xx in range(0,10):
-				box(0+xx,0,0,0.5,0.5,0.5,1.0,0,0,0.5)
+		#def bix_axis(self):
+		#	for xx in range(0,10):
+		#		self.box(0+xx,0,0,0.5,0.5,0.5,1.0,0,0,0.5)
 
-			for yy in range(0,10):
-				box(0,0+yy,0,0.5,0.5,0.5,1.0,0,0,0.5)
+		#	for yy in range(0,10):
+		#		self.box(0,0+yy,0,0.5,0.5,0.5,1.0,0,0,0.5)
 
 
-			for zz in range(0,10):
-				box(0,0,0+zz,0.5,0.5,0.5,0.0,0,1,0.5)
+		#	for zz in range(0,10):
+		#		self.box(0,0,0+zz,0.5,0.5,0.5,0.0,0,1,0.5)
 
 		def draw_device2(self,x,z):
 			y=scale_get_device_y()
-
-
-			l=0
-			btm_layer=len(epitaxy_get_epi())-1
-
-			for obj in epitaxy_get_epi():
-				y_len=obj.dy*scale_get_ymul()
-				y=y-y_len
-				dy_shrink=y_len*0.1
-
-				name=obj.name
-				layer_name="layer:"+name
-				display_name=name
-				alpha=obj.alpha
-				if len(obj.shapes)>0:
-					self.shape_layer(obj,obj.shapes, y_padding=dy_shrink/2, name=layer_name)
-
-
-		def draw_device(self,x,z):
 			epi=get_epi()
-			y=scale_get_device_y()
-
 			contact_layers=epi.contacts.get_layers_with_contacts()
 
 			l=0
@@ -362,12 +231,15 @@ if open_gl_ok==True:
 			for obj in epi.layers:
 				y_len=obj.dy*scale_get_ymul()
 				y=y-y_len
-				dy_shrink=y_len*0.1
+				dy_shrink=0.0#y_len*0.1
 
 				name=obj.name
-				layer_name="layer:"+name
 				display_name=name
 				alpha=obj.alpha
+				if len(obj.shapes)>0:
+					self.shape_layer(obj,obj.shapes, y_padding=dy_shrink/2)
+
+				alpha=1.0
 				if len(obj.shapes)>0:
 					alpha=0.5
 
@@ -377,26 +249,67 @@ if open_gl_ok==True:
 
 				if l==len(epi.layers)-1 and "bottom" in contact_layers:
 					contact_layer=True
-
+				#print(">>>>",l,contact_layer,contact_layers)
 				if name!="air" and contact_layer==False:
-					if self.draw_device_cut_through==False and l!=len(epi.layers)-1 :
-						box(x,y+dy_shrink/2,z,scale_get_device_x(), y_len-dy_shrink,scale_get_device_z(), obj.r,obj.g,obj.b, alpha,name=[layer_name])
+					o=gl_base_object()
+					o.r=obj.r
+					o.g=obj.g
+					o.b=obj.b
+					o.alpha=alpha
+					o.id=[obj.id]
+					o.xyz.x=x
+					o.xyz.y=y+dy_shrink/2
+					o.xyz.z=z
+					o.dxyz.x=scale_get_device_x()
+					o.dxyz.y=y_len-dy_shrink
+					o.dxyz.z=scale_get_device_z()
+
+					if obj.shape_enabled==True:
+						if self.draw_device_cut_through==False and l!=len(epi.layers)-1 :
+							o.type="box"
+
+							self.project_object_through_electrical_mesh(o)
+						else:
+							o.type="box_cut_through"
+							self.project_object_through_electrical_mesh(o)
 					else:
-						box(x,y+dy_shrink/2,z,scale_get_device_x(), y_len-dy_shrink,scale_get_device_z(), obj.r,obj.g,obj.b, alpha,name=[layer_name],cut_through=True)
+						o.type="marker"
+						self.gl_objects_add(o)					
 
 				if obj.dos_file.startswith("dos")==True:
-					tab(x+scale_get_device_x(),y,z,y_len-dy_shrink)
-					display_name=display_name+" ("+_("active")+")"
+					o=gl_base_object()
+					o.xyz.x=x+scale_get_device_x()+0.1
+					o.xyz.y=y
+					o.xyz.z=z
 
-				if self.selected_layer==layer_name:
-					box_lines(x,y,z,scale_get_device_x(),y_len,scale_get_device_z())
+					o.dxyz.x=0.1
+					o.dxyz.y=y_len
+
+					o.r=0.0
+					o.g=0.0
+					o.b=1.0
+
+					o.type="plane"
+					display_name=display_name+" ("+_("active")+")"
+					self.gl_objects_add(o)
 
 				if self.view.render_text==True:
 					if self.view.zoom<40:
-						set_color(1.0,1.0,1.0,"text")
-						self.render_text (x+scale_get_device_x()+0.1,y+y_len/2,z, display_name,self.font)
+						o=gl_base_object()
+						o.r=1.0
+						o.g=1.0
+						o.b=1.0
+						o.xyz.x=x+scale_get_device_x()+0.2
+						o.xyz.y=y#+y_len/2
+						o.xyz.z=z+(len(epi.layers)-l)*0.1
+						o.id=["text"]
+						o.type="text"
+						o.text=display_name
+						#self.set_color(o)
+						self.gl_objects_add(o)
 
 				l=l+1
+
 
 		def reset(self):
 			self.update_real_to_gl_mul()
@@ -404,16 +317,14 @@ if open_gl_ok==True:
 
 
 		def render(self):
-
 			self.update_real_to_gl_mul()
 
-			x=project_m2screen_x(0)
+			x=gl_scale.project_m2screen_x(0)
 			y=0.0#project_m2screen_y(0)
-			z=project_m2screen_z(0)
-
-			clear_color()
+			z=gl_scale.project_m2screen_z(0)
+			#print(">>>>>>22",project_m2screen_z(0))
+			self.clear_color()
 			glClearColor(self.view.bg_color[0], self.view.bg_color[1], self.view.bg_color[2], 0.5)
-			gl_save_clear()
 
 
 			self.dos_start=-1
@@ -462,21 +373,8 @@ if open_gl_ok==True:
 			if self.enable_draw_ray_mesh==True:
 				self.draw_ray_mesh()
 				
-			if self.view.draw_device==True:
-				self.draw_device(x,z)
-
 			if self.view.optical_mode==True:
-				draw_mode()
-
-			if self.view.render_photons==True:
-				self.draw_photons(x,z)
-
-			if self.view.render_grid==True:
-				draw_grid()
-
-			if self.view.zoom>self.view.stars_distance:
-				draw_stars()
-
+				self.draw_mode()
 
 			if self.scene_built==False:
 				self.build_scene()
@@ -487,8 +385,14 @@ if open_gl_ok==True:
 			#for l in self.lights:
 			#	box(l.xyz[0],l.xyz[1],l.xyz[2],0.5,0.5,0.5,1.0,0,0,0.5)
 
+			if self.view.render_photons==True:
+				self.draw_photons(x,z)
+
 			self.gl_objects_render()
-			#self.text("Hello world!!!! %^&*(")
+
+			if self.view.zoom>self.view.stars_distance:
+				self.draw_stars()
+
 
 		def do_draw(self):
 			self.render()
@@ -509,7 +413,7 @@ if open_gl_ok==True:
 			glColor3f( 1.0, 1.5, 0.0 )
 			glPolygonMode(GL_FRONT, GL_FILL);
 
-			self.bix_axis()
+			#self.bix_axis()
 			if self.failed==False:
 				self.do_draw()
 
@@ -544,12 +448,12 @@ if open_gl_ok==True:
 
 		#This will rebuild the scene from scratch
 		def rebuild_scene(self):
-			self.menu_update()
 			self.gl_objects_clear()
+			self.menu_update()
 			self.text_clear_lib()
 
-			x=project_m2screen_x(0)
-			z=project_m2screen_z(0)
+			x=gl_scale.project_m2screen_x(0)
+			z=gl_scale.project_m2screen_z(0)
 
 			if self.enable_draw_rays==True:
 				self.draw_rays(self.ray_file)
@@ -565,18 +469,18 @@ if open_gl_ok==True:
 						point_x=0.0
 						point_y=0.0
 					else:
-						point_x=project_m2screen_x(point_x)
-						point_y=project_m2screen_y(point_y)
+						point_x=gl_scale.project_m2screen_x(point_x)
+						point_y=gl_scale.project_m2screen_y(point_y)
 
 					a=gl_base_object()
 					a.id=["ray_src"]
 					a.type="box"
-					a.x=point_x
-					a.y=point_y
-					a.z=0.0
-					a.dx=0.2
-					a.dy=0.2
-					a.dz=0.2
+					a.xyz.x=point_x
+					a.xyz.y=point_y
+					a.xyz.z=0.0
+					a.dxyz.dx=0.2
+					a.dxyz.dy=0.2
+					a.dxyz.dz=0.2
 					a.r=0.0
 					a.g=0.0
 					a.b=1.0
@@ -597,6 +501,18 @@ if open_gl_ok==True:
 
 			if self.enable_light_profile==True:
 				self.draw_light_profile()
+
+			if self.view.render_grid==True:
+				o=gl_base_object()
+				o.id=["grid"]
+				o.r=0.5
+				o.g=0.5
+				o.b=0.5
+				o.type="grid"
+				self.gl_objects_add(o)
+
+			if self.pre_built_scene!=None:
+				self.gl_objects_load(self.pre_built_scene)
 
 			#print("rebuild")
 
@@ -625,7 +541,7 @@ if open_gl_ok==True:
 				glMatrixMode(GL_PROJECTION)
 				glLoadIdentity()
 				#glScalef(1.0, 1.0, -1.0)              
-				gluPerspective(45.0,float(self.width()) / float(self.height()+100),0.1, 1000.0) 
+				gluPerspective(45.0,float(self.width()) / float(self.height()+100),0.1, 1000.0)
 				glMatrixMode(GL_MODELVIEW)
 
 		def initializeGL(self):
@@ -634,7 +550,7 @@ if open_gl_ok==True:
 			glClearDepth(1.0)              
 			glDepthFunc(GL_LESS)
 			glEnable(GL_DEPTH_TEST)
-			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+			glBlendFunc(GL_SRC_ALPHA, GL_ONE);	#GL_ONE_MINUS_SRC_ALPHA
 			glEnable(GL_BLEND);
 			glShadeModel(GL_SMOOTH)
 
@@ -674,13 +590,15 @@ if open_gl_ok==True:
 			#glScalef(1.0, 1.0, -1.0)                  
 			gluPerspective(45.0,float(self.width()) / float(self.height()+100),0.1, 1000.0) 
 			glMatrixMode(GL_MODELVIEW)
+			glEnable( GL_POLYGON_SMOOTH )
+			#glEnable(GL_MULTISAMPLE)
 			#self.resizeEvent.connect(self.resize)
 		
 			if self.lit==True:
 				for l in self.lights:
 					glEnable(GL_LIGHTING)
 					lightZeroColor = [1.0, 1.0, 1.0, 1.0]
-					print(l.number,GL_LIGHT1)
+					#print(l.number,GL_LIGHT1)
 					glLightfv(l.number, GL_POSITION, [l.xyz[0],-l.xyz[1],-l.xyz[2] ])
 					glLightfv(l.number, GL_DIFFUSE, lightZeroColor)
 					#glLightfv(l.number, GL_SPOT_DIRECTION, [ 1,1,1]);

@@ -51,7 +51,7 @@ from cal_path import get_materials_path
 from util_zip import archive_compress
 from util_zip import extract_file_from_archive
 
-from inp_util import inp_merge
+from inp_util import inp_merge2
 from cal_path import get_default_material_path
 
 from progress_class import progress_class
@@ -113,6 +113,7 @@ file_list.append(file_type(name="time_mesh_config",dest="archive",copy_opp=file_
 
 file_list.append(file_type(name="dos",dest="archive",copy_opp=file_type().MERGE,base_file=os.path.join(get_default_material_path(),"dos.inp"),needed=False))
 file_list.append(file_type(name="electrical",dest="archive",copy_opp=file_type().MERGE,base_file=os.path.join(get_default_material_path(),"electrical.inp")))
+file_list.append(file_type(name="interface",dest="archive",copy_opp=file_type().MERGE,base_file=os.path.join(get_default_material_path(),"interface.inp")))
 file_list.append(file_type(name="shape",dest="archive",copy_opp=file_type().MERGE,base_file=os.path.join(get_default_material_path(),"shape.inp")))
 file_list.append(file_type(name="pl",dest="archive",copy_opp=file_type().MERGE,base_file=os.path.join(get_default_material_path(),"pl.inp")))
 file_list.append(file_type(name="homo",dest="archive",copy_opp=file_type().JUST_COPY,base_file=os.path.join(get_default_material_path(),"homo.inp")))
@@ -328,7 +329,7 @@ def patch_file(dest_file,base_file,input_file):
 	input_file_lines=read_lines_from_file(input_file)
 	
 
-	errors=inp_merge(base_file_lines,input_file_lines)
+	base_file_lines=inp_merge2(base_file_lines,input_file_lines)
 
 	f=open(dest_file, mode='wb')
 	lines = f.write(str.encode('\n'.join(base_file_lines)))

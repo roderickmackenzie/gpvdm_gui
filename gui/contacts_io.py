@@ -37,8 +37,9 @@ from shape import shape
 from gui_enable import gui_get
 
 
-class contact():
+class contact(shape):
 	def __init__(self):
+		super().__init__()
 		self.name=""
 		self.position=""
 		self.applied_voltage_type="constant"
@@ -47,11 +48,7 @@ class contact():
 		self.shunt_resistance_sq=0.0
 		self.np=1e20
 		self.charge_type="electron"
-		self.shape=None
 		self.physical_model="ohmic"
-
-	def save(self):
-		self.shape.save()
 
 		#contacts_dump()
 class contacts_io():
@@ -97,22 +94,21 @@ class contacts_io():
 				c.ve0=s.contact_ve
 				c.vh0=s.contact_vh
 
-				c.shape=shape()
-				c.shape.shape_dos="none"
-				c.shape.load(s.contact_shape_file_name)
-
+				c.shape_dos="none"
+				c.load(s.contact_shape_file_name)
+				print(c.shape_enabled,c.name,s.contact_shape_file_name)
 				self.contacts.append(c)
 
 
 	def get_shape_files(self):
 		ret=[]
 		for c in self.contacts:
-			ret.append(c.shape.file_name+".inp")
+			ret.append(c.file_name+".inp")
 		return ret
 
 	def print():
 		for s in self.contacts:
-			print(s.shape.x0, s.shape.dx,s.depth,s.contact_applied_voltage,s.contact_applied_voltage_type)
+			print(s.x0, s.dx,s.depth,s.contact_applied_voltage,s.contact_applied_voltage_type)
 
 	def clear():
 		self.contacts=[]
@@ -135,7 +131,7 @@ class contacts_io():
 			lines.append("#contact_charge_type"+str(i))
 			lines.append(str(s.charge_type))
 			lines.append("#contact_shape_file_name"+str(i))
-			lines.append(s.shape.file_name)
+			lines.append(s.file_name)
 			lines.append("#contact_resistance_sq"+str(i))
 			lines.append(str(s.contact_resistance_sq))
 			lines.append("#shunt_resistance_sq"+str(i))
@@ -168,8 +164,13 @@ class contacts_io():
 		for c in self.contacts:
 			c.save()
 
-	def remove(self,index):
-		self.contacts.pop(index)
+	def remove_by_id(self,ids):
+		if type(ids)==str:
+			ids=[ids]
+
+		for c in self.contacts[:]:
+			if c.id in ids:
+				self.contacts.remove(c)
 
 	def get_layers_with_contacts(self):
 		layers=[]
@@ -190,11 +191,10 @@ class contacts_io():
 		s.ve0=1e7
 		s.vh0=1e7
 		s.charge_type="electron"
-		s.shape=shape()
-		s.shape.load(shape_file_name)
-		s.shape.name="new_contact"
-		s.shape.type="box"
-		s.shape.shape_dos="none"
+		s.load(shape_file_name)
+		s.name="new_contact"
+		s.type="box"
+		s.shape_dos="none"
 		self.contacts.insert(pos,s)
 		return self.contacts[pos]
 

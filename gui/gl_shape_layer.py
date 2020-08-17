@@ -26,15 +26,12 @@
 #
 
 import sys
-from gl_save import gl_save_list
-from gl_save import gl_save_add
 
 try:
 	from OpenGL.GL import *
 	from OpenGL.GLU import *
 	from PyQt5 import QtOpenGL
 	from PyQt5.QtOpenGL import QGLWidget
-	from gl_color import set_color
 	from gl_shapes import pyrmid
 	open_gl_ok=True
 except:
@@ -48,63 +45,64 @@ from gl_scale import scale_get_xmul
 from gl_scale import scale_get_ymul
 from gl_scale import scale_get_zmul
 
-from gl_list import gl_base_object
+from gl_base_object import gl_base_object
 from triangle import vec
 from triangle_io import triangles_mul_vec
 from triangle_io import triangles_print
 from triangle_io import triangles_add_vec
-from gl_scale import project_trianges_m2screen
+from triangle_io import triangles_sub_vec
+from triangle_io import triangles_get_min
+from gl_scale import scale_trianges_m2screen
 from triangle_io import triangles_flip
-					
+
+from gl_scale import gl_scale
+
+from epitaxy import get_epi
+
 class shape_layer():
 	def shape_layer(self,epi_layer,shape_list,y_padding=0.0, name="name"):
 		self.gl_objects_remove_regex(name)
 		for s in shape_list:
-			#print(">>>>",s.name)
-			for x in range(0,s.shape_nx):
-				for y in range(0,s.shape_ny):
-					for z in range(0,s.shape_nz):
-						if s.shape_enabled==True:
-							pos=vec()
-							if s.shape_flip_y==True:
-								pos.x=(s.x0+(s.dx+s.dx_padding)*x)
-								pos.y=epi_layer.end-(s.y0+(s.dy+s.dy_padding)*y)
-								pos.z=(s.z0+(s.dz+s.dz_padding)*z)
-							else:
-								pos.x=(s.x0+(s.dx+s.dx_padding)*x)
-								pos.y=(s.y0+(s.dy+s.dy_padding)*y)+epi_layer.start
-								pos.z=(s.z0+(s.dz+s.dz_padding)*z)
+			n=0
+			for pos in s.expand_xyz0(epi_layer):
 
-							a=gl_base_object()
-							a.id=[name]
-							a.type="solid_and_mesh"
-							a.x=pos.x
-							a.y=pos.y
-							a.z=pos.z
-							a.r=s.r
-							a.g=s.g
-							a.b=s.b
-							a.allow_cut_view=True
-							v=vec()
-							v.x=s.dx
-							v.y=s.dy
-							v.z=s.dz
-							#resize the shape to the mesh
-							if s.triangles!=None:
-								a.triangles=triangles_mul_vec(s.triangles.data,v)
+				a=gl_base_object()
+				if n==0:
+					a.origonal_object=True
+				n=n+1
 
-								#flip
-								#print(">>>>>>>>>",s.shape_flip_y)
-								if s.shape_flip_y==True:
-									a.triangles=triangles_flip(a.triangles)
+				a.id=[s.id]
+				a.type="solid_and_mesh"
 
-								#move to correct place
-								a.triangles=triangles_add_vec(a.triangles,pos)
+				a.xyz.x=gl_scale.project_m2screen_x(pos.x)
+				a.xyz.y=gl_scale.project_m2screen_y(pos.y)
+				a.xyz.z=gl_scale.project_m2screen_z(pos.z)
+				#print(">>>>>>",project_m2screen_z(0))
 
+				a.dxyz.x=s.dx*scale_get_xmul()
+				a.dxyz.y=s.dy*scale_get_ymul()
+				a.dxyz.z=s.dz*scale_get_zmul()
+				if s.shape_flip_y==False:
+					a.dxyz.y=a.dxyz.y*-1.0
 
-								#scale to the screen
-								a.triangles=project_trianges_m2screen(a.triangles)
+				a.r=s.r
+				a.g=s.g
+				a.b=s.b
+				a.allow_cut_view=True
+				a.selectable=True
+				v=vec()
+				v.x=s.dx
+				v.y=s.dy
+				v.z=s.dz
+				#resize the shape to the mesh
+				if s.triangles!=None:
+					a.triangles=triangles_mul_vec(s.triangles.data,v)
 
-							self.gl_objects_add(a)
+					if s.shape_flip_y==True:
+						a.triangles=triangles_flip(a.triangles)
+
+					a.triangles=scale_trianges_m2screen(a.triangles)
+
+				self.gl_objects_add(a)
 
 

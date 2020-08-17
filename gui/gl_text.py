@@ -36,12 +36,7 @@ try:
 	from OpenGL.GLU import *
 	from PyQt5 import QtOpenGL
 	from PyQt5.QtOpenGL import QGLWidget
-	from gl_color import set_color
 	from gl_lib import val_to_rgb
-	from gl_color import set_false_color
-	from gl_color import color
-	from gl_color import search_color
-
 
 except:
 	pass
@@ -64,7 +59,7 @@ class gl_text_item():
 		self.x=None
 		self.y=None
 		fonts_path=os.path.join(get_fonts_path(),"LiberationSans-Regular.ttf")
-		print("Loading font from:",fonts_path)
+		#print("Loading font from:",fonts_path)
 		self.ttf_font = ImageFont.truetype(fonts_path, 40, encoding="unic")
 
 	def render(self):
@@ -102,6 +97,7 @@ class gl_text():
 
 	def text_clear_lib(self):
 		self.text_lib=[]
+		print("clear")
 
 	def get_text(self,text):
 		for t in self.text_lib:
@@ -114,8 +110,13 @@ class gl_text():
 		return t
 
 	def text(self,x,y,z,text):
+		if self.view.text==False:
+			return
 		#qobj = gluNewQuadric()
 		#gluQuadricTexture(qobj, GL_TRUE)
+		col = [1.0, 1.0, 1.0, 1.0]
+		glMaterialfv(GL_FRONT, GL_DIFFUSE, col)
+
 		glEnable(GL_BLEND)
 		glEnable(GL_TEXTURE_2D)
 		glDepthMask(GL_FALSE)
@@ -150,8 +151,10 @@ class gl_text():
 		glDepthMask(GL_TRUE)
 		glDisable(GL_BLEND)
 
-	def render_text(self,x,y,z,text,font):
-		if self.view.text==True:
-			self.text(x,y,z,text)
-			#self.renderText (x,y,z, text,font)
+	def gl_render_text(self,o):
+		self.text(o.xyz.x,o.xyz.y,o.xyz.z,o.text)
+
+	def render_text(self,x,y,z,text):
+		self.text(x,y,z,text)
+		#self.renderText (x,y,z, text,font)
 

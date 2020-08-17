@@ -64,9 +64,10 @@ class multiplot:
 		self.gnuplot=gnuplot
 
 	def find_files(self,path):
+		self.sims=[]
 		self.path=os.path.abspath(path)
 		sims=scan_list_simulations(path)
-		print(path,sims)
+		#print(path,sims)
 		for sim_path in sims:
 			sim_data=sim_dir()
 			sim_data.path=sim_path
@@ -127,6 +128,7 @@ class multiplot:
 				self.make_dirs(out_file)
 				f=inp()
 				f.lines=found_files
+				#print("saving as:",out_file)
 				f.save_as(out_file)
 
 	def save(self):

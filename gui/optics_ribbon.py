@@ -198,7 +198,7 @@ class ribbon_optics_files(QToolBar):
 
 	def callback_filter_window(self):
 		widget=tab_class(os.path.join(get_sim_path(),"filter.inp"))
-		widget.setWindowIcon(icon_get("optical_wheel"))
+		widget.setWindowIcon(icon_get("filter_wheel"))
 
 		widget.setWindowTitle(_("Filter editor")+" (https://www.gpvdm.com)")    
 

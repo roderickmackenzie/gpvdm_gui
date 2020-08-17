@@ -132,13 +132,25 @@ class object_editor(QWidgetSavePos):
 		self.setLayout(self.main_vbox)
 		self.epi=get_epi()
 
-	def load(self,layer_index):
-		self.layer_index=layer_index
-		shapes=self.epi.get_shapes(self.layer_index)
-		for s in shapes:
+	def load(self,ids):
+		i=0
+		if type(ids)==str:
+			ids=[ids]
+
+		print(ids[0])
+		self.layer_index=self.epi.find_layer_by_id(ids[0])
+
+		for id in ids:
+			s=self.epi.find_shape_by_id(id)
 			my_tab=tab_class(s.file_name+".inp")
 			my_tab.changed.connect(self.callback_edit)
-			self.notebook.addTab(my_tab,s.name)	
+			if i==0:
+				name=_("Layer: ")+s.name
+			else:
+				name=s.name
+
+			self.notebook.addTab(my_tab,name)	
+			i=i+1
 
 	def callback_edit(self):
 		tab = self.notebook.currentWidget()
@@ -152,6 +164,7 @@ class object_editor(QWidgetSavePos):
 			tab.setEnabled(self.enable.enabled)
 			s=self.epi.find_shape_by_file_name(tab.file_name)
 			if s!=None:
+				tab.tab.f.replace("#shape_enabled",str(self.enable.enabled))
 				s.shape_enabled=self.enable.enabled
 				s.save()
 				global_object_run("gl_force_redraw")
@@ -170,29 +183,20 @@ class object_editor(QWidgetSavePos):
 				self.enable.setState(s.shape_enabled)
 				self.status_bar.showMessage(tab.file_name)
 
+			if self.notebook.currentIndex()==0:
+				self.tb_delete.setEnabled(False)
+			else:
+				self.tb_delete.setEnabled(True)
+
 	def callback_add_shape(self):
-		new_filename=self.epi.new_electrical_file("shape")+".inp"
-		orig_filename=os.path.join(get_default_material_path(),"shape.inp")
-		inp_copy_file(os.path.join(get_sim_path(),new_filename),os.path.join(get_sim_path(),orig_filename))
-
-		mesh=get_mesh()
-		my_shape=shape()
-		my_shape.load(new_filename)
-		my_shape.dy=get_epi().layers[self.layer_index].dy
-		my_shape.dx=mesh.get_xlen()
-		my_shape.dz=mesh.get_zlen()
-		my_shape.shape_electrical=get_epi().gen_new_electrical_file("electrical")
-		my_shape.shape_nx=1
-		my_shape.shape_ny=1
-		my_shape.shape_nz=1
-		my_shape.name="New shape"
-		my_shape.save()
-
-		self.epi.layers[self.layer_index].shapes.append(my_shape)
-		self.epi.save()
+		layer=get_epi().layers[self.layer_index]
+		s=get_epi().new_shape_file(layer)
+		layer.shapes.append(s)
+		new_filename=s.file_name+".inp"
+		get_epi().save()
 
 		my_tab=tab_class(new_filename)
-		self.notebook.addTab(my_tab,my_shape.name)
+		self.notebook.addTab(my_tab,s.name)
 		my_tab.changed.connect(self.callback_edit)
 		global_object_run("gl_force_redraw")
 
@@ -238,8 +242,6 @@ class object_editor(QWidgetSavePos):
 			global_object_run("gl_force_redraw")
 
 	def callback_delete_shape(self):
-		files=inp_ls_seq_files(os.path.join(get_sim_path(),"sim.gpvdm"),"shape")
-
 		tab = self.notebook.currentWidget()
 		s=self.epi.find_shape_by_file_name(tab.file_name)
 		name=s.name

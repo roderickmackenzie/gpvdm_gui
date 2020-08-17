@@ -35,8 +35,10 @@ from PyQt5.QtWidgets import QWidget,QVBoxLayout
 from dat_file import dat_file
 from icon_lib import icon_get
 
-from gl_list import gl_base_object
+from gl_base_object import gl_base_object
 from gl_scale import project_trianges_m2screen
+from gl_scale import gl_scale
+
 from gl import glWidget
 
 class plot_window(QWidget):
@@ -63,7 +65,14 @@ class plot_window(QWidget):
 
 			data_type=data.type
 
+		three_d=False
+		if data_type=="gobj":
+			three_d=True
+
 		if data_type=="zxy-d":
+			three_d=True
+
+		if three_d==True:
 			self.setWindowTitle(_("3D object viewer")+" https://www.gpvdm.com")
 			self.setWindowIcon(icon_get("shape"))
 
@@ -79,10 +88,18 @@ class plot_window(QWidget):
 			self.plot.enable_draw_light_source=False
 			self.plot.enable_draw_rays=False
 			self.plot.view.render_photons=False
-			self.plot.plot_graph=True
-			self.plot.graph_data.load(input_files[0])
-			print(self.plot.graph_data.data)
-			self.show()
+			if data_type=="zxy-d":
+				self.plot.plot_graph=True
+				self.plot.graph_data.load(input_files[0])
+				self.show()
+			if data_type=="gobj":
+				self.plot.pre_built_scene=gl_scale.project_base_objects_from_m_2_screen(data.data)
+				self.show()
+				self.plot.force_redraw()
+				#self.plot.render()
+				#self.plot.gl_objects_load(ret)
+			#print(self.plot.graph_data.data)
+				
 		elif data_type=="circuit":
 			self.setWindowTitle(_("3D object viewer")+" https://www.gpvdm.com")
 			self.setWindowIcon(icon_get("shape"))
@@ -90,8 +107,6 @@ class plot_window(QWidget):
 			self.plot=glWidget(self)
 			self.main_vbox.addWidget(self.plot)
 			self.setLayout(self.main_vbox)
-
-			#self.plot.triangle_file=input_files[0]
 
 			self.plot.draw_electrical_mesh=False
 			self.plot.view.draw_device=False
@@ -103,6 +118,7 @@ class plot_window(QWidget):
 			self.plot.view.render_photons=False
 			self.plot.graph_data.load(input_files[0])
 			self.show()
+
 		elif data_type=="poly":
 			self.setWindowTitle(_("3D object viewer")+" https://www.gpvdm.com")
 			self.setWindowIcon(icon_get("shape"))

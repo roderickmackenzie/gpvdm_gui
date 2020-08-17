@@ -126,11 +126,13 @@ class scans_io:
 		print("stub")
 
 	def clone(self,new_name,old_name):
+		if self.find_path_by_name(new_name)!=False:
+			return False
 		config_file_old=self.find_path_by_name(old_name)
 		config_file_new=self.get_new_scan_file()
 		f=inp()
 		f.load(os.path.join(self.path,config_file_old))
 		f.set_token("#scan_name",new_name)
 		f.save_as(os.path.join(self.path,config_file_new))
-
+		return True
 

@@ -54,7 +54,6 @@ from cost import cost
 
 
 from parasitic import parasitic
-from plot_gen import plot_gen
 from cal_path import get_spectra_path
 
 from util import wrap_text

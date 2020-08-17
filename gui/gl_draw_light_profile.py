@@ -43,9 +43,7 @@ from math import fabs
 from lines import lines_read
 from util import wavelength_to_rgb
 from util import isnumber
-from gl_scale import project_m2screen_x
-from gl_scale import project_m2screen_y
-from gl_scale import project_m2screen_z
+from gl_scale import gl_scale
 from gl_scale import project_trianges_m2screen
 from gl_scale import scale_trianges_m2screen
 
@@ -53,7 +51,7 @@ from gl_scale import scale_get_device_y
 from gl_scale import scale_get_device_x
 from gl_scale import scale_get_device_z
 
-from gl_list import gl_base_object
+from gl_base_object import gl_base_object
 
 from dat_file import dat_file
 from epitaxy import epitaxy_get_epi
@@ -93,9 +91,9 @@ class gl_draw_light_profile():
 			a.id=["light_profile"]
 			a.type="open_triangles"
 
-			a.x=project_m2screen_x(0)
-			a.y=project_m2screen_y(0)
-			a.z=project_m2screen_z(0)
+			a.x=gl_scale.project_m2screen_x(0)
+			a.y=gl_scale.project_m2screen_y(0)
+			a.z=gl_scale.project_m2screen_z(0)
 
 			a.dx=1.0
 			a.dy=scale_get_ymul()*1.0
@@ -122,7 +120,7 @@ class gl_draw_light_profile():
 
 			a.triangles=scale_trianges_m2screen(t)
 			#triangles_mul_vec(triangles_flip_in_box(s.triangles.data),my_vec)
-			#print("bing!",project_m2screen_x(0))
+			#print("bing!",gl_scale.project_m2screen_x(0))
 			self.gl_objects_add(a)
 
 

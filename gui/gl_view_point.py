@@ -33,7 +33,6 @@ try:
 	from OpenGL.GLU import *
 	from PyQt5 import QtOpenGL
 	from PyQt5.QtOpenGL import QGLWidget
-	from gl_color import set_color
 	from gl_lib import val_to_rgb
 
 except:

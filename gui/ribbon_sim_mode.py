@@ -40,7 +40,6 @@ from PyQt5.QtWidgets import QTextEdit, QAction
 from PyQt5.QtCore import QSize, Qt,QFile,QIODevice
 from PyQt5.QtWidgets import QWidget,QSizePolicy,QVBoxLayout,QHBoxLayout,QToolBar, QToolButton,QDialog
 
-from plot_gen import plot_gen
 from info import sim_info
 from win_lin import desktop_open
 

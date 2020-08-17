@@ -29,89 +29,70 @@ import sys
 from OpenGL.GL import *
 
 class color():
-	def __init__(self,r,g,b,alpha=-1,name=""):
-		self.r=r
-		self.g=g
-		self.b=b
-		self.alpha=alpha
-		self.name=name
+	def __init__(self,obj):
+		self.r=obj.r
+		self.g=obj.g
+		self.b=obj.b
+		self.alpha=obj.alpha
+		self.obj=obj
 
 	def __str__(self):
-		return "name="+self.name+" r="+str(self.r)+" g="+str(self.g)+" b="+str(self.b)
+		return "obj.name="+self.obj.name+" r="+str(self.r)+" g="+str(self.g)+" b="+str(self.b)
 
 	def __eq__(self, other):
 		if other.r==self.r and other.g==self.g and other.b==self.b:
 			return True
 		return False
 
-color_list=[]
-false_color=False
 
-def search_color(input_color):
-	global color_list
-	my_min=1000.0
-	for i in range(0,len(color_list)):
-		if input_color==color_list[i]:
-			return color_list[i].name
 
-		#print("r=",r,"g=",g,"b=",b,"r=",color_list[i].r,"g=",color_list[i].g,"b=",color_list[i].b,color_list[n].name)
-	return "none"
+class gl_color:
 
-def set_false_color(value):
-	global false_color
-	false_color=value
-	if false_color==True:
-		glDisable(GL_LIGHTING)
-	else:
-		glEnable(GL_LIGHTING)
+	def __init__(self):
+		self.false_color=False
 
-def set_color(r,g,b,name,alpha=-1):
-	global color_list
-	global false_color
-	lit=True
-	if r==None or g==None or b==None:
-		r=255
-		g=0
-		b=0
-		alpha=0.7
-
-	if false_color==True:
-		rgb_int=len(color_list)+1
-		r =  rgb_int & 255
-		g = (rgb_int >> 8) & 255
-		b =   (rgb_int >> 16) & 255
-		alpha=255
-
-		a=color(r,g,b,alpha=alpha,name=name)
-
-		color_list.append(a)
-
-	if type(r)==int:
-		r=r/255
-		g=g/255
-		b=b/255
-		alpha=alpha
-
-	if alpha==-1:
-		if false_color==False:
-			col = [r, g, b, 1.0]
-			glMaterialfv(GL_FRONT, GL_DIFFUSE, col)
+	def set_false_color(self,value):
+		self.false_color=value
+		if self.false_color==True:
+			glDisable(GL_LIGHTING)
 		else:
-			glColor3f(r,g,b)
-	else:
-		if false_color==False:
-			col = [r, g, b, alpha]
-			glMaterialfv(GL_FRONT, GL_DIFFUSE, col)
+			glEnable(GL_LIGHTING)
+
+	def set_color(self,obj,r_override=None,g_override=None,b_override=None):
+		r=obj.r
+		g=obj.g
+		b=obj.b
+		alpha=obj.alpha
+
+		lit=True
+
+		if r==None or g==None or b==None:
+			r=255
+			g=0
+			b=0
+			alpha=0.7
+
+		if type(r)==int:
+			r=r/255
+			g=g/255
+			b=b/255
+			alpha=alpha
+
+		if self.false_color==True:
+			glColor3f(obj.r_false,obj.g_false,obj.b_false)
 		else:
-			glColor4f(r,g,b, alpha)
+			if alpha==-1:
+				col = [r, g, b, 1.0]
+				glMaterialfv(GL_FRONT, GL_DIFFUSE, col)
+			else:
+				col = [r, g, b, alpha]
+				glMaterialfv(GL_FRONT, GL_DIFFUSE, col)
 
-def clear_color():
-	global color_list
-	color_list=[]
+	def clear_color(self):
+		self.color_list=[]
 
 
-def print_color():
-	global color_list
-	for i in range(0,len(color_list)):
-		print(color_list[i])
+	def print_color(self):
+		for i in range(0,len(self.color_list)):
+			print(self.color_list[i])
 

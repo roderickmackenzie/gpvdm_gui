@@ -120,7 +120,7 @@ class scan_human_labels():
 		for i in range(0,len(self.epi.layers)):
 			l=self.epi.layers[i]
 			self.add_item("epitaxy.inp","#layer_material_file"+str(i),os.path.join("epitaxy",str(l.name),_("Material type")))
-			self.add_item(l.shape_file_name+".inp","#shape_dy",os.path.join("epitaxy",str(l.name),_("dy")))
+			self.add_item(l.file_name+".inp","#shape_dy",os.path.join("epitaxy",str(l.name),_("dy")))
 			for s in l.shapes:
 				if s.shape_dos!="none":
 					print(s.shape_dos)
@@ -130,9 +130,9 @@ class scan_human_labels():
 		contacts=self.epi.contacts.contacts
 
 		for i in range(0,len(contacts)):
-			self.add_item("contacts.inp","#contact_charge_density"+str(i),os.path.join("contacts",str(contacts[i].shape.name),_("Charge density")))
-			self.add_item("contacts.inp","#contact_applied_voltage"+str(i),os.path.join("contacts",str(contacts[i].shape.name),_("Voltage")))
-			self.add_item("contacts.inp","#shunt_resistance_sq"+str(i),os.path.join("contacts",str(contacts[i].shape.name),_("Shunt resistance")))
+			self.add_item("contacts.inp","#contact_charge_density"+str(i),os.path.join("contacts",str(contacts[i].name),_("Charge density")))
+			self.add_item("contacts.inp","#contact_applied_voltage"+str(i),os.path.join("contacts",str(contacts[i].name),_("Voltage")))
+			self.add_item("contacts.inp","#shunt_resistance_sq"+str(i),os.path.join("contacts",str(contacts[i].name),_("Shunt resistance")))
 
 		for i in range(0,len(self.mesh.y.layers)):
 			self.add_item("mesh_y.inp","#mesh_layer_length"+str(i),os.path.join("mesh","y",_("Layer")+" "+str(i),_("dy")))

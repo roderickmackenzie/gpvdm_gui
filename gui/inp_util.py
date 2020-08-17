@@ -62,23 +62,33 @@ def inp_search_token_value_multiline(lines, token):
 
 	return False
 
-def inp_merge(dest,src):
+def inp_merge2(template,src):
 	ret=[]
-	for i in range(0,len(dest)):
-		if dest[i].startswith("#") and dest[i]!="#ver" and dest[i]!="#end"  and dest[i]!="#core":
-			lookfor=dest[i]
+	for template_line in template:
+		if template_line.startswith("#"):
 			found=False
-			for ii in range(0,len(src)):
-				if src[ii]==lookfor:
-					#print "Found",dest_lines[i],orig_lines[ii]
-					dest[i+1]=src[ii+1]
-					found=True
-					break
-			if found==False:
-				ret.append("Warning: token "+lookfor+" not found in archive")
+			if template_line!="#ver" and template_line!="#core":
+				for src_line in src:					#Try to find in the src file 
+					if found==True:
+						if src_line.startswith("#"):
+							break
+						ret.append(src_line)
 
+					if src_line==template_line:
+						found=True
+						ret.append(src_line)
+
+			if found==False:					#if you cant use what is in the template
+				for template_line2 in template:
+					if found==True:
+						if template_line2.startswith("#"):
+							break
+						ret.append(template_line2)
+
+					if template_line2==template_line:
+						found=True
+						ret.append(template_line2)
 	return ret
-
 
 def inp_check_ver(file_path, ver):
 	"""Check ver of file"""

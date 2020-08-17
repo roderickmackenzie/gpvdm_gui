@@ -21,8 +21,8 @@
 #
 # 
 
-## @package dos_main
-#  The main DoS dialog.
+## @package interface_editor
+#  The interface editor
 #
 
 import os
@@ -47,9 +47,8 @@ from css import css_apply
 from inp import inp
 
 from cal_path import get_sim_path
-from newton_solver import newton_solver_get_type
 
-class dos_main(QWidget,tab_base):
+class interface_editor(QWidget,tab_base):
 
 	def __init__(self):
 		QWidget.__init__(self)
@@ -57,9 +56,9 @@ class dos_main(QWidget,tab_base):
 
 		self.main_vbox = QVBoxLayout()
 
-		self.setWindowIcon(icon_get("preferences-system"))
+		self.setWindowIcon(icon_get("interfaces"))
 
-		self.setWindowTitle(_("Electrical parameter editor")+" (https://www.gpvdm.com)") 
+		self.setWindowTitle(_("Interface editor")+" (https://www.gpvdm.com)") 
 
 		toolbar=QToolBar()
 		toolbar.setIconSize(QSize(48, 48))
@@ -90,37 +89,21 @@ class dos_main(QWidget,tab_base):
 		#self.notebook.setTabBar(QHTabBar())
 		#self.notebook.setTabPosition(QTabWidget.West)
 
-		global_object_register("dos_update",self.update)
+		global_object_register("interface_update",self.update)
 		self.update()
 
 	def update(self):
 		self.notebook.clear()
-		fulle_sim=True
-		sim_type=newton_solver_get_type()
-		if sim_type=="newton_simple":
-			fulle_sim=False
+
 		epi=get_epi()
-		for l in epi.layers:
-			if fulle_sim==True:
-				if l.dos_file.startswith("dos")==True:
-					
-						name="DoS of "+l.name
-						print(l.dos_file)
-						widget=tab_class(l.dos_file+".inp")
-						self.notebook.addTab(widget,name)
-
-						for s in l.shapes:
-							if s.shape_dos!="none":
-								name="DoS of "+s.name
-								widget=tab_class(s.shape_dos+".inp")
-								self.notebook.addTab(widget,name)
-								#tab.append(s.shape_dos+".inp")
-			else:
-				name="Electrical "+l.name
-
-				widget=tab_class(l.shape_electrical+".inp")
-
+		for i in range(0,len(epi.layers)-1):
+			l0=epi.layers[i]
+			l1=epi.layers[i+1]
+			if l0.interface_file!="none":
+				name=l0.name+"/"+l1.name
+				widget=tab_class(l0.interface_file+".inp")
 				self.notebook.addTab(widget,name)
+
 
 	def help(self):
 		help_window().help_set_help(["tab.png","<big><b>Density of States</b></big>\nThis tab contains the electrical model parameters, such as mobility, tail slope energy, and band gap."])

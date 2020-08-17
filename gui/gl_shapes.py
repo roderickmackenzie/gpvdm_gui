@@ -26,15 +26,12 @@
 #
 
 import sys
-from gl_save import gl_save_list
-from gl_save import gl_save_add
 
 
 from OpenGL.GL import *
 from OpenGL.GLU import *
 from PyQt5 import QtOpenGL
 from PyQt5.QtOpenGL import QGLWidget
-from gl_color import set_color
 open_gl_ok=True
 
 
@@ -52,282 +49,306 @@ from gl_lib import val_to_rgb
 from triangle_io import triangles_get_min
 from triangle_io import triangles_get_max
 
-def pyrmid(o):
-	x=o.x
-	y=o.y
-	z=o.z
-	dx=o.dx
-	dy=o.dy
-	dz=o.dz
-	segs=40
-	delta=180/segs
-	theata=0
-	theta_rad=(theata/360)*2*3.141592653
-	set_color(o.r,o.g,o.b,o.id,alpha=o.alpha)
+class gl_shapes:
+	def pyrmid(self,o):
 
-	#top
+		dx=o.dxyz.dx
+		dy=o.dxyz.dy
+		dz=o.dxyz.dz
+		segs=40
+		delta=180/segs
+		theata=0
+		theta_rad=(theata/360)*2*3.141592653
+		self.set_color(o)
 
-	glBegin(GL_TRIANGLES)
-	glVertex3f(x,y,z)
-	glVertex3f(x+dx,y,z)
-	glVertex3f(x+dx/2,y+dy,z+dz/2)
-	glEnd()
+		#top
+		glPushMatrix()
+		glTranslatef(o.xyz.x,o.xyz.y,o.xyz.z)
 
-	glBegin(GL_TRIANGLES)
-	glVertex3f(x+dx,y,z)
-	glVertex3f(x+dx,y,z+dz)
-	glVertex3f(x+dx/2,y+dy,z+dz/2)
-	glEnd()
+		glBegin(GL_TRIANGLES)
+		glVertex3f(0.0,0.0,0.0)
+		glVertex3f(dx,0.0,0.0)
+		glVertex3f(dx/2,dy,dz/2)
+		glEnd()
 
-	glBegin(GL_TRIANGLES)
-	glVertex3f(x+dx,y,z+dz)
-	glVertex3f(x,y,z+dz)
-	glVertex3f(x+dx/2,y+dy,z+dz/2)
-	glEnd()
+		glBegin(GL_TRIANGLES)
+		glVertex3f(dx,0.0,0.0)
+		glVertex3f(dx,y,dz)
+		glVertex3f(dx/2,dy,dz/2)
+		glEnd()
 
-	glBegin(GL_TRIANGLES)
-	glVertex3f(x,y,z)
-	glVertex3f(x,y,z+dz)
-	glVertex3f(x+dx/2,y+dy,z+dz/2)
-	glEnd()
+		glBegin(GL_TRIANGLES)
+		glVertex3f(dx,0.0,dz)
+		glVertex3f(0.0,0.0,dz)
+		glVertex3f(dx/2,dy,dz/2)
+		glEnd()
 
-def paint_from_array(o):
-	set_color(o.r,o.g,o.b,o.id,alpha=o.alpha)
-	
-	x=o.x
-	y=o.y
-	z=o.z
-	i=0;
-	glBegin(GL_TRIANGLES)
-	#for t in o.triangles:
+		glBegin(GL_TRIANGLES)
+		glVertex3f(0.0,0.0,0.0)
+		glVertex3f(0.0,0.0,dz)
+		glVertex3f(dx/2,dy,dz/2)
+		glEnd()
+		glPopMatrix()
 
-	for t in o.triangles:
-		glVertex3f(o.x+t.xyz0.x,o.y+t.xyz0.y,o.z+t.xyz0.z)
-		glVertex3f(o.x+t.xyz1.x,o.y+t.xyz1.y,o.z+t.xyz1.z)
-		glVertex3f(o.x+t.xyz2.x,o.y+t.xyz2.y,o.z+t.xyz2.z)
+	def paint_from_array(self,o):
+		self.set_color(o)
 
-	glEnd()
-
-def paint_from_array_cut_through(o):
-	set_color(o.r,o.g,o.b,o.id,alpha=o.alpha)
-
-	min_vec=triangles_get_min(o.triangles)
-	max_vec=triangles_get_max(o.triangles)
-
-	x=o.x
-	y=o.y
-	z=o.z
-	i=0;
-	glBegin(GL_TRIANGLES)
-	#for t in o.triangles:
-
-	for t in o.triangles:
-		plot=True
-		if t.xyz0.x==min_vec.x and t.xyz1.x==min_vec.x and t.xyz2.x==min_vec.x:
-			plot=False
-
-		if t.xyz0.y==max_vec.y and t.xyz1.y==max_vec.y and t.xyz2.y==max_vec.y:
-			plot=False
-
-		if t.xyz0.y==min_vec.y and t.xyz1.y==min_vec.y and t.xyz2.y==min_vec.y:
-			plot=False
-
-		if t.xyz0.z==min_vec.z and t.xyz1.z==min_vec.z and t.xyz2.z==min_vec.z:
-			plot=False
-
-		if plot==True:
-			glVertex3f(o.x+t.xyz0.x,o.y+t.xyz0.y,o.z+t.xyz0.z)
-			glVertex3f(o.x+t.xyz1.x,o.y+t.xyz1.y,o.z+t.xyz1.z)
-			glVertex3f(o.x+t.xyz2.x,o.y+t.xyz2.y,o.z+t.xyz2.z)
-
-	glEnd()
+		glPushMatrix()
+		glTranslatef(o.xyz.x,o.xyz.y,o.xyz.z)
 
 
-def paint_open_triangles_from_array(o,colored=False):
-	set_color(o.r,o.g,o.b,o.id,alpha=o.alpha)
+		glBegin(GL_TRIANGLES)
+		#for t in o.triangles:
 
-	#if colored==True:
-	#	min_y=triangles_get_min(o.triangles).y
-	#	max_y=triangles_get_max(o.triangles).y
+		for t in o.triangles:
+			#print(o.x,o.y,o.z)
+			glVertex3f(t.xyz0.x,t.xyz0.y,t.xyz0.z)
+			glVertex3f(t.xyz1.x,t.xyz1.y,t.xyz1.z)
+			glVertex3f(t.xyz2.x,t.xyz2.y,t.xyz2.z)
 
-	dx=o.dx/2
-	dy=o.dy/2
-	dz=o.dz/2
-	
-	x=o.x
-	y=o.y
-	z=o.z
+		glEnd()
+		glPopMatrix()
 
-	glLineWidth(5)
-	glBegin(GL_LINES)
+	def paint_from_array_cut_through(self,o):
+		self.set_color(o)
 
-	for t in o.triangles:
-
-		#if colored==True:
-		#	ratio=(t.xyz0.y-min_y)/(max_y-min_y)
-		#	r,g,b=val_to_rgb(ratio)
-			#print(ratio,r,g,b)
-		#	glColor4f(r,g,b, 1.0)
-
-		glVertex3f(o.x+t.xyz0.x,o.y+t.xyz0.y,o.z+t.xyz0.z)
-		glVertex3f(o.x+t.xyz1.x,o.y+t.xyz1.y,o.z+t.xyz1.z)
+		min_vec=triangles_get_min(o.triangles)
+		max_vec=triangles_get_max(o.triangles)
 
 
-		if t.points==3:
-			#if colored==True:
-			#	ratio=(t.xyz1.y-min_y)/(max_y-min_y)
-			#	r,g,b=val_to_rgb(ratio)
-			#	#print(ratio,r,g,b)
-			#	glColor4f(r,g,b, 1.0)
+		i=0
+		glPushMatrix()
+		glTranslatef(o.xyz.x,o.xyz.y,o.xyz.z)
+		glBegin(GL_TRIANGLES)
+		#for t in o.triangles:
 
-			glVertex3f(o.x+t.xyz1.x,o.y+t.xyz1.y,o.z+t.xyz1.z)
-			glVertex3f(o.x+t.xyz2.x,o.y+t.xyz2.y,o.z+t.xyz2.z)
+		for t in o.triangles:
+			plot=True
+			if t.xyz0.x==min_vec.x and t.xyz1.x==min_vec.x and t.xyz2.x==min_vec.x:
+				plot=False
+
+			if t.xyz0.y==max_vec.y and t.xyz1.y==max_vec.y and t.xyz2.y==max_vec.y:
+				plot=False
+
+			if t.xyz0.y==min_vec.y and t.xyz1.y==min_vec.y and t.xyz2.y==min_vec.y:
+				plot=False
+
+			if t.xyz0.z==min_vec.z and t.xyz1.z==min_vec.z and t.xyz2.z==min_vec.z:
+				plot=False
+
+			if plot==True:
+				glVertex3f(t.xyz0.x,t.xyz0.y,t.xyz0.z)
+				glVertex3f(t.xyz1.x,t.xyz1.y,t.xyz1.z)
+				glVertex3f(t.xyz2.x,t.xyz2.y,t.xyz2.z)
+
+		glEnd()
+		glPopMatrix()
+
+	def paint_open_triangles_from_array(self,o,colored=False):
+		self.set_color(o)
+
+		dx=o.dxyz.x/2
+		dy=o.dxyz.y/2
+		dz=o.dxyz.z/2
+
+		glLineWidth(5)
+
+		glPushMatrix()
+		glTranslatef(o.xyz.x,o.xyz.y,o.xyz.z)
+
+		glBegin(GL_LINES)
+
+		for t in o.triangles:
 
 			#if colored==True:
-			#	ratio=(t.xyz2.y-min_y)/(max_y-min_y)
+			#	ratio=(t.xyz0.y-min_y)/(max_y-min_y)
 			#	r,g,b=val_to_rgb(ratio)
-			#	#print(ratio,r,g,b)
+				#print(ratio,r,g,b)
 			#	glColor4f(r,g,b, 1.0)
-
-			glVertex3f(o.x+t.xyz2.x,o.y+t.xyz2.y,o.z+t.xyz2.z)
-			glVertex3f(o.x+t.xyz0.x,o.y+t.xyz0.y,o.z+t.xyz0.z)
-	glEnd()
+			glVertex3f(t.xyz0.x,t.xyz0.y,t.xyz0.z)
+			glVertex3f(t.xyz1.x,t.xyz1.y,t.xyz1.z)
 
 
-def half_cyl(x0,y0,z0,dx,dy0,dz,name="name"):
-	r=dx/2
-	x=x0+r
-	y=y0
-	z=z0
-	alpha=0.2
-	segs=40
-	delta=180/segs
-	theata=0
-	theta_rad=(theata/360)*2*3.141592653
+			if t.points==3:
+				#if colored==True:
+				#	ratio=(t.xyz1.y-min_y)/(max_y-min_y)
+				#	r,g,b=val_to_rgb(ratio)
+				#	#print(ratio,r,g,b)
+				#	glColor4f(r,g,b, 1.0)
 
-	set_color(1.0,0.0,0.0,name,alpha=alpha)
+				glVertex3f(t.xyz1.x,t.xyz1.y,t.xyz1.z)
+				glVertex3f(t.xyz2.x,t.xyz2.y,t.xyz2.z)
 
-	#top
-	while (theata<180):
+				#if colored==True:
+				#	ratio=(t.xyz2.y-min_y)/(max_y-min_y)
+				#	r,g,b=val_to_rgb(ratio)
+				#	#print(ratio,r,g,b)
+				#	glColor4f(r,g,b, 1.0)
 
+				glVertex3f(t.xyz2.x,t.xyz2.y,t.xyz2.z)
+				glVertex3f(t.xyz0.x,t.xyz0.y,t.xyz0.z)
+		glEnd()
+		glPopMatrix()
+
+	def half_cyl(self,o,colored=False):
+		
+		r=dx/2
+		x=x0+r
+		y=y0
+		z=z0
+		alpha=0.2
+		segs=40
+		delta=180/segs
+		theata=0
+		theta_rad=(theata/360)*2*3.141592653
+
+		self.set_color(o)
+
+		#top
+		while (theata<180):
+
+
+			glBegin(GL_QUADS)
+			dx=r*cos(theta_rad)
+			dy=dy0*sin(theta_rad)
+
+			glVertex3f(x+dx,y+dy,z+0.0)
+			glVertex3f(x+dx,y+dy,z+dz)
+
+			theata=theata+delta			
+			theta_rad=(theata/360)*2*3.141592653
+
+			dx=r*cos(theta_rad)
+			dy=dy0*sin(theta_rad)
+
+			glVertex3f(x+dx,y+dy,z+dz)
+			glVertex3f(x+dx,y+dy,z)
+
+			glEnd()
+
+		theata=0
+		theta_rad=(theata/360)*2*3.141592653
+
+		self.set_color(o)
+
+		while (theata<180):
+
+
+			glBegin(GL_TRIANGLES)
+			dx=r*cos(theta_rad)
+			dy=dy0*sin(theta_rad)
+
+			glVertex3f(x+dx,y+dy,z)
+
+			theata=theata+delta			
+			theta_rad=(theata/360)*2*3.141592653
+
+			dx=r*cos(theta_rad)
+			dy=dy0*sin(theta_rad)
+
+			glVertex3f(x+dx,y+dy,z)
+
+			glVertex3f(x,y,z)
+
+			glEnd()
+
+		theata=0
+		theta_rad=(theata/360)*2*3.141592653
+
+		while (theata<180):
+
+
+			glBegin(GL_TRIANGLES)
+			dx=r*cos(theta_rad)
+			dy=dy0*sin(theta_rad)
+
+			glVertex3f(x+dx,y+dy,z+dz)
+
+			theata=theata+delta			
+			theta_rad=(theata/360)*2*3.141592653
+
+			dx=r*cos(theta_rad)
+			dy=dy0*sin(theta_rad)
+
+			glVertex3f(x+dx,y+dy,z+dz)
+
+			glVertex3f(x,y,z+dz)
+
+			glEnd()
+
+
+	def box(self,o,cut_through=False):
+		#btm
+
+		dx=o.dxyz.x
+		dy=o.dxyz.y
+		dz=o.dxyz.z
+
+		self.set_color(o)
+		glPushMatrix()
+		glTranslatef(o.xyz.x,o.xyz.y,o.xyz.z)
 
 		glBegin(GL_QUADS)
-		dx=r*cos(theta_rad)
-		dy=dy0*sin(theta_rad)
+		if cut_through==False:
+			glVertex3f(0.0,	0.0,	0.0)
+			glVertex3f(dx,	 0.0,	0.0)
+			glVertex3f(dx,	 0.0,	dz)
+			glVertex3f(0.0,	0.0,	 dz) 
+		
+		#top
+		if cut_through==False:
+			glVertex3f(0.0,	 dy,		 0.0)
+			glVertex3f(dx, dy,	 0.0)
+			glVertex3f(dx,	 dy,	 dz)
+			glVertex3f( 0.0,	 dy,	 dz) 
 
-		glVertex3f(x+dx,y+dy,z+0.0)
-		glVertex3f(x+dx,y+dy,z+dz)
+		#right
 
-		theata=theata+delta			
-		theta_rad=(theata/360)*2*3.141592653
+		glVertex3f(dx,	0.0,			0.0)
+		glVertex3f(dx,	dy,	0.0)
+		glVertex3f(dx,	dy,	dz)
+		glVertex3f(dx,	0.0,			dz) 
 
-		dx=r*cos(theta_rad)
-		dy=dy0*sin(theta_rad)
+		#left
+		if cut_through==False:
+			glVertex3f(0.0,0.0,			0.0)
+			glVertex3f(0.0, dy,	0.0)
+			glVertex3f(0.0, dy,	dz)
+			glVertex3f(0.0, 0.0,		dz) 
+		
+		#back
+		glVertex3f(0.0,0.0,dz)
+		glVertex3f(dx,0.0,dz)
+		glVertex3f(dx,dy,dz)
+		glVertex3f(0.0, dy,dz) 
 
-		glVertex3f(x+dx,y+dy,z+dz)
-		glVertex3f(x+dx,y+dy,z)
-
-		glEnd()
-
-	theata=0
-	theta_rad=(theata/360)*2*3.141592653
-
-	set_color(1.0,0.0,0.0,name,alpha=alpha)
-
-	while (theata<180):
-
-
-		glBegin(GL_TRIANGLES)
-		dx=r*cos(theta_rad)
-		dy=dy0*sin(theta_rad)
-
-		glVertex3f(x+dx,y+dy,z)
-
-		theata=theata+delta			
-		theta_rad=(theata/360)*2*3.141592653
-
-		dx=r*cos(theta_rad)
-		dy=dy0*sin(theta_rad)
-
-		glVertex3f(x+dx,y+dy,z)
-
-		glVertex3f(x,y,z)
-
-		glEnd()
-
-	theata=0
-	theta_rad=(theata/360)*2*3.141592653
-
-	while (theata<180):
-
-
-		glBegin(GL_TRIANGLES)
-		dx=r*cos(theta_rad)
-		dy=dy0*sin(theta_rad)
-
-		glVertex3f(x+dx,y+dy,z+dz)
-
-		theata=theata+delta			
-		theta_rad=(theata/360)*2*3.141592653
-
-		dx=r*cos(theta_rad)
-		dy=dy0*sin(theta_rad)
-
-		glVertex3f(x+dx,y+dy,z+dz)
-
-		glVertex3f(x,y,z+dz)
+		#front
+		if cut_through==False:
+			glVertex3f(0.0,0.0,0.0)
+			glVertex3f(0.0, dy,0.0)
+			glVertex3f(dx,dy,0.0)
+			glVertex3f(dx, 0.0,0.0)
 
 		glEnd()
+		glPopMatrix()
 
+	def plane(self,o):
+		dx=o.dxyz.x
+		dy=o.dxyz.y
+		dz=o.dxyz.z
 
-def box(x,y,z,w,h,d,r,g,b,alpha,name=["box"],cut_through=False):
-	red=r
-	green=g
-	blue=b
+		self.set_color(o)
+		glPushMatrix()
+		glTranslatef(o.xyz.x,o.xyz.y,o.xyz.z)
 
+		glBegin(GL_QUADS)
 
-	#btm
-	set_color(red,green,blue,name,alpha=alpha)
-	glBegin(GL_QUADS)
-	if cut_through==False:
-		glVertex3f(x+0.0,y+0.0,z+0.0)
-		glVertex3f(x+w,y+ 0.0,z+0.0)
-		glVertex3f(x+w,y+ 0.0,z+d)
-		glVertex3f(x+ 0.0, y+0.0,z+ d) 
-	
-	#top
-	if cut_through==False:
-		glVertex3f(x+0.0,y+h,z+0.0)
-		glVertex3f(x+w,y+ h,z+0.0)
-		glVertex3f(x+w,y+ h,z+d)
-		glVertex3f(x+ 0.0, y+h,z+ d) 
+		glVertex3f(0.0, 0.0, 0.0)
+		glVertex3f(dx, 0.0, 0.0)
 
-	#right
+		glVertex3f(dx, dy, 0.0)
+		glVertex3f(0.0, dy, 0.0)
 
-	glVertex3f(x+w,y,z)
-	glVertex3f(x+w,y+ h,z)
-	glVertex3f(x+w,y+ h,z+d)
-	glVertex3f(x+w, y,z+d) 
-
-	#left
-	if cut_through==False:
-		glVertex3f(x,y,z)
-		glVertex3f(x,y+ h,z)
-		glVertex3f(x,y+ h,z+d)
-		glVertex3f(x, y,z+d) 
-	
-	#back
-	glVertex3f(x,y,z+d)
-	glVertex3f(x+w,y,z+d)
-	glVertex3f(x+w,y+h,z+d)
-	glVertex3f(x, y+h,z+d) 
-
-	#front
-	if cut_through==False:
-		glVertex3f(x,y,z)
-		glVertex3f(x,y+ h,z)
-		glVertex3f(x+w,y+ h,z)
-		glVertex3f(x+w, y,z)
-
-	glEnd()
+		glEnd()
+		glPopMatrix()
 

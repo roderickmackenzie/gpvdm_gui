@@ -231,6 +231,16 @@ def device_lib_epitaxy_force_shapes():
 					f.save()
 					archive_copy_file(arch,new_shape_file,os.path.join(get_sim_path(),"sim.gpvdm"),"shape0.inp")
 
+def device_lib_set_color():
+	archives=find_device_libs()
+	for arch in archives:
+		files=zip_lsdir(arch)
+		for file_name in files:
+			if file_name.startswith("shape")==True:
+				f=inp().load(os.path.join(arch,file_name))
+				f.replace("#red_green_blue",["0.0","0.8","0.0"])
+				print(f.lines)
+				f.save()
 def device_lib_epitaxy_token_to_shape(epitaxy_token,shape_token):
 	archives=find_device_libs()
 	for arch in archives:

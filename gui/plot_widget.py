@@ -533,6 +533,7 @@ class plot_widget(QWidget):
 			dat=dat_file()
 			ret=dat.load(self.input_files[i])
 			if ret!=False:
+				dat.chop_y(0,-3)
 				self.data.append(dat)
 
 

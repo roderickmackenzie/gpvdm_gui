@@ -86,6 +86,7 @@ class ribbon_electrical(QToolBar):
 		self.addAction(self.tb_electrical_editor)
 
 		get_watch().add_call_back("diagram.inp",self.callback_circuit_diagram)
+		get_watch().add_call_back("math.inp",self.callback_circuit_diagram)
 		self.callback_circuit_diagram()
 
 	def update(self):
@@ -136,7 +137,11 @@ class ribbon_electrical(QToolBar):
 		self.electrical_editor.show()
 
 	def callback_circuit_diagram(self):
-		if inp().isfile(os.path.join(get_sim_path(),"diagram.inp"))==True:
+		f=inp()
+		f.load(os.path.join(get_sim_path(),"math.inp"))
+		solver_name=f.get_token("#newton_name")
+
+		if inp().isfile(os.path.join(get_sim_path(),"diagram.inp"))==True and solver_name=="newton_simple":
 			self.tb_electrical_editor.setEnabled(False)
 		else:
 			self.tb_electrical_editor.setEnabled(True)

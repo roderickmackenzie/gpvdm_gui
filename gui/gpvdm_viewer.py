@@ -190,7 +190,7 @@ class gpvdm_viewer(QListWidget):
 		self.customContextMenuRequested.connect(self.callback_menu)
 		self.resizeEvent=self.resizeEvent
 		self.selected=[]
-
+		self.snapshot_window=[]
 		#self.show()
 
 	def set_back_arrow(self,data):
@@ -247,10 +247,13 @@ class gpvdm_viewer(QListWidget):
 
 		deleteAction = menu.addAction(_("Delete file"))
 		renameAction = menu.addAction(_("Rename"))
+		cloneAction = menu.addAction(_("Copy"))
 		renameAction.setEnabled(False)
 		deleteAction.setEnabled(False)
+		cloneAction.setEnabled(False)
 		if len(self.selectedItems())==1:
 			renameAction.setEnabled(True)
+			cloneAction.setEnabled(True)
 
 		items=self.selectedItems()
 		if len(items)>0:
@@ -279,6 +282,8 @@ class gpvdm_viewer(QListWidget):
 				os.mkdir(name)
 		elif action == deleteAction:
 			self.delete()
+		elif action == cloneAction:
+			self.clone()
 		elif action == renameAction:
 			self.rename()
 
@@ -288,12 +293,13 @@ class gpvdm_viewer(QListWidget):
 		old_name=self.currentItem().text()
 		decode=self.decode_name(old_name)
 		if decode.type=="scan_dir":
-			new_sim_name=dlg_get_text( _("Clone the file to be called:"), old_name+"_new","rename.png")
+			new_sim_name=dlg_get_text( _("Clone the file to be called:"), old_name+"_new","clone.png")
 			new_sim_name=new_sim_name.ret
 
 			if new_sim_name!=None:
 				scans=scans_io(self.path)
-				scans.clone(new_sim_name,old_name)
+				if scans.clone(new_sim_name,old_name)==False:
+					error_dlg(self,_("The file name already exists"))
 		else:
 			print(clone)
 
@@ -573,6 +579,8 @@ class gpvdm_viewer(QListWidget):
 						itm.icon="multiplot"
 					elif str(text).count("#type poly")>0:
 						itm.icon="vector"
+					elif str(text).count("#gobj")>0:
+						itm.icon="vector"
 					elif text.startswith(b"#"):
 						itm.icon="dat_file"
 					else:
@@ -836,8 +844,8 @@ class gpvdm_viewer(QListWidget):
 
 				help_window().help_set_help(["plot_time.png",_("<big><b>Examine the results in time domain</b></big><br> After you have run a simulation in time domain, if is often nice to be able to step through the simulation and look at the results.  This is what this window does.  Use the slider bar to move through the simulation.  When you are simulating a JV curve, the slider sill step through voltage points rather than time points.")])
 
-				self.snapshot_window=cmp_class(full_path)
-				self.snapshot_window.show()
+				self.snapshot_window.append(cmp_class(full_path))
+				self.snapshot_window[-1].show()
 				#print("snapshots!!")
 				return
 

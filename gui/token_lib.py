@@ -124,11 +124,20 @@ def build_token_lib():
 	lib.append(my_data("","#free_to_free_recombination","m^{3}s^{-1}",_("n_{free} to p_{free} Recombination rate constant"),"e",1.0,"QLineEdit",min=1e-27,max=1e-15 ))
 
 	#electrical?.inp
-	lib.append(my_data("","#electrical_component","type",_("Component"),"e",1.0,"QComboBoxLang",defaults=[[("resistance"),_("Resistance")],["diode",_("Diode")]]))
-	lib.append(my_data("","#electrical_shunt","Ohm  m",_("Shunt resistivity"),"e",1.0,"QLineEdit",min=0.1,max=1e20, hide_on_token_eq=[["#electrical_component","resistance"]] ))
-	lib.append(my_data("","#electrical_series","Ohm m",_("Series resistivity"),"e",1.0,"QLineEdit",min=0.1,max=1e20 ))
-	lib.append(my_data("","#electrical_n","au",_("Layer ideality factor"),"e",1.0,"QLineEdit",min=0.0,max=1.0, hide_on_token_eq=[["#electrical_component","resistance"]] ))
-	lib.append(my_data("","#electrical_J0","A m^{-2}",_("Reverse bias current"),"e",1.0,"QLineEdit",min=0.0,max=1e6, hide_on_token_eq=[["#electrical_component","resistance"]] ))
+	lib.append(my_data("","#electrical_component","type",_("Component"),"e",1.0,"QComboBoxLang",defaults=[[("resistance"),_("Resistance")],["diode",_("Diode")],["link",_("Link")]]))
+	lib.append(my_data("","#electrical_shunt","Ohm  m",_("Shunt resistivity"),"e",1.0,"QLineEdit",min=0.1,max=1e20, hide_on_token_eq=[["#electrical_component","resistance"],["#electrical_component","link"]] ))
+	#lib.append(my_data("","#electrical_series","Ohm m",_("Series resistivity"),"e",1.0,"QLineEdit",min=0.1,max=1e20, hide_on_token_eq=[["#electrical_component","link"]] ))
+
+	lib.append(my_data("","#electrical_symmetrical_resistance","Ohm m",_("Series resistivity"),"e",1.0,"mobility_widget", defaults=[False] ))
+
+	lib.append(my_data("","#electrical_series_z","Ohm m",_("Series resistivity z"),"e",1.0,"mobility_widget",min=1.0,max=1e-1,hidden=True))
+	lib.append(my_data("","#electrical_series_x","Ohm m",_("Series resistivity x"),"e",1.0,"mobility_widget",min=1.0,max=1e-1,hidden=True))
+	lib.append(my_data("","#electrical_series_y","Ohm m",_("Series resistivity y"),"e",1.0,"mobility_widget",min=1.0,max=1e-1,hidden=True))
+
+	lib.append(my_data("","#electrical_n","au",_("Layer ideality factor"),"e",1.0,"QLineEdit",min=0.0,max=1.0, hide_on_token_eq=[["#electrical_component","resistance"],["#electrical_component","link"]] ))
+	lib.append(my_data("","#electrical_J0","A m^{-2}",_("Reverse bias current"),"e",1.0,"QLineEdit",min=0.0,max=1e6, hide_on_token_eq=[["#electrical_component","resistance"],["#electrical_component","link"]] ))
+	lib.append(my_data("","#electrical_enable_generation",_("True/False"),_("Enable optical charge\ncarrier generation"),"e",1.0,"gtkswitch" ))
+
 
 
 
@@ -153,6 +162,16 @@ def build_token_lib():
 	lib.append(my_data("","#shape_dos",_("Edit"),_("Electricaly active"),"e",1.0,"shape_dos_switch",units_widget="QPushButton"))
 	lib.append(my_data("","#shape_optical_material",_("Edit"),_("Optical material"),"e",1.0,"gpvdm_select_material" ,units_widget="QPushButton"))
 	lib.append(my_data("","#shape_flip_y",_("True/False"),_("Flip y"),"e",1.0,"gtkswitch"))
+
+	#interface?.inp
+	lib.append(my_data("","#interface_model","type",_("Interface model"),"e",1.0,"QComboBoxLang",defaults=[[("none"),_("None")],["recombination",_("Recombination")]]))
+	lib.append(my_data("","#interface_eh_tau","m^{3}s^{-1}",_("Recombination constant"),"e",1.0,"QLineEdit",hide_on_token_eq=[["#interface_model","none"]]))
+
+	
+	1e-15
+	#ver
+	1.0
+	#end
 
 	#stark.inp
 	lib.append(my_data("","#stark_startime","s",_("startime"),"e",1.0,"QLineEdit"))
@@ -257,7 +276,9 @@ def build_token_lib():
 	lib.append(my_data("","#english_name","name",_("English name"),"e",1.0,"QLineEdit"))
 
 	#server.inp
-	lib.append(my_data("","#server_cpus","au",_("Number of CPUs"),"e",1.0,"QLineEdit"))
+	lib.append(my_data("","#gpvdm_core_max_threads","au",_("Number of gpvdm_core threads"),"e",1.0,"QLineEdit"))
+	lib.append(my_data("","#max_gpvdm_instances","au",_("Maximum number of gpvdm_core instances"),"e",1.0,"QLineEdit"))
+
 	lib.append(my_data("","#server_stall_time","","","e",1.0,"QLineEdit"))
 	lib.append(my_data("","#server_exit_on_dos_error","","","e",1.0,"QLineEdit"))
 	lib.append(my_data("","#server_max_run_time","","","e",1.0,"QLineEdit"))

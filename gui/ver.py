@@ -41,6 +41,7 @@ from cal_path import get_sim_path
 global core
 global ver_error
 global subver
+global gpvdm_version
 
 def ver_error():
 	global ver_error
@@ -65,12 +66,18 @@ def ver():
 	global subver
 	return str(core)+"."+subver
 
+def is_gpvdm_next():
+	global gpvdm_version
+	if gpvdm_version=="gpvdm_next":
+		return True
+	return False
+
 def ver_load_info():
 	lines=[]
 	global core
 	global ver_error
 	global subver
-	
+	global gpvdm_version
 	core=""
 	ver_error=""
 
@@ -81,6 +88,7 @@ def ver_load_info():
 	if lines!=False:
 		core=inp_search_token_value(lines,"#core")
 		subver=inp_search_token_value(lines,"#sub_ver")
+		gpvdm_version=inp_search_token_value(lines,"#gpvdm_version")
 		return True
 	else:
 		ver_error="I can not find the file sim.gpvdm/ver.inp.\n\nI have tried looking in "+ver_file_path+"\n\nThe share path is"+get_share_path()+"\n\nThe bin path is"+get_bin_path()+"\n\nThe current working dir is "+get_sim_path()+"\n\nTry reinstalling a new version of gpvdm and/or report the bug to me at  roderick.mackenzie@nottingham.ac.uk."

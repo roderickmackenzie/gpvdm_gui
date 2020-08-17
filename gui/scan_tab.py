@@ -100,6 +100,8 @@ from server import server_get
 from scan_tab_ribbon import scan_tab_ribbon
 from scan_program_line import scan_program_line
 
+from multiplot import multiplot
+
 class scan_vbox(QWidget):
 
 	def callback_move_down(self):
@@ -437,16 +439,14 @@ class scan_vbox(QWidget):
 
 		self.save_combo()
 		self.scan_io.myserver=server_get()
+		self.scan_io.myserver.callback=self.callback_build_plots
 		self.scan_io.set_base_dir(get_sim_path())
 		self.scan_io.run()
 
-	def callback_examine(self):
-		mycmp=cmp_class()
-		#ret=mycmp.init(self.scan_io.scan_dir,get_exe_command())
-		ret=mycmp.init()
-		if ret==False:
-			error_dlg(self,_("Re-run the simulation with 'dump all slices' set to one to use this tool."))
-			return
+	def callback_build_plots(self):
+		a=multiplot(gnuplot=True)
+		a.find_files(self.scan_io.scan_dir)
+		a.save()
 
 	def callback_notes(self):
 		notes_path=os.path.join(self.scan_io.scan_dir,"notes.txt")
@@ -468,6 +468,7 @@ class scan_vbox(QWidget):
 	def __init__(self,scan_file):
 		QWidget.__init__(self)
 		self.notebook=QTabWidget()
+		self.setWindowTitle(_("Parameter scan editor - (www.gpvdm.com)"))
 		self.setWindowIcon(icon_get("scan"))
 
 		self.main_vbox = QVBoxLayout()
@@ -528,7 +529,8 @@ class scan_vbox(QWidget):
 
 		self.tab.setSelectionBehavior(QAbstractItemView.SelectRows)
 		self.tab.setColumnWidth(2, 300)
-		self.tab.setColumnWidth(3, 200)
+		self.tab.setColumnWidth(3, 300)
+		self.tab.setColumnWidth(4, 300)
 		self.load()
 
 		self.tab.cellChanged.connect(self.tab_changed)

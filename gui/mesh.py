@@ -42,7 +42,10 @@ class mlayer():
 		self.thick=0.0
 		self.points=0
 		self.mul=1.0
+		self.mesh=[]
 		self.left_right="left"
+		self.start=0.0
+		self.end=0.0
 
 class mesh_zxy:
 	def __init__(self,direction):
@@ -60,22 +63,30 @@ class mesh_zxy:
 		out_y=[]
 
 		self.tot_points=0
+		pos=0.0
 		if self.circuit_model==True:
 			for i in range(0,len(self.epi.layers)):
 				l=self.epi.layers[i]
-				out_x.append(l.start)
+				out_x.append(pos)
 				out_y.append(1.0)
+				pos=pos+l.dy/2
+				out_x.append(pos)
+				out_y.append(1.0)
+				pos=pos+l.dy/2
 
-			out_x.append(self.epi.layers[-1].end)
+			out_x.append(pos)
 			out_y.append(1.0)
+
 		else:
 			for i in range(0,len(self.layers)):
 				l=self.layers[i]
-				if l.points!=0:
-					layer_length=l.thick
-					layer_points=l.points
-					layer_mul=l.mul
-					layer_left_right=l.left_right
+
+				layer_length=l.thick
+				layer_points=l.points
+				layer_mul=l.mul
+				layer_left_right=l.left_right
+
+				if layer_points!=0:
 					dx=layer_length/layer_points
 					pos=0.0
 					ii=0
@@ -95,16 +106,25 @@ class mesh_zxy:
 						if dx==0 or self.tot_points>2000:
 							break
 
+					l.mesh=[]
 					for i in range(0,len(temp_x)):
 						if layer_left_right=="left":
-							out_x.append((temp_x[i]+total_pos))
+							l.mesh.append((temp_x[i]+total_pos))
 						else:
-							out_x.append((layer_length-temp_x[i]+total_pos))
+							l.mesh.append((layer_length-temp_x[i]+total_pos))
+
 
 						out_y.append(temp_mag[i])
-					total_pos=total_pos+layer_length
-				
-			out_x.sort()
+
+					l.mesh.sort()
+
+				total_pos=total_pos+layer_length
+
+			out_x=[]	
+			for l in self.layers:
+				out_x.extend(l.mesh)
+
+			#out_x.sort()
 
 		self.points=out_x
 		return out_x,out_y
@@ -172,11 +192,20 @@ class mesh_zxy:
 
 
 	def add_layer(self,thick,points,mul,left_right):
+		if len(self.layers)==0:
+			start=0.0
+			end=thick
+		else:
+			start=self.layers[-1].end
+			end=self.layers[-1].end+thick
+
 		a=mlayer()
 		a.thick=thick
 		a.points=points
 		a.mul=mul
 		a.left_right=left_right
+		a.start=start
+		a.end=end
 		self.layers.append(a)
 
 	def update(self):
@@ -313,6 +342,9 @@ class mesh:
 		build_x=[]
 		build_y=[]
 
+		#print(self.epi.device_mask(x[0],y[14],z[0]))
+		#import sys
+		#sys.exit(0)
 		for zi in range(0,len(z)):
 			build_x=[]
 			for xi in range(0,len(x)):
@@ -324,8 +356,10 @@ class mesh:
 					else:
 						val=self.epi.device_mask(x[xi],y[yi],z[zi])
 					build_y.append(val)
+					#if xi==0:
+						
 				build_x.append(build_y)
-
+				#sys.exit(0)
 			ret.append(build_x)
 		#print(ret)
 		return ret

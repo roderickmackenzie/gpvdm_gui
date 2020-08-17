@@ -54,6 +54,7 @@ from PyQt5.QtCore import QSize, Qt
 from PyQt5.QtWidgets import QWidget,QVBoxLayout,QHBoxLayout,QToolBar,QSizePolicy,QAction,QTabWidget,QTableWidget,QAbstractItemView,QApplication
 from PyQt5.QtGui import QPainter,QIcon
 
+
 #windows
 from open_save_dlg import save_as_jpg
 
@@ -272,10 +273,14 @@ class tab_fxmesh(QWidget):
 					local_fx.append(fx)
 					local_mag.append(1.0)
 				else:
+					fx_start=fx
 					while(fx<stop):
 						local_fx.append(fx)
 						local_mag.append(1.0)
-						fx=fx*mul
+						if mul==1.0:
+							fx=fx+(stop-fx_start)/max_points
+						else:
+							fx=fx*mul
 						pos=pos+1
 						if pos>max_points:
 							break
@@ -283,20 +288,21 @@ class tab_fxmesh(QWidget):
 				#local_mag.append(1.0)
 			self.mag.append(local_mag)
 			self.fx.append(local_fx)
-			print(	self.fx)
+			#print(	self.fx)
 			local_mag=[]
 			local_fx=[]
 
 
 
 		#self.statusbar.push(0, str(len(self.fx))+_(" mesh points"))
-
-	def on_cell_edited(self, x,y):
-		print("Cell edited",x,y)
+	def redraw_and_save(self):
 		self.build_mesh()
 		self.draw_graph()
 		self.fig.canvas.draw()
 		self.save_data()
+
+	def on_cell_edited(self, x,y):
+		self.redraw_and_save()
 
 	def save_image(self):
 		file_name = save_as_jpg(self)
@@ -381,6 +387,9 @@ class tab_fxmesh(QWidget):
 		self.update_scan_tokens()
 
 		self.tab.cellChanged.connect(self.on_cell_edited)
+		self.tab.changed.connect(self.redraw_and_save)
+
+
 		#self.tab.paste_callback=self.paste_action
 
 		tab_vbox_layout.addWidget(self.tab)

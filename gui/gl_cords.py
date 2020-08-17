@@ -33,7 +33,6 @@ try:
 	from OpenGL.GLU import *
 	from PyQt5 import QtOpenGL
 	from PyQt5.QtOpenGL import QGLWidget
-	from gl_color import set_color
 	from gl_lib import val_to_rgb
 	from PyQt5.QtGui import QFont
 
@@ -48,9 +47,12 @@ from gl_scale import scale_get_start_z
 
 class gl_cords():
 	def draw_cords(self):
+		if self.false_color==True:
+			return
+
 		#thse issue is that you should be using QOpenGLWidget and do the text rendering by hand
-		font = QFont("Arial")
-		font.setPointSize(18)
+		#font = QFont("Arial")
+		#font.setPointSize(18)
 
 		width=0.04
 		leng=1.0
@@ -60,40 +62,37 @@ class gl_cords():
 		quad=gluNewQuadric()
 
 
+		col = [0.7,0.7,0.7, 1.0]
+		glMaterialfv(GL_FRONT, GL_DIFFUSE, col)
 
 		glPushMatrix()
-		set_color(0.7,0.7,0.7,"cordinates",alpha=1.0)
 		glTranslatef(start_x,start_y,start_z)
-		self.render_text (leng+0.2,0.0,0.0, "x",font)
+		self.render_text (leng+0.2,0.0,0.0, "x")
 		quad=gluNewQuadric()
 		glRotatef(90, 0.0, 1.0, 0.0)
 		gluCylinder(quad, width, width, leng, 10, 1)
 		glTranslatef(0.0,0.0,leng)
 		gluCylinder(quad, 0.1, 0.00, 0.2, 10, 1)
-		set_color(1.0,1.0,1.0,"cordinates",alpha=1.0)
 		#if self.view.zoom<20:
 		glPopMatrix()
 
 
 		glPushMatrix()
-		set_color(0.7,0.7,0.7,"cordinates",alpha=1.0)
 		glTranslatef(start_x,start_y,start_z)
-		self.render_text (0.0,-leng-0.4,0.0, "y",font)
+		self.render_text (0.0,-leng-0.4,0.0, "y")
 		quad=gluNewQuadric()
 		#glTranslatef(0.0,0.0,0.0)
 		glRotatef(270, -1.0, 0.0, 0.0)
 		gluCylinder(quad, width, width, leng, 10, 1)
 		glTranslatef(0.0,0.0,leng)
 		gluCylinder(quad, 0.1, 0.00, 0.2, 10, 1)
-		set_color(1.0,1.0,1.0,"cordinates",alpha=1.0)
 		#if self.view.zoom<20:
 		glPopMatrix()
 
 
 		glPushMatrix()
-		set_color(0.7,0.7,0.7,"cordinates",alpha=1.0)
 		glTranslatef(start_x,start_y,start_z)
-		self.render_text (-0.0,0.0,leng+0.2, "z",font)
+		self.render_text (-0.0,0.0,leng+0.2, "z")
 		quad=gluNewQuadric()
 		glRotatef(0, 0.0, 1.0, 0.0)
 		gluCylinder(quad, width, width, leng, 10, 1)
@@ -101,7 +100,6 @@ class gl_cords():
 		gluCylinder(quad, 0.1, 0.00, 0.2, 10, 1)
 
 		gluSphere(quad,0.08,32,32)
-		set_color(1.0,1.0,1.0,"cordinates",alpha=1.0)
 		#if self.view.zoom<20:
 		glPopMatrix()
 
@@ -109,13 +107,13 @@ class gl_cords():
 
 	def draw_numbers(self):
 
-		font = QFont("Arial")
-		font.setPointSize(18)
+		#font = QFont("Arial")
+		#font.setPointSize(18)
 
 
-		self.render_text (0.0,0.0,0.0, "(0,0,0)",font)
-		self.render_text (1.0,0.0,0.0, "(1,0,0)",font)
-		self.render_text (0.0,2.0,0.0, "(0,1,0)",font)
-		self.render_text (0.0,0.0,1.0, "(0,0,1)",font)
+		self.render_text (0.0,0.0,0.0, "(0,0,0)")
+		self.render_text (1.0,0.0,0.0, "(1,0,0)")
+		self.render_text (0.0,2.0,0.0, "(0,1,0)")
+		self.render_text (0.0,0.0,1.0, "(0,0,1)")
 
 

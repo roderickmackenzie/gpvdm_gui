@@ -61,12 +61,15 @@ from QAction_lock import QAction_lock
 from solar_spectrum_gen_window import solar_spectrum_gen_window
 
 from inp import inp
+from ver import is_gpvdm_next
+from interface_editor import interface_editor
 
 class ribbon_configure(QToolBar):
 	def __init__(self):
 		QToolBar.__init__(self)
 		self.config_window=None
 		self.electrical_mesh=None
+		self.electrical_interfaces=None
 
 		self.setToolButtonStyle( Qt.ToolButtonTextUnderIcon)
 		self.setIconSize(QSize(42, 42))
@@ -81,13 +84,18 @@ class ribbon_configure(QToolBar):
 
 		self.solar = QAction_lock("weather-few-clouds", _("Solar spectrum\ngenerator"), self,"solar_spectrum_tool")
 		self.solar.clicked.connect(self.callback_solar)
-		if inp().isfile("spectral2.inp")==True:
+		if is_gpvdm_next()==True:
 			self.addAction(self.solar)
 
 
 		self.mesh = QAction_lock("mesh", _("Electrical\nmesh"), self,"ribbon_config_mesh")
 		self.mesh.triggered.connect(self.callback_edit_mesh)
 		self.addAction(self.mesh)
+
+		if is_gpvdm_next()==True:
+			self.interfaces = QAction_lock("interfaces", _("Interfaces"), self,"ribbon_config_interfaces")
+			self.interfaces.triggered.connect(self.callback_interfaces)
+			self.addAction(self.interfaces)
 
 	def update(self):
 		if self.electrical_mesh!=None:
@@ -129,4 +137,16 @@ class ribbon_configure(QToolBar):
 			self.electrical_mesh.hide()
 		else:
 			self.electrical_mesh.show()
+
+	def callback_interfaces(self):
+		help_window().help_set_help(["interfaces.png",_("<big><b>Interface editor</b></big>\nUse this window to edit how electrical interfaces behave.")])
+
+		if self.electrical_interfaces==None:
+			self.electrical_interfaces=interface_editor()
+		if self.electrical_interfaces.isVisible()==True:
+			self.electrical_interfaces.hide()
+		else:
+			self.electrical_interfaces.show()
+
+
 

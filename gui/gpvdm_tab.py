@@ -32,6 +32,7 @@ from PyQt5.QtWidgets import QTextEdit, QAction, QMenu
 from PyQt5.QtCore import QSize, Qt , QPersistentModelIndex
 from PyQt5.QtWidgets import QWidget,QPushButton,QToolBar, QVBoxLayout, QTableWidget,QAbstractItemView, QTableWidgetItem, QComboBox, QApplication
 from PyQt5.QtGui import QCursor
+from PyQt5.QtCore import pyqtSignal
 
 from QComboBoxLang import QComboBoxLang
 from QComboBoxShape import QComboBoxShape
@@ -48,6 +49,9 @@ from str2bool import str2bool
 
 class gpvdm_tab(QTableWidget):
 
+	changed = pyqtSignal()
+	user_remove_rows = pyqtSignal()
+
 	def __init__(self,toolbar=None):
 		QTableWidget.__init__(self)
 		self.toolbar=toolbar
@@ -60,8 +64,9 @@ class gpvdm_tab(QTableWidget):
 			self.tb_add = QAction(icon_get("list-add"), _("Add"), self)
 			self.toolbar.addAction(self.tb_add)
 
-			self.tb_remove = QAction(icon_get("list-remove"), _("Remove"), self)
+			self.tb_remove = QAction(icon_get("list-remove"), _("Delete row"), self)
 			self.toolbar.addAction(self.tb_remove)
+			self.tb_remove.triggered.connect(self.emit_remove_rows)
 
 			self.tb_down= QAction(icon_get("go-down"), _("Move down"), self)
 			self.toolbar.addAction(self.tb_down)
@@ -78,9 +83,9 @@ class gpvdm_tab(QTableWidget):
 		self.menu.addAction(self.menu_paste)
 		self.menu_paste.triggered.connect(self.callback_menu_paste)
 
-		self.menu_delete = QAction(icon_get("list-remove"),_("Delete"), self)
+		self.menu_delete = QAction(icon_get("list-remove"),_("Delete row"), self)
 		self.menu.addAction(self.menu_delete)
-		self.menu_delete.triggered.connect(self.remove)
+		self.menu_delete.triggered.connect(self.emit_remove_rows)
 
 	def callback_menu_copy(self):
 		if self.rowCount()==0:
@@ -100,29 +105,6 @@ class gpvdm_tab(QTableWidget):
 		cb.setText(ret, mode=cb.Clipboard)
 
 
-		#	b=a+1
-		#	if b>self.rowCount()-1:
-		#		return -1
-
-		#	ret=a
-
-		#	av=[]
-		#	for i in range(0,self.columnCount()):
-		#		av.append(str(self.get_value(a,i)))
-
-		#	bv=[]
-		#	for i in range(0,self.columnCount()):
-		#		bv.append(str(self.get_value(b,i)))
-
-		#	for i in range(0,self.columnCount()):
-		#		self.set_value(b,i,str(av[i]))
-		#		self.set_value(a,i,str(bv[i]))
-
-		#	self.selectRow(b)
-		#	self.blockSignals(False)
-		#	return ret
-
-
 	def callback_menu_paste(self):
 		self.blockSignals(True)
 		cb = QApplication.clipboard()
@@ -139,10 +121,6 @@ class gpvdm_tab(QTableWidget):
 			self.set_value(y,x_start,l)
 			y=y+1
 
-		#for item in self.selectedIndexes():
-		#	print("selectedIndexes",  )
-		#if self.paste_callback!=None:
-		#	self.paste_callback()
 		self.blockSignals(False)
 
 	def contextMenuEvent(self, event):
@@ -333,23 +311,22 @@ class gpvdm_tab(QTableWidget):
 
 		return ret
 
+	def emit_remove_rows(self):
+		self.user_remove_rows.emit()
+
 	def remove(self):
 		self.blockSignals(True)
-		ret=[]
-		index = self.selectionModel().selectedRows()
-		if len(index)>0:
-			for i in range(0,len(index)):
-				ret.append(index[i].row())
-				break
 
-		index_list = []                                                          
-		for model_index in self.selectionModel().selectedRows():       
-			index = QPersistentModelIndex(model_index)         
-			index_list.append(index)                                             
+		rows = []
+		for index in self.selectedIndexes():
+			row=index.row()
+			if row not in rows:
+				rows.append(row) 
 
-		for index in index_list:                                      
-			self.removeRow(index.row()) 
-			
+		for row in sorted(rows, reverse=True):
+			self.removeRow(row)
+
 		self.blockSignals(False)
 
-		return ret
+		self.changed.emit()
+

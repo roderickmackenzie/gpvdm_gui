@@ -33,7 +33,6 @@ try:
 	from OpenGL.GLU import *
 	from PyQt5 import QtOpenGL
 	from PyQt5.QtOpenGL import QGLWidget
-	from gl_color import set_color
 	from gl_lib import val_to_rgb
 	from PyQt5.QtWidgets import QMenu
 	from gl_scale import scale_get_xmul
@@ -135,11 +134,10 @@ class gl_main_menu():
 	def save_image_as(self):
 		#self.random_device()
 		#return
-		ret=save_as_filter(self,"png (*.png)")
-		#print(ret)
+		ret=save_as_filter(self,"png (*.png);;3D object file (*.gobj)")
 		if ret!=False:
-			self.grabFrameBuffer().save(ret)
-			#gl_save_save(ret)
+			if ret.endswith("png"):
+				self.grabFrameBuffer().save(ret)
 
 	def menu_background_color(self):
 		col = QColorDialog.getColor(Qt.white, self)

@@ -21,8 +21,8 @@
 #
 # 
 
-## @package gl_lib
-#  general backend for the OpenGL viewer.
+## @package gl_photons
+#  Shows photons on the device
 #
 
 import sys
@@ -32,6 +32,7 @@ try:
 	from OpenGL.GLU import *
 	from PyQt5 import QtOpenGL
 	from PyQt5.QtOpenGL import QGLWidget
+	from gl_shapes import pyrmid
 	open_gl_ok=True
 except:
 	print("opengl error from gl_lib",sys.exc_info()[0])
@@ -45,48 +46,55 @@ from gl_scale import scale_get_ymul
 from gl_scale import scale_get_zmul
 
 from gl_base_object import gl_base_object
+from triangle import vec
 
-stars=[]
+from gl_scale import scale_get_device_y
+from gl_scale import scale_get_device_x
+from gl_scale import scale_get_device_z
 
-def gl_obj_id_starts_with(ids,val):
+class gl_photons():
 
-	found=False
-	for id in ids:
-		if id.startswith(val)==True:
-			found=True
-			break
-	return found
+	def draw_photons(self,x0,z0):
+		if self.false_color==True:
+			return
 
-
-def val_to_rgb(v):
-	if v>1.0:
-		v=0.99
-
-	mesh=[   0.0, 0.5, 1.0]
-	colors = [(0, 0, 1.0), (0, 1.0, 0), (1.0, 0, 0)]
-	i0=0
-	while(1):
-		if mesh[i0]<v:
-			i0=i0+1
+		up_photons=False
+		device_top=scale_get_device_y()
+		if self.light_illuminate_from=="bottom":
+			y=-1.5
+			up_photons=True
 		else:
-			i0=i0-1
-			break
+			y=device_top+0.5
 
-	i1 = i0+1
-	dx=1.0/(len(colors)-1)
-	#print(i0,v)
+		dx=scale_get_device_x()
 
-	f=(v-mesh[i0])/dx
-	#print(i0)
-	#print(i1)
-	#print(f)
-	#print(i_f)
-	#print(v)
-	#print(len(colors)-1)
-	#print(i)
-	#print(f)
-	(r0, g0, b0) = colors[i0]
-	(r1, g1, b1) = colors[i1]
-	#print(i0,i1,f,v,mesh[i0])
-	return r0 + f*(r1-r0), g0 + f*(g1-g0), b0 + f*(b1-b0)
+		if self.suns!=0:
+			if self.suns<=0.01:
+				den=dx/5
+			elif self.suns<=0.1:
+				den=dx/8
+			elif self.suns<=1.0:
+				den=dx/10
+			elif self.suns<=10.0:
+				den=dx/20
+			else:
+				den=dx/25
+
+			x=np.arange(x0+den/2.0, x0+scale_get_device_x() , den)
+			z=np.arange(z0+den/2.0, z0+scale_get_device_z() , den)
+
+			for i in range(0,len(x)):
+				for ii in range(0,len(z)):
+					self.draw_photon(x[i],y,z[ii],up_photons,0.0,1.0,0.0)
+
+		if self.emission==True and self.ray_model==False:
+			den=1.2
+			#x=np.arange(0, max_gui_device_x , den)
+			#y=np.arange(0, max_gui_device_z , den)
+			x=np.arange(x0, x0+scale_get_device_x() , den)
+			z=np.arange(z0, z0+scale_get_device_z() , den)
+
+			for i in range(0,len(x)):
+				for ii in range(0,len(z)):
+					self.draw_photon(x[i]+0.1,y+0.1,z[ii],True,0.0, 0.0, 1.0)
 

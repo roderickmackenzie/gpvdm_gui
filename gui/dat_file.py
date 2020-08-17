@@ -36,10 +36,17 @@ from str2bool import str2bool
 from triangle import triangle
 from quiver import quiver
 from component import component
+from gl_base_object import gl_base_object
+
 
 #search first 40 lines for dims
 def dat_file_load_info(output,lines):
+	#print(lines[0])
 	if len(lines)>1:
+		if lines[0]=="#gobj":
+			output.type="gobj"
+			return True
+
 		if lines[0]=="#gpvdm":
 			max_lines=len(lines)
 			if max_lines>40:
@@ -543,6 +550,19 @@ class dat_file():
 				for y in range(0,len(self.y_scale)):
 					self.data[z][x][y]=val
 
+	def chop_y(self,y0,y1):
+		if y0==0 and y1==0:
+			return
+
+		self.y_scale=self.y_scale[y0:y1]
+		self.y_len=len(self.y_scale)
+
+		for z in range(0,len(self.z_scale)):
+			for x in range(0,len(self.x_scale)):
+				self.data[z][x]=self.data[z][x][y0:y1]
+				#for y in range(0,len(self.y_scale)):
+				#	self.data[z][x][y]=val
+
 	def __mul__(self,in_data):
 		a=dat_file()
 		a.copy(self)
@@ -592,6 +612,37 @@ class dat_file():
 		self.z_scale= [0.0]*self.z_len
 		self.valid_data=True
 
+	def decode_gobj_lines(self,lines):
+		for line in lines:
+			o=gl_base_object()
+			l=line.split(";;")
+
+			#print(l)
+			if len(l)>1:
+				o.type=l[0]
+				o.xyz.x=float(l[1])
+				o.xyz.y=float(l[2])
+				o.xyz.z=float(l[3])
+
+				o.dxyz.x=float(l[4])
+				o.dxyz.y=float(l[5])
+				o.dxyz.z=float(l[6])
+
+				o.r=float(l[7])
+				o.g=float(l[8])
+				o.b=float(l[9])
+
+				o.alpha=float(l[10])
+
+				o.selected=str2bool(l[11])
+				o.selectable=str2bool(l[12])
+				o.moveable=str2bool(l[13])
+				o.allow_cut_view=str2bool(l[14])
+
+				o.text=l[15]
+				o.origonal_object=str2bool(l[16])
+
+				self.data.append(o)
 
 	def decode_circuit_lines(self,lines):
 		build=[]
@@ -748,6 +799,8 @@ class dat_file():
 				print("No idea what to do with this file!",file_name)
 				return False
 
+		if self.type=="gobj":
+			return self.decode_gobj_lines(lines)
 
 		if self.type=="poly":
 			return self.decode_poly_lines(lines)

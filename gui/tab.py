@@ -86,7 +86,7 @@ class tab_class(QWidget,tab_base):
 		spacer.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
 		self.vbox.addWidget(spacer)
 		self.main_box_widget.setLayout(self.vbox)
-		
+		self.scroll.setWidgetResizable(True)
 		self.scroll.setWidget(self.main_box_widget)
 
 		self.icon_widget=QWidget()

@@ -228,7 +228,7 @@ class class_optical(QWidgetSavePos):
 		
 
 	def mode_changed(self):
-		cb_text=self.ribbon.fx_box.get_text()
+		cb_text=self.ribbon.optics.fx_box.get_text()
 		if cb_text=="all":
 			self.fig_photon_density.set_data_file("light_1d_photons_tot_norm.dat")
 			self.fig_photon_density.draw_graph()
